@@ -2,10 +2,10 @@
 .settings
 .classpath
 .project
-target
 *.log
 *.log.*
 *.lock
 *~
 dependency-reduced-pom.xml
 Thumbs.db
+target/
