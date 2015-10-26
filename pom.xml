@@ -1,0 +1,463 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<prerequisites>
+		<maven>3.0</maven>
+	</prerequisites>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<blueprints.version>2.6.0</blueprints.version>
+		<hbase.version>1.1.2</hbase.version>
+		<slf4j.version>1.6.6</slf4j.version>
+	</properties>
+
+	<groupId>com.puresoltechnologies.hgraph</groupId>
+	<artifactId>hgraph-parent</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>HGraph: ${project.artifactId}</name>
+	<description>HGraph is PureSol Technologies' graph database for HBase and Hadoop.</description>
+
+	<inceptionYear>2015</inceptionYear>
+	<url>http://puresol-technologies.com</url>
+
+	<organization>
+		<name>PureSol Technologies</name>
+		<url>http://puresol-technologies.com</url>
+	</organization>
+
+	<licenses>
+		<license>
+			<name>GNU Affero General Public License</name>
+			<url>http://www.gnu.org/licenses/agpl-3.0.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<scm>
+		<developerConnection>scm:git:git@git:hgraph</developerConnection>
+		<connection>scm:git:git@git:hgraph</connection>
+		<url>http://git/gitweb/</url>
+		<tag>HEAD</tag>
+	</scm>
+
+	<developers>
+		<developer>
+			<name>Rick-Rainer Ludwig</name>
+			<email>ludwig@puresol-technologies.com</email>
+			<organization>PureSol Technologies</organization>
+			<organizationUrl>http://puresol-technologies.com</organizationUrl>
+			<url>http://rick-rainer-ludwig.com</url>
+		</developer>
+	</developers>
+
+	<issueManagement>
+		<system>Redmine</system>
+		<url>https://bugs.puresol-technologies.net/projects/hgraph</url>
+	</issueManagement>
+
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://ci.puresol-technologies.net</url>
+	</ciManagement>
+
+	<distributionManagement>
+		<site>
+			<id>FTPPureSolTechnologiesCom</id>
+			<name>FTPPureSolTechnologiesCom</name>
+			<url>ftp://puresol-technologies.com/opensource/hgraph</url>
+		</site>
+		<repository>
+			<id>libs-release-local</id>
+			<name>Repository libs-release-local</name>
+			<url>http://repo.puresol-technologies.net/libs-release-local</url>
+		</repository>
+		<snapshotRepository>
+			<id>libs-snapshot-local</id>
+			<name>Repository libs-snapshot-local</name>
+			<url>http://repo.puresol-technologies.net/libs-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>libs-release</name>
+			<url>http://repo/libs-release</url>
+		</repository>
+		<repository>
+			<snapshots />
+			<id>snapshots</id>
+			<name>libs-snapshot</name>
+			<url>http://repo/libs-snapshot</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>plugins-release</name>
+			<url>http://repo/plugins-release</url>
+		</pluginRepository>
+		<pluginRepository>
+			<snapshots />
+			<id>snapshots</id>
+			<name>plugins-snapshot</name>
+			<url>http://repo/plugins-snapshot</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<profiles>
+		<profile>
+			<id>it</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-failsafe-plugin</artifactId>
+						<version>2.18.1</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>integration-test</goal>
+									<goal>verify</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<forkCount>1</forkCount>
+							<reuseForks>false</reuseForks>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.puresoltechnologies.maven.plugins</groupId>
+						<artifactId>license-maven-plugin</artifactId>
+						<version>1.2.1</version>
+						<executions>
+							<execution>
+								<phase>validate</phase>
+								<goals>
+									<goal>validate</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<recursive>true</recursive>
+							<skipTestScope>true</skipTestScope>
+							<skipProvidedScope>true</skipProvidedScope>
+							<skipOptionals>true</skipOptionals>
+							<knownLicenses>
+								<knownLicense>
+									<name>The Apache Software License, Version 1.1</name>
+									<url>https://www.apache.org/licenses/LICENSE-1.1</url>
+									<approvedDependencies>
+										<approvedDependency>avalon-framework:avalon-framework:4\.1\.3</approvedDependency>
+									</approvedDependencies>
+								</knownLicense>
+								<knownLicense>
+									<name>Apache License, Version 2.0</name>
+									<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+									<aliases>
+										<alias>The Apache Software License, Version 2.0</alias>
+									</aliases>
+									<approvedDependencies>
+										<approvedDependency>commons-beanutils:commons-beanutils:1\.7\.0</approvedDependency>
+										<approvedDependency>commons-logging:commons-logging:1\.0\.3</approvedDependency>
+										<approvedDependency>log4j:log4j:1\.2\.12</approvedDependency>
+										<approvedDependency>logkit:logkit:1\.0\.1</approvedDependency>
+									</approvedDependencies>
+								</knownLicense>
+								<knownLicense>
+									<name>The BSD 3-Clause License</name>
+									<url>http://opensource.org/licenses/BSD-3-Clause</url>
+									<aliases>
+										<alias>BSD 3-Clause</alias>
+										<alias>New BSD License</alias>
+									</aliases>
+								</knownLicense>
+								<knownLicense>
+									<name><![CDATA[Common Development and Distribution License (CDDL-1.0)]]></name>
+									<url>http://opensource.org/licenses/CDDL-1.0</url>
+									<approvedDependencies>
+										<approvedDependency>javax\.servlet:servlet-api:.*</approvedDependency>
+									</approvedDependencies>
+								</knownLicense>
+								<knownLicense>
+									<name>Common Public License Version 1.0 (CPL)</name>
+									<url>http://opensource.org/licenses/cpl1.0.php</url>
+									<aliases>
+										<alias>Common Public License Version 1.0</alias>
+									</aliases>
+								</knownLicense>
+								<knownLicense>
+									<name>GNU Affero General Public License</name>
+									<url>http://www.gnu.org/licenses/agpl-3.0.txt</url>
+								</knownLicense>
+								<knownLicense>
+									<name>GNU Lesser General Public License, Version 2.1</name>
+									<url>http://www.gnu.org/licenses/lgpl-2.1.txt</url>
+								</knownLicense>
+							</knownLicenses>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>m2e</id>
+			<activation>
+				<property>
+					<name>m2e.version</name>
+				</property>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<!--This plugin's configuration is used to store Eclipse m2e settings 
+							only. It has no influence on the Maven build itself. -->
+						<plugin>
+							<groupId>org.eclipse.m2e</groupId>
+							<artifactId>lifecycle-mapping</artifactId>
+							<version>1.0.0</version>
+							<configuration>
+								<lifecycleMappingMetadata>
+									<pluginExecutions>
+										<pluginExecution>
+											<pluginExecutionFilter>
+												<groupId>
+													com.puresoltechnologies.maven.plugins
+												</groupId>
+												<artifactId>
+													license-maven-plugin
+												</artifactId>
+												<versionRange>
+													[1.2.0,)
+												</versionRange>
+												<goals>
+													<goal>validate</goal>
+												</goals>
+											</pluginExecutionFilter>
+											<action>
+												<ignore />
+											</action>
+										</pluginExecution>
+										<pluginExecution>
+											<pluginExecutionFilter>
+												<groupId>
+													org.codehaus.mojo
+												</groupId>
+												<artifactId>
+													build-helper-maven-plugin
+												</artifactId>
+												<versionRange>
+													[1.9.1,)
+												</versionRange>
+												<goals>
+													<goal>
+														timestamp-property
+													</goal>
+												</goals>
+											</pluginExecutionFilter>
+											<action>
+												<ignore />
+											</action>
+										</pluginExecution>
+										<pluginExecution>
+											<pluginExecutionFilter>
+												<groupId>
+													org.apache.maven.plugins
+												</groupId>
+												<artifactId>
+													maven-enforcer-plugin
+												</artifactId>
+												<versionRange>
+													[1.4,)
+												</versionRange>
+												<goals>
+													<goal>enforce</goal>
+												</goals>
+											</pluginExecutionFilter>
+											<action>
+												<ignore />
+											</action>
+										</pluginExecution>
+									</pluginExecutions>
+								</lifecycleMappingMetadata>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.puresoltechnologies.hgraph</groupId>
+				<artifactId>hgraph-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.hbase</groupId>
+				<artifactId>hbase-client</artifactId>
+				<version>${hbase.version}</version>
+				<scope>provided</scope>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>com.tinkerpop.blueprints</groupId>
+				<artifactId>blueprints-core</artifactId>
+				<version>${blueprints.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.tinkerpop.blueprints</groupId>
+				<artifactId>blueprints-test</artifactId>
+				<version>${blueprints.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.1</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+						<encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<archive>
+							<index>true</index>
+							<manifestEntries>
+								<Specification-Title>${project.name}</Specification-Title>
+								<Specification-Version>${project.version}</Specification-Version>
+								<Specification-Vendor>${project.organization.name}</Specification-Vendor>
+								<Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+								<Implementation-Version>${project.version}</Implementation-Version>
+								<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+								<Vendor-URL>${project.organization.url}</Vendor-URL>
+								<Project-URL>${project.url}</Project-URL>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+							<configuration>
+								<archive>
+									<index>true</index>
+									<manifestEntries>
+										<Specification-Title>${project.name}</Specification-Title>
+										<Specification-Version>${project.version}</Specification-Version>
+										<Specification-Vendor>${project.organization.name}</Specification-Vendor>
+										<Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+										<Implementation-Version>${project.version}</Implementation-Version>
+										<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+										<Vendor-URL>${project.organization.url}</Vendor-URL>
+										<Project-URL>${project.url}</Project-URL>
+									</manifestEntries>
+								</archive>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>2.6.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>2.5</version>
+					<configuration>
+						<escapeString>\</escapeString>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.2</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.scm</groupId>
+						<artifactId>maven-scm-provider-gitexe</artifactId>
+						<version>1.9.4</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<tagNameFormat>server-v@{project.version}</tagNameFormat>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+					<useReleaseProfile>false</useReleaseProfile>
+					<arguments> -Prelease</arguments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<modules>
+		<module>core</module>
+		<module>test</module>
+	</modules>
+
+</project>
