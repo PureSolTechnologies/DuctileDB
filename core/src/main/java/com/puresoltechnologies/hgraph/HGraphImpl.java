@@ -137,6 +137,24 @@ public class HGraphImpl implements HGraph {
     }
 
     @Override
+    public HGraphVertex addVertex(Object vertexId, Set<String> labels, Map<String, Object> properties) {
+	byte[] id = encodeKey(vertexId);
+	Put put = new Put(id);
+	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, HGRAPH_ID_PROPERTY_BYTES,
+		SerializationUtils.serialize((Serializable) vertexId));
+	for (String label : labels) {
+	    put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));
+	}
+	for (Entry<String, Object> property : properties.entrySet()) {
+	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
+		    SerializationUtils.serialize((Serializable) property.getValue()));
+	}
+	getCurrentTransaction().put(VERTICES_TABLE_NAME, put);
+	properties.put(HGRAPH_ID_PROPERTY, vertexId);
+	return new HGraphVertexImpl(this, id, labels, properties);
+    }
+
+    @Override
     public Edge getEdge(Object edgeId) {
 	// TODO Auto-generated method stub
 	return null;

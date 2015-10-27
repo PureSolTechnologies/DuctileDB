@@ -6,7 +6,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -98,6 +102,33 @@ public class HGraphVertexIT extends AbstractHGraphTest {
 	    double speed = (double) number / (double) duration * 1000.0;
 	    System.out.println("time: " + duration + "ms");
 	    System.out.println("speed: " + speed + " vertices/s");
+	    System.out.println("speed: " + 1000 / speed + " ms/vertex");
+	    assertTrue(duration < 10000);
+	}
+    }
+
+    @Test
+    public void testFullVertexCreationPerformance() throws IOException {
+	try (HGraph graph = GraphFactory.createGraph()) {
+	    long start = System.currentTimeMillis();
+	    int number = 10000;
+	    for (int i = 0; i < number; ++i) {
+		Set<String> labels = new HashSet<>();
+		Map<String, Object> properties = new HashMap<>();
+		for (int j = 0; j < 10; ++j) {
+		    labels.add("label" + j);
+		    properties.put("property" + j, j);
+		}
+		Vertex vertex = graph.addVertex("TestId" + i, labels, properties);
+		assertEquals("TestId" + i, vertex.getId().toString());
+	    }
+	    graph.commit();
+	    long stop = System.currentTimeMillis();
+	    long duration = stop - start;
+	    double speed = (double) number / (double) duration * 1000.0;
+	    System.out.println("time: " + duration + "ms");
+	    System.out.println("speed: " + speed + " full_vertices/s");
+	    System.out.println("speed: " + 1000 / speed + " ms/full_vertex");
 	    assertTrue(duration < 10000);
 	}
     }
@@ -118,6 +149,7 @@ public class HGraphVertexIT extends AbstractHGraphTest {
 	    double speed = (double) number / (double) duration * 1000.0;
 	    System.out.println("time: " + duration + "ms");
 	    System.out.println("speed: " + speed + " properties/s");
+	    System.out.println("speed: " + 1000 / speed + " ms/property");
 	    assertTrue(duration < 10000);
 	}
     }
@@ -138,6 +170,7 @@ public class HGraphVertexIT extends AbstractHGraphTest {
 	    double speed = (double) number / (double) duration * 1000.0;
 	    System.out.println("time: " + duration + "ms");
 	    System.out.println("speed: " + speed + " labels/s");
+	    System.out.println("speed: " + 1000 / speed + " ms/label");
 	    assertTrue(duration < 10000);
 	}
     }

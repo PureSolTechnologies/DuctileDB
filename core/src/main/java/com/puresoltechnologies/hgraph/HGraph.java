@@ -1,6 +1,8 @@
 package com.puresoltechnologies.hgraph;
 
 import java.io.Closeable;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.hadoop.hbase.client.Connection;
 
@@ -17,6 +19,8 @@ public interface HGraph extends TransactionalGraph, Closeable {
 
     @Override
     public HGraphVertex addVertex(Object id);
+
+    public HGraphVertex addVertex(Object id, Set<String> labels, Map<String, Object> properties);
 
     @Override
     public HGraphVertex getVertex(Object id);
