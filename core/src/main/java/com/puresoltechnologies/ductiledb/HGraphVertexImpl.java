@@ -1,4 +1,4 @@
-package com.puresoltechnologies.hgraph;
+package com.puresoltechnologies.ductiledb;
 
 import java.util.Arrays;
 import java.util.HashMap;

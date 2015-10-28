@@ -1,4 +1,4 @@
-package com.puresoltechnologies.hgraph.tx;
+package com.puresoltechnologies.ductiledb.tx;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 
-import com.puresoltechnologies.hgraph.HGraphException;
+import com.puresoltechnologies.ductiledb.HGraphException;
 
 /**
  * This transaction is used per thread to record changes in the graph to be

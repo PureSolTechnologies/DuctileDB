@@ -1,4 +1,4 @@
-package com.puresoltechnologies.hgraph;
+package com.puresoltechnologies.ductiledb;
 
 /**
  * General purpose exception for all HGraph related issues.

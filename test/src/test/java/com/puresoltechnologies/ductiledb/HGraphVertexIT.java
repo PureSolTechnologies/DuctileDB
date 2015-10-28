@@ -1,4 +1,4 @@
-package com.puresoltechnologies.hgraph;
+package com.puresoltechnologies.ductiledb;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,6 +14,10 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.AbstractHGraphTest;
+import com.puresoltechnologies.ductiledb.GraphFactory;
+import com.puresoltechnologies.ductiledb.HGraph;
+import com.puresoltechnologies.ductiledb.HGraphVertex;
 import com.tinkerpop.blueprints.Vertex;
 
 public class HGraphVertexIT extends AbstractHGraphTest {

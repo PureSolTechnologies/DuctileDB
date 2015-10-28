@@ -1,4 +1,4 @@
-package com.puresoltechnologies.hgraph.tx;
+package com.puresoltechnologies.ductiledb.tx;
 
 public enum OperationType {
 

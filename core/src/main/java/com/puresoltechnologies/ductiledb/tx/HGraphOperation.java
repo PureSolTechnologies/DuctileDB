@@ -1,4 +1,4 @@
-package com.puresoltechnologies.hgraph.tx;
+package com.puresoltechnologies.ductiledb.tx;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;

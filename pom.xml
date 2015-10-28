@@ -14,13 +14,13 @@
 		<slf4j.version>1.6.6</slf4j.version>
 	</properties>
 
-	<groupId>com.puresoltechnologies.hgraph</groupId>
-	<artifactId>hgraph-parent</artifactId>
+	<groupId>com.puresoltechnologies.ductiledb</groupId>
+	<artifactId>ductiledb-parent</artifactId>
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>HGraph: ${project.artifactId}</name>
-	<description>HGraph is PureSol Technologies' graph database for HBase and Hadoop.</description>
+	<name>DuctileDB: ${project.artifactId}</name>
+	<description>DuctileDB is PureSol Technologies' graph database for HBase and Hadoop.</description>
 
 	<inceptionYear>2015</inceptionYear>
 	<url>http://puresol-technologies.com</url>
@@ -39,8 +39,8 @@
 	</licenses>
 
 	<scm>
-		<developerConnection>scm:git:git@git:hgraph</developerConnection>
-		<connection>scm:git:git@git:hgraph</connection>
+		<developerConnection>scm:git:git@git:ductiledb</developerConnection>
+		<connection>scm:git:git@git:ductiledb</connection>
 		<url>http://git/gitweb/</url>
 		<tag>HEAD</tag>
 	</scm>
@@ -57,7 +57,7 @@
 
 	<issueManagement>
 		<system>Redmine</system>
-		<url>https://bugs.puresol-technologies.net/projects/hgraph</url>
+		<url>https://bugs.puresol-technologies.net/projects/ductiledb</url>
 	</issueManagement>
 
 	<ciManagement>
@@ -69,7 +69,7 @@
 		<site>
 			<id>FTPPureSolTechnologiesCom</id>
 			<name>FTPPureSolTechnologiesCom</name>
-			<url>ftp://puresol-technologies.com/opensource/hgraph</url>
+			<url>ftp://puresol-technologies.com/opensource/ductiledb</url>
 		</site>
 		<repository>
 			<id>libs-release-local</id>
@@ -311,8 +311,8 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>com.puresoltechnologies.hgraph</groupId>
-				<artifactId>hgraph-core</artifactId>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>ductiledb-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
