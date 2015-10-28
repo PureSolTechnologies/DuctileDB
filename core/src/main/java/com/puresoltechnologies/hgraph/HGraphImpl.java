@@ -120,20 +120,19 @@ public class HGraphImpl implements HGraph {
 
     @Override
     public HGraphEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType) {
+	return addEdge(edgeId, startVertex, targetVertex, edgeType, new HashMap<>());
+    }
+
+    @Override
+    public HGraphEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType,
+	    Map<String, Object> properties) {
 	// TODO Auto-generated method stub
 	return null;
     }
 
     @Override
     public HGraphVertex addVertex(Object vertexId) {
-	byte[] id = encodeKey(vertexId);
-	Put put = new Put(id);
-	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, HGRAPH_ID_PROPERTY_BYTES,
-		SerializationUtils.serialize((Serializable) vertexId));
-	getCurrentTransaction().put(VERTICES_TABLE_NAME, put);
-	Map<String, Object> properties = new HashMap<>();
-	properties.put(HGRAPH_ID_PROPERTY, vertexId);
-	return new HGraphVertexImpl(this, id, new HashSet<>(), properties);
+	return addVertex(vertexId, new HashSet<>(), new HashMap<>());
     }
 
     @Override
@@ -143,7 +142,7 @@ public class HGraphImpl implements HGraph {
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, HGRAPH_ID_PROPERTY_BYTES,
 		SerializationUtils.serialize((Serializable) vertexId));
 	for (String label : labels) {
-	    put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));
+	    put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), new byte[] { 0 });
 	}
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
