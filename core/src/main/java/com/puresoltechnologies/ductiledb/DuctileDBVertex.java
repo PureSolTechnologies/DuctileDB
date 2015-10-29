@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public interface HGraphVertex extends Vertex {
+public interface DuctileDBVertex extends Vertex {
 
     public Iterable<String> getLabels();
 

@@ -4,15 +4,15 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.AbstractHGraphTest;
+import com.puresoltechnologies.ductiledb.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.GraphFactory;
-import com.puresoltechnologies.ductiledb.HGraph;
+import com.puresoltechnologies.ductiledb.DuctileDBGraph;
 
-public class GraphFactoryIT extends AbstractHGraphTest {
+public class GraphFactoryIT extends AbstractDuctileDBTest {
 
     @Test
     public void testConnection() throws IOException {
-	try (HGraph graph = GraphFactory.createGraph()) {
+	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
 
 	}
     }

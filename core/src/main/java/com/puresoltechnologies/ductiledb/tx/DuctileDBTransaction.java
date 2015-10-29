@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 
-import com.puresoltechnologies.ductiledb.HGraphException;
+import com.puresoltechnologies.ductiledb.DuctileDBException;
 
 /**
  * This transaction is used per thread to record changes in the graph to be
@@ -21,48 +21,78 @@ import com.puresoltechnologies.ductiledb.HGraphException;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class HGraphTransaction {
+public class DuctileDBTransaction {
 
-    public final Map<TableName, List<HGraphOperation>> tableOperations = new HashMap<>();
+    public final Map<TableName, List<DuctileDBOperation>> tableOperations = new HashMap<>();
 
     public void put(String tableName, Put put) {
 	TableName table = TableName.valueOf(tableName);
-	List<HGraphOperation> operationList = tableOperations.get(table);
+	List<DuctileDBOperation> operationList = tableOperations.get(table);
 	if (operationList == null) {
 	    operationList = new ArrayList<>();
 	    tableOperations.put(table, operationList);
 	}
-	operationList.add(new HGraphOperation(put));
+	operationList.add(new DuctileDBOperation(put));
+    }
+
+    public void put(String tableName, List<Put> puts) {
+	if (puts.isEmpty()) {
+	    return;
+	}
+	TableName table = TableName.valueOf(tableName);
+	List<DuctileDBOperation> operationList = tableOperations.get(table);
+	if (operationList == null) {
+	    operationList = new ArrayList<>();
+	    tableOperations.put(table, operationList);
+	}
+	for (Put put : puts) {
+	    operationList.add(new DuctileDBOperation(put));
+	}
     }
 
     public void delete(String tableName, Delete delete) {
 	TableName table = TableName.valueOf(tableName);
-	List<HGraphOperation> operationList = tableOperations.get(table);
+	List<DuctileDBOperation> operationList = tableOperations.get(table);
 	if (operationList == null) {
 	    operationList = new ArrayList<>();
 	    tableOperations.put(table, operationList);
 	}
-	operationList.add(new HGraphOperation(delete));
+	operationList.add(new DuctileDBOperation(delete));
+    }
+
+    public void delete(String tableName, List<Delete> deletes) {
+	if (deletes.isEmpty()) {
+	    return;
+	}
+	TableName table = TableName.valueOf(tableName);
+	List<DuctileDBOperation> operationList = tableOperations.get(table);
+	if (operationList == null) {
+	    operationList = new ArrayList<>();
+	    tableOperations.put(table, operationList);
+	}
+	for (Delete delete : deletes) {
+	    operationList.add(new DuctileDBOperation(delete));
+	}
     }
 
     public void commit(Connection connection) {
 	try {
-	    for (Entry<TableName, List<HGraphOperation>> entry : tableOperations.entrySet()) {
+	    for (Entry<TableName, List<DuctileDBOperation>> entry : tableOperations.entrySet()) {
 		mutateTable(connection, entry.getKey(), entry.getValue());
 	    }
 	    tableOperations.clear();
 	} catch (IOException e) {
-	    throw new HGraphException("Could not cmomit changes.", e);
+	    throw new DuctileDBException("Could not cmomit changes.", e);
 	}
     }
 
-    private void mutateTable(Connection connection, TableName tableName, List<HGraphOperation> operations)
+    private void mutateTable(Connection connection, TableName tableName, List<DuctileDBOperation> operations)
 	    throws IOException {
 	try (Table table = connection.getTable(tableName)) {
 	    List<Put> puts = new ArrayList<>();
 	    List<Delete> deletes = new ArrayList<>();
 	    OperationType currentOperationType = null;
-	    for (HGraphOperation operation : operations) {
+	    for (DuctileDBOperation operation : operations) {
 		if (currentOperationType != operation.getOperationType()) {
 		    if (currentOperationType != null) {
 			switch (currentOperationType) {
@@ -75,7 +105,7 @@ public class HGraphTransaction {
 			    deletes.clear();
 			    break;
 			default:
-			    throw new HGraphException(
+			    throw new DuctileDBException(
 				    "Operation type '" + currentOperationType + "' is not implemented.");
 			}
 		    }
@@ -89,7 +119,7 @@ public class HGraphTransaction {
 		    deletes.add(operation.getDelete());
 		    break;
 		default:
-		    throw new HGraphException("Operation type '" + currentOperationType + "' is not implemented.");
+		    throw new DuctileDBException("Operation type '" + currentOperationType + "' is not implemented.");
 		}
 	    }
 	    switch (currentOperationType) {
@@ -100,7 +130,7 @@ public class HGraphTransaction {
 		table.delete(deletes);
 		break;
 	    default:
-		throw new HGraphException("Operation type '" + currentOperationType + "' is not implemented.");
+		throw new DuctileDBException("Operation type '" + currentOperationType + "' is not implemented.");
 	    }
 	}
     }

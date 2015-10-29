@@ -12,14 +12,14 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.VertexQuery;
 
-public class HGraphVertexImpl implements HGraphVertex {
+public class DuctileDBVertexImpl implements DuctileDBVertex {
 
-    private final HGraphImpl hgraph;
+    private final DuctileDBGraphImpl hgraph;
     private final byte[] id;
     private final Set<String> labels = new HashSet<>();
     private final Map<String, Object> properties = new HashMap<>();
 
-    public HGraphVertexImpl(HGraphImpl hgraph, byte[] id, Set<String> labels, Map<String, Object> properties) {
+    public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, byte[] id, Set<String> labels, Map<String, Object> properties) {
 	this.hgraph = hgraph;
 	this.id = id;
 	this.labels.addAll(labels);
@@ -43,7 +43,7 @@ public class HGraphVertexImpl implements HGraphVertex {
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	HGraphVertexImpl other = (HGraphVertexImpl) obj;
+	DuctileDBVertexImpl other = (DuctileDBVertexImpl) obj;
 	if (!Arrays.equals(id, other.id))
 	    return false;
 	if (properties == null) {
@@ -110,7 +110,7 @@ public class HGraphVertexImpl implements HGraphVertex {
 
     @Override
     public Object getId() {
-	return HGraphImpl.decodeRowKey(id);
+	return DuctileDBGraphImpl.decodeRowKey(id);
     }
 
     @Override

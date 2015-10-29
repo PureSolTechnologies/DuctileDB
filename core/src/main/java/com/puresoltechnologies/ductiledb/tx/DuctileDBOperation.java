@@ -3,20 +3,20 @@ package com.puresoltechnologies.ductiledb.tx;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 
-public class HGraphOperation {
+public class DuctileDBOperation {
 
     private final OperationType operationType;
     private final Put put;
     private final Delete delete;
 
-    public HGraphOperation(Put put) {
+    public DuctileDBOperation(Put put) {
 	super();
 	this.operationType = OperationType.PUT;
 	this.put = put;
 	this.delete = null;
     }
 
-    public HGraphOperation(Delete delete) {
+    public DuctileDBOperation(Delete delete) {
 	super();
 	this.operationType = OperationType.DELETE;
 	this.put = null;

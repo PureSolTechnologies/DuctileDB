@@ -7,14 +7,14 @@ import java.util.Set;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
-public class HGraphEdgeImpl implements HGraphEdge {
+public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
     private final String label;
-    private final HGraphVertex startVertex;
-    private final HGraphVertex targetVertex;
+    private final DuctileDBVertex startVertex;
+    private final DuctileDBVertex targetVertex;
     private final Map<String, Object> properties = new HashMap<>();
 
-    public HGraphEdgeImpl(String label, HGraphVertex startVertex, HGraphVertex targetVertex) {
+    public DuctileDBEdgeImpl(String label, DuctileDBVertex startVertex, DuctileDBVertex targetVertex) {
 	super();
 	this.label = label;
 	this.startVertex = startVertex;

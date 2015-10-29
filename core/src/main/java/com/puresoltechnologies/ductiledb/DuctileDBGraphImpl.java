@@ -2,8 +2,11 @@ package com.puresoltechnologies.ductiledb;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -23,60 +26,56 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.tx.HGraphTransaction;
+import com.puresoltechnologies.ductiledb.tx.DuctileDBTransaction;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Features;
 import com.tinkerpop.blueprints.GraphQuery;
 import com.tinkerpop.blueprints.Vertex;
 
-public class HGraphImpl implements HGraph {
+public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     static final String NAMESPACE_NAME = "hgraph";
     static final String VERTICES_TABLE_NAME = NAMESPACE_NAME + ":vertices";
+    static final String PROPERTIES_TABLE_NAME = NAMESPACE_NAME + ":properties";
+    static final String LABELS_TABLE_NAME = NAMESPACE_NAME + ":labels";
+
     static final String LABELS_COLUMN_FAMILIY = "labels";
     static final byte[] LABELS_COLUMN_FAMILIY_BYTES = Bytes.toBytes(LABELS_COLUMN_FAMILIY);
+
     static final String EDGES_COLUMN_FAMILY = "edges";
     static final byte[] EDGES_COLUMN_FAMILY_BYTES = Bytes.toBytes(EDGES_COLUMN_FAMILY);
+
     static final String PROPERTIES_COLUMN_FAMILY = "properties";
     static final byte[] PROPERTIES_COLUMN_FAMILY_BYTES = Bytes.toBytes(PROPERTIES_COLUMN_FAMILY);
+
+    static final String INDEX_COLUMN_FAMILY = "index";
+    static final byte[] INDEX_COLUMN_FAMILY_BYTES = Bytes.toBytes(INDEX_COLUMN_FAMILY);
+
     static final String HGRAPH_ID_PROPERTY = "hgraph.id";
     static final byte[] HGRAPH_ID_PROPERTY_BYTES = Bytes.toBytes(HGRAPH_ID_PROPERTY);
 
-    private final ThreadLocal<HGraphTransaction> transactions = new ThreadLocal<HGraphTransaction>() {
+    private final ThreadLocal<DuctileDBTransaction> transactions = new ThreadLocal<DuctileDBTransaction>() {
 	@Override
-	protected HGraphTransaction initialValue() {
-	    return new HGraphTransaction();
+	protected DuctileDBTransaction initialValue() {
+	    return new DuctileDBTransaction();
 	}
     };
 
     private final Connection connection;
 
-    public HGraphImpl(Connection connection) throws IOException {
+    public DuctileDBGraphImpl(Connection connection) throws IOException {
 	this.connection = connection;
 	checkAndCreateEnvironment();
-	openVertexTable();
     }
 
     private void checkAndCreateEnvironment() throws IOException {
 	try (Admin admin = connection.getAdmin()) {
 	    assureNamespacePresence(admin);
-	    assureVertexTablePresence(admin);
+	    assureVerticesTablePresence(admin);
+	    assureLabelsTablePresence(admin);
+	    assurePropertiesTablePresence(admin);
 	}
-    }
-
-    private void assureVertexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(VERTICES_TABLE_NAME))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(VERTICES_TABLE_NAME));
-	    HColumnDescriptor labelColumnFamily = new HColumnDescriptor(LABELS_COLUMN_FAMILIY);
-	    descriptor.addFamily(labelColumnFamily);
-	    HColumnDescriptor edgesColumnFamily = new HColumnDescriptor(EDGES_COLUMN_FAMILY);
-	    descriptor.addFamily(edgesColumnFamily);
-	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILY);
-	    descriptor.addFamily(propertiesColumnFamily);
-	    admin.createTable(descriptor);
-	}
-
     }
 
     private void assureNamespacePresence(Admin admin) throws IOException {
@@ -92,6 +91,37 @@ public class HGraphImpl implements HGraph {
 	}
     }
 
+    private void assureVerticesTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(TableName.valueOf(VERTICES_TABLE_NAME))) {
+	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(VERTICES_TABLE_NAME));
+	    HColumnDescriptor labelColumnFamily = new HColumnDescriptor(LABELS_COLUMN_FAMILIY);
+	    descriptor.addFamily(labelColumnFamily);
+	    HColumnDescriptor edgesColumnFamily = new HColumnDescriptor(EDGES_COLUMN_FAMILY);
+	    descriptor.addFamily(edgesColumnFamily);
+	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILY);
+	    descriptor.addFamily(propertiesColumnFamily);
+	    admin.createTable(descriptor);
+	}
+    }
+
+    private void assureLabelsTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(TableName.valueOf(LABELS_TABLE_NAME))) {
+	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(LABELS_TABLE_NAME));
+	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
+	    descriptor.addFamily(indexColumnFamily);
+	    admin.createTable(descriptor);
+	}
+    }
+
+    private void assurePropertiesTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(TableName.valueOf(PROPERTIES_TABLE_NAME))) {
+	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(PROPERTIES_TABLE_NAME));
+	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
+	    descriptor.addFamily(indexColumnFamily);
+	    admin.createTable(descriptor);
+	}
+    }
+
     @Override
     public void close() throws IOException {
 	connection.close();
@@ -102,12 +132,20 @@ public class HGraphImpl implements HGraph {
 	return connection;
     }
 
-    private HGraphTransaction getCurrentTransaction() {
+    private DuctileDBTransaction getCurrentTransaction() {
 	return transactions.get();
     }
 
     private Table openVertexTable() throws IOException {
 	return connection.getTable(TableName.valueOf(VERTICES_TABLE_NAME));
+    }
+
+    private Table openPropertyTable() throws IOException {
+	return connection.getTable(TableName.valueOf(PROPERTIES_TABLE_NAME));
+    }
+
+    private Table openLabelTable() throws IOException {
+	return connection.getTable(TableName.valueOf(LABELS_TABLE_NAME));
     }
 
     static final byte[] encodeKey(Object id) {
@@ -119,42 +157,53 @@ public class HGraphImpl implements HGraph {
     }
 
     @Override
-    public HGraphEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType) {
+    public DuctileDBEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType) {
 	return addEdge(edgeId, startVertex, targetVertex, edgeType, new HashMap<>());
     }
 
     @Override
-    public HGraphEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType,
+    public DuctileDBEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType,
 	    Map<String, Object> properties) {
 	// TODO Auto-generated method stub
 	return null;
     }
 
     @Override
-    public HGraphVertex addVertex(Object vertexId) {
+    public DuctileDBVertex addVertex(Object vertexId) {
 	return addVertex(vertexId, new HashSet<>(), new HashMap<>());
     }
 
     @Override
-    public HGraphVertex addVertex(Object vertexId, Set<String> labels, Map<String, Object> properties) {
+    public DuctileDBVertex addVertex(Object vertexId, Set<String> labels, Map<String, Object> properties) {
 	byte[] id = encodeKey(vertexId);
 	Put put = new Put(id);
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, HGRAPH_ID_PROPERTY_BYTES,
 		SerializationUtils.serialize((Serializable) vertexId));
+	List<Put> labelIndex = new ArrayList<>();
 	for (String label : labels) {
+	    Put index = new Put(Bytes.toBytes(label));
+	    index.addColumn(INDEX_COLUMN_FAMILY_BYTES, id, Bytes.toBytes(0));
+	    labelIndex.add(index);
 	    put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), new byte[] { 0 });
 	}
+	List<Put> propertyIndex = new ArrayList<>();
 	for (Entry<String, Object> property : properties.entrySet()) {
+	    Put index = new Put(Bytes.toBytes(property.getKey()));
+	    index.addColumn(INDEX_COLUMN_FAMILY_BYTES, id,
+		    SerializationUtils.serialize((Serializable) property.getValue()));
+	    propertyIndex.add(index);
 	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
 		    SerializationUtils.serialize((Serializable) property.getValue()));
 	}
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, put);
+	getCurrentTransaction().put(LABELS_TABLE_NAME, labelIndex);
+	getCurrentTransaction().put(PROPERTIES_TABLE_NAME, propertyIndex);
 	properties.put(HGRAPH_ID_PROPERTY, vertexId);
-	return new HGraphVertexImpl(this, id, labels, properties);
+	return new DuctileDBVertexImpl(this, id, labels, properties);
     }
 
     @Override
-    public Edge getEdge(Object edgeId) {
+    public DuctileDBEdge getEdge(Object edgeId) {
 	// TODO Auto-generated method stub
 	return null;
     }
@@ -177,7 +226,7 @@ public class HGraphImpl implements HGraph {
     }
 
     @Override
-    public HGraphVertex getVertex(Object vertexId) {
+    public DuctileDBVertex getVertex(Object vertexId) {
 	try (Table vertexTable = openVertexTable()) {
 	    byte[] id = encodeKey(vertexId);
 	    Get get = new Get(id);
@@ -185,7 +234,6 @@ public class HGraphImpl implements HGraph {
 	    if (result.isEmpty()) {
 		return null;
 	    }
-	    // TODO read edges and labels
 	    // Reading labels...
 	    Set<String> labels = new HashSet<>();
 	    NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
@@ -204,9 +252,10 @@ public class HGraphImpl implements HGraph {
 		    properties.put(key, value);
 		}
 	    }
-	    return new HGraphVertexImpl(this, id, labels, properties);
+	    // TODO read edges
+	    return new DuctileDBVertexImpl(this, id, labels, properties);
 	} catch (IOException e) {
-	    throw new HGraphException("Could not get vertex.", e);
+	    throw new DuctileDBException("Could not get vertex.", e);
 	}
     }
 
@@ -217,8 +266,54 @@ public class HGraphImpl implements HGraph {
 
     @Override
     public Iterable<Vertex> getVertices(String propertyKey, Object propertyValue) {
-	// TODO Auto-generated method stub
-	return null;
+	try (Table table = openPropertyTable()) {
+	    List<Vertex> vertices = new ArrayList<>();
+	    Get get = new Get(Bytes.toBytes(propertyKey));
+	    get.addFamily(INDEX_COLUMN_FAMILY_BYTES);
+	    Result result = table.get(get);
+	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
+	    if (propertyMap != null) {
+		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
+		    Object value = SerializationUtils.deserialize(entry.getValue());
+		    if (propertyValue.equals(value)) {
+			Object key = decodeRowKey(entry.getKey());
+			vertices.add(getVertex(key));
+		    }
+		}
+	    }
+	    return new Iterable<Vertex>() {
+		@Override
+		public Iterator<Vertex> iterator() {
+		    return vertices.iterator();
+		}
+	    };
+	} catch (IOException e) {
+	    throw new DuctileDBException("Could not get vertices.", e);
+	}
+    }
+
+    @Override
+    public Iterable<DuctileDBVertex> getVertices(String label) {
+	try (Table table = openLabelTable()) {
+	    List<DuctileDBVertex> vertices = new ArrayList<>();
+	    Get get = new Get(Bytes.toBytes(label));
+	    get.addFamily(INDEX_COLUMN_FAMILY_BYTES);
+	    Result result = table.get(get);
+	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
+	    if (propertyMap != null) {
+		for (byte[] vertexId : propertyMap.keySet()) {
+		    vertices.add(getVertex(vertexId));
+		}
+	    }
+	    return new Iterable<DuctileDBVertex>() {
+		@Override
+		public Iterator<DuctileDBVertex> iterator() {
+		    return vertices.iterator();
+		}
+	    };
+	} catch (IOException e) {
+	    throw new DuctileDBException("Could not get vertices.", e);
+	}
     }
 
     @Override
@@ -238,7 +333,18 @@ public class HGraphImpl implements HGraph {
 
     @Override
     public void removeVertex(Vertex vertex) {
-	Delete delete = new Delete(encodeKey(vertex.getId()));
+	byte[] vertexId = encodeKey(vertex.getId());
+	for (String label : ((DuctileDBVertex) vertex).getLabels()) {
+	    Delete delete = new Delete(Bytes.toBytes(label));
+	    delete.addColumn(INDEX_COLUMN_FAMILY_BYTES, vertexId);
+	    getCurrentTransaction().delete(LABELS_TABLE_NAME, delete);
+	}
+	for (String propertyKey : vertex.getPropertyKeys()) {
+	    Delete delete = new Delete(Bytes.toBytes(propertyKey));
+	    delete.addColumn(INDEX_COLUMN_FAMILY_BYTES, vertexId);
+	    getCurrentTransaction().delete(PROPERTIES_TABLE_NAME, delete);
+	}
+	Delete delete = new Delete(vertexId);
 	getCurrentTransaction().delete(VERTICES_TABLE_NAME, delete);
     }
 
@@ -247,7 +353,7 @@ public class HGraphImpl implements HGraph {
 	try {
 	    close();
 	} catch (IOException e) {
-	    throw new HGraphException("Could not shutdown graph.", e);
+	    throw new DuctileDBException("Could not shutdown graph.", e);
 	}
     }
 
@@ -279,25 +385,37 @@ public class HGraphImpl implements HGraph {
     public void addLabel(byte[] id, String label) {
 	Put put = new Put(id);
 	put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));
+	Put index = new Put(Bytes.toBytes(label));
+	index.addColumn(INDEX_COLUMN_FAMILY_BYTES, id, Bytes.toBytes(0));
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, put);
+	getCurrentTransaction().put(LABELS_TABLE_NAME, index);
     }
 
     public void removeLabel(byte[] id, String label) {
 	Delete delete = new Delete(id);
 	delete.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label));
+	Delete index = new Delete(Bytes.toBytes(label));
+	index.addColumn(INDEX_COLUMN_FAMILY_BYTES, id);
 	getCurrentTransaction().delete(VERTICES_TABLE_NAME, delete);
+	getCurrentTransaction().delete(LABELS_TABLE_NAME, index);
     }
 
     void setVertexProperty(byte[] id, String key, Object value) {
 	Put put = new Put(id);
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
 		SerializationUtils.serialize((Serializable) value));
+	Put index = new Put(Bytes.toBytes(key));
+	index.addColumn(INDEX_COLUMN_FAMILY_BYTES, id, SerializationUtils.serialize((Serializable) value));
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, put);
+	getCurrentTransaction().put(PROPERTIES_TABLE_NAME, index);
     }
 
     public void removeVertexProperty(byte[] id, String key) {
 	Delete delete = new Delete(id);
 	delete.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key));
+	Delete index = new Delete(Bytes.toBytes(key));
+	index.addColumn(INDEX_COLUMN_FAMILY_BYTES, id);
 	getCurrentTransaction().delete(VERTICES_TABLE_NAME, delete);
+	getCurrentTransaction().delete(PROPERTIES_TABLE_NAME, index);
     }
 }

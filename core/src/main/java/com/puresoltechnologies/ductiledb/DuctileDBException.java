@@ -5,15 +5,15 @@ package com.puresoltechnologies.ductiledb;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class HGraphException extends RuntimeException {
+public class DuctileDBException extends RuntimeException {
 
     private static final long serialVersionUID = -2552842856696970076L;
 
-    public HGraphException(String message, Throwable cause) {
+    public DuctileDBException(String message, Throwable cause) {
 	super(message, cause);
     }
 
-    public HGraphException(String message) {
+    public DuctileDBException(String message) {
 	super(message);
     }
 

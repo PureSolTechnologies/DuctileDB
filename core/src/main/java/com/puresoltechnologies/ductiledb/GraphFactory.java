@@ -14,13 +14,13 @@ public class GraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphFactory.class);
 
-    public static HGraph createGraph() throws IOException {
+    public static DuctileDBGraph createGraph() throws IOException {
 	Configuration hbaseConfiguration = HBaseConfiguration.create();
 	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
 	logger.info("Creating connection to HBase with configuration '" + hbaseConfiguration + "'...");
 	Connection connection = ConnectionFactory.createConnection(hbaseConfiguration);
 	logger.info("Connection to HBase created.");
-	return new HGraphImpl(connection);
+	return new DuctileDBGraphImpl(connection);
     }
 
 }

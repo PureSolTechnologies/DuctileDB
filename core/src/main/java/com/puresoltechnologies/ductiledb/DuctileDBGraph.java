@@ -16,23 +16,28 @@ import com.tinkerpop.blueprints.Vertex;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface HGraph extends TransactionalGraph, Closeable {
+public interface DuctileDBGraph extends TransactionalGraph, Closeable {
 
     public Connection getConnection();
 
     @Override
-    public HGraphVertex addVertex(Object id);
+    public DuctileDBVertex addVertex(Object id);
 
-    public HGraphVertex addVertex(Object id, Set<String> labels, Map<String, Object> properties);
-
-    @Override
-    public HGraphVertex getVertex(Object id);
+    public DuctileDBVertex addVertex(Object id, Set<String> labels, Map<String, Object> properties);
 
     @Override
-    public HGraphEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType);
+    public DuctileDBVertex getVertex(Object id);
 
-    public HGraphEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType,
+    public Iterable<DuctileDBVertex> getVertices(String label);
+
+    @Override
+    public DuctileDBEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType);
+
+    public DuctileDBEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType,
 	    Map<String, Object> properties);
+
+    @Override
+    public DuctileDBEdge getEdge(Object edgeId);
 
     @Override
     public void commit();
