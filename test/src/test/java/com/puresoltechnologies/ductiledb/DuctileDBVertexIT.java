@@ -23,10 +23,9 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
     @Test
     public void testVertexCreation() throws IOException {
 	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
-	    Vertex vertex = graph.addVertex("TestId");
+	    Vertex vertex = graph.addVertex();
 	    graph.commit();
 	    Vertex vertex2 = graph.getVertex(vertex.getId());
-	    assertEquals("TestId", vertex.getId().toString());
 	    assertEquals(vertex, vertex2);
 	}
     }
@@ -34,11 +33,10 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
     @Test
     public void testVertexDelete() throws IOException {
 	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
-	    Vertex vertex = graph.addVertex("DeletionTest");
+	    Vertex vertex = graph.addVertex();
 	    graph.commit();
 
 	    Vertex vertex2 = graph.getVertex(vertex.getId());
-	    assertEquals("DeletionTest", vertex.getId().toString());
 	    assertEquals(vertex, vertex2);
 
 	    graph.removeVertex(vertex);
@@ -50,10 +48,9 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
     @Test
     public void testSetProperty() throws IOException {
 	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
-	    Vertex vertex = graph.addVertex("DeletionTest");
+	    Vertex vertex = graph.addVertex();
 	    vertex.setProperty("property1", "value1");
 	    graph.commit();
-	    assertEquals("DeletionTest", vertex.getId().toString());
 	    assertEquals("value1", vertex.getProperty("property1"));
 
 	    Vertex vertex2 = graph.getVertex(vertex.getId());
@@ -68,10 +65,9 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
     @Test
     public void testSetLabel() throws IOException {
 	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
-	    DuctileDBVertex vertex = graph.addVertex("LabelTest");
+	    DuctileDBVertex vertex = graph.addVertex();
 	    vertex.addLabel("label");
 	    graph.commit();
-	    assertEquals("LabelTest", vertex.getId().toString());
 	    assertTrue(vertex.hasLabel("label"));
 	    Iterable<String> labels = vertex.getLabels();
 	    Iterator<String> iterator = labels.iterator();
@@ -94,8 +90,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
 	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
 	    long start = System.currentTimeMillis();
 	    for (int i = 0; i < NUMBER; ++i) {
-		Vertex vertex = graph.addVertex("TestId" + i);
-		assertEquals("TestId" + i, vertex.getId().toString());
+		graph.addVertex();
 	    }
 	    graph.commit();
 	    long stop = System.currentTimeMillis();
@@ -119,8 +114,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
 		    labels.add("label" + j);
 		    properties.put("property" + j, j);
 		}
-		Vertex vertex = graph.addVertex("TestId" + i, labels, properties);
-		assertEquals("TestId" + i, vertex.getId().toString());
+		graph.addVertex(labels, properties);
 	    }
 	    graph.commit();
 	    long stop = System.currentTimeMillis();

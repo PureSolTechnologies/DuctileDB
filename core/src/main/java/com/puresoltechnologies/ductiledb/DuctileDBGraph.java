@@ -20,20 +20,24 @@ public interface DuctileDBGraph extends TransactionalGraph, Closeable {
 
     public Connection getConnection();
 
+    public DuctileDBVertex addVertex();
+
     @Override
     public DuctileDBVertex addVertex(Object id);
 
-    public DuctileDBVertex addVertex(Object id, Set<String> labels, Map<String, Object> properties);
+    public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties);
 
     @Override
     public DuctileDBVertex getVertex(Object id);
 
     public Iterable<DuctileDBVertex> getVertices(String label);
 
+    public DuctileDBEdge addEdge(Vertex startVertex, Vertex targetVertex, String edgeType);
+
     @Override
     public DuctileDBEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType);
 
-    public DuctileDBEdge addEdge(Object edgeId, Vertex startVertex, Vertex targetVertex, String edgeType,
+    public DuctileDBEdge addEdge(Vertex startVertex, Vertex targetVertex, String edgeType,
 	    Map<String, Object> properties);
 
     @Override

@@ -110,7 +110,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public Object getId() {
-	return DuctileDBGraphImpl.decodeRowKey(id);
+	return DuctileDBGraphImpl.decodeVertexId(id);
     }
 
     @Override

@@ -19,6 +19,7 @@ public class AbstractDuctileDBTest {
 	    logger.info("Remove all DuctileDB tables...");
 	    Connection connection = ((DuctileDBGraphImpl) graph).getConnection();
 	    Admin admin = connection.getAdmin();
+	    removeTable(admin, DuctileDBGraphImpl.METADATA_TABLE_NAME);
 	    removeTable(admin, DuctileDBGraphImpl.VERTICES_TABLE_NAME);
 	    removeTable(admin, DuctileDBGraphImpl.LABELS_TABLE_NAME);
 	    removeTable(admin, DuctileDBGraphImpl.PROPERTIES_TABLE_NAME);
