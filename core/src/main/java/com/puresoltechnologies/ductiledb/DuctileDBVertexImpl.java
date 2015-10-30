@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,13 +13,13 @@ import com.tinkerpop.blueprints.VertexQuery;
 
 public class DuctileDBVertexImpl implements DuctileDBVertex {
 
-    private final DuctileDBGraphImpl hgraph;
-    private final byte[] id;
+    private final DuctileDBGraphImpl graph;
+    private final long id;
     private final Set<String> labels = new HashSet<>();
     private final Map<String, Object> properties = new HashMap<>();
 
-    public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, byte[] id, Set<String> labels, Map<String, Object> properties) {
-	this.hgraph = hgraph;
+    public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, long id, Set<String> labels, Map<String, Object> properties) {
+	this.graph = hgraph;
 	this.id = id;
 	this.labels.addAll(labels);
 	this.properties.putAll(properties);
@@ -30,7 +29,9 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + Arrays.hashCode(id);
+	result = prime * result + ((graph == null) ? 0 : graph.hashCode());
+	result = prime * result + (int) (id ^ (id >>> 32));
+	result = prime * result + ((labels == null) ? 0 : labels.hashCode());
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 	return result;
     }
@@ -44,7 +45,17 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	if (getClass() != obj.getClass())
 	    return false;
 	DuctileDBVertexImpl other = (DuctileDBVertexImpl) obj;
-	if (!Arrays.equals(id, other.id))
+	if (graph == null) {
+	    if (other.graph != null)
+		return false;
+	} else if (!graph.equals(other.graph))
+	    return false;
+	if (id != other.id)
+	    return false;
+	if (labels == null) {
+	    if (other.labels != null)
+		return false;
+	} else if (!labels.equals(other.labels))
 	    return false;
 	if (properties == null) {
 	    if (other.properties != null)
@@ -91,7 +102,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public void setProperty(String key, Object value) {
-	hgraph.setVertexProperty(id, key, value);
+	graph.setVertexProperty(id, key, value);
 	properties.put(key, value);
     }
 
@@ -99,18 +110,18 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     public <T> T removeProperty(String key) {
 	@SuppressWarnings("unchecked")
 	T value = (T) getProperty(key);
-	hgraph.removeVertexProperty(id, key);
+	graph.removeVertexProperty(id, key);
 	return value;
     }
 
     @Override
     public void remove() {
-	hgraph.removeVertex(this);
+	graph.removeVertex(this);
     }
 
     @Override
-    public Object getId() {
-	return DuctileDBGraphImpl.decodeVertexId(id);
+    public Long getId() {
+	return id;
     }
 
     @Override
@@ -125,13 +136,13 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public void addLabel(String label) {
-	hgraph.addLabel(id, label);
+	graph.addLabel(id, label);
 	labels.add(label);
     }
 
     @Override
     public void removeLabel(String label) {
-	hgraph.removeLabel(id, label);
+	graph.removeLabel(id, label);
 	labels.remove(label);
     }
 

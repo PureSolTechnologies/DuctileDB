@@ -4,6 +4,9 @@ import com.tinkerpop.blueprints.Vertex;
 
 public interface DuctileDBVertex extends Vertex {
 
+    @Override
+    public Long getId();
+
     public Iterable<String> getLabels();
 
     public void addLabel(String label);

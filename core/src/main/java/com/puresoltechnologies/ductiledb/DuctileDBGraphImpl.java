@@ -27,6 +27,7 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.tx.DuctileDBTransaction;
+import com.puresoltechnologies.ductiledb.utils.IdEncoder;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Features;
@@ -186,14 +187,6 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	return connection.getTable(TableName.valueOf(LABELS_TABLE_NAME));
     }
 
-    static final byte[] encodeVertexId(Object id) {
-	return Bytes.toBytes(id.toString());
-    }
-
-    static final Object decodeVertexId(byte[] id) {
-	return Bytes.toString(id);
-    }
-
     final long createVertexId() {
 	if (vertexIdCounter >= ID_CACHE) {
 	    try (Table metaDataTable = openMetaDataTable()) {
@@ -241,10 +234,12 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
 	byte[] edgeValue = new EdgeValue(properties).encode();
-	Put outPut = new Put(encodeVertexId(startVertex.getId()));
-	outPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, new EdgeKey(Direction.OUT, edgeId, edgeType).encode(), edgeValue);
-	Put inPut = new Put(encodeVertexId(targetVertex.getId()));
-	inPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, new EdgeKey(Direction.IN, edgeId, edgeType).encode(), edgeValue);
+	Put outPut = new Put(IdEncoder.encodeRowId((long) startVertex.getId()));
+	outPut.addColumn(EDGES_COLUMN_FAMILY_BYTES,
+		new EdgeKey(Direction.OUT, edgeId, (long) targetVertex.getId(), edgeType).encode(), edgeValue);
+	Put inPut = new Put(IdEncoder.encodeRowId((long) targetVertex.getId()));
+	inPut.addColumn(EDGES_COLUMN_FAMILY_BYTES,
+		new EdgeKey(Direction.IN, edgeId, (long) startVertex.getId(), edgeType).encode(), edgeValue);
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, outPut);
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, inPut);
 	return new DuctileDBEdgeImpl(edgeType, (DuctileDBVertex) startVertex, (DuctileDBVertex) targetVertex);
@@ -263,7 +258,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	byte[] id = encodeVertexId(vertexId);
+	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, DUCTILEDB_ID_PROPERTY_BYTES,
 		SerializationUtils.serialize(vertexId));
@@ -287,7 +282,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	getCurrentTransaction().put(LABELS_TABLE_NAME, labelIndex);
 	getCurrentTransaction().put(PROPERTIES_TABLE_NAME, propertyIndex);
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
-	return new DuctileDBVertexImpl(this, id, labels, properties);
+	return new DuctileDBVertexImpl(this, vertexId, labels, properties);
     }
 
     @Override
@@ -316,7 +311,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     @Override
     public DuctileDBVertex getVertex(Object vertexId) {
 	try (Table vertexTable = openVertexTable()) {
-	    byte[] id = encodeVertexId(vertexId);
+	    byte[] id = IdEncoder.encodeRowId((long) vertexId);
 	    Get get = new Get(id);
 	    Result result = vertexTable.get(get);
 	    if (result.isEmpty()) {
@@ -341,7 +336,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 		}
 	    }
 	    // TODO read edges
-	    return new DuctileDBVertexImpl(this, id, labels, properties);
+	    return new DuctileDBVertexImpl(this, (long) vertexId, labels, properties);
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get vertex.", e);
 	}
@@ -364,7 +359,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		    Object value = SerializationUtils.deserialize(entry.getValue());
 		    if (propertyValue.equals(value)) {
-			Object key = decodeVertexId(entry.getKey());
+			Object key = IdEncoder.decodeRowId(entry.getKey());
 			vertices.add(getVertex(key));
 		    }
 		}
@@ -390,7 +385,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 	    if (propertyMap != null) {
 		for (byte[] vertexId : propertyMap.keySet()) {
-		    vertices.add(getVertex(vertexId));
+		    vertices.add(getVertex(IdEncoder.decodeRowId(vertexId)));
 		}
 	    }
 	    return new Iterable<DuctileDBVertex>() {
@@ -411,19 +406,19 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     @Override
     public void removeEdge(Edge edge) {
-	Delete deleteOutEdge = new Delete(encodeVertexId(edge.getVertex(Direction.OUT).getId()));
-	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(Direction.OUT, edge.getId(), edge.getLabel()).encode());
+	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId((long) edge.getVertex(Direction.OUT).getId()));
+	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES, new EdgeKey(Direction.OUT, (long) edge.getId(),
+		(long) edge.getVertex(Direction.IN).getId(), edge.getLabel()).encode());
 	getCurrentTransaction().delete(VERTICES_TABLE_NAME, deleteOutEdge);
-	Delete deleteInEdge = new Delete(encodeVertexId(edge.getVertex(Direction.IN).getId()));
-	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(Direction.IN, edge.getId(), edge.getLabel()).encode());
+	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId((long) edge.getVertex(Direction.IN).getId()));
+	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES, new EdgeKey(Direction.IN, (long) edge.getId(),
+		(long) edge.getVertex(Direction.OUT).getId(), edge.getLabel()).encode());
 	getCurrentTransaction().delete(VERTICES_TABLE_NAME, deleteInEdge);
     }
 
     @Override
     public void removeVertex(Vertex vertex) {
-	byte[] vertexId = encodeVertexId(vertex.getId());
+	byte[] vertexId = IdEncoder.encodeRowId((long) vertex.getId());
 	for (String label : ((DuctileDBVertex) vertex).getLabels()) {
 	    Delete delete = new Delete(Bytes.toBytes(label));
 	    delete.addColumn(INDEX_COLUMN_FAMILY_BYTES, vertexId);
@@ -472,7 +467,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	getCurrentTransaction().rollback();
     }
 
-    public void addLabel(byte[] id, String label) {
+    public void addLabel(long vertexId, String label) {
+	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));
 	Put index = new Put(Bytes.toBytes(label));
@@ -481,7 +477,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	getCurrentTransaction().put(LABELS_TABLE_NAME, index);
     }
 
-    public void removeLabel(byte[] id, String label) {
+    public void removeLabel(long vertexId, String label) {
+	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
 	delete.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label));
 	Delete index = new Delete(Bytes.toBytes(label));
@@ -490,7 +487,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	getCurrentTransaction().delete(LABELS_TABLE_NAME, index);
     }
 
-    void setVertexProperty(byte[] id, String key, Object value) {
+    void setVertexProperty(long vertexId, String key, Object value) {
+	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
 		SerializationUtils.serialize((Serializable) value));
@@ -500,7 +498,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	getCurrentTransaction().put(PROPERTIES_TABLE_NAME, index);
     }
 
-    public void removeVertexProperty(byte[] id, String key) {
+    public void removeVertexProperty(long vertexId, String key) {
+	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
 	delete.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key));
 	Delete index = new Delete(Bytes.toBytes(key));

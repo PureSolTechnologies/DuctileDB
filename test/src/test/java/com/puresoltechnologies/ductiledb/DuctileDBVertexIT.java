@@ -58,7 +58,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
 
 	    vertex.removeProperty("property1");
 	    graph.commit();
-	    assertNull(graph.getVertex(vertex.getProperty("property1")));
+	    assertNull(graph.getVertex(vertex.getId()).getProperty("property1"));
 	}
     }
 
