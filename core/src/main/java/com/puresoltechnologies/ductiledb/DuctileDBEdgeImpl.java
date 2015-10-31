@@ -9,14 +9,34 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
+    private final DuctileDBGraph graph;
+    private final long id;
     private final String label;
-    private final DuctileDBVertex startVertex;
-    private final DuctileDBVertex targetVertex;
+    private final long startVertexId;
+    private final long targetVertexId;
+    private DuctileDBVertex startVertex = null;
+    private DuctileDBVertex targetVertex = null;
     private final Map<String, Object> properties = new HashMap<>();
 
-    public DuctileDBEdgeImpl(String label, DuctileDBVertex startVertex, DuctileDBVertex targetVertex) {
+    public DuctileDBEdgeImpl(DuctileDBGraph graph, long id, String label, long startVertexId, long targetVertexId,
+	    Map<String, Object> properties) {
 	super();
+	this.graph = graph;
+	this.id = id;
 	this.label = label;
+	this.startVertexId = startVertexId;
+	this.targetVertexId = targetVertexId;
+	this.properties.putAll(properties);
+    }
+
+    public DuctileDBEdgeImpl(DuctileDBGraph graph, long id, String label, DuctileDBVertex startVertex,
+	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
+	super();
+	this.graph = graph;
+	this.id = id;
+	this.label = label;
+	this.startVertexId = startVertex.getId();
+	this.targetVertexId = targetVertex.getId();
 	this.startVertex = startVertex;
 	this.targetVertex = targetVertex;
 	this.properties.putAll(properties);
@@ -26,8 +46,14 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     public Vertex getVertex(Direction direction) throws IllegalArgumentException {
 	switch (direction) {
 	case OUT:
+	    if (startVertex == null) {
+		startVertex = graph.getVertex(startVertexId);
+	    }
 	    return startVertex;
 	case IN:
+	    if (targetVertex == null) {
+		targetVertex = graph.getVertex(targetVertexId);
+	    }
 	    return targetVertex;
 	default:
 	    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
@@ -69,9 +95,8 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     }
 
     @Override
-    public Object getId() {
-	// TODO Auto-generated method stub
-	return null;
+    public Long getId() {
+	return id;
     }
 
 }

@@ -41,6 +41,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     static final String NAMESPACE_NAME = "ductiledb";
     static final String METADATA_TABLE_NAME = NAMESPACE_NAME + ":metadata";
     static final String VERTICES_TABLE_NAME = NAMESPACE_NAME + ":vertices";
+    static final String EDGES_TABLE_NAME = NAMESPACE_NAME + ":edges";
     static final String PROPERTIES_TABLE_NAME = NAMESPACE_NAME + ":properties";
     static final String LABELS_TABLE_NAME = NAMESPACE_NAME + ":labels";
 
@@ -94,6 +95,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    assureNamespacePresence(admin);
 	    assureMetaDataTablePresence(admin);
 	    assureVerticesTablePresence(admin);
+	    assureEdgesTablePresence(admin);
 	    assureLabelsTablePresence(admin);
 	    assurePropertiesTablePresence(admin);
 	}
@@ -130,6 +132,13 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    descriptor.addFamily(edgesColumnFamily);
 	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILY);
 	    descriptor.addFamily(propertiesColumnFamily);
+	    admin.createTable(descriptor);
+	}
+    }
+
+    private void assureEdgesTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(TableName.valueOf(EDGES_TABLE_NAME))) {
+	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(EDGES_TABLE_NAME));
 	    admin.createTable(descriptor);
 	}
     }
@@ -242,7 +251,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 		new EdgeKey(Direction.IN, edgeId, (long) startVertex.getId(), edgeType).encode(), edgeValue);
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, outPut);
 	getCurrentTransaction().put(VERTICES_TABLE_NAME, inPut);
-	return new DuctileDBEdgeImpl(edgeType, (DuctileDBVertex) startVertex, (DuctileDBVertex) targetVertex);
+	return new DuctileDBEdgeImpl(this, edgeId, edgeType, (DuctileDBVertex) startVertex,
+		(DuctileDBVertex) targetVertex, new HashMap<>());
     }
 
     @Override
@@ -282,7 +292,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	getCurrentTransaction().put(LABELS_TABLE_NAME, labelIndex);
 	getCurrentTransaction().put(PROPERTIES_TABLE_NAME, propertyIndex);
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
-	return new DuctileDBVertexImpl(this, vertexId, labels, properties);
+	return new DuctileDBVertexImpl(this, vertexId, labels, properties, new ArrayList<>());
     }
 
     @Override
@@ -335,8 +345,24 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 		    properties.put(key, value);
 		}
 	    }
-	    // TODO read edges
-	    return new DuctileDBVertexImpl(this, (long) vertexId, labels, properties);
+	    // Read edges...
+	    List<DuctileDBEdge> edges = new ArrayList<>();
+	    NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
+	    if (edgesMap != null) {
+		for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
+		    EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
+		    EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
+		    if (Direction.IN == edgeKey.getDirection()) {
+			edges.add(new DuctileDBEdgeImpl(this, edgeKey.getId(), edgeKey.getEdgeType(),
+				edgeKey.getVertexId(), (long) vertexId, edgeValue.getProperties()));
+		    } else {
+			edges.add(new DuctileDBEdgeImpl(this, edgeKey.getId(), edgeKey.getEdgeType(), (long) vertexId,
+				edgeKey.getVertexId(), edgeValue.getProperties()));
+		    }
+		}
+	    }
+
+	    return new DuctileDBVertexImpl(this, (long) vertexId, labels, properties, edges);
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get vertex.", e);
 	}

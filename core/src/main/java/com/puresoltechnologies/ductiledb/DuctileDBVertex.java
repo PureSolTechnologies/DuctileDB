@@ -15,4 +15,6 @@ public interface DuctileDBVertex extends Vertex {
 
     public boolean hasLabel(String label);
 
+    @Override
+    public DuctileDBEdge addEdge(String label, Vertex inVertex);
 }

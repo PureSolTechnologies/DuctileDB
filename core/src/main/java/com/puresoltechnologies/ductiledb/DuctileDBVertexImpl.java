@@ -1,8 +1,11 @@
 package com.puresoltechnologies.ductiledb;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,12 +20,15 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     private final long id;
     private final Set<String> labels = new HashSet<>();
     private final Map<String, Object> properties = new HashMap<>();
+    private final List<DuctileDBEdge> edges = new ArrayList<>();
 
-    public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, long id, Set<String> labels, Map<String, Object> properties) {
+    public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, long id, Set<String> labels, Map<String, Object> properties,
+	    List<DuctileDBEdge> edges) {
 	this.graph = hgraph;
 	this.id = id;
 	this.labels.addAll(labels);
 	this.properties.putAll(properties);
+	this.edges.addAll(edges);
     }
 
     @Override
@@ -66,15 +72,64 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     }
 
     @Override
-    public Iterable<Edge> getEdges(Direction direction, String... labels) {
-	// TODO Auto-generated method stub
-	return null;
+    public Iterable<Edge> getEdges(Direction direction, String... edgeLabels) {
+	List<Edge> edges = new ArrayList<>();
+	List<String> labelList = Arrays.asList(edgeLabels);
+	for (DuctileDBEdge edge : this.edges) {
+	    if (labelList.contains(edge.getLabel())) {
+		switch (direction) {
+		case IN:
+		    if (edge.getVertex(Direction.IN).getId().equals(getId())) {
+			edges.add(edge);
+		    }
+		    break;
+		case OUT:
+		    if (edge.getVertex(Direction.OUT).getId().equals(getId())) {
+			edges.add(edge);
+		    }
+		    break;
+		case BOTH:
+		    edges.add(edge);
+		    break;
+		default:
+		    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
+		}
+	    }
+	}
+	return edges;
     }
 
     @Override
     public Iterable<Vertex> getVertices(Direction direction, String... edgeLabels) {
-	// TODO Auto-generated method stub
-	return null;
+	List<Vertex> vertices = new ArrayList<>();
+	List<String> labelList = Arrays.asList(edgeLabels);
+	for (DuctileDBEdge edge : this.edges) {
+	    if (labelList.contains(edge.getLabel())) {
+		switch (direction) {
+		case IN:
+		    if (edge.getVertex(Direction.IN).getId().equals(getId())) {
+			vertices.add(edge.getVertex(Direction.OUT));
+		    }
+		    break;
+		case OUT:
+		    if (edge.getVertex(Direction.OUT).getId().equals(getId())) {
+			vertices.add(edge.getVertex(Direction.OUT));
+		    }
+		    break;
+		case BOTH:
+		    Vertex vertex = edge.getVertex(Direction.IN);
+		    if (vertex.getId().equals(getId())) {
+			vertices.add(edge.getVertex(Direction.OUT));
+		    } else {
+			vertices.add(vertex);
+		    }
+		    break;
+		default:
+		    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
+		}
+	    }
+	}
+	return vertices;
     }
 
     @Override
@@ -83,9 +138,10 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     }
 
     @Override
-    public Edge addEdge(String label, Vertex inVertex) {
-	// TODO Auto-generated method stub
-	return null;
+    public DuctileDBEdge addEdge(String label, Vertex inVertex) {
+	DuctileDBEdge edge = graph.addEdge(this, inVertex, label);
+	edges.add(edge);
+	return edge;
     }
 
     @Override

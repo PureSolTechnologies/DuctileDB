@@ -21,6 +21,7 @@ public class AbstractDuctileDBTest {
 	    Admin admin = connection.getAdmin();
 	    removeTable(admin, DuctileDBGraphImpl.METADATA_TABLE_NAME);
 	    removeTable(admin, DuctileDBGraphImpl.VERTICES_TABLE_NAME);
+	    removeTable(admin, DuctileDBGraphImpl.EDGES_TABLE_NAME);
 	    removeTable(admin, DuctileDBGraphImpl.LABELS_TABLE_NAME);
 	    removeTable(admin, DuctileDBGraphImpl.PROPERTIES_TABLE_NAME);
 	    admin.deleteNamespace(DuctileDBGraphImpl.NAMESPACE_NAME);
