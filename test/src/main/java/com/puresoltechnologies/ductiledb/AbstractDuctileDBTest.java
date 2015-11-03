@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb;
 
 import java.io.IOException;
 
+import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
@@ -15,23 +16,24 @@ public class AbstractDuctileDBTest {
 
     @BeforeClass
     public static void removeTables() throws IOException {
-	try (DuctileDBGraph graph = GraphFactory.createGraph()) {
+	try (Connection connection = GraphFactory.createConnection()) {
 	    logger.info("Remove all DuctileDB tables...");
-	    Connection connection = ((DuctileDBGraphImpl) graph).getConnection();
 	    Admin admin = connection.getAdmin();
-	    removeTable(admin, DuctileDBGraphImpl.METADATA_TABLE_NAME);
-	    removeTable(admin, DuctileDBGraphImpl.VERTICES_TABLE_NAME);
-	    removeTable(admin, DuctileDBGraphImpl.EDGES_TABLE_NAME);
-	    removeTable(admin, DuctileDBGraphImpl.LABELS_TABLE_NAME);
-	    removeTable(admin, DuctileDBGraphImpl.PROPERTIES_TABLE_NAME);
-	    admin.deleteNamespace(DuctileDBGraphImpl.NAMESPACE_NAME);
+	    HTableDescriptor[] listTables = admin.listTables();
+	    for (HTableDescriptor tableDescriptor : listTables) {
+
+		TableName tableName = tableDescriptor.getTableName();
+		if (DuctileDBGraphImpl.DUCTILEDB_NAMESPACE.equals(tableName.getNamespaceAsString())) {
+		    removeTable(admin, tableName);
+		}
+	    }
+	    admin.deleteNamespace(DuctileDBGraphImpl.DUCTILEDB_NAMESPACE);
 	    logger.info("All DuctileDB tables removed.");
 	}
     }
 
-    private static void removeTable(Admin admin, String tableName) throws IOException {
-	TableName vertexTableName = TableName.valueOf(tableName);
-	admin.disableTable(vertexTableName);
-	admin.deleteTable(vertexTableName);
+    private static void removeTable(Admin admin, TableName tableName) throws IOException {
+	admin.disableTable(tableName);
+	admin.deleteTable(tableName);
     }
 }

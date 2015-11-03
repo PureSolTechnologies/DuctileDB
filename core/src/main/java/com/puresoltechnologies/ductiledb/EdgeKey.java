@@ -120,4 +120,16 @@ public class EdgeKey implements Serializable {
 	return encoded;
     }
 
+    @Override
+    public String toString() {
+	StringBuffer buffer = new StringBuffer();
+	buffer.append(direction.name());
+	buffer.append(":");
+	buffer.append(edgeType);
+	buffer.append("=");
+	buffer.append(id);
+	buffer.append("; vertex=");
+	buffer.append(vertexId);
+	return buffer.toString();
+    }
 }

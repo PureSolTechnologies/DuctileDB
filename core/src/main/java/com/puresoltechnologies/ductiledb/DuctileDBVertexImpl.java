@@ -35,7 +35,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + ((graph == null) ? 0 : graph.hashCode());
+	result = prime * result + ((edges == null) ? 0 : edges.hashCode());
 	result = prime * result + (int) (id ^ (id >>> 32));
 	result = prime * result + ((labels == null) ? 0 : labels.hashCode());
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
@@ -51,10 +51,10 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	if (getClass() != obj.getClass())
 	    return false;
 	DuctileDBVertexImpl other = (DuctileDBVertexImpl) obj;
-	if (graph == null) {
-	    if (other.graph != null)
+	if (edges == null) {
+	    if (other.edges != null)
 		return false;
-	} else if (!graph.equals(other.graph))
+	} else if (!edges.equals(other.edges))
 	    return false;
 	if (id != other.id)
 	    return false;
@@ -137,6 +137,10 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	throw new UnsupportedOperationException("Querying of HGraph is not supported, yet.");
     }
 
+    void addEdge(DuctileDBEdge edge) {
+	edges.add(edge);
+    }
+
     @Override
     public DuctileDBEdge addEdge(String label, Vertex inVertex) {
 	DuctileDBEdge edge = graph.addEdge(this, inVertex, label);
@@ -158,7 +162,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public void setProperty(String key, Object value) {
-	graph.setVertexProperty(id, key, value);
+	graph.setVertexProperty(this, key, value);
 	properties.put(key, value);
     }
 
@@ -166,7 +170,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     public <T> T removeProperty(String key) {
 	@SuppressWarnings("unchecked")
 	T value = (T) getProperty(key);
-	graph.removeVertexProperty(id, key);
+	graph.removeVertexProperty(this, key);
 	return value;
     }
 
@@ -192,13 +196,13 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public void addLabel(String label) {
-	graph.addLabel(id, label);
+	graph.addLabel(this, label);
 	labels.add(label);
     }
 
     @Override
     public void removeLabel(String label) {
-	graph.removeLabel(id, label);
+	graph.removeLabel(this, label);
 	labels.remove(label);
     }
 

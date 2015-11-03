@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.hadoop.hbase.client.Connection;
 
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.TransactionalGraph;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -42,6 +43,8 @@ public interface DuctileDBGraph extends TransactionalGraph, Closeable {
 
     @Override
     public DuctileDBEdge getEdge(Object edgeId);
+
+    public Iterable<Edge> getEdges(String edgeType);
 
     @Override
     public void commit();

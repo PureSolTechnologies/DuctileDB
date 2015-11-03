@@ -26,48 +26,48 @@ public class StarWarsGraph {
 
     public static void addStarWarsFiguresData(DuctileDBGraph graph) {
 	logger.info("Add Star Wars figures test data...");
-	DuctileDBVertex lukeSkywalker = graph.addVertex("Luke Skywalker");
+	DuctileDBVertex lukeSkywalker = graph.addVertex();
 	lukeSkywalker.addLabel(YETI_LABEL);
 	lukeSkywalker.setProperty(FIRST_NAME_PROPERTY, "Luke");
 	lukeSkywalker.setProperty(LAST_NAME_PROPERTY, "Skywalker");
 
-	DuctileDBVertex leiaOrgana = graph.addVertex("Leia Organa");
+	DuctileDBVertex leiaOrgana = graph.addVertex();
 	leiaOrgana.addLabel(PRINCESS_LABEL);
 	leiaOrgana.setProperty(FIRST_NAME_PROPERTY, "Leia");
 	leiaOrgana.setProperty(LAST_NAME_PROPERTY, "Organa");
 
-	DuctileDBVertex hanSolo = graph.addVertex("Han Solo");
+	DuctileDBVertex hanSolo = graph.addVertex();
 	hanSolo.setProperty(FIRST_NAME_PROPERTY, "Han");
 	hanSolo.setProperty(LAST_NAME_PROPERTY, "Solo");
 
-	DuctileDBVertex bobaFett = graph.addVertex("Boba Fett");
+	DuctileDBVertex bobaFett = graph.addVertex();
 	bobaFett.setProperty(FIRST_NAME_PROPERTY, "Boba");
 	bobaFett.setProperty(LAST_NAME_PROPERTY, "Fett");
 
-	DuctileDBVertex obiWanKenobi = graph.addVertex("Obi-Wan Kenobi");
+	DuctileDBVertex obiWanKenobi = graph.addVertex();
 	obiWanKenobi.addLabel(YETI_LABEL);
 	obiWanKenobi.setProperty(FIRST_NAME_PROPERTY, "Obi-Wan");
 	obiWanKenobi.setProperty(LAST_NAME_PROPERTY, "Kenobi");
 
-	DuctileDBVertex r2D2 = graph.addVertex("R2-D2");
+	DuctileDBVertex r2D2 = graph.addVertex();
 	r2D2.addLabel(ROBOT_LABEL);
 	r2D2.setProperty(FIRST_NAME_PROPERTY, "R2-D2");
 
-	DuctileDBVertex c3PO = graph.addVertex("C-3PO");
+	DuctileDBVertex c3PO = graph.addVertex();
 	c3PO.addLabel(ROBOT_LABEL);
 	c3PO.setProperty(FIRST_NAME_PROPERTY, "C-3PO");
 
-	DuctileDBVertex landoCalrissian = graph.addVertex("Lando Calrissian");
+	DuctileDBVertex landoCalrissian = graph.addVertex();
 	landoCalrissian.setProperty(FIRST_NAME_PROPERTY, "Lando");
 	landoCalrissian.setProperty(LAST_NAME_PROPERTY, "Calrissian");
 
-	DuctileDBVertex quiGonJinn = graph.addVertex("Qui-Gon Jinn");
+	DuctileDBVertex quiGonJinn = graph.addVertex();
 	quiGonJinn.addLabel(YETI_LABEL);
 	quiGonJinn.addLabel(MASTER_LABEL);
 	quiGonJinn.setProperty(FIRST_NAME_PROPERTY, "Qui-Gon");
 	quiGonJinn.setProperty(LAST_NAME_PROPERTY, "Jinn");
 
-	DuctileDBVertex maceWindu = graph.addVertex("Mace Windu");
+	DuctileDBVertex maceWindu = graph.addVertex();
 	maceWindu.addLabel(YETI_LABEL);
 	maceWindu.addLabel(MASTER_LABEL);
 	maceWindu.setProperty(FIRST_NAME_PROPERTY, "Mace");

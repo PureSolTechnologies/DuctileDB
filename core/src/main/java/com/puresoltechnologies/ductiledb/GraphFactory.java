@@ -14,12 +14,17 @@ public class GraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphFactory.class);
 
-    public static DuctileDBGraph createGraph() throws IOException {
+    public static Connection createConnection() throws IOException {
 	Configuration hbaseConfiguration = HBaseConfiguration.create();
 	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
 	logger.info("Creating connection to HBase with configuration '" + hbaseConfiguration + "'...");
 	Connection connection = ConnectionFactory.createConnection(hbaseConfiguration);
 	logger.info("Connection to HBase created.");
+	return connection;
+    }
+
+    public static DuctileDBGraph createGraph() throws IOException {
+	Connection connection = createConnection();
 	return new DuctileDBGraphImpl(connection);
     }
 

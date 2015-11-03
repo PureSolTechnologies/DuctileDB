@@ -18,6 +18,7 @@ import com.tinkerpop.blueprints.Vertex;
 public class DuctileDBGraphImplIT extends AbstractDuctileDBTest {
 
     private static final int NUMBER = 10000;
+
     private static DuctileDBGraphImpl graph;
 
     @BeforeClass
