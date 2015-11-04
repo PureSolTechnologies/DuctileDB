@@ -73,9 +73,7 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 	result = prime * result + (int) (id ^ (id >>> 32));
 	result = prime * result + ((label == null) ? 0 : label.hashCode());
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-	result = prime * result + ((startVertex == null) ? 0 : startVertex.hashCode());
 	result = prime * result + (int) (startVertexId ^ (startVertexId >>> 32));
-	result = prime * result + ((targetVertex == null) ? 0 : targetVertex.hashCode());
 	result = prime * result + (int) (targetVertexId ^ (targetVertexId >>> 32));
 	return result;
     }
@@ -101,17 +99,7 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 		return false;
 	} else if (!properties.equals(other.properties))
 	    return false;
-	if (startVertex == null) {
-	    if (other.startVertex != null)
-		return false;
-	} else if (!startVertex.equals(other.startVertex))
-	    return false;
 	if (startVertexId != other.startVertexId)
-	    return false;
-	if (targetVertex == null) {
-	    if (other.targetVertex != null)
-		return false;
-	} else if (!targetVertex.equals(other.targetVertex))
 	    return false;
 	if (targetVertexId != other.targetVertexId)
 	    return false;

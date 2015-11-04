@@ -310,11 +310,6 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	edgePut.addColumn(VERICES_COLUMN_FAMILY_BYTES, TARGET_VERTEXID_COLUMN_BYTES,
 		IdEncoder.encodeRowId((long) targetVertex.getId()));
 	edgePut.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(edgeType), new byte[0]);
-	for (Entry<String, Object> property : properties.entrySet()) {
-	    edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
-		    SerializationUtils.serialize((Serializable) property.getValue()));
-	}
-	edgePut.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(edgeType), new byte[0]);
 	Put labelIndexPut = createEdgeLabelIndexPut(edgeId, edgeType);
 	List<Put> propertyIndexPuts = new ArrayList<>();
 	for (Entry<String, Object> property : properties.entrySet()) {
@@ -329,8 +324,10 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	currentTransaction.put(EDGES_TABLE, edgePut);
 	currentTransaction.put(EDGE_LABELS_INDEX_TABLE, labelIndexPut);
 	currentTransaction.put(EDGE_PROPERTIES_INDEX_TABLE, propertyIndexPuts);
-	return new DuctileDBEdgeImpl(this, edgeId, edgeType, (DuctileDBVertex) startVertex,
+	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(this, edgeId, edgeType, (DuctileDBVertex) startVertex,
 		(DuctileDBVertex) targetVertex, new HashMap<>());
+	((DuctileDBVertexImpl) targetVertex).addEdge(edge);
+	return edge;
     }
 
     private Put createVertexLabelIndexPut(long vertexId, String label) {
@@ -424,10 +421,12 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    byte[] id = IdEncoder.encodeRowId((long) edgeId);
 	    Get get = new Get(id);
 	    Result result = table.get(get);
-	    long startVertexId = IdEncoder.decodeRowId(result
-		    .getColumnLatestCell(VERICES_COLUMN_FAMILY_BYTES, START_VERTEXID_COLUMN_BYTES).getValueArray());
-	    long targetVertexId = IdEncoder.decodeRowId(result
-		    .getColumnLatestCell(VERICES_COLUMN_FAMILY_BYTES, TARGET_VERTEXID_COLUMN_BYTES).getValueArray());
+	    if (result.isEmpty()) {
+		return null;
+	    }
+	    NavigableMap<byte[], byte[]> verticesColumnFamily = result.getFamilyMap(VERICES_COLUMN_FAMILY_BYTES);
+	    long startVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(START_VERTEXID_COLUMN_BYTES));
+	    long targetVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(TARGET_VERTEXID_COLUMN_BYTES));
 	    NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
 	    Set<byte[]> labelBytes = labelsMap.keySet();
 	    if (labelBytes.size() == 0) {
@@ -440,7 +439,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    }
 	    String label = Bytes.toString(labelBytes.iterator().next());
 	    Map<String, Object> properties = new HashMap<>();
-	    NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
+	    NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
 	    for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
 		String key = Bytes.toString(property.getKey());
 		Object value = SerializationUtils.deserialize(property.getValue());
