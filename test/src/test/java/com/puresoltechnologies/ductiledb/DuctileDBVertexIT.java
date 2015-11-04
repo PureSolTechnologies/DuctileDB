@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,27 +13,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public class DuctileDBVertexIT extends AbstractDuctileDBTest {
+public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     private static int NUMBER = 1000;
-
-    private static DuctileDBGraph graph;
-
-    @BeforeClass
-    public static void connect() throws IOException {
-	graph = GraphFactory.createGraph();
-    }
-
-    @AfterClass
-    public static void disconnect() throws IOException {
-	graph.close();
-    }
 
     @Test
     public void testCreateAndRemoveVertex() throws IOException {
@@ -162,4 +149,18 @@ public class DuctileDBVertexIT extends AbstractDuctileDBTest {
 	assertTrue(duration < 10000);
     }
 
+    @Test
+    public void testCompleteDeletion() {
+	fail();
+    }
+
+    @Test
+    public void testLabelIndex() {
+	fail();
+    }
+
+    @Test
+    public void testPropertyIndex() {
+	fail();
+    }
 }

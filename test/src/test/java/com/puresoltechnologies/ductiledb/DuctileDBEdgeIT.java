@@ -5,30 +5,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.util.Iterator;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 
-public class DuctileDBEdgeIT extends AbstractDuctileDBTest {
-
-    private static DuctileDBGraph graph;
-
-    @BeforeClass
-    public static void connect() throws IOException {
-	graph = GraphFactory.createGraph();
-    }
-
-    @AfterClass
-    public static void disconnect() throws IOException {
-	graph.close();
-    }
+public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testAddAndRemoveEdge() {
@@ -57,5 +43,20 @@ public class DuctileDBEdgeIT extends AbstractDuctileDBTest {
 
 	readEdge = graph.getEdge(edge.getId());
 	assertNull(readEdge);
+    }
+
+    @Test
+    public void testCompleteDeletion() {
+	fail();
+    }
+
+    @Test
+    public void testLabelIndex() {
+	fail();
+    }
+
+    @Test
+    public void testPropertyIndex() {
+	fail();
     }
 }

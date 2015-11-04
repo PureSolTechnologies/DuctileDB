@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -15,28 +14,22 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
-public class DuctileDBGraphImplIT extends AbstractDuctileDBTest {
+public class DuctileDBGraphImplIT extends AbstractDuctileDBGraphTest {
 
     private static final int NUMBER = 10000;
 
-    private static DuctileDBGraphImpl graph;
+    private static DuctileDBGraphImpl graphImpl;
 
     @BeforeClass
-    public static void addTestData() throws IOException {
-	graph = (DuctileDBGraphImpl) GraphFactory.createGraph();
-	StarWarsGraph.addStarWarsFiguresData(graph);
-    }
-
-    @AfterClass
-    public static void closeGraph() throws IOException {
-	graph.close();
+    public static void initialize() {
+	graphImpl = ((DuctileDBGraphImpl) graph);
     }
 
     @Test
     public void testVertexIdCreator() throws IOException {
-	long first = graph.createVertexId();
-	long second = graph.createVertexId();
-	long third = graph.createVertexId();
+	long first = graphImpl.createVertexId();
+	long second = graphImpl.createVertexId();
+	long third = graphImpl.createVertexId();
 	assertEquals(first + 1, second);
 	assertEquals(first + 2, third);
     }
@@ -46,7 +39,7 @@ public class DuctileDBGraphImplIT extends AbstractDuctileDBTest {
 	long last = -1;
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
-	    long current = graph.createVertexId();
+	    long current = graphImpl.createVertexId();
 	    if (last >= 0) {
 		assertEquals(last + 1, current);
 	    }
@@ -63,9 +56,9 @@ public class DuctileDBGraphImplIT extends AbstractDuctileDBTest {
 
     @Test
     public void testEdgeIdCreator() throws IOException {
-	long first = graph.createEdgeId();
-	long second = graph.createEdgeId();
-	long third = graph.createEdgeId();
+	long first = graphImpl.createEdgeId();
+	long second = graphImpl.createEdgeId();
+	long third = graphImpl.createEdgeId();
 	assertEquals(first + 1, second);
 	assertEquals(first + 2, third);
     }
@@ -75,7 +68,7 @@ public class DuctileDBGraphImplIT extends AbstractDuctileDBTest {
 	long last = -1;
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
-	    long current = graph.createEdgeId();
+	    long current = graphImpl.createEdgeId();
 	    if (last >= 0) {
 		assertEquals(last + 1, current);
 	    }

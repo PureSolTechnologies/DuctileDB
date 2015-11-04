@@ -3,25 +3,9 @@ package com.puresoltechnologies.ductiledb;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.IOException;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class DuctileDBTransactionIT extends AbstractDuctileDBTest {
-
-    private static DuctileDBGraph graph;
-
-    @BeforeClass
-    public static void connect() throws IOException {
-	graph = GraphFactory.createGraph();
-    }
-
-    @AfterClass
-    public static void disconnect() throws IOException {
-	graph.close();
-    }
+public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testTransaction() {
