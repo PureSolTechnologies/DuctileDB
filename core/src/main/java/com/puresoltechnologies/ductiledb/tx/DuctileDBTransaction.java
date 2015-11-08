@@ -139,4 +139,14 @@ public class DuctileDBTransaction {
 	tableOperations.clear();
     }
 
+    public Object isOpen() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    public Object isClosed() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
 }

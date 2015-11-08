@@ -12,6 +12,8 @@
 		<blueprints.version>2.6.0</blueprints.version>
 		<hbase.version>1.1.2</hbase.version>
 		<slf4j.version>1.6.6</slf4j.version>
+		<xo.version>0.6.0</xo.version>
+		<commons.version>0.6.0</commons.version>
 	</properties>
 
 	<groupId>com.puresoltechnologies.ductiledb</groupId>
@@ -316,6 +318,16 @@
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>xo</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.commons</groupId>
+				<artifactId>osgi</artifactId>
+				<version>${commons.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.hbase</groupId>
 				<artifactId>hbase-client</artifactId>
 				<version>${hbase.version}</version>
@@ -339,6 +351,17 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.buschmais.xo</groupId>
+				<artifactId>xo.spi</artifactId>
+				<version>${xo.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.core</artifactId>
+				<version>5.0.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.version}</version>
@@ -354,6 +377,12 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.11</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.10.19</version>
 				<scope>test</scope>
 			</dependency>
 		</dependencies>
@@ -431,6 +460,72 @@
 						<escapeString>\</escapeString>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>2.5.3</version>
+					<extensions>true</extensions>
+					<configuration>
+						<manifestLocation>META-INF</manifestLocation>
+						<instructions>
+							<Specification-Title>${project.name}</Specification-Title>
+							<Specification-Version>${project.version}</Specification-Version>
+							<Specification-Vendor>${project.organization.name}</Specification-Vendor>
+							<Implementation-Title>${project.groupId}:${project.artifactId}</Implementation-Title>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+							<Vendor-URL>${project.organization.url}</Vendor-URL>
+							<Project-URL>${project.url}</Project-URL>
+							<!-- The Bundle-SymbolicName is fixed in this way. Otherwise Tycho 
+								will not find the bundle. -->
+							<Bundle-SymbolicName>${bundle.namespace}.bundle</Bundle-SymbolicName>
+							<Bundle-Name>${bundle.namespace}.bundle</Bundle-Name>
+							<Bundle-Version>${project.version}</Bundle-Version>
+							<Bundle-Vendor>${project.organization.name}</Bundle-Vendor>
+							<Export-Package>${bundle.namespace}.*;version="${project.version}"</Export-Package>
+							<Bundle-Activator>${bundle.namespace}.Activator</Bundle-Activator>
+							<Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+							<!-- embed compile/runtime dependencies using path that matches the 
+								copied dependency folder -->
+							<Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
+							<Embed-Directory>dependencies</Embed-Directory>
+							<Embed-StripGroup>true</Embed-StripGroup>
+						</instructions>
+					</configuration>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											net.alchim31.maven
+										</groupId>
+										<artifactId>
+											scala-maven-plugin
+										</artifactId>
+										<versionRange>
+											[3.2.2,)
+										</versionRange>
+										<goals>
+											<goal>testCompile</goal>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -458,6 +553,9 @@
 	<modules>
 		<module>core</module>
 		<module>test</module>
+		<module>spark</module>
+		<module>xo</module>
+		<module>xo.bundle</module>
 	</modules>
 
 </project>

@@ -2,7 +2,9 @@ package com.puresoltechnologies.ductiledb;
 
 import java.io.IOException;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
@@ -16,7 +18,7 @@ public class AbstractDuctileDBTest {
 
     @BeforeClass
     public static void removeTables() throws IOException {
-	try (Connection connection = GraphFactory.createConnection()) {
+	try (Connection connection = GraphFactory.createConnection(new BaseConfiguration())) {
 	    logger.info("Remove all DuctileDB tables...");
 	    Admin admin = connection.getAdmin();
 	    HTableDescriptor[] listTables = admin.listTables();
@@ -27,7 +29,12 @@ public class AbstractDuctileDBTest {
 		    removeTable(admin, tableName);
 		}
 	    }
-	    admin.deleteNamespace(DuctileDBGraphImpl.DUCTILEDB_NAMESPACE);
+	    NamespaceDescriptor[] namespaceDescriptors = admin.listNamespaceDescriptors();
+	    for (NamespaceDescriptor namespaceDescriptor : namespaceDescriptors) {
+		if (DuctileDBGraphImpl.DUCTILEDB_NAMESPACE.equals(namespaceDescriptor.getName())) {
+		    admin.deleteNamespace(DuctileDBGraphImpl.DUCTILEDB_NAMESPACE);
+		}
+	    }
 	    logger.info("All DuctileDB tables removed.");
 	}
     }

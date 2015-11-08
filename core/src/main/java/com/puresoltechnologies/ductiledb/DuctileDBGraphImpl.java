@@ -24,6 +24,8 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -416,44 +418,30 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBEdge getEdge(Object edgeId) {
+    public DuctileDBEdge getEdge(long edgeId) {
 	try (Table table = openEdgeTable()) {
-	    byte[] id = IdEncoder.encodeRowId((long) edgeId);
+	    byte[] id = IdEncoder.encodeRowId(edgeId);
 	    Get get = new Get(id);
 	    Result result = table.get(get);
-	    if (result.isEmpty()) {
-		return null;
-	    }
-	    NavigableMap<byte[], byte[]> verticesColumnFamily = result.getFamilyMap(VERICES_COLUMN_FAMILY_BYTES);
-	    long startVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(START_VERTEXID_COLUMN_BYTES));
-	    long targetVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(TARGET_VERTEXID_COLUMN_BYTES));
-	    NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
-	    Set<byte[]> labelBytes = labelsMap.keySet();
-	    if (labelBytes.size() == 0) {
-		throw new DuctileDBException("Found edge without label (id='" + edgeId.toString()
-			+ "'). This is not supported and an inconsistency in graph.");
-	    }
-	    if (labelBytes.size() > 1) {
-		throw new DuctileDBException("Found edge with multiple labels (id='" + edgeId.toString()
-			+ "'). This is not supported and an inconsistency in graph.");
-	    }
-	    String label = Bytes.toString(labelBytes.iterator().next());
-	    Map<String, Object> properties = new HashMap<>();
-	    NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
-	    for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
-		String key = Bytes.toString(property.getKey());
-		Object value = SerializationUtils.deserialize(property.getValue());
-		properties.put(key, value);
-	    }
-	    return new DuctileDBEdgeImpl(this, (long) edgeId, label, startVertexId, targetVertexId, properties);
+	    return ResultDecoder.toEdge(this, edgeId, result);
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get edge.", e);
 	}
     }
 
     @Override
+    public DuctileDBEdge getEdge(Object edgeId) {
+	return getEdge((long) edgeId);
+    }
+
+    @Override
     public Iterable<Edge> getEdges() {
-	throw new UnsupportedOperationException("This operation is not supported.");
+	try (Table table = openEdgeTable()) {
+	    ResultScanner result = table.getScanner(new Scan());
+	    return new EdgeIterable(this, result);
+	} catch (IOException e) {
+	    throw new DuctileDBException("Could not get edge.", e);
+	}
     }
 
     @Override
@@ -506,58 +494,30 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBVertex getVertex(Object vertexId) {
+    public DuctileDBVertex getVertex(long vertexId) {
 	try (Table vertexTable = openVertexTable()) {
-	    byte[] id = IdEncoder.encodeRowId((long) vertexId);
+	    byte[] id = IdEncoder.encodeRowId(vertexId);
 	    Get get = new Get(id);
 	    Result result = vertexTable.get(get);
-	    if (result.isEmpty()) {
-		return null;
-	    }
-	    // Reading labels...
-	    Set<String> labels = new HashSet<>();
-	    NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
-	    if (labelsMap != null) {
-		for (byte[] label : labelsMap.keySet()) {
-		    labels.add(Bytes.toString(label));
-		}
-	    }
-	    // Reading properties...
-	    Map<String, Object> properties = new HashMap<>();
-	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
-	    if (propertyMap != null) {
-		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
-		    String key = Bytes.toString(entry.getKey());
-		    Object value = SerializationUtils.deserialize(entry.getValue());
-		    properties.put(key, value);
-		}
-	    }
-	    // Read edges...
-	    DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(this, (long) vertexId, labels, properties,
-		    new ArrayList<>());
-	    NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
-	    if (edgesMap != null) {
-		for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
-		    EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
-		    EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
-		    if (Direction.IN == edgeKey.getDirection()) {
-			vertex.addEdge(new DuctileDBEdgeImpl(this, edgeKey.getId(), edgeKey.getEdgeType(),
-				edgeKey.getVertexId(), vertex, edgeValue.getProperties()));
-		    } else {
-			vertex.addEdge(new DuctileDBEdgeImpl(this, edgeKey.getId(), edgeKey.getEdgeType(), vertex,
-				edgeKey.getVertexId(), edgeValue.getProperties()));
-		    }
-		}
-	    }
-	    return vertex;
+	    return ResultDecoder.toVertex(this, vertexId, result);
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get vertex.", e);
 	}
     }
 
     @Override
+    public DuctileDBVertex getVertex(Object vertexId) {
+	return getVertex((long) vertexId);
+    }
+
+    @Override
     public Iterable<Vertex> getVertices() {
-	throw new UnsupportedOperationException("This operation is not supported.");
+	try (Table table = openVertexTable()) {
+	    ResultScanner result = table.getScanner(new Scan());
+	    return new VertexIterable(this, result);
+	} catch (IOException e) {
+	    throw new DuctileDBException("Could not get vertices.", e);
+	}
     }
 
     @Override

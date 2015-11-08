@@ -28,6 +28,8 @@ public interface DuctileDBGraph extends TransactionalGraph, Closeable {
 
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties);
 
+    public DuctileDBVertex getVertex(long vertexId);
+
     @Override
     public DuctileDBVertex getVertex(Object id);
 
@@ -40,6 +42,8 @@ public interface DuctileDBGraph extends TransactionalGraph, Closeable {
 
     public DuctileDBEdge addEdge(Vertex startVertex, Vertex targetVertex, String edgeType,
 	    Map<String, Object> properties);
+
+    public DuctileDBEdge getEdge(long edgeId);
 
     @Override
     public DuctileDBEdge getEdge(Object edgeId);

@@ -14,7 +14,9 @@ public class GraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(GraphFactory.class);
 
-    public static Connection createConnection() throws IOException {
+    public static Connection createConnection(org.apache.commons.configuration.Configuration configuration)
+	    throws IOException {
+	// TODO incorporate configuration...
 	Configuration hbaseConfiguration = HBaseConfiguration.create();
 	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
 	logger.info("Creating connection to HBase with configuration '" + hbaseConfiguration + "'...");
@@ -23,8 +25,13 @@ public class GraphFactory {
 	return connection;
     }
 
-    public static DuctileDBGraph createGraph() throws IOException {
-	Connection connection = createConnection();
+    public static DuctileDBGraph createGraph(org.apache.commons.configuration.Configuration configuration)
+	    throws IOException {
+	Connection connection = createConnection(configuration);
+	return createGraph(connection);
+    }
+
+    public static DuctileDBGraph createGraph(Connection connection) throws IOException {
 	return new DuctileDBGraphImpl(connection);
     }
 

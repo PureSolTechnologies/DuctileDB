@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Vertex;
 
 public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
@@ -117,7 +116,7 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     }
 
     @Override
-    public Vertex getVertex(Direction direction) throws IllegalArgumentException {
+    public DuctileDBVertex getVertex(Direction direction) throws IllegalArgumentException {
 	switch (direction) {
 	case OUT:
 	    if (startVertex == null) {

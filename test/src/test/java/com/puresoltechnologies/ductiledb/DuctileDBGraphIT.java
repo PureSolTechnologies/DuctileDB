@@ -14,7 +14,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
-public class DuctileDBGraphImplIT extends AbstractDuctileDBGraphTest {
+public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     private static final int NUMBER = 10000;
 
@@ -23,6 +23,7 @@ public class DuctileDBGraphImplIT extends AbstractDuctileDBGraphTest {
     @BeforeClass
     public static void initialize() {
 	graphImpl = ((DuctileDBGraphImpl) graph);
+	StarWarsGraph.addStarWarsFiguresData(graphImpl);
     }
 
     @Test
@@ -122,5 +123,27 @@ public class DuctileDBGraphImplIT extends AbstractDuctileDBGraphTest {
 	Vertex leiaOrgana = hasSister.getVertex(Direction.IN);
 	assertEquals("Leia", leiaOrgana.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertFalse(edges.hasNext());
+    }
+
+    @Test
+    public void testGetVertices() {
+	Iterable<Vertex> vertices = graph.getVertices();
+	int count = 0;
+	for (@SuppressWarnings("unused")
+	Vertex vertex : vertices) {
+	    count++;
+	}
+	assertEquals(10, count);
+    }
+
+    @Test
+    public void testGetEdges() {
+	Iterable<Edge> edges = graph.getEdges();
+	int count = 0;
+	for (@SuppressWarnings("unused")
+	Edge edge : edges) {
+	    count++;
+	}
+	assertEquals(3, count);
     }
 }
