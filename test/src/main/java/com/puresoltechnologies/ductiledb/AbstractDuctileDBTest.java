@@ -40,7 +40,11 @@ public class AbstractDuctileDBTest {
     }
 
     private static void removeTable(Admin admin, TableName tableName) throws IOException {
+	logger.info("Disable table '" + tableName + "'...");
 	admin.disableTable(tableName);
+	logger.info("Table '" + tableName + "' disabled.");
+	logger.info("Delte table '" + tableName + "'...");
 	admin.deleteTable(tableName);
+	logger.info("Table '" + tableName + "' deleted.");
     }
 }

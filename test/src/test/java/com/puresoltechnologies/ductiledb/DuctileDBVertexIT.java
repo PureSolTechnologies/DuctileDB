@@ -32,6 +32,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	graph.removeVertex(vertex);
 	graph.commit();
 	assertNull(graph.getVertex(vertex.getId()));
+	vertex.remove();
+	graph.commit();
     }
 
     @Test
@@ -47,6 +49,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	vertex.removeProperty("property1");
 	graph.commit();
 	assertNull(graph.getVertex(vertex.getId()).getProperty("property1"));
+	vertex.remove();
+	graph.commit();
     }
 
     @Test
@@ -73,13 +77,17 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	graph.commit();
 	assertFalse(vertex.hasLabel("label"));
 	assertFalse(graph.getVertex(vertex.getId()).hasLabel("label"));
+	vertex.remove();
+	graph.commit();
     }
 
     @Test
     public void testVertexCreationPerformance() throws IOException {
+	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
-	    graph.addVertex();
+	    DuctileDBVertex vertex = graph.addVertex();
+	    vertices.add(vertex);
 	}
 	graph.commit();
 	long stop = System.currentTimeMillis();
@@ -89,10 +97,15 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("speed: " + speed + " vertices/s");
 	System.out.println("speed: " + 1000 / speed + " ms/vertex");
 	assertTrue(duration < 10000);
+	for (DuctileDBVertex vertex : vertices) {
+	    vertex.remove();
+	}
+	graph.commit();
     }
 
     @Test
     public void testFullVertexCreationPerformance() throws IOException {
+	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
 	    Set<String> labels = new HashSet<>();
@@ -101,7 +114,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 		labels.add("label" + j);
 		properties.put("property" + j, j);
 	    }
-	    graph.addVertex(labels, properties);
+	    DuctileDBVertex vertex = graph.addVertex(labels, properties);
+	    vertices.add(vertex);
 	}
 	graph.commit();
 	long stop = System.currentTimeMillis();
@@ -111,6 +125,10 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("speed: " + speed + " full_vertices/s");
 	System.out.println("speed: " + 1000 / speed + " ms/full_vertex");
 	assertTrue(duration < 10000);
+	for (DuctileDBVertex vertex : vertices) {
+	    vertex.remove();
+	}
+	graph.commit();
     }
 
     @Test
@@ -129,6 +147,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("speed: " + speed + " properties/s");
 	System.out.println("speed: " + 1000 / speed + " ms/property");
 	assertTrue(duration < 10000);
+	vertex.remove();
+	graph.commit();
     }
 
     @Test
@@ -147,6 +167,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("speed: " + speed + " labels/s");
 	System.out.println("speed: " + 1000 / speed + " ms/label");
 	assertTrue(duration < 10000);
+	vertex.remove();
+	graph.commit();
     }
 
     @Test

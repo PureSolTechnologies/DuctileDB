@@ -222,31 +222,31 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	return transactions.get();
     }
 
-    private Table openMetaDataTable() throws IOException {
+    Table openMetaDataTable() throws IOException {
 	return connection.getTable(TableName.valueOf(METADATA_TABLE));
     }
 
-    private Table openVertexTable() throws IOException {
+    Table openVertexTable() throws IOException {
 	return connection.getTable(TableName.valueOf(VERTICES_TABLE));
     }
 
-    private Table openEdgeTable() throws IOException {
+    Table openEdgeTable() throws IOException {
 	return connection.getTable(TableName.valueOf(EDGES_TABLE));
     }
 
-    private Table openVertexPropertyTable() throws IOException {
+    Table openVertexPropertyTable() throws IOException {
 	return connection.getTable(TableName.valueOf(VERTEX_PROPERTIES_INDEX_TABLE));
     }
 
-    private Table openVertexLabelTable() throws IOException {
+    Table openVertexLabelTable() throws IOException {
 	return connection.getTable(TableName.valueOf(VERTEX_LABELS_INDEX_TABLE));
     }
 
-    private Table openEdgePropertyTable() throws IOException {
+    Table openEdgePropertyTable() throws IOException {
 	return connection.getTable(TableName.valueOf(EDGE_PROPERTIES_INDEX_TABLE));
     }
 
-    private Table openEdgeLabelTable() throws IOException {
+    Table openEdgeLabelTable() throws IOException {
 	return connection.getTable(TableName.valueOf(EDGE_LABELS_INDEX_TABLE));
     }
 

@@ -174,4 +174,9 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 	return id;
     }
 
+    @Override
+    public String toString() {
+	return "edge " + id + " (" + startVertexId + "->" + targetVertexId + "): label=" + label + "; properties="
+		+ properties;
+    }
 }

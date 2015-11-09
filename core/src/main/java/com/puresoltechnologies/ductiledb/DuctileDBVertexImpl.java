@@ -211,4 +211,8 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	return labels.contains(label);
     }
 
+    @Override
+    public String toString() {
+	return "vertex " + id + ": labels=" + labels + "; properties=" + properties + "; edges=" + edges;
+    }
 }
