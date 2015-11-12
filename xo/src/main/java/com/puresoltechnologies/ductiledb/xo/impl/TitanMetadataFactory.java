@@ -18,11 +18,11 @@ import com.puresoltechnologies.ductiledb.xo.api.annotation.Property;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.VertexDefinition;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.EdgeDefinition.Incoming;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.EdgeDefinition.Outgoing;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.TitanCollectionPropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBCollectionPropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.TitanIndexedPropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBIndexedPropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.TitanReferencePropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBReferencePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadata;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -67,19 +67,19 @@ public class TitanMetadataFactory
     }
 
     @Override
-    public TitanCollectionPropertyMetadata createCollectionPropertyMetadata(
+    public DuctileDBCollectionPropertyMetadata createCollectionPropertyMetadata(
 	    PropertyMethod propertyMethod) {
 	String name = determinePropertyName(propertyMethod);
 	Direction direction = determineEdgeDirection(propertyMethod);
-	return new TitanCollectionPropertyMetadata(name, direction);
+	return new DuctileDBCollectionPropertyMetadata(name, direction);
     }
 
     @Override
-    public TitanReferencePropertyMetadata createReferencePropertyMetadata(
+    public DuctileDBReferencePropertyMetadata createReferencePropertyMetadata(
 	    PropertyMethod propertyMethod) {
 	String name = determinePropertyName(propertyMethod);
 	Direction direction = determineEdgeDirection(propertyMethod);
-	return new TitanReferencePropertyMetadata(name, direction);
+	return new DuctileDBReferencePropertyMetadata(name, direction);
     }
 
     @Override
@@ -134,7 +134,7 @@ public class TitanMetadataFactory
     }
 
     @Override
-    public TitanIndexedPropertyMetadata createIndexedPropertyMetadata(
+    public DuctileDBIndexedPropertyMetadata createIndexedPropertyMetadata(
 	    PropertyMethod propertyMethod) {
 	Property property = propertyMethod
 		.getAnnotationOfProperty(Property.class);
@@ -156,7 +156,7 @@ public class TitanMetadataFactory
 	Indexed indexedAnnotation = propertyMethod.getAnnotation(Indexed.class);
 	boolean unique = indexedAnnotation.unique();
 	Class<?> dataType = propertyMethod.getType();
-	return new TitanIndexedPropertyMetadata(name, unique, dataType, type);
+	return new DuctileDBIndexedPropertyMetadata(name, unique, dataType, type);
     }
 
     @Override

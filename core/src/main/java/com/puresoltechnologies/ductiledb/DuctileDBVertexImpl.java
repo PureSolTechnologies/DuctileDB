@@ -76,7 +76,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	List<Edge> edges = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
 	for (DuctileDBEdge edge : this.edges) {
-	    if (labelList.contains(edge.getLabel())) {
+	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getLabel()))) {
 		switch (direction) {
 		case IN:
 		    if (edge.getVertex(Direction.IN).getId().equals(getId())) {

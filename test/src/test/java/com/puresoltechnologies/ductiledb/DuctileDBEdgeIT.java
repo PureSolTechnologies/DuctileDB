@@ -5,7 +5,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 
@@ -43,20 +42,5 @@ public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
 
 	readEdge = graph.getEdge(edge.getId());
 	assertNull(readEdge);
-    }
-
-    @Test
-    public void testCompleteDeletion() {
-	fail();
-    }
-
-    @Test
-    public void testLabelIndex() {
-	fail();
-    }
-
-    @Test
-    public void testPropertyIndex() {
-	fail();
     }
 }

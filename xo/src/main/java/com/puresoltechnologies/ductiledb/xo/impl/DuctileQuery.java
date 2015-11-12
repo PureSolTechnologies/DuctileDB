@@ -16,26 +16,26 @@ import com.tinkerpop.blueprints.Vertex;
 
 public class DuctileQuery implements DatastoreQuery<Gauging> {
 
-    private final DuctileDBGraph titanGraph;
+    private final DuctileDBGraph graph;
 
-    DuctileQuery(DuctileDBGraph titanGraph) {
-	this.titanGraph = titanGraph;
+    DuctileQuery(DuctileDBGraph graph) {
+	this.graph = graph;
     }
 
     @Override
     public ResultIterator<Map<String, Object>> execute(String query, Map<String, Object> parameters) {
-	final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query, parameters);
+	final GaugingExpression gremlinExpression = GaugingManager.getGaugingExpression(query, parameters);
 	return execute(parameters, gremlinExpression);
     }
 
     @Override
     public ResultIterator<Map<String, Object>> execute(Gauging query, Map<String, Object> parameters) {
-	final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query, parameters);
+	final GaugingExpression gremlinExpression = GaugingManager.getGaugingExpression(query, parameters);
 	return execute(parameters, gremlinExpression);
     }
 
     private ResultIterator<Map<String, Object>> execute(Map<String, Object> parameters,
-	    final GremlinExpression gremlinExpression) {
+	    final GaugingExpression gremlinExpression) {
 	String expression = gremlinExpression.getExpression();
 	@SuppressWarnings("unchecked")
 	final Pipe pipe = DuctileQuery.compile(expression);
@@ -52,7 +52,7 @@ public class DuctileQuery implements DatastoreQuery<Gauging> {
 			"Unsupported start point '" + String.valueOf(setThis) + "' (class=" + setThis.getClass() + ")");
 	    }
 	} else {
-	    pipe.setStarts(titanGraph.query().vertices());
+	    pipe.setStarts(graph.query().vertices());
 	}
 	return new ResultIterator<Map<String, Object>>() {
 

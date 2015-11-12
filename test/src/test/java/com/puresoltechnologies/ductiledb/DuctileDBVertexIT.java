@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,6 +12,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.tinkerpop.blueprints.Vertex;
@@ -20,17 +22,36 @@ import com.tinkerpop.blueprints.Vertex;
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     private static int NUMBER = 1000;
+    private static DuctileDBHealthCheck healthChecker;
+
+    @BeforeClass
+    public static void initializeHealthCheck() throws IOException {
+	healthChecker = new DuctileDBHealthCheck(graph.getConnection());
+    }
+
+    @Before
+    public void checkHealth() throws IOException {
+	healthChecker.runCheck();
+    }
+
+    @AfterClass
+    public static void checkFinalHealth() throws IOException {
+	healthChecker.runCheck();
+    }
 
     @Test
     public void testCreateAndRemoveVertex() throws IOException {
 	Vertex vertex = graph.addVertex();
 	graph.commit();
+	healthChecker.runCheck();
 
 	Vertex vertex2 = graph.getVertex(vertex.getId());
 	assertEquals(vertex, vertex2);
 
 	graph.removeVertex(vertex);
 	graph.commit();
+	healthChecker.runCheck();
+
 	assertNull(graph.getVertex(vertex.getId()));
 	vertex.remove();
 	graph.commit();
@@ -41,6 +62,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	Vertex vertex = graph.addVertex();
 	vertex.setProperty("property1", "value1");
 	graph.commit();
+	healthChecker.runCheck();
 	assertEquals("value1", vertex.getProperty("property1"));
 
 	Vertex vertex2 = graph.getVertex(vertex.getId());
@@ -48,7 +70,9 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.removeProperty("property1");
 	graph.commit();
+	healthChecker.runCheck();
 	assertNull(graph.getVertex(vertex.getId()).getProperty("property1"));
+
 	vertex.remove();
 	graph.commit();
     }
@@ -58,6 +82,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	DuctileDBVertex vertex = graph.addVertex();
 	vertex.addLabel("label");
 	graph.commit();
+	healthChecker.runCheck();
 	assertTrue(vertex.hasLabel("label"));
 
 	Iterator<String> iterator = vertex.getLabels().iterator();
@@ -75,6 +100,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.removeLabel("label");
 	graph.commit();
+	healthChecker.runCheck();
 	assertFalse(vertex.hasLabel("label"));
 	assertFalse(graph.getVertex(vertex.getId()).hasLabel("label"));
 	vertex.remove();
@@ -133,7 +159,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testSetPropertyPerformance() throws IOException {
-	Vertex vertex = graph.addVertex("PropertyPerformanceTest");
+	Vertex vertex = graph.addVertex();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
 	    vertex.setProperty("key" + i, i);
@@ -153,7 +179,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testSetLabelPerformance() throws IOException {
-	DuctileDBVertex vertex = graph.addVertex("LabelPerformanceTest");
+	DuctileDBVertex vertex = graph.addVertex();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
 	    vertex.addLabel("label" + i);
@@ -169,20 +195,5 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	assertTrue(duration < 10000);
 	vertex.remove();
 	graph.commit();
-    }
-
-    @Test
-    public void testCompleteDeletion() {
-	fail();
-    }
-
-    @Test
-    public void testLabelIndex() {
-	fail();
-    }
-
-    @Test
-    public void testPropertyIndex() {
-	fail();
     }
 }

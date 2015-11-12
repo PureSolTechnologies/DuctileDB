@@ -192,6 +192,7 @@
 									<aliases>
 										<alias>BSD 3-Clause</alias>
 										<alias>New BSD License</alias>
+										<alias>BSD 3-clause</alias>
 									</aliases>
 								</knownLicense>
 								<knownLicense>
@@ -325,6 +326,11 @@
 			<dependency>
 				<groupId>com.puresoltechnologies.commons</groupId>
 				<artifactId>osgi</artifactId>
+				<version>${commons.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.commons</groupId>
+				<artifactId>types</artifactId>
 				<version>${commons.version}</version>
 			</dependency>
 			<dependency>

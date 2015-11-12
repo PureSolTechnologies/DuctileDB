@@ -2,22 +2,22 @@ package com.puresoltechnologies.ductiledb.xo.impl;
 
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Gauging;
 
-public class GremlinExpression {
+public class GaugingExpression {
 
 	private final String resultName;
 	private final String expression;
 
-	public GremlinExpression(String expression) {
+	public GaugingExpression(String expression) {
 		this("", expression);
 	}
 
-	public GremlinExpression(String resultName, String expression) {
+	public GaugingExpression(String resultName, String expression) {
 		super();
 		this.resultName = resultName;
 		this.expression = expression;
 	}
 
-	public GremlinExpression(Gauging gremlin) {
+	public GaugingExpression(Gauging gremlin) {
 		this(gremlin.name(), gremlin.value());
 	}
 

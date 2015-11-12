@@ -87,7 +87,7 @@ public class DucileDBStoreVertexManager implements
     public DuctileDBVertex createEntity(TypeMetadataSet<EntityTypeMetadata<DuctileDBVertexMetadata>> types,
 	    Set<String> discriminators,
 	    Map<PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata>, Object> exampleEntity) {
-	DuctileDBVertex vertex = graph.addVertex(null);
+	DuctileDBVertex vertex = graph.addVertex();
 	for (String discriminator : discriminators) {
 	    vertex.setProperty(DuctileDBStoreSession.XO_DISCRIMINATORS_PROPERTY + discriminator, discriminator);
 	}

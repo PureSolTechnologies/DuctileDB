@@ -84,7 +84,6 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     static final byte[] INDEX_COLUMN_FAMILY_BYTES = Bytes.toBytes(INDEX_COLUMN_FAMILY);
 
     static final String DUCTILEDB_ID_PROPERTY = "_ductiledb.id";
-    static final byte[] DUCTILEDB_ID_PROPERTY_BYTES = Bytes.toBytes(DUCTILEDB_ID_PROPERTY);
 
     private final ThreadLocal<DuctileDBTransaction> transactions = new ThreadLocal<DuctileDBTransaction>() {
 	@Override
@@ -405,8 +404,10 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	List<Put> propertyIndex = new ArrayList<>();
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
 	for (Entry<String, Object> property : properties.entrySet()) {
-	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
-		    SerializationUtils.serialize((Serializable) property.getValue()));
+	    String key = property.getKey();
+	    Object value = property.getValue();
+	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
+		    SerializationUtils.serialize((Serializable) value));
 	    propertyIndex.add(createVertexPropertyIndexPut(vertexId, property.getKey(), property.getValue()));
 	}
 	// Add to transaction
@@ -611,6 +612,9 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     public void removeVertex(Vertex vertex) {
 	long vertexId = (long) vertex.getId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
+	for (Edge edge : ((DuctileDBVertex) vertex).getEdges(Direction.BOTH)) {
+	    removeEdge(edge);
+	}
 	for (String label : ((DuctileDBVertex) vertex).getLabels()) {
 	    Delete delete = createVertexLabelIndexDelete(vertexId, label);
 	    getCurrentTransaction().delete(VERTEX_LABELS_INDEX_TABLE, delete);

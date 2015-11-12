@@ -5,8 +5,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
+import java.util.NavigableMap;
 
-import org.apache.hadoop.hbase.Cell;
+import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.utils.IdEncoder;
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -35,12 +37,15 @@ public class DuctileDBHealthCheck {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBHealthCheck.class);
 
-    private final Connection connection;
     private final DuctileDBGraphImpl graph;
+
+    public DuctileDBHealthCheck(DuctileDBGraphImpl graph) throws IOException {
+	super();
+	this.graph = graph;
+    }
 
     public DuctileDBHealthCheck(Connection connection) throws IOException {
 	super();
-	this.connection = connection;
 	graph = (DuctileDBGraphImpl) GraphFactory.createGraph(connection);
     }
 
@@ -66,20 +71,41 @@ public class DuctileDBHealthCheck {
 	    DuctileDBVertex vertex = (DuctileDBVertex) tempVertex;
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    for (String label : vertex.getLabels()) {
-		try (Table table = graph.openVertexLabelTable()) {
+	    try (Table table = graph.openVertexLabelTable()) {
+		for (String label : vertex.getLabels()) {
 		    Result result = table.get(new Get(Bytes.toBytes(label)));
 		    assertFalse("Could not find row for label '" + label + "' in vertex label index.",
 			    result.isEmpty());
-		    Cell cell = result.getColumnLatestCell(DuctileDBGraphImpl.INDEX_COLUMN_FAMILY_BYTES,
-			    IdEncoder.encodeRowId(vertex.getId()));
+		    byte[] value = result.getFamilyMap(DuctileDBGraphImpl.INDEX_COLUMN_FAMILY_BYTES)
+			    .get(IdEncoder.encodeRowId(vertex.getId()));
 		    assertNotNull("Could not find vertex label index entry for label '" + label
-			    + "' for vertex with id '" + vertex.getId() + "'", cell);
+			    + "' for vertex with id '" + vertex.getId() + "'", value);
 		}
 	    }
+	    try (Table table = graph.openVertexPropertyTable()) {
+		for (String key : vertex.getPropertyKeys()) {
+		    Object value = vertex.getProperty(key);
+		    Result result = table.get(new Get(Bytes.toBytes(key)));
+		    assertFalse("Could not find row for property '" + key + "' in vertex property index.",
+			    result.isEmpty());
+		    NavigableMap<byte[], byte[]> familyMap = result
+			    .getFamilyMap(DuctileDBGraphImpl.INDEX_COLUMN_FAMILY_BYTES);
+		    assertNotNull("Could not find vertex property index entry for property '" + key
+			    + "' for vertex with id '" + vertex.getId() + "'", familyMap);
+		    Object deserialized = SerializationUtils
+			    .deserialize(familyMap.get(IdEncoder.encodeRowId(vertex.getId())));
+		    assertEquals("Value for vertex property '" + key + "' for vertex '" + vertex.getId()
+			    + "' is not as expected. ", value, deserialized);
+		}
+	    }
+	    for (Edge tempEdge : vertex.getEdges(Direction.BOTH)) {
+		DuctileDBEdge edge = (DuctileDBEdge) tempEdge;
+		DuctileDBEdge readEdge = graph.getEdge(edge.getId());
+		assertEquals("Separately stored edge is not equals.", edge, readEdge);
+	    }
 	}
-	// TODO
 	logger.info("Vertices checked.");
+
     }
 
     /**
@@ -93,18 +119,37 @@ public class DuctileDBHealthCheck {
 	Iterable<Edge> edges = graph.getEdges();
 	for (Edge tempEdge : edges) {
 	    DuctileDBEdge edge = (DuctileDBEdge) tempEdge;
-	    assertEquals(edge, graph.getVertex(edge.getId()));
+	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String label = edge.getLabel();
-	    try (Table table = graph.openVertexLabelTable()) {
+	    try (Table table = graph.openEdgeLabelTable()) {
 		Result result = table.get(new Get(Bytes.toBytes(label)));
 		assertFalse("Could not find row for label '" + label + "' in edge label index.", result.isEmpty());
-		Cell cell = result.getColumnLatestCell(DuctileDBGraphImpl.INDEX_COLUMN_FAMILY_BYTES,
-			IdEncoder.encodeRowId(edge.getId()));
+		byte[] value = result.getFamilyMap(DuctileDBGraphImpl.INDEX_COLUMN_FAMILY_BYTES)
+			.get(IdEncoder.encodeRowId(edge.getId()));
 		assertNotNull("Could not find edge label index entry for label '" + label + "' for edge with id '"
-			+ edge.getId() + "'", cell);
+			+ edge.getId() + "'", value);
 	    }
+	    try (Table table = graph.openEdgePropertyTable()) {
+		for (String key : edge.getPropertyKeys()) {
+		    Object value = edge.getProperty(key);
+		    Result result = table.get(new Get(Bytes.toBytes(key)));
+		    assertFalse("Could not find row for property '" + key + "' in edge property index.",
+			    result.isEmpty());
+		    NavigableMap<byte[], byte[]> familyMap = result
+			    .getFamilyMap(DuctileDBGraphImpl.INDEX_COLUMN_FAMILY_BYTES);
+		    assertNotNull("Could not find edge property index entry for property '" + key
+			    + "' for edge with id '" + edge.getId() + "'", familyMap);
+		    Object deserialized = SerializationUtils
+			    .deserialize(familyMap.get(IdEncoder.encodeRowId(edge.getId())));
+		    assertEquals("Value for edge property '" + key + "' for edge '" + edge.getId()
+			    + "' is not as expected. ", value, deserialized);
+		}
+	    }
+	    DuctileDBVertex startVertex = edge.getStartVertex();
+	    assertNotNull("Start vertex is not present.", startVertex);
+	    DuctileDBVertex targetVertex = edge.getTargetVertex();
+	    assertNotNull("Target vertex is not present.", targetVertex);
 	}
-	// TODO
 	logger.info("Edges checked.");
     }
 

@@ -2,12 +2,12 @@ package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
 import com.tinkerpop.blueprints.Direction;
 
-public class TitanReferencePropertyMetadata {
+public class DuctileDBReferencePropertyMetadata {
 
 	private final String name;
 	private final Direction direction;
 
-	public TitanReferencePropertyMetadata(String name, Direction direction) {
+	public DuctileDBReferencePropertyMetadata(String name, Direction direction) {
 		this.name = name;
 		this.direction = direction;
 	}

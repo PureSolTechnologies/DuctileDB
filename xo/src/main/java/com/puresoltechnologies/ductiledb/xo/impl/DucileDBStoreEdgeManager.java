@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.buschmais.xo.api.XOException;
@@ -14,7 +16,6 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBPropertyMetadata;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.VertexQuery;
 
 /**
  * This class implements the XO DatastorePropertyManager for Titan database.
@@ -80,19 +81,28 @@ public class DucileDBStoreEdgeManager implements
     @Override
     public Iterable<DuctileDBEdge> getRelations(DuctileDBVertex source,
 	    RelationTypeMetadata<DuctileDBEdgeMetadata> metadata, RelationTypeMetadata.Direction direction) {
-	VertexQuery query = source.query();
 	String discriminator = metadata.getDatastoreMetadata().getDiscriminator();
+	Iterable<Edge> edges = null;
 	switch (direction) {
 	case TO:
-	    query = query.direction(Direction.IN).labels(discriminator);
+	    edges = source.getEdges(Direction.IN, discriminator);
 	    break;
 	case FROM:
-	    query = query.direction(Direction.OUT).labels(discriminator);
+	    edges = source.getEdges(Direction.OUT, discriminator);
 	    break;
 	default:
 	    throw new XOException("Unknown direction '" + direction.name() + "'.");
 	}
-	return query.edges();
+	List<DuctileDBEdge> result = new ArrayList<>();
+	for (Edge edge : edges) {
+	    result.add((DuctileDBEdge) edge);
+	}
+	return new Iterable<DuctileDBEdge>() {
+	    @Override
+	    public Iterator<DuctileDBEdge> iterator() {
+		return result.iterator();
+	    }
+	};
     }
 
     @Override

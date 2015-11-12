@@ -107,11 +107,17 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
     @Override
     public DuctileDBVertex getStartVertex() {
+	if (startVertex == null) {
+	    startVertex = graph.getVertex(startVertexId);
+	}
 	return startVertex;
     }
 
     @Override
     public DuctileDBVertex getTargetVertex() {
+	if (targetVertex == null) {
+	    targetVertex = graph.getVertex(targetVertexId);
+	}
 	return targetVertex;
     }
 
@@ -119,15 +125,9 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     public DuctileDBVertex getVertex(Direction direction) throws IllegalArgumentException {
 	switch (direction) {
 	case OUT:
-	    if (startVertex == null) {
-		startVertex = graph.getVertex(startVertexId);
-	    }
-	    return startVertex;
+	    return getStartVertex();
 	case IN:
-	    if (targetVertex == null) {
-		targetVertex = graph.getVertex(targetVertexId);
-	    }
-	    return targetVertex;
+	    return getTargetVertex();
 	default:
 	    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
 	}

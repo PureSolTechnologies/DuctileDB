@@ -2,14 +2,14 @@ package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
 import com.tinkerpop.blueprints.Element;
 
-public class TitanIndexedPropertyMetadata {
+public class DuctileDBIndexedPropertyMetadata {
 
 	private final String name;
 	private final boolean unique;
 	private final Class<? extends Element> type;
 	private final Class<?> dataType;
 
-	public TitanIndexedPropertyMetadata(String name, boolean unique,
+	public DuctileDBIndexedPropertyMetadata(String name, boolean unique,
 			Class<?> dataType, Class<? extends Element> type) {
 		this.name = name;
 		this.unique = unique;

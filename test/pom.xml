@@ -17,6 +17,10 @@
 			<artifactId>ductiledb-core</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.commons</groupId>
+			<artifactId>types</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-client</artifactId>
 		</dependency>

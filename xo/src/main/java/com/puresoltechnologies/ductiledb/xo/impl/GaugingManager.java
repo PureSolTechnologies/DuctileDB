@@ -16,7 +16,7 @@ import com.tinkerpop.blueprints.Vertex;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class GremlinManager {
+public class GaugingManager {
 
     /**
      * This is a helper method to extract the Gremlin expression.
@@ -30,14 +30,14 @@ public class GremlinManager {
      * @param <QL>
      *            is the query language.
      */
-    public static <QL> GremlinExpression getGremlinExpression(QL expression,
+    public static <QL> GaugingExpression getGaugingExpression(QL expression,
 	    Map<String, Object> parameters) {
-	GremlinExpression gremlinExpression = null;
+	GaugingExpression gremlinExpression = null;
 	if (expression instanceof String) {
-	    gremlinExpression = new GremlinExpression("", (String) expression);
+	    gremlinExpression = new GaugingExpression("", (String) expression);
 	} else if (expression instanceof Gauging) {
 	    Gauging gremlin = (Gauging) expression;
-	    gremlinExpression = new GremlinExpression(gremlin.name(),
+	    gremlinExpression = new GaugingExpression(gremlin.name(),
 		    gremlin.value());
 	} else if (AnnotatedElement.class.isAssignableFrom(expression
 		.getClass())) {
@@ -57,36 +57,36 @@ public class GremlinManager {
 	return applyParameters(parameters, gremlinExpression);
     }
 
-    private static GremlinExpression extractExpression(
+    private static GaugingExpression extractExpression(
 	    AnnotatedElement<?> typeExpression) {
 	Gauging gremlin = typeExpression.getAnnotation(Gauging.class);
 	if (gremlin == null) {
 	    throw new XOException(typeExpression + " must be annotated with "
 		    + Gauging.class.getName());
 	}
-	return new GremlinExpression(gremlin);
+	return new GaugingExpression(gremlin);
     }
 
-    private static <QL> GremlinExpression extractExpression(Class<?> clazz) {
+    private static <QL> GaugingExpression extractExpression(Class<?> clazz) {
 	Gauging gremlin = clazz.getAnnotation(Gauging.class);
 	if (gremlin == null) {
 	    throw new XOException(clazz.getName() + " must be annotated with "
 		    + Gauging.class.getName());
 	}
-	return new GremlinExpression(gremlin);
+	return new GaugingExpression(gremlin);
     }
 
-    private static <QL> GremlinExpression extractExpression(Method method) {
+    private static <QL> GaugingExpression extractExpression(Method method) {
 	Gauging gremlin = method.getAnnotation(Gauging.class);
 	if (gremlin == null) {
 	    throw new XOException(method.getName() + " must be annotated with "
 		    + Gauging.class.getName());
 	}
-	return new GremlinExpression(gremlin);
+	return new GaugingExpression(gremlin);
     }
 
-    private static GremlinExpression applyParameters(
-	    Map<String, Object> parameters, GremlinExpression gremlinExpression) {
+    private static GaugingExpression applyParameters(
+	    Map<String, Object> parameters, GaugingExpression gremlinExpression) {
 	StringBuffer typeDefinitions = createTypeDefinitions(parameters);
 	String expressionString = gremlinExpression.getExpression();
 	for (String type : parameters.keySet()) {
@@ -98,7 +98,7 @@ public class GremlinManager {
 	}
 	String enhancedExpressionString = typeDefinitions.toString()
 		+ expressionString;
-	return new GremlinExpression(gremlinExpression.getResultName(),
+	return new GaugingExpression(gremlinExpression.getResultName(),
 		enhancedExpressionString);
     }
 
