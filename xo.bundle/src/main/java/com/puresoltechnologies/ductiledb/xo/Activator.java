@@ -1,4 +1,4 @@
-package com.puresoltechnologies.xo.titan;
+package com.puresoltechnologies.ductiledb.xo;
 
 import com.puresoltechnologies.commons.osgi.AbstractActivator;
 

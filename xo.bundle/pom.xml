@@ -18,7 +18,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>xo</artifactId>
+			<artifactId>ductiledb-xo</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -27,7 +27,7 @@
 	</dependencies>
 
 	<properties>
-		<bundle.namespace>com.puresoltechnologies.xo.titan</bundle.namespace>
+		<bundle.namespace>com.puresoltechnologies.ductiledb.xo</bundle.namespace>
 	</properties>
 
 	<build>

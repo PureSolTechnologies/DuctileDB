@@ -27,7 +27,6 @@ public class TitanStoreTransactionTest {
 	DuctileDBTransaction transactionMock = mock(DuctileDBTransaction.class);
 	when(transactionMock.isOpen()).thenReturn(true);
 	when(transactionMock.isClosed()).thenReturn(false);
-	when(titanGraphMock.newTransaction()).thenReturn(transactionMock);
     }
 
     @Test(expected = IllegalArgumentException.class)

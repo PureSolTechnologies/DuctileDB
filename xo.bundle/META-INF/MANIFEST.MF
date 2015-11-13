@@ -1,60 +1,60 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1439888693445
+Bnd-LastModified: 1447448718494
 Build-Jdk: 1.8.0_20
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
-Bundle-Activator: com.puresoltechnologies.xo.titan.Activator
-Bundle-ClassPath: .,dependencies/osgi-0.3.0.jar,dependencies/titan-0.4.0
- -SNAPSHOT.jar
-Bundle-Description: PureSol Technologies' eXtended Objects Implementatio
- n for Titan Graph Database
+Bundle-Activator: com.puresoltechnologies.ductiledb.xo.Activator
+Bundle-ClassPath: .,dependencies/osgi-0.6.0.jar,dependencies/ductiledb-x
+ o-0.1.0-SNAPSHOT.jar
+Bundle-Description: DuctileDB is PureSol Technologies' graph database fo
+ r HBase and Hadoop.
 Bundle-DocURL: http://puresol-technologies.com
-Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.html
+Bundle-License: http://www.gnu.org/licenses/agpl-3.0.html
 Bundle-ManifestVersion: 2
-Bundle-Name: com.puresoltechnologies.xo.titan.bundle
-Bundle-SymbolicName: com.puresoltechnologies.xo.titan.bundle
+Bundle-Name: com.puresoltechnologies.ductiledb.xo.bundle
+Bundle-SymbolicName: com.puresoltechnologies.ductiledb.xo.bundle
 Bundle-Vendor: PureSol Technologies
-Bundle-Version: 0.4.0.SNAPSHOT
+Bundle-Version: 0.1.0.SNAPSHOT
 Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: *;scope=compile|runtime;inline=false
 Embed-Directory: dependencies
 Embed-StripGroup: true
-Embedded-Artifacts: dependencies/osgi-0.3.0.jar;g="com.puresoltechnologi
- es.commons";a="osgi";v="0.3.0",dependencies/titan-0.4.0-SNAPSHOT.jar;g=
- "com.puresoltechnologies.extended-objects";a="titan";v="0.4.0-SNAPSHOT"
-Export-Package: com.puresoltechnologies.xo.titan;version="0.4.0.SNAPSHOT
- ",com.puresoltechnologies.xo.titan.api;version="0.4.0.SNAPSHOT";uses:="
- com.buschmais.xo.api.bootstrap,com.buschmais.xo.spi.bootstrap,com.busch
- mais.xo.spi.datastore,com.puresoltechnologies.xo.titan.impl,com.puresol
- technologies.xo.titan.impl.metadata",com.puresoltechnologies.xo.titan.a
- pi.annotation;version="0.4.0.SNAPSHOT";uses:="com.buschmais.xo.spi.anno
- tation",com.puresoltechnologies.xo.titan.impl;version="0.4.0.SNAPSHOT";
- uses:="com.buschmais.xo.api,com.buschmais.xo.spi.datastore,com.buschmai
- s.xo.spi.metadata.method,com.buschmais.xo.spi.metadata.type,com.buschma
- is.xo.spi.reflection,com.puresoltechnologies.xo.titan.api.annotation,co
- m.puresoltechnologies.xo.titan.impl.metadata,com.thinkaurelius.titan.co
- re,com.tinkerpop.blueprints",com.puresoltechnologies.xo.titan.impl.meta
- data;version="0.4.0.SNAPSHOT";uses:="com.buschmais.xo.spi.datastore,com
- .buschmais.xo.spi.metadata.method,com.tinkerpop.blueprints"
-Implementation-Title: com.puresoltechnologies.extended-objects:titan.bun
- dle
+Embedded-Artifacts: dependencies/osgi-0.6.0.jar;g="com.puresoltechnologi
+ es.commons";a="osgi";v="0.6.0",dependencies/ductiledb-xo-0.1.0-SNAPSHOT
+ .jar;g="com.puresoltechnologies.ductiledb";a="ductiledb-xo";v="0.1.0-SN
+ APSHOT"
+Export-Package: com.puresoltechnologies.ductiledb.xo;version="0.1.0.SNAP
+ SHOT",com.puresoltechnologies.ductiledb.xo.api;version="0.1.0.SNAPSHOT"
+ ;uses:="com.buschmais.xo.api.bootstrap,com.buschmais.xo.spi.bootstrap,c
+ om.buschmais.xo.spi.datastore,com.puresoltechnologies.ductiledb.xo.impl
+ ,com.puresoltechnologies.ductiledb.xo.impl.metadata",com.puresoltechnol
+ ogies.ductiledb.xo.api.annotation;version="0.1.0.SNAPSHOT";uses:="com.b
+ uschmais.xo.spi.annotation",com.puresoltechnologies.ductiledb.xo.impl;v
+ ersion="0.1.0.SNAPSHOT";uses:="com.buschmais.xo.api,com.buschmais.xo.sp
+ i.datastore,com.buschmais.xo.spi.metadata.method,com.buschmais.xo.spi.m
+ etadata.type,com.buschmais.xo.spi.reflection,com.buschmais.xo.spi.sessi
+ on,com.puresoltechnologies.ductiledb,com.puresoltechnologies.ductiledb.
+ xo.api.annotation,com.puresoltechnologies.ductiledb.xo.impl.metadata",c
+ om.puresoltechnologies.ductiledb.xo.impl.metadata;version="0.1.0.SNAPSH
+ OT";uses:="com.buschmais.xo.spi.datastore,com.buschmais.xo.spi.metadata
+ .method,com.tinkerpop.blueprints"
+Implementation-Title: com.puresoltechnologies.ductiledb:xo.bundle
 Implementation-Vendor: PureSol Technologies
-Implementation-Version: 0.4.0-SNAPSHOT
-Import-Package: com.buschmais.xo.api;version="[0.4,1)",com.buschmais.xo.
- api.bootstrap;version="[0.4,1)",com.buschmais.xo.spi.annotation;version
- ="[0.4,1)",com.buschmais.xo.spi.bootstrap;version="[0.4,1)",com.buschma
- is.xo.spi.datastore;version="[0.4,1)",com.buschmais.xo.spi.metadata.met
- hod;version="[0.4,1)",com.buschmais.xo.spi.metadata.type;version="[0.4,
- 1)",com.buschmais.xo.spi.reflection;version="[0.4,1)",com.thinkaurelius
- .titan.core,com.thinkaurelius.titan.core.schema,com.tinkerpop.blueprint
- s,com.tinkerpop.gremlin.groovy,com.tinkerpop.pipes,org.apache.commons.c
- onfiguration,org.apache.commons.lang,org.osgi.framework;version="[1.7,2
- )",org.slf4j;version="[1.7,2)"
-Project-URL: http://opensource.puresol-technologies.com/xo-titan/titan.b
- undle
+Implementation-Version: 0.1.0-SNAPSHOT
+Import-Package: com.buschmais.xo.api;version="[0.6,1)",com.buschmais.xo.
+ api.bootstrap;version="[0.6,1)",com.buschmais.xo.spi.annotation;version
+ ="[0.6,1)",com.buschmais.xo.spi.bootstrap;version="[0.6,1)",com.buschma
+ is.xo.spi.datastore;version="[0.6,1)",com.buschmais.xo.spi.metadata.met
+ hod;version="[0.6,1)",com.buschmais.xo.spi.metadata.type;version="[0.6,
+ 1)",com.buschmais.xo.spi.reflection;version="[0.6,1)",com.buschmais.xo.
+ spi.session;version="[0.6,1)",com.puresoltechnologies.ductiledb,com.tin
+ kerpop.blueprints,com.tinkerpop.pipes,org.apache.commons.configuration;
+ version="[1.6,2)",org.apache.commons.lang;version="[2.4,3)",org.osgi.fr
+ amework;version="[1.7,2)",org.slf4j
+Project-URL: http://puresol-technologies.com/xo.bundle
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
-Specification-Title: eXtended Objects for Titan: titan.bundle
+Specification-Title: eXtended Objects for DuctileDB: xo.bundle
 Specification-Vendor: PureSol Technologies
-Specification-Version: 0.4.0-SNAPSHOT
+Specification-Version: 0.1.0-SNAPSHOT
 Tool: Bnd-2.3.0.201405100607
 Vendor-URL: http://puresol-technologies.com

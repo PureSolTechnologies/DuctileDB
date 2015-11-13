@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
-import java.nio.channels.Pipe;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,11 +7,14 @@ import java.util.Map;
 import com.buschmais.xo.api.ResultIterator;
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreQuery;
+import com.puresoltechnologies.ductiledb.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Gauging;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.pipes.Pipe;
 
 public class DuctileQuery implements DatastoreQuery<Gauging> {
 
@@ -38,14 +40,14 @@ public class DuctileQuery implements DatastoreQuery<Gauging> {
 	    final GaugingExpression gremlinExpression) {
 	String expression = gremlinExpression.getExpression();
 	@SuppressWarnings("unchecked")
-	final Pipe pipe = DuctileQuery.compile(expression);
+	final Pipe<Vertex, Vertex> pipe = DuctileQuery.compile(expression);
 	if (parameters.containsKey("this")) {
 	    Object setThis = parameters.get("this");
 	    if (Vertex.class.isAssignableFrom(setThis.getClass())) {
-		Vertex vertex = (Vertex) setThis;
+		DuctileDBVertex vertex = (DuctileDBVertex) setThis;
 		pipe.setStarts(Arrays.asList(vertex));
 	    } else if (Edge.class.isAssignableFrom(setThis.getClass())) {
-		Edge edge = (Edge) setThis;
+		DuctileDBEdge edge = (DuctileDBEdge) setThis;
 		pipe.setStarts(Arrays.asList(edge.getVertex(Direction.IN), edge.getVertex(Direction.OUT)));
 	    } else {
 		throw new XOException(
@@ -91,7 +93,7 @@ public class DuctileQuery implements DatastoreQuery<Gauging> {
 	};
     }
 
-    private static Pipe compile(String expression) {
+    private static Pipe<Vertex, Vertex> compile(String expression) {
 	// TODO Auto-generated method stub
 	return null;
     }

@@ -22,39 +22,38 @@ import com.puresoltechnologies.xo.titan.test.data.Person;
 @RunWith(Parameterized.class)
 public class GremlinIT extends AbstractXOTitanTest {
 
-	public GremlinIT(XOUnit xoUnit) {
-		super(xoUnit);
+    public GremlinIT(XOUnit xoUnit) {
+	super(xoUnit);
+    }
+
+    @Parameterized.Parameters
+    public static Collection<XOUnit[]> getCdoUnits() throws IOException {
+	return XOTitanTestUtils.configuredXOUnits();
+    }
+
+    @Before
+    public void setupData() throws IOException {
+	XOTitanTestUtils.addStarwarsData(getXOManager());
+    }
+
+    @Test
+    public void findSkywalkerFamily() {
+	XOManager xoManager = getXOManager();
+	xoManager.currentTransaction().begin();
+
+	Query<Person> query = xoManager.createQuery("_().has('lastName', 'Skywalker')", Person.class);
+	assertNotNull(query);
+
+	Result<Person> results = query.execute();
+	assertNotNull(results);
+
+	int count = 0;
+	for (Person person : results) {
+	    count++;
+	    assertEquals("Skywalker", person.getLastName());
 	}
+	assertEquals(4, count);
 
-	@Parameterized.Parameters
-	public static Collection<XOUnit[]> getCdoUnits() throws IOException {
-		return XOTitanTestUtils.configuredXOUnits();
-	}
-
-	@Before
-	public void setupData() {
-		XOTitanTestUtils.addStarwarsData(getXOManager());
-	}
-
-	@Test
-	public void findSkywalkerFamily() {
-		XOManager xoManager = getXOManager();
-		xoManager.currentTransaction().begin();
-
-		Query<Person> query = xoManager.createQuery(
-				"_().has('lastName', 'Skywalker')", Person.class);
-		assertNotNull(query);
-
-		Result<Person> results = query.execute();
-		assertNotNull(results);
-
-		int count = 0;
-		for (Person person : results) {
-			count++;
-			assertEquals("Skywalker", person.getLastName());
-		}
-		assertEquals(4, count);
-
-		xoManager.currentTransaction().commit();
-	}
+	xoManager.currentTransaction().commit();
+    }
 }
