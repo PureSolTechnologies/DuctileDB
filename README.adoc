@@ -1,5 +1,5 @@
-PureSol Technologies Logo
 = DuctileDB
+image:http://opensource.puresol-technologies.com/images/logo_320.png[PureSol Technologies Logo]
 
 Ductile DB is a graph database based on Hadoop/HBase which provides a vast set of features.
 
