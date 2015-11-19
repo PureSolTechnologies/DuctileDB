@@ -2,10 +2,12 @@ package com.puresoltechnologies.ductiledb.xo.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.commons.configuration.Configuration;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,12 +22,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadat
 
 /**
  * <p>
- * This class implements an XO Datastore for Titan on Cassandra.
- * </p>
- * <p>
- * For details have a look to
- * <a href="https://github.com/thinkaurelius/titan/wiki/Using-Cassandra" >https:
- * //github.com/thinkaurelius/titan/wiki/Using-Cassandra</a>
+ * This class implements an XO Datastore for DuctileDB.
  * </p>
  * 
  * @author Rick-Rainer Ludwig
@@ -36,34 +33,22 @@ public class DuctileDBStore
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBStore.class);
 
     /**
-     * This constant contains the default name of the Titan keyspace which is
-     * set to {@value #DEFAULT_TITAN_KEYSPACE}.
+     * This constant contains the default name of the DuctileDB namespace which
+     * is set to {@value #DEFAULT_DUCTILEDB_NAMESPACE}.
      */
-    public static final String DEFAULT_TITAN_KEYSPACE = "titan";
+    public static final String DEFAULT_DUCTILEDB_NAMESPACE = "ductiledb";
 
     /**
-     * This constant contains the default port
-     * {@value #DEFAULT_CASSANDRA_THRIFT_PORT} for the Thrift interface of
-     * Cassandra.
-     */
-    public static final int DEFAULT_CASSANDRA_THRIFT_PORT = 9160;
-
-    /**
-     * This constant contains the name of the index to be used for properties.
-     */
-    public static final String INDEX_NAME = "standard";
-
-    /**
-     * This is a helper method to retrieve the keyspace name from a store URI.
-     * The keyspace is taken from the path part of the URI and may be empty, if
-     * the default keyspace {@value DuctileDBStore#DEFAULT_TITAN_KEYSPACE}
+     * This is a helper method to retrieve the namespace name from a store URI.
+     * The namespace is taken from the path part of the URI and may be empty, if
+     * the default namespace {@value DuctileDBStore#DEFAULT_DUCTILEDB_NAMESPACE}
      * is to be used.
      * 
      * @param uri
-     *            is the URI where the keyspace name is to be extracted from.
-     * @return The name of the keyspace is returned as {@link String} .
+     *            is the URI where the namespace name is to be extracted from.
+     * @return The name of the namespace is returned as {@link String} .
      */
-    public static String retrieveKeyspaceFromURI(URI uri) {
+    public static String retrieveNamespaceFromURI(URI uri) {
 	String path = uri.getPath();
 	if (path.startsWith("/")) {
 	    path = path.substring(1);
@@ -79,48 +64,39 @@ public class DuctileDBStore
     }
 
     /**
-     * This field contains the whole titanGraph after connection to the
-     * database.
+     * This field contains the whole graph after connection to the database.
      */
     private DuctileDBGraph graph = null;
 
     /**
-     * This field contains the Cassandra host to connect to.
+     * This field contains the path to hbase-site.xml to connect to HBase client
+     * for DuctileDB.
      */
-    private final String host;
+    private final URL hbaseSitePath;
     /**
-     * This field contains the port of Cassandra.
+     * This is the name of the namespace to use for DuctileDB.
      */
-    private final int port;
-    /**
-     * This is the name of the keyspace to use for Titan.
-     */
-    private final String keyspace;
+    private final String namespace;
 
     /**
      * This is the initial value constructor.
      * 
-     * @param host
-     *            is the host for Cassandra for Titan to connect to.
+     * @param hbaseSitePath
+     *            is the host for Cassandra for DuctileDB to connect to.
      * @param port
-     *            is the port for Cassandra for Titan to connect to.
-     * @param keyspace
+     *            is the port for Cassandra for DuctileDB to connect to.
+     * @param namespace
      *            is
      */
-    public DuctileDBStore(String host, int port, String keyspace) {
-	if ((host == null) || (host.isEmpty())) {
+    public DuctileDBStore(URL hbaseSitePath, String namespace) {
+	if (hbaseSitePath == null) {
 	    throw new IllegalArgumentException("The host must not be null or empty.");
 	}
-	this.host = host;
-	if (port <= 0) {
-	    this.port = DEFAULT_CASSANDRA_THRIFT_PORT;
+	this.hbaseSitePath = hbaseSitePath;
+	if ((namespace == null) || (namespace.isEmpty())) {
+	    this.namespace = DEFAULT_DUCTILEDB_NAMESPACE;
 	} else {
-	    this.port = port;
-	}
-	if ((keyspace == null) || (keyspace.isEmpty())) {
-	    this.keyspace = DEFAULT_TITAN_KEYSPACE;
-	} else {
-	    this.keyspace = keyspace;
+	    this.namespace = namespace;
 	}
     }
 
@@ -129,17 +105,8 @@ public class DuctileDBStore
      * 
      * @return A {@link String} with the host name is returned.
      */
-    public String getHost() {
-	return host;
-    }
-
-    /**
-     * Returns the port of the Cassandra server.
-     * 
-     * @return An <code>int</code> is returned with the port.
-     */
-    public int getPort() {
-	return port;
+    public URL getHBaseSitePath() {
+	return hbaseSitePath;
     }
 
     /**
@@ -148,7 +115,7 @@ public class DuctileDBStore
      * @return A {@link String} is returned with the name of the keyspace.
      */
     public String getKeyspace() {
-	return keyspace;
+	return namespace;
     }
 
     /**
@@ -156,28 +123,22 @@ public class DuctileDBStore
      * 
      * @return A DuctileDBGraph is returned.
      */
-    public final DuctileDBGraph getTitanGraph() {
+    public final DuctileDBGraph getGraph() {
 	return graph;
     }
 
     @Override
     public DatastoreMetadataFactory<DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> getMetadataFactory() {
-	return new TitanMetadataFactory();
+	return new DuctileDBMetadataFactory();
     }
 
     @Override
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    Configuration configuration = new BaseConfiguration();
-	    configuration.setProperty("storage.hostname", host);
-	    if (port > 0) {
-		configuration.setProperty("storage.port", port);
-	    }
-	    if (keyspace != null) {
-		configuration.setProperty("storage.cassandra.keyspace", keyspace);
-	    }
-	    graph = GraphFactory.createGraph(configuration);
+	    Configuration hbaseConfiguration = HBaseConfiguration.create();
+	    hbaseConfiguration.addResource(new Path(hbaseSitePath.getPath()));
+	    graph = GraphFactory.createGraph(hbaseConfiguration);
 	} catch (IOException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
 	}
@@ -190,8 +151,10 @@ public class DuctileDBStore
 
     @Override
     public void close() {
-	logger.info("Shutting down eXtended Objects for Titan on Cassandra...");
-	graph.shutdown();
-	graph = null;
+	logger.info("Shutting down eXtended Objects for DuctileDB...");
+	if (graph != null) {
+	    graph.shutdown();
+	    graph = null;
+	}
     }
 }

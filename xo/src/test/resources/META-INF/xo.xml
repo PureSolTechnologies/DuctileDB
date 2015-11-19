@@ -1,15 +1,15 @@
 <v1:xo version="1.0" xmlns:v1="http://buschmais.com/xo/schema/v1.0">
     <xo-unit name="Titan">
-        <description>This is a test unit for the Titan file datastore.</description>
-        <url>titan-cassandra://localhost:9160/titantest</url>
-        <provider>com.puresoltechnologies.xo.titan.api.TitanXOProvider</provider>
+        <description>This is a test unit for the DuctileDB file datastore.</description>
+        <url>ductiledb:file:/opt/hbase/conf/hbase-site.xml</url>
+        <provider>com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider</provider>
         <types>
-            <type>com.puresoltechnologies.xo.titan.test.bootstrap.TestEntity</type>
-            <type>com.puresoltechnologies.xo.titan.test.data.Person</type>
-            <type>com.puresoltechnologies.xo.titan.test.data.HasMother</type>
-            <type>com.puresoltechnologies.xo.titan.test.data.HasFather</type>
-            <type>com.puresoltechnologies.xo.titan.test.data.HasSister</type>
-            <type>com.puresoltechnologies.xo.titan.test.data.HasBrother</type>
+            <type>com.puresoltechnologies.ductiledb.xo.test.bootstrap.TestEntity</type>
+            <type>com.puresoltechnologies.ductiledb.xo.test.data.Person</type>
+            <type>com.puresoltechnologies.ductiledb.xo.test.data.HasMother</type>
+            <type>com.puresoltechnologies.ductiledb.xo.test.data.HasFather</type>
+            <type>com.puresoltechnologies.ductiledb.xo.test.data.HasSister</type>
+            <type>com.puresoltechnologies.ductiledb.xo.test.data.HasBrother</type>
         </types>
     </xo-unit>
 </v1:xo>

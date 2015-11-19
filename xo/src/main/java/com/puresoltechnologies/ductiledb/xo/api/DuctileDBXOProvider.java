@@ -16,7 +16,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadat
  * 
  * @author Rick-Rainer Ludwig
  */
-public class TitanXOProvider
+public class DuctileDBXOProvider
 	implements
 	XODatastoreProvider<DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> {
 
@@ -50,7 +50,7 @@ public class TitanXOProvider
 	}
 	String host = uri.getHost();
 	int port = uri.getPort();
-	String keyspace = DuctileDBStore.retrieveKeyspaceFromURI(uri);
+	String keyspace = DuctileDBStore.retrieveNamespaceFromURI(uri);
 	switch (scheme) {
 	case TITAN_CASSANDRA_SCHEME:
 	    return new DuctileDBStore(host, port, keyspace);

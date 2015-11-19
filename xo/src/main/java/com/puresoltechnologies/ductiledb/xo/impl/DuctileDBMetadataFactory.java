@@ -34,7 +34,7 @@ import com.tinkerpop.blueprints.Vertex;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class TitanMetadataFactory
+public class DuctileDBMetadataFactory
 	implements
 	DatastoreMetadataFactory<DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> {
 
