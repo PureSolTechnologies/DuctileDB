@@ -1,11 +1,20 @@
 = DuctileDB image:http://opensource.puresol-technologies.com/images/logo_320.png[PureSol Technologies Logo]
 
-Ductile DB is a graph database based on Hadoop/HBase which provides a vast set of features.
+Ductile DB is a graph database based on Hadoop/HBase which provides a vast set of features inspired by link:http://neo4j.com/[Neo4j] and link:http://titan.thinkaurelius.com[Titan] graph databases:
 
-General information about the project can be found at::
+- Full support of link:https://github.com/tinkerpop/blueprints/wiki/Property-Graph-Model[Property Graphs]
+- Support of multiple labels on nodes
+- link:https://github.com/tinkerpop/blueprints/wiki[Blue Print] interface implementation (not supporting labels)
+- Implementation of link:https://github.com/buschmais/extended-objects[eXtended Objects]
+
+The project was started, because for the link:http://purifinity.com[Purifinity] (not published, yet) project a database was needed to support the large, but fine grained amount of data in a propery graph.
+
+General information about the project can be found at:
+
 http://opensource.puresol-technologies.com/DuctileDB
 
-Please, use the issue tracker at::
+Please, use the issue tracker at:
+
 https://bugs.puresol-technologies.net/projects/ductiledb
 
 link:http://ci.puresol-technologies.net/job/DuctileDB/[Build Status]
