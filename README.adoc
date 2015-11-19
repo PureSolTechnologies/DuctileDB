@@ -1,0 +1,14 @@
+PureSol Technologies Logo
+= DuctileDB
+
+Ductile DB is a graph database based on Hadoop/HBase which provides a vast set of features.
+
+General information about the project can be found at:
+
+http://opensource.puresol-technologies.com/DuctileDB
+
+Please, use the issue tracker at:
+
+https://bugs.puresol-technologies.net/projects/ductiledb
+
+Build Status
