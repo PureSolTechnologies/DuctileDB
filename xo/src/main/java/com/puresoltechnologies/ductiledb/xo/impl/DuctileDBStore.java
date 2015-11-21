@@ -1,8 +1,7 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -39,31 +38,6 @@ public class DuctileDBStore
     public static final String DEFAULT_DUCTILEDB_NAMESPACE = "ductiledb";
 
     /**
-     * This is a helper method to retrieve the namespace name from a store URI.
-     * The namespace is taken from the path part of the URI and may be empty, if
-     * the default namespace {@value DuctileDBStore#DEFAULT_DUCTILEDB_NAMESPACE}
-     * is to be used.
-     * 
-     * @param uri
-     *            is the URI where the namespace name is to be extracted from.
-     * @return The name of the namespace is returned as {@link String} .
-     */
-    public static String retrieveNamespaceFromURI(URI uri) {
-	String path = uri.getPath();
-	if (path.startsWith("/")) {
-	    path = path.substring(1);
-	}
-	if (path.endsWith("/")) {
-	    path = path.substring(0, path.length() - 1);
-	}
-	String[] splits = path.split("/");
-	if (splits.length > 1) {
-	    throw new XOException("The URI for this store may only contain a single path entry for the keyspace.");
-	}
-	return splits[0];
-    }
-
-    /**
      * This field contains the whole graph after connection to the database.
      */
     private DuctileDBGraph graph = null;
@@ -72,7 +46,7 @@ public class DuctileDBStore
      * This field contains the path to hbase-site.xml to connect to HBase client
      * for DuctileDB.
      */
-    private final URL hbaseSitePath;
+    private final File hbaseSitePath;
     /**
      * This is the name of the namespace to use for DuctileDB.
      */
@@ -88,7 +62,7 @@ public class DuctileDBStore
      * @param namespace
      *            is
      */
-    public DuctileDBStore(URL hbaseSitePath, String namespace) {
+    public DuctileDBStore(File hbaseSitePath, String namespace) {
 	if (hbaseSitePath == null) {
 	    throw new IllegalArgumentException("The host must not be null or empty.");
 	}
@@ -105,7 +79,7 @@ public class DuctileDBStore
      * 
      * @return A {@link String} with the host name is returned.
      */
-    public URL getHBaseSitePath() {
+    public File getHBaseSitePath() {
 	return hbaseSitePath;
     }
 

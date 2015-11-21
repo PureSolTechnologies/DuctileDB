@@ -25,11 +25,6 @@ public class DuctileDBStoreSession implements
 	DatastoreSession<Long, DuctileDBVertex, DuctileDBVertexMetadata, String, Long, DuctileDBEdge, DuctileDBEdgeMetadata, String, DuctileDBPropertyMetadata> {
 
     /**
-     * This constant contains the prefix for discriminator properties.
-     */
-    public static final String XO_DISCRIMINATORS_PROPERTY = "_xo_discriminator_";
-
-    /**
      * This field contains the graph as {@link DuctileDBGraph} object.
      */
     private final DuctileDBGraph graph;
