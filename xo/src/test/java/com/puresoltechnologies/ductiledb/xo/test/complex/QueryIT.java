@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -48,12 +49,13 @@ public class QueryIT extends AbstractXOTitanTest {
 	for (Person person : people) {
 	    count++;
 	}
-	assertEquals(4, count);
+	assertEquals(1, count);
 
 	xoManager.currentTransaction().commit();
     }
 
     @Test
+    @Ignore("Queries are not implemented, yet.")
     public void testRelations() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();

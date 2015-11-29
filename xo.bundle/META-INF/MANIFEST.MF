@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1447448718494
+Bnd-LastModified: 1448823826077
 Build-Jdk: 1.8.0_20
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
@@ -48,9 +48,9 @@ Import-Package: com.buschmais.xo.api;version="[0.6,1)",com.buschmais.xo.
  hod;version="[0.6,1)",com.buschmais.xo.spi.metadata.type;version="[0.6,
  1)",com.buschmais.xo.spi.reflection;version="[0.6,1)",com.buschmais.xo.
  spi.session;version="[0.6,1)",com.puresoltechnologies.ductiledb,com.tin
- kerpop.blueprints,com.tinkerpop.pipes,org.apache.commons.configuration;
- version="[1.6,2)",org.apache.commons.lang;version="[2.4,3)",org.osgi.fr
- amework;version="[1.7,2)",org.slf4j
+ kerpop.blueprints,com.tinkerpop.pipes,org.apache.commons.lang;version="
+ [2.4,3)",org.apache.hadoop.conf,org.apache.hadoop.fs,org.apache.hadoop.
+ hbase,org.osgi.framework;version="[1.7,2)",org.slf4j
 Project-URL: http://puresol-technologies.com/xo.bundle
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Specification-Title: eXtended Objects for DuctileDB: xo.bundle
