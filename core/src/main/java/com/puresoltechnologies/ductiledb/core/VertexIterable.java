@@ -5,10 +5,10 @@ import java.util.Iterator;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
-public class VertexIterable implements Iterable<Vertex> {
+public class VertexIterable implements Iterable<DuctileDBVertex> {
 
     private final DuctileDBGraphImpl graph;
     private final Iterator<Result> resultIterator;
@@ -20,8 +20,8 @@ public class VertexIterable implements Iterable<Vertex> {
     }
 
     @Override
-    public Iterator<Vertex> iterator() {
-	return new Iterator<Vertex>() {
+    public Iterator<DuctileDBVertex> iterator() {
+	return new Iterator<DuctileDBVertex>() {
 
 	    @Override
 	    public boolean hasNext() {
@@ -29,7 +29,7 @@ public class VertexIterable implements Iterable<Vertex> {
 	    }
 
 	    @Override
-	    public Vertex next() {
+	    public DuctileDBVertex next() {
 		Result result = resultIterator.next();
 		return ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()), result);
 	    }

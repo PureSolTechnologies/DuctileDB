@@ -1,14 +1,14 @@
 package com.puresoltechnologies.ductiledb.api;
 
-public interface Edge {
+public interface DuctileDBEdge {
 
     public Long getId();
 
-    public Vertex getStartVertex();
+    public DuctileDBVertex getStartVertex();
 
-    public Vertex getTargetVertex();
+    public DuctileDBVertex getTargetVertex();
 
-    public Vertex getVertex(Direction direction) throws IllegalArgumentException;
+    public DuctileDBVertex getVertex(EdgeDirection direction) throws IllegalArgumentException;
 
     public String getLabel();
 

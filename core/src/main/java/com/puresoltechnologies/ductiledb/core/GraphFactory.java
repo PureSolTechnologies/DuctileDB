@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.Graph;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 
 public class GraphFactory {
 
@@ -32,17 +32,17 @@ public class GraphFactory {
 	return connection;
     }
 
-    public static Graph createGraph(Configuration hbaseConfiguration) throws IOException {
+    public static DuctileDBGraph createGraph(Configuration hbaseConfiguration) throws IOException {
 	Connection connection = createConnection(hbaseConfiguration);
 	return createGraph(connection);
     }
 
-    public static Graph createGraph(org.apache.commons.configuration.Configuration configuration) throws IOException {
+    public static DuctileDBGraph createGraph(org.apache.commons.configuration.Configuration configuration) throws IOException {
 	Connection connection = createConnection(configuration);
 	return createGraph(connection);
     }
 
-    public static Graph createGraph(Connection connection) throws IOException {
+    public static DuctileDBGraph createGraph(Connection connection) throws IOException {
 	return new DuctileDBGraphImpl(connection);
     }
 

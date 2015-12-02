@@ -60,7 +60,7 @@ public class DucileDBStoreVertexManager implements
 
     @Override
     public boolean isEntity(Object o) {
-	return Vertex.class.isAssignableFrom(o.getClass());
+	return DuctileDBVertex.class.isAssignableFrom(o.getClass());
     }
 
     @Override
@@ -115,14 +115,14 @@ public class DucileDBStoreVertexManager implements
 	PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> propertyMethodMetadata = indexedProperty
 		.getPropertyMethodMetadata();
 	String name = propertyMethodMetadata.getDatastoreMetadata().getName();
-	Iterable<Vertex> vertices = graph.getVertices(name, values.values().iterator().next());
-	List<Vertex> result = new ArrayList<>();
-	for (Vertex vertex : vertices) {
+	Iterable<DuctileDBVertex> vertices = graph.getVertices(name, values.values().iterator().next());
+	List<DuctileDBVertex> result = new ArrayList<>();
+	for (DuctileDBVertex vertex : vertices) {
 	    if (((DuctileDBVertex) vertex).hasLabel(discriminator)) {
 		result.add(vertex);
 	    }
 	}
-	final Iterator<Vertex> iterator = result.iterator();
+	final Iterator<DuctileDBVertex> iterator = result.iterator();
 	return new ResultIterator<DuctileDBVertex>() {
 
 	    @Override

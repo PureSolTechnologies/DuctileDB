@@ -11,8 +11,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.commons.types.IntrospectionUtilities;
-import com.puresoltechnologies.ductiledb.api.Edge;
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBHealthCheck;
@@ -40,9 +40,9 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
      */
     @Test
     public void testRemoveVertexWithEdges() throws IOException {
-	Vertex vertex1 = graph.addVertex();
-	Vertex vertex2 = graph.addVertex();
-	Vertex vertex3 = graph.addVertex();
+	DuctileDBVertex vertex1 = graph.addVertex();
+	DuctileDBVertex vertex2 = graph.addVertex();
+	DuctileDBVertex vertex3 = graph.addVertex();
 	vertex1.addEdge("edge12", vertex2);
 	vertex2.addEdge("edge23", vertex3);
 	vertex3.addEdge("edge31", vertex1);
@@ -69,21 +69,21 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
     @Test
     public void testLazyVertexLoadingInEdges() throws IOException, SecurityException, NoSuchFieldException,
 	    IllegalArgumentException, IllegalAccessException {
-	Vertex vertex1 = graph.addVertex();
-	Vertex vertex2 = graph.addVertex();
-	Edge edge = vertex1.addEdge("edge12", vertex2);
+	DuctileDBVertex vertex1 = graph.addVertex();
+	DuctileDBVertex vertex2 = graph.addVertex();
+	DuctileDBEdge edge = vertex1.addEdge("edge12", vertex2);
 	graph.commit();
 	assertEquals(1, DuctileDBTestHelper.count(graph.getEdges()));
 	healthChecker.runCheck();
 
-	Edge readEdge = graph.getEdge(edge.getId());
+	DuctileDBEdge readEdge = graph.getEdge(edge.getId());
 	long startVertexId = (long) IntrospectionUtilities.getField(readEdge, "startVertexId");
 	assertEquals((long) vertex1.getId(), startVertexId);
 	long targetVertexId = (long) IntrospectionUtilities.getField(readEdge, "targetVertexId");
 	assertEquals((long) vertex2.getId(), targetVertexId);
-	Vertex startVertex = (Vertex) IntrospectionUtilities.getField(readEdge, "startVertex");
+	DuctileDBVertex startVertex = (DuctileDBVertex) IntrospectionUtilities.getField(readEdge, "startVertex");
 	assertNull(startVertex);
-	Vertex targetVertex = (Vertex) IntrospectionUtilities.getField(readEdge, "targetVertex");
+	DuctileDBVertex targetVertex = (DuctileDBVertex) IntrospectionUtilities.getField(readEdge, "targetVertex");
 	assertNull(targetVertex);
 	assertNotNull(readEdge.getStartVertex());
 	assertNotNull(readEdge.getTargetVertex());

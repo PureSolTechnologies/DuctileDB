@@ -12,7 +12,7 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 /**
@@ -52,7 +52,7 @@ public class ResultDecoder {
 	    for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
 		EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
-		if (Direction.IN == edgeKey.getDirection()) {
+		if (EdgeDirection.IN == edgeKey.getDirection()) {
 		    vertex.addEdge(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getEdgeType(),
 			    edgeKey.getVertexId(), vertex, edgeValue.getProperties()));
 		} else {

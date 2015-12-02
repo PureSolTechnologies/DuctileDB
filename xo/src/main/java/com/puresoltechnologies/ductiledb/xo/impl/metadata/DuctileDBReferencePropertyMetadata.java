@@ -5,9 +5,9 @@ import com.tinkerpop.blueprints.Direction;
 public class DuctileDBReferencePropertyMetadata {
 
 	private final String name;
-	private final Direction direction;
+	private final EdgeDirection direction;
 
-	public DuctileDBReferencePropertyMetadata(String name, Direction direction) {
+	public DuctileDBReferencePropertyMetadata(String name, EdgeDirection direction) {
 		this.name = name;
 		this.direction = direction;
 	}
@@ -16,7 +16,7 @@ public class DuctileDBReferencePropertyMetadata {
 		return name;
 	}
 
-	public Direction getDirection() {
+	public EdgeDirection getDirection() {
 		return direction;
 	}
 

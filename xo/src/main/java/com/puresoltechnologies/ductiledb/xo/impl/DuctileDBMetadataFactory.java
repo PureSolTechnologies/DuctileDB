@@ -70,7 +70,7 @@ public class DuctileDBMetadataFactory
     public DuctileDBCollectionPropertyMetadata createCollectionPropertyMetadata(
 	    PropertyMethod propertyMethod) {
 	String name = determinePropertyName(propertyMethod);
-	Direction direction = determineEdgeDirection(propertyMethod);
+	EdgeDirection direction = determineEdgeDirection(propertyMethod);
 	return new DuctileDBCollectionPropertyMetadata(name, direction);
     }
 
@@ -78,7 +78,7 @@ public class DuctileDBMetadataFactory
     public DuctileDBReferencePropertyMetadata createReferencePropertyMetadata(
 	    PropertyMethod propertyMethod) {
 	String name = determinePropertyName(propertyMethod);
-	Direction direction = determineEdgeDirection(propertyMethod);
+	EdgeDirection direction = determineEdgeDirection(propertyMethod);
 	return new DuctileDBReferencePropertyMetadata(name, direction);
     }
 
@@ -115,21 +115,21 @@ public class DuctileDBMetadataFactory
      * @param propertyMethod
      *            is the {@link PropertyMethod} object which represents the
      *            method for which the edge direction is to be checked.
-     * @return A {@link Direction} object is returned containing the direction
+     * @return A {@link EdgeDirection} object is returned containing the direction
      *         of the edge.
      */
-    private static Direction determineEdgeDirection(
+    private static EdgeDirection determineEdgeDirection(
 	    PropertyMethod propertyMethod) {
 	Outgoing outgoingAnnotation = propertyMethod
 		.getAnnotation(Outgoing.class);
 	Incoming incomingAnnotation = propertyMethod
 		.getAnnotation(Incoming.class);
 	if ((outgoingAnnotation != null) && (incomingAnnotation != null)) {
-	    return Direction.BOTH;
+	    return EdgeDirection.BOTH;
 	} else if (incomingAnnotation != null) {
-	    return Direction.IN;
+	    return EdgeDirection.IN;
 	} else {
-	    return Direction.OUT;
+	    return EdgeDirection.OUT;
 	}
     }
 
@@ -144,9 +144,9 @@ public class DuctileDBMetadataFactory
 		.getDeclaringClass();
 	Class<? extends Element> type = null;
 	if (declaringClass.getAnnotation(VertexDefinition.class) != null) {
-	    type = Vertex.class;
+	    type = DuctileDBVertex.class;
 	} else if (declaringClass.getAnnotation(EdgeDefinition.class) != null) {
-	    type = Edge.class;
+	    type = DuctileDBEdge.class;
 	} else {
 	    throw new XOException(
 		    "Property '"

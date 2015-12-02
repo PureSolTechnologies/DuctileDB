@@ -79,8 +79,8 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	    DuctileDBStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileDBStoreSession.class);
 	    DuctileDBGraph graph = datastoreSession.getGraph();
 	    // Some initial input to finish bootstrapping...
-	    Vertex vertex1 = graph.addVertex(null);
-	    Vertex vertex2 = graph.addVertex(null);
+	    DuctileDBVertex vertex1 = graph.addVertex(null);
+	    DuctileDBVertex vertex2 = graph.addVertex(null);
 	    vertex1.addEdge("BOOTSTRAPPING", vertex2);
 	}
     }
@@ -156,7 +156,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 
 	    long start = System.currentTimeMillis();
 
-	    Vertex root = graph.addVertex(null);
+	    DuctileDBVertex root = graph.addVertex(null);
 	    root.setProperty("name", "1");
 	    graph.commit();
 
@@ -173,7 +173,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	}
     }
 
-    private long addChildrenNative(DuctileDBGraph graph, Vertex parent, int i, String namePrefix) {
+    private long addChildrenNative(DuctileDBGraph graph, DuctileDBVertex parent, int i, String namePrefix) {
 	if (i > TREE_DEPTH) {
 	    return 0;
 	}
@@ -181,7 +181,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	for (int id = 1; id <= i; id++) {
 	    String name = namePrefix + id;
 
-	    Vertex child = graph.addVertex(null);
+	    DuctileDBVertex child = graph.addVertex(null);
 	    child.setProperty("name", name);
 	    parent.addEdge("treeNodeRelation", child);
 	    counter++;

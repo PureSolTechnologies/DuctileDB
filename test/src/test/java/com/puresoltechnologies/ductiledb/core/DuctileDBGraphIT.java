@@ -10,9 +10,9 @@ import java.util.Iterator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
-import com.puresoltechnologies.ductiledb.api.Edge;
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
@@ -89,10 +89,10 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testPropertySearch() throws IOException {
-	Iterable<Vertex> vertices = graph.getVertices(StarWarsGraph.FIRST_NAME_PROPERTY, "Luke");
-	Iterator<Vertex> iterator = vertices.iterator();
+	Iterable<DuctileDBVertex> vertices = graph.getVertices(StarWarsGraph.FIRST_NAME_PROPERTY, "Luke");
+	Iterator<DuctileDBVertex> iterator = vertices.iterator();
 	assertTrue(iterator.hasNext());
-	Vertex vertex = iterator.next();
+	DuctileDBVertex vertex = iterator.next();
 	assertEquals("Luke", vertex.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertEquals("Skywalker", vertex.getProperty(StarWarsGraph.LAST_NAME_PROPERTY));
 	assertTrue(vertex.hasLabel("Yeti"));
@@ -101,8 +101,8 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testLabelSearch() throws IOException {
-	Iterable<Vertex> vertices = graph.getVertices("Yeti");
-	Iterator<Vertex> iterator = vertices.iterator();
+	Iterable<DuctileDBVertex> vertices = graph.getVertices("Yeti");
+	Iterator<DuctileDBVertex> iterator = vertices.iterator();
 	assertTrue(iterator.hasNext());
 	int count = 0;
 	while (iterator.hasNext()) {
@@ -114,26 +114,26 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testEdge() {
-	Iterator<Vertex> lukes = graph.getVertices(StarWarsGraph.FIRST_NAME_PROPERTY, "Luke").iterator();
+	Iterator<DuctileDBVertex> lukes = graph.getVertices(StarWarsGraph.FIRST_NAME_PROPERTY, "Luke").iterator();
 	assertTrue(lukes.hasNext());
-	Vertex lukeSkywalker = lukes.next();
+	DuctileDBVertex lukeSkywalker = lukes.next();
 	assertEquals("Luke", lukeSkywalker.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertEquals("Skywalker", lukeSkywalker.getProperty(StarWarsGraph.LAST_NAME_PROPERTY));
 	assertFalse(lukes.hasNext());
-	Iterator<Edge> edges = lukeSkywalker.getEdges(Direction.OUT, StarWarsGraph.HAS_SISTER_EDGE).iterator();
+	Iterator<DuctileDBEdge> edges = lukeSkywalker.getEdges(EdgeDirection.OUT, StarWarsGraph.HAS_SISTER_EDGE).iterator();
 	assertTrue(edges.hasNext());
-	Edge hasSister = edges.next();
-	Vertex leiaOrgana = hasSister.getVertex(Direction.IN);
+	DuctileDBEdge hasSister = edges.next();
+	DuctileDBVertex leiaOrgana = hasSister.getVertex(EdgeDirection.IN);
 	assertEquals("Leia", leiaOrgana.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertFalse(edges.hasNext());
     }
 
     @Test
     public void testGetVertices() {
-	Iterable<Vertex> vertices = graph.getVertices();
+	Iterable<DuctileDBVertex> vertices = graph.getVertices();
 	int count = 0;
 	for (@SuppressWarnings("unused")
-	Vertex vertex : vertices) {
+	DuctileDBVertex vertex : vertices) {
 	    count++;
 	}
 	assertEquals(10, count);
@@ -141,10 +141,10 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testGetEdges() {
-	Iterable<Edge> edges = graph.getEdges();
+	Iterable<DuctileDBEdge> edges = graph.getEdges();
 	int count = 0;
 	for (@SuppressWarnings("unused")
-	Edge edge : edges) {
+	DuctileDBEdge edge : edges) {
 	    count++;
 	}
 	assertEquals(3, count);

@@ -31,7 +31,7 @@ public class DelegateIT extends AbstractXOTitanTest {
     public void entity() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
-	Vertex node = ((CompositeObject) xoManager.create(A.class)).getDelegate();
+	DuctileDBVertex node = ((CompositeObject) xoManager.create(A.class)).getDelegate();
 	xoManager.currentTransaction().commit();
     }
 

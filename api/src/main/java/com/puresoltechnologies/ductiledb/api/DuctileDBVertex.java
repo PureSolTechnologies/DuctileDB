@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.api;
 
 import java.util.Set;
 
-public interface Vertex {
+public interface DuctileDBVertex {
 
     public Long getId();
 
@@ -14,7 +14,7 @@ public interface Vertex {
 
     public boolean hasLabel(String label);
 
-    public Edge addEdge(String label, Vertex inVertex);
+    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex);
 
     public Set<String> getPropertyKeys();
 
@@ -26,8 +26,8 @@ public interface Vertex {
 
     public <T> T getProperty(String key);
 
-    public Iterable<Vertex> getVertices(Direction direction, String... edgeLabels);
+    public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeLabels);
 
-    public Iterable<Edge> getEdges(Direction direction, String... edgeLabels);
+    public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeLabels);
 
 }

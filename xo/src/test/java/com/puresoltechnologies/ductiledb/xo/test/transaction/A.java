@@ -35,18 +35,18 @@ public interface A {
 		A getA();
 	}
 
-	class ThrowException implements ProxyMethod<Vertex> {
+	class ThrowException implements ProxyMethod<DuctileDBVertex> {
 		@Override
-		public Object invoke(Vertex node, Object instance, Object[] args)
+		public Object invoke(DuctileDBVertex node, Object instance, Object[] args)
 				throws Exception {
 			((A) instance).setValue((String) args[0]);
 			throw new Exception();
 		}
 	}
 
-	class ThrowRuntimeException implements ProxyMethod<Vertex> {
+	class ThrowRuntimeException implements ProxyMethod<DuctileDBVertex> {
 		@Override
-		public Object invoke(Vertex node, Object instance, Object[] args) {
+		public Object invoke(DuctileDBVertex node, Object instance, Object[] args) {
 			((A) instance).setValue((String) args[0]);
 			throw new RuntimeException();
 		}

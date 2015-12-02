@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.core;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class EdgeKey implements Serializable {
@@ -11,11 +11,11 @@ public class EdgeKey implements Serializable {
     private static final long serialVersionUID = -5352519401861462834L;
 
     public static EdgeKey decode(byte[] edgeKey) {
-	Direction direction;
+	EdgeDirection direction;
 	if (edgeKey[0] == 0) {
-	    direction = Direction.IN;
+	    direction = EdgeDirection.IN;
 	} else if (edgeKey[0] == 1) {
-	    direction = Direction.OUT;
+	    direction = EdgeDirection.OUT;
 	} else {
 	    throw new IllegalArgumentException("Direction byte '" + edgeKey[0] + "' is not supported.");
 	}
@@ -25,14 +25,14 @@ public class EdgeKey implements Serializable {
 	return new EdgeKey(direction, id, vertexId, edgeType);
     }
 
-    private final Direction direction;
+    private final EdgeDirection direction;
     private final long id;
     private final long vertexId;
     private final String edgeType;
 
-    public EdgeKey(Direction direction, long id, long vertexId, String edgeType) {
+    public EdgeKey(EdgeDirection direction, long id, long vertexId, String edgeType) {
 	super();
-	if ((direction != Direction.IN) && (direction != Direction.OUT)) {
+	if ((direction != EdgeDirection.IN) && (direction != EdgeDirection.OUT)) {
 	    throw new IllegalArgumentException("Direction needs to be IN or OUT.");
 	}
 	this.direction = direction;
@@ -41,7 +41,7 @@ public class EdgeKey implements Serializable {
 	this.edgeType = edgeType;
     }
 
-    public Direction getDirection() {
+    public EdgeDirection getDirection() {
 	return direction;
     }
 

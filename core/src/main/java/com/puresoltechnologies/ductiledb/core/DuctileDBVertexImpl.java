@@ -9,20 +9,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
-import com.puresoltechnologies.ductiledb.api.Edge;
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 
-public class DuctileDBVertexImpl implements Vertex {
+public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     private final DuctileDBGraphImpl graph;
     private final long id;
     private final Set<String> labels = new HashSet<>();
     private final Map<String, Object> properties = new HashMap<>();
-    private final List<Edge> edges = new ArrayList<>();
+    private final List<DuctileDBEdge> edges = new ArrayList<>();
 
     public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, long id, Set<String> labels, Map<String, Object> properties,
-	    List<Edge> edges) {
+	    List<DuctileDBEdge> edges) {
 	this.graph = hgraph;
 	this.id = id;
 	this.labels.addAll(labels);
@@ -71,19 +71,19 @@ public class DuctileDBVertexImpl implements Vertex {
     }
 
     @Override
-    public Iterable<Edge> getEdges(Direction direction, String... edgeLabels) {
-	List<Edge> edges = new ArrayList<>();
+    public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeLabels) {
+	List<DuctileDBEdge> edges = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
-	for (Edge edge : this.edges) {
+	for (DuctileDBEdge edge : this.edges) {
 	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getLabel()))) {
 		switch (direction) {
 		case IN:
-		    if (edge.getVertex(Direction.IN).getId().equals(getId())) {
+		    if (edge.getVertex(EdgeDirection.IN).getId().equals(getId())) {
 			edges.add(edge);
 		    }
 		    break;
 		case OUT:
-		    if (edge.getVertex(Direction.OUT).getId().equals(getId())) {
+		    if (edge.getVertex(EdgeDirection.OUT).getId().equals(getId())) {
 			edges.add(edge);
 		    }
 		    break;
@@ -99,26 +99,26 @@ public class DuctileDBVertexImpl implements Vertex {
     }
 
     @Override
-    public Iterable<Vertex> getVertices(Direction direction, String... edgeLabels) {
-	List<Vertex> vertices = new ArrayList<>();
+    public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeLabels) {
+	List<DuctileDBVertex> vertices = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
-	for (Edge edge : this.edges) {
+	for (DuctileDBEdge edge : this.edges) {
 	    if (labelList.contains(edge.getLabel())) {
 		switch (direction) {
 		case IN:
-		    if (edge.getVertex(Direction.IN).getId().equals(getId())) {
-			vertices.add(edge.getVertex(Direction.OUT));
+		    if (edge.getVertex(EdgeDirection.IN).getId().equals(getId())) {
+			vertices.add(edge.getVertex(EdgeDirection.OUT));
 		    }
 		    break;
 		case OUT:
-		    if (edge.getVertex(Direction.OUT).getId().equals(getId())) {
-			vertices.add(edge.getVertex(Direction.OUT));
+		    if (edge.getVertex(EdgeDirection.OUT).getId().equals(getId())) {
+			vertices.add(edge.getVertex(EdgeDirection.OUT));
 		    }
 		    break;
 		case BOTH:
-		    Vertex vertex = edge.getVertex(Direction.IN);
+		    DuctileDBVertex vertex = edge.getVertex(EdgeDirection.IN);
 		    if (vertex.getId().equals(getId())) {
-			vertices.add(edge.getVertex(Direction.OUT));
+			vertices.add(edge.getVertex(EdgeDirection.OUT));
 		    } else {
 			vertices.add(vertex);
 		    }
@@ -131,13 +131,13 @@ public class DuctileDBVertexImpl implements Vertex {
 	return vertices;
     }
 
-    void addEdge(Edge edge) {
+    void addEdge(DuctileDBEdge edge) {
 	edges.add(edge);
     }
 
     @Override
-    public Edge addEdge(String label, Vertex inVertex) {
-	Edge edge = graph.addEdge(this, inVertex, label);
+    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
+	DuctileDBEdge edge = graph.addEdge(this, inVertex, label);
 	edges.add(edge);
 	return edge;
     }

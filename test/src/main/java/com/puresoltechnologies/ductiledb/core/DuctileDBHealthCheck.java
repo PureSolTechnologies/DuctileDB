@@ -15,9 +15,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
-import com.puresoltechnologies.ductiledb.api.Edge;
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -61,8 +61,8 @@ public class DuctileDBHealthCheck {
      */
     private void checkForCorrectVertexIndices() throws IOException {
 	logger.info("Check vertices...");
-	Iterable<Vertex> vertices = graph.getVertices();
-	for (Vertex vertex : vertices) {
+	Iterable<DuctileDBVertex> vertices = graph.getVertices();
+	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
 	    try (Table table = graph.openVertexLabelTable()) {
@@ -92,8 +92,8 @@ public class DuctileDBHealthCheck {
 			    + "' is not as expected. ", value, deserialized);
 		}
 	    }
-	    for (Edge edge : vertex.getEdges(Direction.BOTH)) {
-		Edge readEdge = graph.getEdge(edge.getId());
+	    for (DuctileDBEdge edge : vertex.getEdges(EdgeDirection.BOTH)) {
+		DuctileDBEdge readEdge = graph.getEdge(edge.getId());
 		assertEquals("Separately stored edge is not equals.", edge, readEdge);
 	    }
 	}
@@ -109,8 +109,8 @@ public class DuctileDBHealthCheck {
      */
     private void checkForCorrectEdgeIndices() throws IOException {
 	logger.info("Check edges...");
-	Iterable<Edge> edges = graph.getEdges();
-	for (Edge edge : edges) {
+	Iterable<DuctileDBEdge> edges = graph.getEdges();
+	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String label = edge.getLabel();
 	    try (Table table = graph.openEdgeLabelTable()) {
@@ -137,9 +137,9 @@ public class DuctileDBHealthCheck {
 			    + "' is not as expected. ", value, deserialized);
 		}
 	    }
-	    Vertex startVertex = edge.getStartVertex();
+	    DuctileDBVertex startVertex = edge.getStartVertex();
 	    assertNotNull("Start vertex is not present.", startVertex);
-	    Vertex targetVertex = edge.getTargetVertex();
+	    DuctileDBVertex targetVertex = edge.getTargetVertex();
 	    assertNotNull("Target vertex is not present.", targetVertex);
 	}
 	logger.info("Edges checked.");

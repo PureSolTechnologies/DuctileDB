@@ -4,19 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
-import com.puresoltechnologies.ductiledb.api.Edge;
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 
-public class DuctileDBEdgeImpl implements Edge {
+public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
     private final DuctileDBGraphImpl graph;
     private final long id;
     private final String label;
     private final long startVertexId;
     private final long targetVertexId;
-    private Vertex startVertex = null;
-    private Vertex targetVertex = null;
+    private DuctileDBVertex startVertex = null;
+    private DuctileDBVertex targetVertex = null;
     private final Map<String, Object> properties = new HashMap<>();
 
     public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, long targetVertexId,
@@ -30,7 +30,7 @@ public class DuctileDBEdgeImpl implements Edge {
 	this.properties.putAll(properties);
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, Vertex startVertex, long targetVertexId,
+    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex, long targetVertexId,
 	    Map<String, Object> properties) {
 	super();
 	this.graph = graph;
@@ -42,7 +42,7 @@ public class DuctileDBEdgeImpl implements Edge {
 	this.properties.putAll(properties);
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, Vertex targetVertex,
+    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, DuctileDBVertex targetVertex,
 	    Map<String, Object> properties) {
 	super();
 	this.graph = graph;
@@ -54,7 +54,7 @@ public class DuctileDBEdgeImpl implements Edge {
 	this.properties.putAll(properties);
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, Vertex startVertex, Vertex targetVertex,
+    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex, DuctileDBVertex targetVertex,
 	    Map<String, Object> properties) {
 	super();
 	this.graph = graph;
@@ -108,7 +108,7 @@ public class DuctileDBEdgeImpl implements Edge {
     }
 
     @Override
-    public Vertex getStartVertex() {
+    public DuctileDBVertex getStartVertex() {
 	if (startVertex == null) {
 	    startVertex = graph.getVertex(startVertexId);
 	}
@@ -116,7 +116,7 @@ public class DuctileDBEdgeImpl implements Edge {
     }
 
     @Override
-    public Vertex getTargetVertex() {
+    public DuctileDBVertex getTargetVertex() {
 	if (targetVertex == null) {
 	    targetVertex = graph.getVertex(targetVertexId);
 	}
@@ -124,7 +124,7 @@ public class DuctileDBEdgeImpl implements Edge {
     }
 
     @Override
-    public Vertex getVertex(Direction direction) throws IllegalArgumentException {
+    public DuctileDBVertex getVertex(EdgeDirection direction) throws IllegalArgumentException {
 	switch (direction) {
 	case OUT:
 	    return getStartVertex();

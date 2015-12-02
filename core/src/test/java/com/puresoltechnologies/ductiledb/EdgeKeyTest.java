@@ -4,14 +4,14 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.Direction;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 
 public class EdgeKeyTest {
 
     @Test
     public void testEncodeINDirection() {
-	EdgeKey key = new EdgeKey(Direction.IN, 1, 2, "A");
+	EdgeKey key = new EdgeKey(EdgeDirection.IN, 1, 2, "A");
 	byte[] encoded = key.encode();
 	assertEquals(18, encoded.length);
 	assertEquals(0, encoded[0]);
@@ -38,7 +38,7 @@ public class EdgeKeyTest {
 
     @Test
     public void testEncodeOUTDirection() {
-	EdgeKey key = new EdgeKey(Direction.OUT, 128, 513, "ABC");
+	EdgeKey key = new EdgeKey(EdgeDirection.OUT, 128, 513, "ABC");
 	byte[] encoded = key.encode();
 	assertEquals(20, encoded.length);
 	assertEquals(1, encoded[0]);

@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.Graph;
-import com.puresoltechnologies.ductiledb.api.Vertex;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 
 /**
  * This class is used to provide sample data for testing. The sample data
@@ -28,57 +28,57 @@ public class StarWarsGraph {
     public static final String HAS_SISTER_EDGE = "hasSister";
     public static final String HAS_TRAINED_EDGE = "hasTrained";
 
-    public static void addStarWarsFiguresData(Graph graph) {
+    public static void addStarWarsFiguresData(DuctileDBGraph graph) {
 	logger.info("Add Star Wars figures test data...");
-	Vertex lukeSkywalker = graph.addVertex();
+	DuctileDBVertex lukeSkywalker = graph.addVertex();
 	lukeSkywalker.addLabel(PERSON_LABEL);
 	lukeSkywalker.addLabel(YETI_LABEL);
 	lukeSkywalker.setProperty(FIRST_NAME_PROPERTY, "Luke");
 	lukeSkywalker.setProperty(LAST_NAME_PROPERTY, "Skywalker");
 
-	Vertex leiaOrgana = graph.addVertex();
+	DuctileDBVertex leiaOrgana = graph.addVertex();
 	leiaOrgana.addLabel(PERSON_LABEL);
 	leiaOrgana.addLabel(PRINCESS_LABEL);
 	leiaOrgana.setProperty(FIRST_NAME_PROPERTY, "Leia");
 	leiaOrgana.setProperty(LAST_NAME_PROPERTY, "Organa");
 
-	Vertex hanSolo = graph.addVertex();
+	DuctileDBVertex hanSolo = graph.addVertex();
 	hanSolo.addLabel(PERSON_LABEL);
 	hanSolo.setProperty(FIRST_NAME_PROPERTY, "Han");
 	hanSolo.setProperty(LAST_NAME_PROPERTY, "Solo");
 
-	Vertex bobaFett = graph.addVertex();
+	DuctileDBVertex bobaFett = graph.addVertex();
 	bobaFett.addLabel(PERSON_LABEL);
 	bobaFett.setProperty(FIRST_NAME_PROPERTY, "Boba");
 	bobaFett.setProperty(LAST_NAME_PROPERTY, "Fett");
 
-	Vertex obiWanKenobi = graph.addVertex();
+	DuctileDBVertex obiWanKenobi = graph.addVertex();
 	obiWanKenobi.addLabel(PERSON_LABEL);
 	obiWanKenobi.addLabel(YETI_LABEL);
 	obiWanKenobi.setProperty(FIRST_NAME_PROPERTY, "Obi-Wan");
 	obiWanKenobi.setProperty(LAST_NAME_PROPERTY, "Kenobi");
 
-	Vertex r2D2 = graph.addVertex();
+	DuctileDBVertex r2D2 = graph.addVertex();
 	r2D2.addLabel(ROBOT_LABEL);
 	r2D2.setProperty(FIRST_NAME_PROPERTY, "R2-D2");
 
-	Vertex c3PO = graph.addVertex();
+	DuctileDBVertex c3PO = graph.addVertex();
 	c3PO.addLabel(ROBOT_LABEL);
 	c3PO.setProperty(FIRST_NAME_PROPERTY, "C-3PO");
 
-	Vertex landoCalrissian = graph.addVertex();
+	DuctileDBVertex landoCalrissian = graph.addVertex();
 	landoCalrissian.addLabel(PERSON_LABEL);
 	landoCalrissian.setProperty(FIRST_NAME_PROPERTY, "Lando");
 	landoCalrissian.setProperty(LAST_NAME_PROPERTY, "Calrissian");
 
-	Vertex quiGonJinn = graph.addVertex();
+	DuctileDBVertex quiGonJinn = graph.addVertex();
 	quiGonJinn.addLabel(PERSON_LABEL);
 	quiGonJinn.addLabel(YETI_LABEL);
 	quiGonJinn.addLabel(MASTER_LABEL);
 	quiGonJinn.setProperty(FIRST_NAME_PROPERTY, "Qui-Gon");
 	quiGonJinn.setProperty(LAST_NAME_PROPERTY, "Jinn");
 
-	Vertex maceWindu = graph.addVertex();
+	DuctileDBVertex maceWindu = graph.addVertex();
 	maceWindu.addLabel(PERSON_LABEL);
 	maceWindu.addLabel(YETI_LABEL);
 	maceWindu.addLabel(MASTER_LABEL);

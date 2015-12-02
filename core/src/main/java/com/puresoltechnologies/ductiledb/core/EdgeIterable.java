@@ -5,10 +5,10 @@ import java.util.Iterator;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
-import com.puresoltechnologies.ductiledb.api.Edge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
-public class EdgeIterable implements Iterable<Edge> {
+public class EdgeIterable implements Iterable<DuctileDBEdge> {
 
     private final DuctileDBGraphImpl graph;
     private final Iterator<Result> resultIterator;
@@ -20,8 +20,8 @@ public class EdgeIterable implements Iterable<Edge> {
     }
 
     @Override
-    public Iterator<Edge> iterator() {
-	return new Iterator<Edge>() {
+    public Iterator<DuctileDBEdge> iterator() {
+	return new Iterator<DuctileDBEdge>() {
 
 	    @Override
 	    public boolean hasNext() {
@@ -29,7 +29,7 @@ public class EdgeIterable implements Iterable<Edge> {
 	    }
 
 	    @Override
-	    public Edge next() {
+	    public DuctileDBEdge next() {
 		Result result = resultIterator.next();
 		return ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()), result);
 	    }

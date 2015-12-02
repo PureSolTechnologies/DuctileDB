@@ -116,9 +116,9 @@ public class GaugingManager {
 		    typeDefinitions.append(value);
 		    typeDefinitions.append("'");
 		    typeDefinitions.append("\n");
-		} else if (Edge.class.isAssignableFrom(value.getClass())) {
+		} else if (DuctileDBEdge.class.isAssignableFrom(value.getClass())) {
 		    continue;
-		} else if (Vertex.class.isAssignableFrom(value.getClass())) {
+		} else if (DuctileDBVertex.class.isAssignableFrom(value.getClass())) {
 		    continue;
 		} else {
 		    typeDefinitions.append(type);

@@ -8,12 +8,12 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.puresoltechnologies.ductiledb.api.Graph;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
 
 public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 
-    protected static Graph graph;
+    protected static DuctileDBGraph graph;
 
     @BeforeClass
     public static void connect() throws IOException {

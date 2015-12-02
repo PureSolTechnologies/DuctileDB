@@ -13,10 +13,10 @@ public interface TestEntity {
 	@ImplementedBy(IncrementAndGet.class)
 	int incrementAndGet();
 
-	public class IncrementAndGet implements ProxyMethod<Vertex> {
+	public class IncrementAndGet implements ProxyMethod<DuctileDBVertex> {
 
 		@Override
-		public Object invoke(Vertex vertex, Object instance, Object[] args)
+		public Object invoke(DuctileDBVertex vertex, Object instance, Object[] args)
 				throws Exception {
 			Integer value = vertex.getProperty("value");
 			if (value == null) {

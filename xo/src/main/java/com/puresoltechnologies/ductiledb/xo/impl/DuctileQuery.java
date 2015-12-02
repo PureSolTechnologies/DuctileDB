@@ -40,15 +40,15 @@ public class DuctileQuery implements DatastoreQuery<Gauging> {
 	    final GaugingExpression gremlinExpression) {
 	String expression = gremlinExpression.getExpression();
 	@SuppressWarnings("unchecked")
-	final Pipe<Vertex, Vertex> pipe = DuctileQuery.compile(expression);
+	final Pipe<DuctileDBVertex, DuctileDBVertex> pipe = DuctileQuery.compile(expression);
 	if (parameters.containsKey("this")) {
 	    Object setThis = parameters.get("this");
-	    if (Vertex.class.isAssignableFrom(setThis.getClass())) {
+	    if (DuctileDBVertex.class.isAssignableFrom(setThis.getClass())) {
 		DuctileDBVertex vertex = (DuctileDBVertex) setThis;
 		pipe.setStarts(Arrays.asList(vertex));
-	    } else if (Edge.class.isAssignableFrom(setThis.getClass())) {
+	    } else if (DuctileDBEdge.class.isAssignableFrom(setThis.getClass())) {
 		DuctileDBEdge edge = (DuctileDBEdge) setThis;
-		pipe.setStarts(Arrays.asList(edge.getVertex(Direction.IN), edge.getVertex(Direction.OUT)));
+		pipe.setStarts(Arrays.asList(edge.getVertex(EdgeDirection.IN), edge.getVertex(EdgeDirection.OUT)));
 	    } else {
 		throw new XOException(
 			"Unsupported start point '" + String.valueOf(setThis) + "' (class=" + setThis.getClass() + ")");
@@ -67,9 +67,9 @@ public class DuctileQuery implements DatastoreQuery<Gauging> {
 	    public Map<String, Object> next() {
 		Map<String, Object> results = new HashMap<>();
 		Object next = pipe.next();
-		if (next instanceof Vertex) {
+		if (next instanceof DuctileDBVertex) {
 		    results.put(gremlinExpression.getResultName(), next);
-		} else if (next instanceof Edge) {
+		} else if (next instanceof DuctileDBEdge) {
 		    results.put(gremlinExpression.getResultName(), next);
 		} else if (next instanceof Map) {
 		    @SuppressWarnings("unchecked")
@@ -93,7 +93,7 @@ public class DuctileQuery implements DatastoreQuery<Gauging> {
 	};
     }
 
-    private static Pipe<Vertex, Vertex> compile(String expression) {
+    private static Pipe<DuctileDBVertex, DuctileDBVertex> compile(String expression) {
 	// TODO Auto-generated method stub
 	return null;
     }
