@@ -14,8 +14,8 @@ import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.Datastore;
 import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
-import com.puresoltechnologies.ductiledb.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadata;
 

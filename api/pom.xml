@@ -8,22 +8,7 @@
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>ductiledb-core</artifactId>
+	<artifactId>ductiledb-api</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
-
-	<dependencies>
-		<dependency>
-			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>ductiledb-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hbase</groupId>
-			<artifactId>hbase-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-		</dependency>
-	</dependencies>
 
 </project>

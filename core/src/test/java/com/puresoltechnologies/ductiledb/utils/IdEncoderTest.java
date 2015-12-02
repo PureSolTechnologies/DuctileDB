@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+
 public class IdEncoderTest {
 
     @Test

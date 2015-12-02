@@ -9,13 +9,12 @@ import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreRelationManager;
 import com.buschmais.xo.spi.metadata.method.PrimitivePropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.RelationTypeMetadata;
-import com.puresoltechnologies.ductiledb.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.Direction;
+import com.puresoltechnologies.ductiledb.api.Edge;
+import com.puresoltechnologies.ductiledb.api.Graph;
+import com.puresoltechnologies.ductiledb.api.Vertex;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBPropertyMetadata;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
 
 /**
  * This class implements the XO DatastorePropertyManager for Titan database.
@@ -23,16 +22,16 @@ import com.tinkerpop.blueprints.Edge;
  * @author Rick-Rainer Ludwig
  */
 public class DucileDBStoreEdgeManager implements
-	DatastoreRelationManager<DuctileDBVertex, Long, DuctileDBEdge, DuctileDBEdgeMetadata, String, DuctileDBPropertyMetadata> {
+	DatastoreRelationManager<Vertex, Long, Edge, DuctileDBEdgeMetadata, String, DuctileDBPropertyMetadata> {
 
-    private final DuctileDBGraph graph;
+    private final Graph graph;
 
-    DucileDBStoreEdgeManager(DuctileDBGraph graph) {
+    DucileDBStoreEdgeManager(Graph graph) {
 	this.graph = graph;
     }
 
     @Override
-    public boolean hasSingleRelation(DuctileDBVertex source, RelationTypeMetadata<DuctileDBEdgeMetadata> metadata,
+    public boolean hasSingleRelation(Vertex source, RelationTypeMetadata<DuctileDBEdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String label = metadata.getDatastoreMetadata().getDiscriminator();
 	long count;
@@ -53,7 +52,7 @@ public class DucileDBStoreEdgeManager implements
     }
 
     @Override
-    public DuctileDBEdge getSingleRelation(DuctileDBVertex source, RelationTypeMetadata<DuctileDBEdgeMetadata> metadata,
+    public Edge getSingleRelation(Vertex source, RelationTypeMetadata<EdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String descriminator = metadata.getDatastoreMetadata().getDiscriminator();
 	Iterable<Edge> edges;
@@ -71,7 +70,7 @@ public class DucileDBStoreEdgeManager implements
 	if (!iterator.hasNext()) {
 	    throw new XOException("No result is available.");
 	}
-	DuctileDBEdge result = (DuctileDBEdge) iterator.next();
+	Edge result = iterator.next();
 	if (iterator.hasNext()) {
 	    throw new XOException("Multiple results are available.");
 	}
@@ -79,8 +78,8 @@ public class DucileDBStoreEdgeManager implements
     }
 
     @Override
-    public Iterable<DuctileDBEdge> getRelations(DuctileDBVertex source,
-	    RelationTypeMetadata<DuctileDBEdgeMetadata> metadata, RelationTypeMetadata.Direction direction) {
+    public Iterable<Edge> getRelations(Vertex source, RelationTypeMetadata<EdgeMetadata> metadata,
+	    RelationTypeMetadata.Direction direction) {
 	String discriminator = metadata.getDatastoreMetadata().getDiscriminator();
 	Iterable<Edge> edges = null;
 	switch (direction) {
@@ -93,21 +92,21 @@ public class DucileDBStoreEdgeManager implements
 	default:
 	    throw new XOException("Unknown direction '" + direction.name() + "'.");
 	}
-	List<DuctileDBEdge> result = new ArrayList<>();
+	List<Edge> result = new ArrayList<>();
 	for (Edge edge : edges) {
-	    result.add((DuctileDBEdge) edge);
+	    result.add(edge);
 	}
-	return new Iterable<DuctileDBEdge>() {
+	return new Iterable<Edge>() {
 	    @Override
-	    public Iterator<DuctileDBEdge> iterator() {
+	    public Iterator<Edge> iterator() {
 		return result.iterator();
 	    }
 	};
     }
 
     @Override
-    public DuctileDBEdge createRelation(DuctileDBVertex source, RelationTypeMetadata<DuctileDBEdgeMetadata> metadata,
-	    RelationTypeMetadata.Direction direction, DuctileDBVertex target,
+    public Edge createRelation(Vertex source, RelationTypeMetadata<EdgeMetadata> metadata,
+	    RelationTypeMetadata.Direction direction, Vertex target,
 	    Map<PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata>, Object> exampleEntity) {
 	String name = metadata.getDatastoreMetadata().getDiscriminator();
 	switch (direction) {
@@ -121,40 +120,38 @@ public class DucileDBStoreEdgeManager implements
     }
 
     @Override
-    public void deleteRelation(DuctileDBEdge edge) {
+    public void deleteRelation(Edge edge) {
 	edge.remove();
     }
 
     @Override
-    public DuctileDBVertex getTo(DuctileDBEdge edge) {
+    public Vertex getTo(Edge edge) {
 	return edge.getVertex(Direction.IN);
     }
 
     @Override
-    public DuctileDBVertex getFrom(DuctileDBEdge edge) {
+    public Vertex getFrom(Edge edge) {
 	return edge.getVertex(Direction.OUT);
     }
 
     @Override
-    public void setProperty(DuctileDBEdge edge, PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata,
+    public void setProperty(Edge edge, PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata,
 	    Object value) {
 	edge.setProperty(metadata.getDatastoreMetadata().getName(), value);
     }
 
     @Override
-    public boolean hasProperty(DuctileDBEdge edge,
-	    PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata) {
+    public boolean hasProperty(Edge edge, PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata) {
 	return edge.getProperty(metadata.getDatastoreMetadata().getName()) != null;
     }
 
     @Override
-    public void removeProperty(DuctileDBEdge edge,
-	    PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata) {
+    public void removeProperty(Edge edge, PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata) {
 	edge.removeProperty(metadata.getDatastoreMetadata().getName());
     }
 
     @Override
-    public Object getProperty(DuctileDBEdge edge, PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata) {
+    public Object getProperty(Edge edge, PrimitivePropertyMethodMetadata<DuctileDBPropertyMetadata> metadata) {
 	return edge.getProperty(metadata.getDatastoreMetadata().getName());
     }
 
@@ -164,22 +161,22 @@ public class DucileDBStoreEdgeManager implements
     }
 
     @Override
-    public String getRelationDiscriminator(DuctileDBEdge edge) {
+    public String getRelationDiscriminator(Edge edge) {
 	return edge.getLabel();
     }
 
     @Override
-    public Long getRelationId(DuctileDBEdge edge) {
+    public Long getRelationId(Edge edge) {
 	return edge.getId();
     }
 
     @Override
-    public void flushRelation(DuctileDBEdge edge) {
+    public void flushRelation(Edge edge) {
 	// intentionally left empty
     }
 
     @Override
-    public DuctileDBEdge findRelationById(RelationTypeMetadata<DuctileDBEdgeMetadata> metadata, Long id) {
+    public Edge findRelationById(RelationTypeMetadata<DuctileDBEdgeMetadata> metadata, Long id) {
 	return graph.getEdge(id);
     }
 

@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.buschmais.xo.api.XOException;
-import com.puresoltechnologies.ductiledb.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.tx.DuctileDBTransaction;
+import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStoreTransaction;
 
 /**

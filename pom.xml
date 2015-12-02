@@ -9,7 +9,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<blueprints.version>2.6.0</blueprints.version>
 		<gremlin.version>3.1.0-incubating</gremlin.version>
 		<hbase.version>1.1.2</hbase.version>
 		<slf4j.version>1.6.6</slf4j.version>
@@ -316,6 +315,11 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>ductiledb-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>ductiledb-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -356,22 +360,6 @@
 						<artifactId>slf4j-log4j12</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.tinkerpop.blueprints</groupId>
-				<artifactId>blueprints-core</artifactId>
-				<version>${blueprints.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.tinkerpop.blueprints</groupId>
-				<artifactId>blueprints-test</artifactId>
-				<version>${blueprints.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.tinkerpop</groupId>
-				<artifactId>pipes</artifactId>
-				<version>${blueprints.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tinkerpop</groupId>
@@ -591,7 +579,9 @@
 	</build>
 
 	<modules>
+		<module>api</module>
 		<module>core</module>
+		<module>tinkerpop</module>
 		<module>test</module>
 		<module>spark</module>
 		<module>xo</module>

@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.xo.impl;
 
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreTransaction;
-import com.puresoltechnologies.ductiledb.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
 
 /**
  * This class implements an XO DatastoreTransaction for Titan databases.

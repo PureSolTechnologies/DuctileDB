@@ -19,9 +19,9 @@ import com.buschmais.xo.api.ValidationMode;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
-import com.puresoltechnologies.ductiledb.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.GraphFactory;
-import com.puresoltechnologies.ductiledb.StarWarsGraph;
+import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
+import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider;
 
 /**
