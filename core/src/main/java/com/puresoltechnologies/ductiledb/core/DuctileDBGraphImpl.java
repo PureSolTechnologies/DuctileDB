@@ -29,10 +29,10 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -281,12 +281,14 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBEdge addEdge(Object edgeId, DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType) {
+    public DuctileDBEdge addEdge(Object edgeId, DuctileDBVertex startVertex, DuctileDBVertex targetVertex,
+	    String edgeType) {
 	return addEdge(startVertex, targetVertex, edgeType, new HashMap<>());
     }
 
     @Override
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType, Map<String, Object> properties) {
+    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType,
+	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
 	byte[] edgeValue = new EdgeValue(properties).encode();
 	// Put to Start Vertex
@@ -494,11 +496,6 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBVertex getVertex(Object vertexId) {
-	return getVertex((long) vertexId);
-    }
-
-    @Override
     public Iterable<DuctileDBVertex> getVertices() {
 	try (Table table = openVertexTable()) {
 	    ResultScanner result = table.getScanner(new Scan());
@@ -520,7 +517,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		    Object value = SerializationUtils.deserialize(entry.getValue());
 		    if (propertyValue.equals(value)) {
-			Object key = IdEncoder.decodeRowId(entry.getKey());
+			long key = IdEncoder.decodeRowId(entry.getKey());
 			DuctileDBVertex vertex = getVertex(key);
 			if (vertex != null) {
 			    vertices.add(vertex);
@@ -568,10 +565,12 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(edge.getVertex(EdgeDirection.OUT).getId()));
 	long edgeId = edge.getId();
 	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.OUT, edgeId, edge.getVertex(EdgeDirection.IN).getId(), edge.getLabel()).encode());
+		new EdgeKey(EdgeDirection.OUT, edgeId, edge.getVertex(EdgeDirection.IN).getId(), edge.getLabel())
+			.encode());
 	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(edge.getVertex(EdgeDirection.IN).getId()));
 	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.IN, edgeId, edge.getVertex(EdgeDirection.OUT).getId(), edge.getLabel()).encode());
+		new EdgeKey(EdgeDirection.IN, edgeId, edge.getVertex(EdgeDirection.OUT).getId(), edge.getLabel())
+			.encode());
 	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
 	Delete labelIndex = createEdgeLabelIndexDelete(edgeId, edge.getLabel());
 	List<Delete> propertyIndices = new ArrayList<>();

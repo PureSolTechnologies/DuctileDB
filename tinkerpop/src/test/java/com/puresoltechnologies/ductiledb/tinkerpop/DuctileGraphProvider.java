@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -7,34 +8,17 @@ import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.AbstractGraphProvider;
 import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
-import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.Property;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.structure.VertexProperty;
+
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
     @Override
-    public void clear(Graph arg0, Configuration arg1) throws Exception {
-	// TODO Auto-generated method stub
-
+    public void clear(Graph graph, Configuration configuration) throws Exception {
+	AbstractDuctileDBTest.removeTables();
     }
 
-    /**
-     * <ol>
-     * *
-     * <li>{@link Edge}</li>
-     * <li>{@link Element}</li>
-     * <li>{@link Graph}</li>
-     * <li>{@link org.apache.tinkerpop.gremlin.structure.Graph.Variables}</li>
-     * <li>{@link Property}</li>
-     * <li>{@link Vertex}</li>
-     * <li>{@link VertexProperty}</li>
-     * </ol>
-     * 
-     */
     @SuppressWarnings("rawtypes")
     @Override
     public Set<Class> getImplementations() {
@@ -51,8 +35,9 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 
     @Override
     public Map<String, Object> getBaseConfiguration(String arg0, Class<?> arg1, String arg2, GraphData arg3) {
-	// TODO Auto-generated method stub
-	return null;
+	HashMap<String, Object> baseConfiguration = new HashMap<>();
+	baseConfiguration.put(Graph.GRAPH, DuctileGraph.class.getName());
+	return baseConfiguration;
     }
 
 }

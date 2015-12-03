@@ -367,6 +367,18 @@
 				<version>${gremlin.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.tinkerpop</groupId>
+				<artifactId>gremlin-test</artifactId>
+				<version>${gremlin.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tinkerpop</groupId>
+				<artifactId>gremlin-groovy-test</artifactId>
+				<version>${gremlin.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.buschmais.xo</groupId>
 				<artifactId>xo.impl</artifactId>
 				<version>${xo.version}</version>

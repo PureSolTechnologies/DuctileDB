@@ -14,15 +14,15 @@ public interface DuctileDBGraph extends Closeable {
 
     public DuctileDBVertex getVertex(long vertexId);
 
-    public DuctileDBVertex getVertex(Object id);
-
     public Iterable<DuctileDBVertex> getVertices(String label);
 
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType);
 
-    public DuctileDBEdge addEdge(Object edgeId, DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType);
+    public DuctileDBEdge addEdge(Object edgeId, DuctileDBVertex startVertex, DuctileDBVertex targetVertex,
+	    String edgeType);
 
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType, Map<String, Object> properties);
+    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType,
+	    Map<String, Object> properties);
 
     public DuctileDBEdge getEdge(long edgeId);
 

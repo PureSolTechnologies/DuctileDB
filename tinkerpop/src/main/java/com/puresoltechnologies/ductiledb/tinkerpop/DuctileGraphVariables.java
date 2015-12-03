@@ -7,6 +7,12 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 
 public class DuctileGraphVariables implements Graph.Variables {
 
+    private final DuctileGraph ductileGraph;
+
+    public DuctileGraphVariables(DuctileGraph ductileGraph) {
+	this.ductileGraph = ductileGraph;
+    }
+
     @Override
     public Set<String> keys() {
 	// TODO Auto-generated method stub
@@ -22,13 +28,11 @@ public class DuctileGraphVariables implements Graph.Variables {
     @Override
     public void set(String key, Object value) {
 	// TODO Auto-generated method stub
-
     }
 
     @Override
     public void remove(String key) {
-	// TODO Auto-generated method stub
-
+	// TODO Auto-generated method stu
     }
 
 }
