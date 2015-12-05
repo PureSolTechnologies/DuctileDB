@@ -9,7 +9,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.GraphFactory;
 
 public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 

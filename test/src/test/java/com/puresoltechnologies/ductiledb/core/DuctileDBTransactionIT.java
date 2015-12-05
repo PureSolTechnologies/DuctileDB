@@ -3,16 +3,17 @@ package com.puresoltechnologies.ductiledb.core;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 
 public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
-    public void testTransaction() {
+    public void testTransaction() throws IOException {
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
@@ -54,7 +55,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testRollback() {
+    public void testRollback() throws IOException {
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");

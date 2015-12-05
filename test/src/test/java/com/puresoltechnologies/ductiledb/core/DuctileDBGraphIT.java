@@ -10,81 +10,18 @@ import java.util.Iterator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
 public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
-
-    private static final int NUMBER = 10000;
 
     private static DuctileDBGraphImpl graphImpl;
 
     @BeforeClass
-    public static void initialize() {
+    public static void initialize() throws IOException {
 	graphImpl = ((DuctileDBGraphImpl) graph);
 	StarWarsGraph.addStarWarsFiguresData(graphImpl);
-    }
-
-    @Test
-    public void testVertexIdCreator() throws IOException {
-	long first = graphImpl.createVertexId();
-	long second = graphImpl.createVertexId();
-	long third = graphImpl.createVertexId();
-	assertEquals(first + 1, second);
-	assertEquals(first + 2, third);
-    }
-
-    @Test
-    public void testVertexIdCreatorPerformance() throws IOException {
-	long last = -1;
-	long start = System.currentTimeMillis();
-	for (int i = 0; i < NUMBER; ++i) {
-	    long current = graphImpl.createVertexId();
-	    if (last >= 0) {
-		assertEquals(last + 1, current);
-	    }
-	    last = current;
-	}
-	long stop = System.currentTimeMillis();
-	long duration = stop - start;
-	double speed = (double) NUMBER / (double) duration * 1000.0;
-	System.out.println("time: " + duration + "ms");
-	System.out.println("speed: " + speed + " vertex ids/s");
-	System.out.println("speed: " + 1000 / speed + " ms/vertex id");
-	assertTrue(duration < 10000);
-    }
-
-    @Test
-    public void testEdgeIdCreator() throws IOException {
-	long first = graphImpl.createEdgeId();
-	long second = graphImpl.createEdgeId();
-	long third = graphImpl.createEdgeId();
-	assertEquals(first + 1, second);
-	assertEquals(first + 2, third);
-    }
-
-    @Test
-    public void testEdgeIdCreatorPerformance() throws IOException {
-	long last = -1;
-	long start = System.currentTimeMillis();
-	for (int i = 0; i < NUMBER; ++i) {
-	    long current = graphImpl.createEdgeId();
-	    if (last >= 0) {
-		assertEquals(last + 1, current);
-	    }
-	    last = current;
-	}
-	long stop = System.currentTimeMillis();
-	long duration = stop - start;
-	double speed = (double) NUMBER / (double) duration * 1000.0;
-	System.out.println("time: " + duration + "ms");
-	System.out.println("speed: " + speed + " edge ids/s");
-	System.out.println("speed: " + 1000 / speed + " ms/edge id");
-	assertTrue(duration < 10000);
     }
 
     @Test
@@ -120,7 +57,8 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 	assertEquals("Luke", lukeSkywalker.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertEquals("Skywalker", lukeSkywalker.getProperty(StarWarsGraph.LAST_NAME_PROPERTY));
 	assertFalse(lukes.hasNext());
-	Iterator<DuctileDBEdge> edges = lukeSkywalker.getEdges(EdgeDirection.OUT, StarWarsGraph.HAS_SISTER_EDGE).iterator();
+	Iterator<DuctileDBEdge> edges = lukeSkywalker.getEdges(EdgeDirection.OUT, StarWarsGraph.HAS_SISTER_EDGE)
+		.iterator();
 	assertTrue(edges.hasNext());
 	DuctileDBEdge hasSister = edges.next();
 	DuctileDBVertex leiaOrgana = hasSister.getVertex(EdgeDirection.IN);

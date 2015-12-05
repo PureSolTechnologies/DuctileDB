@@ -5,36 +5,57 @@ import java.util.NoSuchElementException;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
+
 public class DuctileProperty<V> implements Property<V> {
+
+    protected final Element element;
+    protected final String key;
+    protected final DuctileGraph graph;
+    protected V value;
+    protected boolean removed = false;
+
+    public DuctileProperty(DuctileElement element, String key, V value) {
+	super();
+	this.element = element;
+	this.key = key;
+	this.graph = element.graph();
+	this.value = value;
+    }
 
     @Override
     public String key() {
-	// TODO Auto-generated method stub
-	return null;
+	return key;
     }
 
     @Override
     public V value() throws NoSuchElementException {
-	// TODO Auto-generated method stub
-	return null;
+	return value;
     }
 
     @Override
     public boolean isPresent() {
-	// TODO Auto-generated method stub
-	return false;
+	return value != null;
     }
 
     @Override
     public Element element() {
-	// TODO Auto-generated method stub
-	return null;
+	return element;
     }
 
     @Override
     public void remove() {
-	// TODO Auto-generated method stub
-
+	if (this.removed)
+	    return;
+	this.removed = true;
+	this.graph.tx().readWrite();
+	@SuppressWarnings("unchecked")
+	final DuctileDBElement entity = this.element instanceof DuctileVertexProperty
+		? ((DuctileVertexProperty<V>) this.element).element().getBaseElement()
+		: ((DuctileElement) this.element).getBaseElement();
+	if (entity.getProperty(key) != null) {
+	    entity.removeProperty(key);
+	}
     }
 
 }

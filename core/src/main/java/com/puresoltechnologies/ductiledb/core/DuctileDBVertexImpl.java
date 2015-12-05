@@ -9,22 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
-public class DuctileDBVertexImpl implements DuctileDBVertex {
+public class DuctileDBVertexImpl extends DuctileDBElementImpl implements DuctileDBVertex {
 
-    private final DuctileDBGraphImpl graph;
-    private final long id;
     private final Set<String> labels = new HashSet<>();
     private final Map<String, Object> properties = new HashMap<>();
     private final List<DuctileDBEdge> edges = new ArrayList<>();
 
-    public DuctileDBVertexImpl(DuctileDBGraphImpl hgraph, long id, Set<String> labels, Map<String, Object> properties,
+    public DuctileDBVertexImpl(DuctileDBGraphImpl graph, long id, Set<String> labels, Map<String, Object> properties,
 	    List<DuctileDBEdge> edges) {
-	this.graph = hgraph;
-	this.id = id;
+	super(graph, id);
 	this.labels.addAll(labels);
 	this.properties.putAll(properties);
 	this.edges.addAll(edges);
@@ -35,7 +32,6 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	final int prime = 31;
 	int result = 1;
 	result = prime * result + ((edges == null) ? 0 : edges.hashCode());
-	result = prime * result + (int) (id ^ (id >>> 32));
 	result = prime * result + ((labels == null) ? 0 : labels.hashCode());
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 	return result;
@@ -54,8 +50,6 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	    if (other.edges != null)
 		return false;
 	} else if (!edges.equals(other.edges))
-	    return false;
-	if (id != other.id)
 	    return false;
 	if (labels == null) {
 	    if (other.labels != null)
@@ -131,13 +125,13 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 	return vertices;
     }
 
-    void addEdge(DuctileDBEdge edge) {
+    public void addEdge(DuctileDBEdge edge) {
 	edges.add(edge);
     }
 
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
-	DuctileDBEdge edge = graph.addEdge(this, inVertex, label);
+	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label);
 	edges.add(edge);
 	return edge;
     }
@@ -156,7 +150,7 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public void setProperty(String key, Object value) {
-	graph.setVertexProperty(this, key, value);
+	getGraph().setProperty(this, key, value);
 	properties.put(key, value);
     }
 
@@ -164,18 +158,13 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
     public <T> T removeProperty(String key) {
 	@SuppressWarnings("unchecked")
 	T value = (T) getProperty(key);
-	graph.removeVertexProperty(this, key);
+	getGraph().removeProperty(this, key);
 	return value;
     }
 
     @Override
     public void remove() {
-	graph.removeVertex(this);
-    }
-
-    @Override
-    public Long getId() {
-	return id;
+	getGraph().removeVertex(this);
     }
 
     @Override
@@ -190,13 +179,13 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public void addLabel(String label) {
-	graph.addLabel(this, label);
+	getGraph().addLabel(this, label);
 	labels.add(label);
     }
 
     @Override
     public void removeLabel(String label) {
-	graph.removeLabel(this, label);
+	getGraph().removeLabel(this, label);
 	labels.remove(label);
     }
 
@@ -207,6 +196,6 @@ public class DuctileDBVertexImpl implements DuctileDBVertex {
 
     @Override
     public String toString() {
-	return "vertex " + id + ": labels=" + labels + "; properties=" + properties + "; edges=" + edges;
+	return "vertex " + getId() + ": labels=" + labels + "; properties=" + properties + "; edges=" + edges;
     }
 }

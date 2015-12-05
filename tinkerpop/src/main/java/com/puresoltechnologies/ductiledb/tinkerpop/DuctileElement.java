@@ -1,22 +1,24 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
-import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedElement;
 
-public abstract class DuctileElement implements Element {
+import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 
-    private final long id;
+public abstract class DuctileElement implements Element, WrappedElement<DuctileDBElement> {
+
+    private final DuctileDBElement baseElement;
     private final DuctileGraph graph;
 
-    public DuctileElement(long id, DuctileGraph graph) {
+    public DuctileElement(DuctileDBElement baseElement, DuctileGraph graph) {
 	super();
-	this.id = id;
+	this.baseElement = baseElement;
 	this.graph = graph;
     }
 
     @Override
     public final Long id() {
-	return id;
+	return baseElement.getId();
     }
 
     @Override
@@ -25,9 +27,7 @@ public abstract class DuctileElement implements Element {
     }
 
     @Override
-    public <V> Property<V> property(String key, V value) {
-	// TODO Auto-generated method stub
-	return null;
+    public final DuctileDBElement getBaseElement() {
+	return baseElement;
     }
-
 }

@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +30,7 @@ public class StarWarsGraph {
     public static final String HAS_SISTER_EDGE = "hasSister";
     public static final String HAS_TRAINED_EDGE = "hasTrained";
 
-    public static void addStarWarsFiguresData(DuctileDBGraph graph) {
+    public static void addStarWarsFiguresData(DuctileDBGraph graph) throws IOException {
 	logger.info("Add Star Wars figures test data...");
 	DuctileDBVertex lukeSkywalker = graph.addVertex();
 	lukeSkywalker.addLabel(PERSON_LABEL);

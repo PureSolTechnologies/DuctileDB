@@ -1,31 +1,39 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Property;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 
 public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
+    private final DuctileVertex vertex;
+    private final String key;
+    private final V value;
+
+    public DuctileVertexProperty(DuctileVertex vertex, String key, V value) {
+	this.vertex = vertex;
+	this.key = key;
+	this.value = value;
+    }
+
     @Override
     public String key() {
-	// TODO Auto-generated method stub
-	return null;
+	return key;
     }
 
     @Override
     public V value() throws NoSuchElementException {
-	// TODO Auto-generated method stub
-	return null;
+	return value;
     }
 
     @Override
     public boolean isPresent() {
-	// TODO Auto-generated method stub
-	return false;
+	return value != null;
     }
 
     @Override
@@ -35,9 +43,8 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
     }
 
     @Override
-    public Object id() {
-	// TODO Auto-generated method stub
-	return null;
+    public Long id() {
+	return vertex.id();
     }
 
     @Override
@@ -59,15 +66,20 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
     }
 
     @Override
-    public Vertex element() {
-	// TODO Auto-generated method stub
-	return null;
+    public DuctileVertex element() {
+	return vertex;
     }
 
     @Override
     public <U> Iterator<Property<U>> properties(String... propertyKeys) {
-	// TODO Auto-generated method stub
-	return null;
+	vertex.graph().tx().readWrite();
+	List<Property<U>> properties = new ArrayList<>();
+	for (String propertyKey : propertyKeys) {
+	    @SuppressWarnings("unchecked")
+	    U propertyValue = (U) vertex.getBaseVertex().getProperty(propertyKey);
+	    properties.add(new DuctileProperty<>(vertex, propertyKey, propertyValue));
+	}
+	return properties.iterator();
     }
 
 }

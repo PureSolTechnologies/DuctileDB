@@ -6,19 +6,19 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
 public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
 
     @Test
-    public void testAddAndRemoveEdge() {
+    public void testAddAndRemoveEdge() throws IOException {
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBEdge edge = vertex1.addEdge("TestEdge", vertex2);

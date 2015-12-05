@@ -10,19 +10,23 @@ import org.apache.tinkerpop.gremlin.AbstractGraphProvider;
 import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.GraphFactory;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
     @Override
     public void clear(Graph graph, Configuration configuration) throws Exception {
-	AbstractDuctileDBTest.removeTables();
+	try (DuctileDBGraph ductileGraph = GraphFactory.createGraph(configuration)) {
+	    DuctileDBTestHelper.removeGraph(ductileGraph);
+	}
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public Set<Class> getImplementations() {
-	HashSet<Class> implementations = new HashSet<>();
+	Set<Class> implementations = new HashSet<>();
 	implementations.add(DuctileEdge.class);
 	implementations.add(DuctileElement.class);
 	implementations.add(DuctileGraph.class);

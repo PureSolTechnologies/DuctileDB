@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
-public class DuctileDBEdgeImpl implements DuctileDBEdge {
+public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDBEdge {
 
-    private final DuctileDBGraphImpl graph;
-    private final long id;
     private final String label;
     private final long startVertexId;
     private final long targetVertexId;
@@ -21,20 +19,16 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
     public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, long targetVertexId,
 	    Map<String, Object> properties) {
-	super();
-	this.graph = graph;
-	this.id = id;
+	super(graph, id);
 	this.label = label;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
 	this.properties.putAll(properties);
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex, long targetVertexId,
-	    Map<String, Object> properties) {
-	super();
-	this.graph = graph;
-	this.id = id;
+    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
+	    long targetVertexId, Map<String, Object> properties) {
+	super(graph, id);
 	this.label = label;
 	this.startVertex = startVertex;
 	this.startVertexId = startVertex.getId();
@@ -42,11 +36,9 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 	this.properties.putAll(properties);
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, DuctileDBVertex targetVertex,
-	    Map<String, Object> properties) {
-	super();
-	this.graph = graph;
-	this.id = id;
+    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
+	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
+	super(graph, id);
 	this.label = label;
 	this.startVertexId = startVertexId;
 	this.targetVertex = targetVertex;
@@ -54,11 +46,9 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 	this.properties.putAll(properties);
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex, DuctileDBVertex targetVertex,
-	    Map<String, Object> properties) {
-	super();
-	this.graph = graph;
-	this.id = id;
+    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
+	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
+	super(graph, id);
 	this.label = label;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertex.getId();
@@ -71,7 +61,6 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + (int) (id ^ (id >>> 32));
 	result = prime * result + ((label == null) ? 0 : label.hashCode());
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 	result = prime * result + (int) (startVertexId ^ (startVertexId >>> 32));
@@ -88,8 +77,6 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 	if (getClass() != obj.getClass())
 	    return false;
 	DuctileDBEdgeImpl other = (DuctileDBEdgeImpl) obj;
-	if (id != other.id)
-	    return false;
 	if (label == null) {
 	    if (other.label != null)
 		return false;
@@ -110,7 +97,7 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     @Override
     public DuctileDBVertex getStartVertex() {
 	if (startVertex == null) {
-	    startVertex = graph.getVertex(startVertexId);
+	    startVertex = getGraph().getVertex(startVertexId);
 	}
 	return startVertex;
     }
@@ -118,7 +105,7 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     @Override
     public DuctileDBVertex getTargetVertex() {
 	if (targetVertex == null) {
-	    targetVertex = graph.getVertex(targetVertexId);
+	    targetVertex = getGraph().getVertex(targetVertexId);
 	}
 	return targetVertex;
     }
@@ -154,7 +141,7 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
 
     @Override
     public void setProperty(String key, Object value) {
-	graph.setEdgeProperty(this, key, value);
+	getGraph().setProperty(this, key, value);
 	properties.put(key, value);
     }
 
@@ -162,23 +149,18 @@ public class DuctileDBEdgeImpl implements DuctileDBEdge {
     public <T> T removeProperty(String key) {
 	@SuppressWarnings("unchecked")
 	T value = (T) properties.get(key);
-	graph.removeEdgeProperty(this, key);
+	getGraph().removeProperty(this, key);
 	return value;
     }
 
     @Override
     public void remove() {
-	graph.removeEdge(this);
-    }
-
-    @Override
-    public Long getId() {
-	return id;
+	getGraph().removeEdge(this);
     }
 
     @Override
     public String toString() {
-	return "edge " + id + " (" + startVertexId + "->" + targetVertexId + "): label=" + label + "; properties="
+	return "edge " + getId() + " (" + startVertexId + "->" + targetVertexId + "): label=" + label + "; properties="
 		+ properties;
     }
 }

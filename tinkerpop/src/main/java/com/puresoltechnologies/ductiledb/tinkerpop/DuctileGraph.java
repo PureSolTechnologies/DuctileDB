@@ -19,6 +19,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_STANDARD)
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_INTEGRATE)
@@ -37,7 +38,9 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     private final DuctileDBGraph baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();
-    private DuctileGraphVariables ductileGraphVariables = new DuctileGraphVariables(this);
+    private final DuctileGraphVariables ductileGraphVariables = new DuctileGraphVariables(this);
+    private final DuctileTransaction ductileTransaction = new DuctileTransaction(this);
+    private final DuctileFeatures features = new DuctileFeatures();
 
     protected DuctileGraph(DuctileDBGraph baseGraph, Configuration configuration) {
 	this.baseGraph = baseGraph;
@@ -92,7 +95,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
     public Iterator<Edge> edges(Object... edgeIds) {
 	List<Edge> edges = new ArrayList<>();
 	for (Object vertexId : edgeIds) {
-	    DuctileDBEdge baseEdge = baseGraph.getEdge(vertexId);
+	    DuctileDBEdge baseEdge = baseGraph.getEdge((long) vertexId);
 	    edges.add(new DuctileEdge(baseEdge, this));
 	}
 	return edges.iterator();
@@ -100,8 +103,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     @Override
     public Transaction tx() {
-	// TODO Auto-generated method stub
-	return null;
+	return ductileTransaction;
     }
 
     @Override
@@ -127,4 +129,8 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 	return baseGraph;
     }
 
+    @Override
+    public Features features() {
+	return features;
+    }
 }

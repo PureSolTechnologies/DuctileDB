@@ -1,5 +1,12 @@
 package com.puresoltechnologies.ductiledb.core;
 
+import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +35,7 @@ public class ResultDecoder {
 	}
 	// Reading labels...
 	Set<String> labels = new HashSet<>();
-	NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(DuctileDBGraphImpl.LABELS_COLUMN_FAMILIY_BYTES);
+	NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
 	if (labelsMap != null) {
 	    for (byte[] label : labelsMap.keySet()) {
 		labels.add(Bytes.toString(label));
@@ -36,8 +43,7 @@ public class ResultDecoder {
 	}
 	// Reading properties...
 	Map<String, Object> properties = new HashMap<>();
-	NavigableMap<byte[], byte[]> propertyMap = result
-		.getFamilyMap(DuctileDBGraphImpl.PROPERTIES_COLUMN_FAMILY_BYTES);
+	NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
 	if (propertyMap != null) {
 	    for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		String key = Bytes.toString(entry.getKey());
@@ -47,7 +53,7 @@ public class ResultDecoder {
 	}
 	// Read edges...
 	DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
-	NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(DuctileDBGraphImpl.EDGES_COLUMN_FAMILY_BYTES);
+	NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	if (edgesMap != null) {
 	    for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
@@ -68,13 +74,10 @@ public class ResultDecoder {
 	if (result.isEmpty()) {
 	    return null;
 	}
-	NavigableMap<byte[], byte[]> verticesColumnFamily = result
-		.getFamilyMap(DuctileDBGraphImpl.VERICES_COLUMN_FAMILY_BYTES);
-	long startVertexId = IdEncoder
-		.decodeRowId(verticesColumnFamily.get(DuctileDBGraphImpl.START_VERTEXID_COLUMN_BYTES));
-	long targetVertexId = IdEncoder
-		.decodeRowId(verticesColumnFamily.get(DuctileDBGraphImpl.TARGET_VERTEXID_COLUMN_BYTES));
-	NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(DuctileDBGraphImpl.LABELS_COLUMN_FAMILIY_BYTES);
+	NavigableMap<byte[], byte[]> verticesColumnFamily = result.getFamilyMap(VERICES_COLUMN_FAMILY_BYTES);
+	long startVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(START_VERTEXID_COLUMN_BYTES));
+	long targetVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(TARGET_VERTEXID_COLUMN_BYTES));
+	NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
 	Set<byte[]> labelBytes = labelsMap.keySet();
 	if (labelBytes.size() == 0) {
 	    throw new DuctileDBException("Found edge without label (id='" + edgeId
@@ -86,8 +89,7 @@ public class ResultDecoder {
 	}
 	String label = Bytes.toString(labelBytes.iterator().next());
 	Map<String, Object> properties = new HashMap<>();
-	NavigableMap<byte[], byte[]> propertiesMap = result
-		.getFamilyMap(DuctileDBGraphImpl.PROPERTIES_COLUMN_FAMILY_BYTES);
+	NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
 	for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
 	    String key = Bytes.toString(property.getKey());
 	    Object value = SerializationUtils.deserialize(property.getValue());
