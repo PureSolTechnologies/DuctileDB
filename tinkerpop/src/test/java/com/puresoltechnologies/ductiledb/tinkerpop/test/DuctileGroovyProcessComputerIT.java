@@ -1,8 +1,10 @@
-package com.puresoltechnologies.ductiledb.tinkerpop;
+package com.puresoltechnologies.ductiledb.tinkerpop.test;
 
 import org.apache.tinkerpop.gremlin.GraphProviderClass;
 import org.apache.tinkerpop.gremlin.process.GroovyProcessComputerSuite;
 import org.junit.runner.RunWith;
+
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 
 @RunWith(GroovyProcessComputerSuite.class)
 @GraphProviderClass(provider = DuctileGraphProvider.class, graph = DuctileGraph.class)

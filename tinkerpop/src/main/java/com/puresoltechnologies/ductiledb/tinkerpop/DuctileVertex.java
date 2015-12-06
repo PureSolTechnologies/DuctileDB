@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -43,10 +44,9 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	    throw Edge.Exceptions.userSuppliedIdsNotSupported();
 	}
 	graph().tx().readWrite();
-	DuctileDBEdge edge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex());
-	DuctileEdge ductileEdge = new DuctileEdge(edge, graph());
-	ElementHelper.attachProperties(ductileEdge, keyValues);
-	return ductileEdge;
+	Map<String, Object> map = ElementHelper.asMap(keyValues);
+	DuctileDBEdge edge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex(), map);
+	return new DuctileEdge(edge, graph());
     }
 
     @Override
@@ -81,18 +81,22 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
     }
 
     @Override
+    public <V> DuctileVertexProperty<V> property(String key) {
+	return new DuctileVertexProperty<V>(this, key, baseVertex.getProperty(key));
+    }
+
+    @Override
     public Iterator<Edge> edges(Direction direction, String... edgeLabels) {
-	graph().tx().readWrite();
 	Iterable<DuctileDBEdge> edges;
 	switch (direction) {
 	case IN:
-	    edges = getBaseVertex().getEdges(EdgeDirection.IN, edgeLabels);
+	    edges = baseVertex.getEdges(EdgeDirection.IN, edgeLabels);
 	    break;
 	case OUT:
-	    edges = getBaseVertex().getEdges(EdgeDirection.OUT, edgeLabels);
+	    edges = baseVertex.getEdges(EdgeDirection.OUT, edgeLabels);
 	    break;
 	case BOTH:
-	    edges = getBaseVertex().getEdges(EdgeDirection.BOTH, edgeLabels);
+	    edges = baseVertex.getEdges(EdgeDirection.BOTH, edgeLabels);
 	    break;
 	default:
 	    throw new IllegalArgumentException("Direction '" + direction + "' not supported.");
@@ -106,17 +110,16 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 
     @Override
     public Iterator<Vertex> vertices(Direction direction, String... edgeLabels) {
-	graph().tx().readWrite();
 	Iterable<DuctileDBVertex> vertices;
 	switch (direction) {
 	case IN:
-	    vertices = getBaseVertex().getVertices(EdgeDirection.IN, edgeLabels);
+	    vertices = baseVertex.getVertices(EdgeDirection.IN, edgeLabels);
 	    break;
 	case OUT:
-	    vertices = getBaseVertex().getVertices(EdgeDirection.OUT, edgeLabels);
+	    vertices = baseVertex.getVertices(EdgeDirection.OUT, edgeLabels);
 	    break;
 	case BOTH:
-	    vertices = getBaseVertex().getVertices(EdgeDirection.BOTH, edgeLabels);
+	    vertices = baseVertex.getVertices(EdgeDirection.BOTH, edgeLabels);
 	    break;
 	default:
 	    throw new IllegalArgumentException("Direction '" + direction + "' not supported.");
@@ -130,8 +133,13 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 
     @Override
     public <V> Iterator<VertexProperty<V>> properties(String... propertyKeys) {
-	// TODO Auto-generated method stub
-	return null;
+	List<VertexProperty<V>> properties = new ArrayList<>();
+	for (String key : propertyKeys) {
+	    @SuppressWarnings("unchecked")
+	    V value = (V) baseVertex.getProperty(key);
+	    properties.add(new DuctileVertexProperty<V>(this, key, value));
+	}
+	return properties.iterator();
     }
 
     @Override
@@ -146,37 +154,21 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
     }
 
     public Set<String> labels() {
-	graph().tx().readWrite();
 	final Set<String> labels = new TreeSet<>();
-	for (String label : getBaseVertex().getLabels()) {
+	for (String label : baseVertex.getLabels()) {
 	    labels.add(label);
 	}
 	return Collections.unmodifiableSet(labels);
     }
 
     @Override
-    public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((baseVertex == null) ? 0 : baseVertex.hashCode());
-	return result;
+    public boolean equals(final Object object) {
+	return ElementHelper.areEqual(this, object);
     }
 
     @Override
-    public boolean equals(Object obj) {
-	if (this == obj)
-	    return true;
-	if (obj == null)
-	    return false;
-	if (getClass() != obj.getClass())
-	    return false;
-	DuctileVertex other = (DuctileVertex) obj;
-	if (baseVertex == null) {
-	    if (other.baseVertex != null)
-		return false;
-	} else if (!baseVertex.equals(other.baseVertex))
-	    return false;
-	return true;
+    public int hashCode() {
+	return ElementHelper.hashCode(this);
     }
 
 }

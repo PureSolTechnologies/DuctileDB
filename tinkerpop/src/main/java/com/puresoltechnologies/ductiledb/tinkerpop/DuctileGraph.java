@@ -71,14 +71,16 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     @Override
     public <C extends GraphComputer> C compute(Class<C> graphComputerClass) throws IllegalArgumentException {
-	// TODO Auto-generated method stub
-	return null;
+	try {
+	    return graphComputerClass.newInstance();
+	} catch (InstantiationException | IllegalAccessException e) {
+	    throw new IllegalArgumentException("Could not instantiate graph computer '" + graphComputerClass + "'.", e);
+	}
     }
 
     @Override
     public GraphComputer compute() throws IllegalArgumentException {
-	// TODO Auto-generated method stub
-	return null;
+	return new DuctileGraphComputer();
     }
 
     @Override
@@ -86,7 +88,9 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 	List<Vertex> vertices = new ArrayList<>();
 	for (Object vertexId : vertexIds) {
 	    DuctileDBVertex baseVertex = baseGraph.getVertex((Long) vertexId);
-	    vertices.add(new DuctileVertex(baseVertex, this));
+	    if (baseVertex != null) {
+		vertices.add(new DuctileVertex(baseVertex, this));
+	    }
 	}
 	return vertices.iterator();
     }

@@ -543,14 +543,14 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(edge.getVertex(EdgeDirection.OUT).getId()));
 	long edgeId = edge.getId();
 	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.OUT, edgeId, edge.getVertex(EdgeDirection.IN).getId(), edge.getLabel())
+		new EdgeKey(EdgeDirection.OUT, edgeId, edge.getVertex(EdgeDirection.IN).getId(), edge.getType())
 			.encode());
 	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(edge.getVertex(EdgeDirection.IN).getId()));
 	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.IN, edgeId, edge.getVertex(EdgeDirection.OUT).getId(), edge.getLabel())
+		new EdgeKey(EdgeDirection.IN, edgeId, edge.getVertex(EdgeDirection.OUT).getId(), edge.getType())
 			.encode());
 	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
-	Delete labelIndex = createEdgeLabelIndexDelete(edgeId, edge.getLabel());
+	Delete labelIndex = createEdgeLabelIndexDelete(edgeId, edge.getType());
 	List<Delete> propertyIndices = new ArrayList<>();
 	for (String key : edge.getPropertyKeys()) {
 	    propertyIndices.add(createEdgePropertyIndexDelete(edgeId, key));
@@ -634,8 +634,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    long targetVertexId = edge.getTargetVertex().getId();
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getLabel());
-	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getLabel());
+	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getType());
+	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getType());
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    byte[] startVertexPropertyBytes = startVertexResult
 		    .getColumnLatestCell(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode()).getValueArray();
@@ -673,8 +673,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    long targetVertexId = edge.getTargetVertex().getId();
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getLabel());
-	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getLabel());
+	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getType());
+	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getType());
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    byte[] startVertexPropertyBytes = startVertexResult
 		    .getColumnLatestCell(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode()).getValueArray();

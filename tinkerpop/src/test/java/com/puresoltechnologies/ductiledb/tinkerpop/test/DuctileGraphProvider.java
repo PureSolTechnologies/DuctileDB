@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.tinkerpop;
+package com.puresoltechnologies.ductiledb.tinkerpop.test;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +13,13 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileElement;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphVariables;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileProperty;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertexProperty;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 

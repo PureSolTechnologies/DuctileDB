@@ -119,7 +119,7 @@ public class DuctileDBHealthCheck {
 	Iterable<DuctileDBEdge> edges = graph.getEdges();
 	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
-	    String label = edge.getLabel();
+	    String label = edge.getType();
 	    try (Table table = connection.getTable(TableName.valueOf(EDGE_LABELS_INDEX_TABLE))) {
 		Result result = table.get(new Get(Bytes.toBytes(label)));
 		assertFalse("Could not find row for label '" + label + "' in edge label index.", result.isEmpty());

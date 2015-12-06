@@ -61,7 +61,7 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	List<DuctileDBEdge> edges = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
 	for (DuctileDBEdge edge : this.edges) {
-	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getLabel()))) {
+	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getType()))) {
 		switch (direction) {
 		case IN:
 		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
@@ -89,7 +89,7 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	List<DuctileDBVertex> vertices = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
 	for (DuctileDBEdge edge : this.edges) {
-	    if (labelList.contains(edge.getLabel())) {
+	    if (labelList.contains(edge.getType())) {
 		switch (direction) {
 		case IN:
 		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
@@ -124,6 +124,13 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
 	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label);
+	edges.add(edge);
+	return edge;
+    }
+
+    @Override
+    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
+	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label, properties);
 	edges.add(edge);
 	return edge;
     }

@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api;
 
+import java.util.Map;
+
 public interface DuctileDBVertex extends DuctileDBElement {
 
     public Iterable<String> getLabels();
@@ -11,6 +13,8 @@ public interface DuctileDBVertex extends DuctileDBElement {
     public boolean hasLabel(String label);
 
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex);
+
+    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties);
 
     public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeLabels);
 

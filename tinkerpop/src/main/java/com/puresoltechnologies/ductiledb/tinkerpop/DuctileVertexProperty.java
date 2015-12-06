@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 
 public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
@@ -38,31 +39,30 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
     @Override
     public void remove() {
-	// TODO Auto-generated method stub
-
+	graph().tx().readWrite();
+	vertex.getBaseVertex().removeProperty(key);
     }
 
     @Override
     public Long id() {
-	return vertex.id();
+	return (long) (key.hashCode() + value.hashCode() + vertex.id().hashCode());
     }
 
     @Override
     public String label() {
-	// TODO Auto-generated method stub
-	return null;
+	return key;
     }
 
     @Override
     public Graph graph() {
-	// TODO Auto-generated method stub
-	return null;
+	return graph();
     }
 
     @Override
     public <U> Property<U> property(String key, U value) {
-	// TODO Auto-generated method stub
-	return null;
+	ElementHelper.validateProperty(key, value);
+	vertex.graph().tx().readWrite();
+	return vertex.property(key, value);
     }
 
     @Override

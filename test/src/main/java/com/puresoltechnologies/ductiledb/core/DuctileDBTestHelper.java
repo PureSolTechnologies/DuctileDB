@@ -4,6 +4,7 @@ import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.DUCTILEDB_N
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -36,6 +37,19 @@ public class DuctileDBTestHelper {
     public static long count(Iterable<?> iterable) {
 	long[] count = { 0 };
 	iterable.forEach(c -> count[0]++);
+	return count[0];
+    }
+
+    /**
+     * Runs through an {@link Iterable} and counts the number of elements.
+     * 
+     * @param iterable
+     *            is the {@link Iterable} to count the elements in.
+     * @return
+     */
+    public static long count(Iterator<?> iterator) {
+	long[] count = { 0 };
+	iterator.forEachRemaining(c -> count[0]++);
 	return count[0];
     }
 

@@ -162,7 +162,7 @@ public class DucileDBStoreEdgeManager implements
 
     @Override
     public String getRelationDiscriminator(DuctileDBEdge edge) {
-	return edge.getLabel();
+	return edge.getType();
     }
 
     @Override
