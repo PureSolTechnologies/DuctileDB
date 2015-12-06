@@ -10,7 +10,7 @@ import org.junit.BeforeClass;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 
-public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
+public class AbstractDuctileDBGraphTest {
 
     protected static DuctileDBGraph graph;
 
@@ -18,6 +18,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
     public static void connect() throws IOException {
 	graph = GraphFactory.createGraph(new BaseConfiguration());
 	assertNotNull("Graph was not created.", graph);
+	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @AfterClass

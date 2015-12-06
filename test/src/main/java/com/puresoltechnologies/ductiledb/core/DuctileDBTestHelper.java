@@ -76,11 +76,13 @@ public class DuctileDBTestHelper {
     }
 
     public static void removeGraph(DuctileDBGraph graph) throws IOException {
+	logger.info("Delete ductile graph...");
 	for (DuctileDBVertex vertex : graph.getVertices()) {
 	    vertex.remove();
 	}
 	graph.commit();
 	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
 	new DuctileDBHealthCheck((DuctileDBGraphImpl) graph).runCheck();
+	logger.info("Ductile graph deleted.");
     }
 }
