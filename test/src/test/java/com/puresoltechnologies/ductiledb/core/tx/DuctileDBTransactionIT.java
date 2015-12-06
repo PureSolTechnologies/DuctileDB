@@ -26,7 +26,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testVertexIdCreator() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.getCurrentTransaction();
+	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
 	long first = currentTransaction.createVertexId();
 	long second = currentTransaction.createVertexId();
 	long third = currentTransaction.createVertexId();
@@ -36,7 +36,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testVertexIdCreatorPerformance() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.getCurrentTransaction();
+	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
 	long last = -1;
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -57,7 +57,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testEdgeIdCreator() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.getCurrentTransaction();
+	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
 	long first = currentTransaction.createEdgeId();
 	long second = currentTransaction.createEdgeId();
 	long third = currentTransaction.createEdgeId();
@@ -67,7 +67,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testEdgeIdCreatorPerformance() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.getCurrentTransaction();
+	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
 	long last = -1;
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {

@@ -1,10 +1,9 @@
 package com.puresoltechnologies.ductiledb.core;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
@@ -15,54 +14,48 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     private final long targetVertexId;
     private DuctileDBVertex startVertex = null;
     private DuctileDBVertex targetVertex = null;
-    private final Map<String, Object> properties = new HashMap<>();
 
     public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, long targetVertexId,
 	    Map<String, Object> properties) {
-	super(graph, id);
+	super(graph, id, properties);
 	this.label = label;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
-	this.properties.putAll(properties);
     }
 
     public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
 	    long targetVertexId, Map<String, Object> properties) {
-	super(graph, id);
+	super(graph, id, properties);
 	this.label = label;
 	this.startVertex = startVertex;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertexId;
-	this.properties.putAll(properties);
     }
 
     public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
-	super(graph, id);
+	super(graph, id, properties);
 	this.label = label;
 	this.startVertexId = startVertexId;
 	this.targetVertex = targetVertex;
 	this.targetVertexId = targetVertex.getId();
-	this.properties.putAll(properties);
     }
 
     public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
-	super(graph, id);
+	super(graph, id, properties);
 	this.label = label;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertex.getId();
 	this.startVertex = startVertex;
 	this.targetVertex = targetVertex;
-	this.properties.putAll(properties);
     }
 
     @Override
     public int hashCode() {
 	final int prime = 31;
-	int result = 1;
+	int result = super.hashCode();
 	result = prime * result + ((label == null) ? 0 : label.hashCode());
-	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 	result = prime * result + (int) (startVertexId ^ (startVertexId >>> 32));
 	result = prime * result + (int) (targetVertexId ^ (targetVertexId >>> 32));
 	return result;
@@ -72,7 +65,7 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     public boolean equals(Object obj) {
 	if (this == obj)
 	    return true;
-	if (obj == null)
+	if (!super.equals(obj))
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
@@ -81,11 +74,6 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 	    if (other.label != null)
 		return false;
 	} else if (!label.equals(other.label))
-	    return false;
-	if (properties == null) {
-	    if (other.properties != null)
-		return false;
-	} else if (!properties.equals(other.properties))
 	    return false;
 	if (startVertexId != other.startVertexId)
 	    return false;
@@ -128,29 +116,13 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     }
 
     @Override
-    public <T> T getProperty(String key) {
-	@SuppressWarnings("unchecked")
-	T t = (T) properties.get(key);
-	return t;
+    protected void setProperty(DuctileDBGraph graph, String key, Object value) {
+	graph.setProperty(this, key, value);
     }
 
     @Override
-    public Set<String> getPropertyKeys() {
-	return properties.keySet();
-    }
-
-    @Override
-    public void setProperty(String key, Object value) {
-	getGraph().setProperty(this, key, value);
-	properties.put(key, value);
-    }
-
-    @Override
-    public <T> T removeProperty(String key) {
-	@SuppressWarnings("unchecked")
-	T value = (T) properties.get(key);
-	getGraph().removeProperty(this, key);
-	return value;
+    protected void removeProperty(DuctileDBGraph graph, String key) {
+	graph.removeProperty(this, key);
     }
 
     @Override
@@ -161,6 +133,6 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     @Override
     public String toString() {
 	return "edge " + getId() + " (" + startVertexId + "->" + targetVertexId + "): label=" + label + "; properties="
-		+ properties;
+		+ getPropertiesString();
     }
 }

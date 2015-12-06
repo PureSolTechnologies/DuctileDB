@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -329,11 +328,6 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     @Override
-    public DuctileDBVertex addVertex() {
-	return addVertex(new HashSet<>(), new HashMap<>());
-    }
-
-    @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
@@ -432,7 +426,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    for (Entry<byte[], byte[]> entry : map.entrySet()) {
 		Object value = SerializationUtils.deserialize(entry.getValue());
-		if (value.equals(propertyValue)) {
+		if ((propertyValue == null) || (value.equals(propertyValue))) {
 		    edges.add(getEdge(IdEncoder.decodeRowId(entry.getKey())));
 		}
 	    }
@@ -500,7 +494,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    if (propertyMap != null) {
 		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		    Object value = SerializationUtils.deserialize(entry.getValue());
-		    if (propertyValue.equals(value)) {
+		    if ((propertyValue == null) || (propertyValue.equals(value))) {
 			long key = IdEncoder.decodeRowId(entry.getKey());
 			DuctileDBVertex vertex = getVertex(key);
 			if (vertex != null) {
@@ -668,7 +662,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    put(VERTICES_TABLE, targetVertexPut);
 	    put(EDGE_PROPERTIES_INDEX_TABLE, index);
 	} catch (IOException e) {
-	    throw new DuctileDBException("Could not set edge property (id='" + edge.getId().toString() + "').", e);
+	    throw new DuctileDBException("Could not set edge property (id='" + edge.getId() + "').", e);
 	}
     }
 
@@ -707,7 +701,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    put(VERTICES_TABLE, targetVertexPut);
 	    delete(EDGE_PROPERTIES_INDEX_TABLE, index);
 	} catch (IOException e) {
-	    throw new DuctileDBException("Could not set edge property (id='" + edge.getId().toString() + "').", e);
+	    throw new DuctileDBException("Could not set edge property (id='" + edge.getId() + "').", e);
 	}
     }
 

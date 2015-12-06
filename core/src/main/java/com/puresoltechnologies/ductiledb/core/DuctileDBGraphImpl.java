@@ -33,7 +33,11 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBTransaction getCurrentTransaction() {
+    public DuctileDBTransaction createTransaction() {
+	return new DuctileDBTransactionImpl(this);
+    }
+
+    private DuctileDBTransaction getCurrentTransaction() {
 	DuctileDBTransaction transaction = transactions.get();
 	if (transaction == null) {
 	    transaction = new DuctileDBTransactionImpl(this);
@@ -51,11 +55,6 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType,
 	    Map<String, Object> properties) {
 	return getCurrentTransaction().addEdge(startVertex, targetVertex, edgeType, properties);
-    }
-
-    @Override
-    public DuctileDBVertex addVertex() {
-	return getCurrentTransaction().addVertex();
     }
 
     @Override
