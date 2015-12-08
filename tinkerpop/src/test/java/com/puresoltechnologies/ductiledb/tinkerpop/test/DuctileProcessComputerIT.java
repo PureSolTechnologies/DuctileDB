@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.process.ProcessComputerSuite;
 import org.junit.runner.RunWith;
 
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphProvider;
 
 @RunWith(ProcessComputerSuite.class)
 @GraphProviderClass(provider = DuctileGraphProvider.class, graph = DuctileGraph.class)

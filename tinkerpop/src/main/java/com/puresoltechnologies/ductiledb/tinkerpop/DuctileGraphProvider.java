@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.tinkerpop.test;
+package com.puresoltechnologies.ductiledb.tinkerpop;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,13 +13,6 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileElement;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphVariables;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileProperty;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertexProperty;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
@@ -45,7 +38,11 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
     }
 
     @Override
-    public Map<String, Object> getBaseConfiguration(String arg0, Class<?> arg1, String arg2, GraphData arg3) {
+    public Map<String, Object> getBaseConfiguration(String arg0, Class<?> arg1, String arg2, GraphData graphData) {
+	return getBaseConfiguration();
+    }
+
+    public Map<String, Object> getBaseConfiguration() {
 	HashMap<String, Object> baseConfiguration = new HashMap<>();
 	baseConfiguration.put(Graph.GRAPH, DuctileGraph.class.getName());
 	return baseConfiguration;

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -19,6 +20,8 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputer;
+import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_STANDARD)
@@ -36,6 +39,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 	return new DuctileGraph(configuration);
     }
 
+    private DuctileGraphComputerView graphComputerView = null;
     private final DuctileDBGraph baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();
     private final DuctileGraphVariables ductileGraphVariables = new DuctileGraphVariables(this);
@@ -80,17 +84,21 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     @Override
     public GraphComputer compute() throws IllegalArgumentException {
-	return new DuctileGraphComputer();
+	return new DuctileGraphComputer(this);
     }
 
     @Override
     public Iterator<Vertex> vertices(Object... vertexIds) {
 	List<Vertex> vertices = new ArrayList<>();
-	for (Object vertexId : vertexIds) {
-	    DuctileDBVertex baseVertex = baseGraph.getVertex((Long) vertexId);
-	    if (baseVertex != null) {
-		vertices.add(new DuctileVertex(baseVertex, this));
+	if (vertexIds.length > 0) {
+	    for (Object vertexId : vertexIds) {
+		DuctileDBVertex baseVertex = baseGraph.getVertex((Long) vertexId);
+		if (baseVertex != null) {
+		    vertices.add(new DuctileVertex(baseVertex, this));
+		}
 	    }
+	} else {
+	    baseGraph.getVertices().forEach(vertex -> vertices.add(new DuctileVertex(vertex, this)));
 	}
 	return vertices.iterator();
     }
@@ -98,9 +106,13 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
     @Override
     public Iterator<Edge> edges(Object... edgeIds) {
 	List<Edge> edges = new ArrayList<>();
-	for (Object vertexId : edgeIds) {
-	    DuctileDBEdge baseEdge = baseGraph.getEdge((long) vertexId);
-	    edges.add(new DuctileEdge(baseEdge, this));
+	if (edgeIds.length > 0) {
+	    for (Object vertexId : edgeIds) {
+		DuctileDBEdge baseEdge = baseGraph.getEdge((long) vertexId);
+		edges.add(new DuctileEdge(baseEdge, this));
+	    }
+	} else {
+	    baseGraph.getEdges().forEach(edge -> edges.add(new DuctileEdge(edge, this)));
 	}
 	return edges.iterator();
     }
@@ -136,5 +148,22 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
     @Override
     public Features features() {
 	return features;
+    }
+
+    public DuctileGraphComputerView createGraphComputerView(Set<String> computeKeys) {
+	graphComputerView = new DuctileGraphComputerView(this, computeKeys);
+	return graphComputerView;
+    }
+
+    public void dropGraphComputerView() {
+	graphComputerView = null;
+    }
+
+    public DuctileGraphComputerView getGraphComputerView() {
+	return graphComputerView;
+    }
+
+    public boolean inComputerMode() {
+	return graphComputerView != null;
     }
 }

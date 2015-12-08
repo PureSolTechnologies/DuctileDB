@@ -35,4 +35,21 @@ public class DuctileDBOperation {
 	return delete;
     }
 
+    @Override
+    public String toString() {
+	StringBuilder builder = new StringBuilder();
+	switch (operationType) {
+	case PUT:
+	    builder.append("put: ");
+	    builder.append(put.toString());
+	    break;
+	case DELETE:
+	    builder.append("delete: ");
+	    builder.append(put.toString());
+	    break;
+	default:
+	    builder.append(operationType.name());
+	}
+	return builder.toString();
+    }
 }
