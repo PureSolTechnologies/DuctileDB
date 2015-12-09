@@ -637,8 +637,12 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getType());
 	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getType());
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
-	    byte[] startVertexPropertyBytes = startVertexResult
-		    .getColumnLatestCell(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode()).getValueArray();
+	    if (startVertexResult.isEmpty()) {
+		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
+	    }
+	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
+		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
+	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
 	    @SuppressWarnings("unchecked")
 	    Map<String, Object> startVertexProperties = (Map<String, Object>) SerializationUtils
 		    .deserialize(startVertexPropertyBytes);
@@ -647,8 +651,12 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    startVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode(),
 		    SerializationUtils.serialize((Serializable) startVertexProperties));
 	    Result targetVertexResult = table.get(new Get(targetVertexRowId));
-	    byte[] targetVertexPropertyBytes = targetVertexResult
-		    .getColumnLatestCell(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode()).getValueArray();
+	    if (targetVertexResult.isEmpty()) {
+		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
+	    }
+	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
+		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
+	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
 	    @SuppressWarnings("unchecked")
 	    Map<String, Object> targetVertexProperties = (Map<String, Object>) SerializationUtils
 		    .deserialize(targetVertexPropertyBytes);

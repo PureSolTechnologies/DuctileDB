@@ -1,88 +1,109 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
 
 public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
-    private static final int NUMBER = 10000;
+    @Test
+    public void testTransaction() throws IOException {
+	DuctileDBVertex vertex1 = graph.addVertex();
+	DuctileDBVertex vertex2 = graph.addVertex();
+	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
 
-    private static DuctileDBGraphImpl graphImpl;
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
 
-    @BeforeClass
-    public static void initialize() throws IOException {
-	graphImpl = ((DuctileDBGraphImpl) graph);
-	StarWarsGraph.addStarWarsFiguresData(graphImpl);
+	graph.commit();
+
+	assertNotNull(graph.getVertex(vertex1.getId()));
+	assertNotNull(graph.getVertex(vertex2.getId()));
+	assertNotNull(graph.getEdge(edge.getId()));
+
+	edge.remove();
+
+	assertNotNull(graph.getVertex(vertex1.getId()));
+	assertNotNull(graph.getVertex(vertex2.getId()));
+	assertNotNull(graph.getEdge(edge.getId()));
+
+	graph.commit();
+
+	assertNotNull(graph.getVertex(vertex1.getId()));
+	assertNotNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
+
+	vertex1.remove();
+	vertex2.remove();
+
+	assertNotNull(graph.getVertex(vertex1.getId()));
+	assertNotNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
+
+	graph.commit();
+
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
     }
 
     @Test
-    public void testVertexIdCreator() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
-	long first = currentTransaction.createVertexId();
-	long second = currentTransaction.createVertexId();
-	long third = currentTransaction.createVertexId();
-	assertEquals(first + 1, second);
-	assertEquals(first + 2, third);
+    public void testRollback() throws IOException {
+	DuctileDBVertex vertex1 = graph.addVertex();
+	DuctileDBVertex vertex2 = graph.addVertex();
+	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
+
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
+
+	graph.rollback();
+
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
+
+	graph.commit();
+
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
     }
 
+    /**
+     * This test checks the behavior of changes on not committed elements.
+     * 
+     * @throws IOException
+     */
     @Test
-    public void testVertexIdCreatorPerformance() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
-	long last = -1;
-	long start = System.currentTimeMillis();
-	for (int i = 0; i < NUMBER; ++i) {
-	    long current = currentTransaction.createVertexId();
-	    if (last >= 0) {
-		assertEquals(last + 1, current);
-	    }
-	    last = current;
-	}
-	long stop = System.currentTimeMillis();
-	long duration = stop - start;
-	double speed = (double) NUMBER / (double) duration * 1000.0;
-	System.out.println("time: " + duration + "ms");
-	System.out.println("speed: " + speed + " vertex ids/s");
-	System.out.println("speed: " + 1000 / speed + " ms/vertex id");
-	assertTrue(duration < 10000);
-    }
+    public void testChangesOnNotCommitElements() throws IOException {
+	DuctileDBVertex vertex1 = graph.addVertex();
+	DuctileDBVertex vertex2 = graph.addVertex();
+	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
 
-    @Test
-    public void testEdgeIdCreator() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
-	long first = currentTransaction.createEdgeId();
-	long second = currentTransaction.createEdgeId();
-	long third = currentTransaction.createEdgeId();
-	assertEquals(first + 1, second);
-	assertEquals(first + 2, third);
-    }
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
 
-    @Test
-    public void testEdgeIdCreatorPerformance() throws IOException {
-	DuctileDBTransactionImpl currentTransaction = (DuctileDBTransactionImpl) graphImpl.createTransaction();
-	long last = -1;
-	long start = System.currentTimeMillis();
-	for (int i = 0; i < NUMBER; ++i) {
-	    long current = currentTransaction.createEdgeId();
-	    if (last >= 0) {
-		assertEquals(last + 1, current);
-	    }
-	    last = current;
-	}
-	long stop = System.currentTimeMillis();
-	long duration = stop - start;
-	double speed = (double) NUMBER / (double) duration * 1000.0;
-	System.out.println("time: " + duration + "ms");
-	System.out.println("speed: " + speed + " edge ids/s");
-	System.out.println("speed: " + 1000 / speed + " ms/edge id");
-	assertTrue(duration < 10000);
+	/*
+	 * The next operation needs to work...
+	 */
+	edge.setProperty("property1", "value1");
+
+	graph.commit();
+	assertNotNull(graph.getVertex(vertex1.getId()));
+	assertNotNull(graph.getVertex(vertex2.getId()));
+	DuctileDBEdge edge2 = graph.getEdge(edge.getId());
+	assertNotNull(edge2);
+	assertEquals("value1", edge2.getProperty("property1"));
     }
 }
