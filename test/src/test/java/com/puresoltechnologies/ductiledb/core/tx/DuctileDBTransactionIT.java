@@ -11,11 +11,13 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBHealthCheck;
 
 public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
     @Test
-    public void testTransaction() throws IOException {
+    public void testBasicCommit() throws IOException {
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
@@ -86,6 +88,8 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
      */
     @Test
     public void testChangesOnNotCommitElements() throws IOException {
+	DuctileDBHealthCheck.runCheck((DuctileDBGraphImpl) graph);
+
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
@@ -98,12 +102,30 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	 * The next operation needs to work...
 	 */
 	edge.setProperty("property1", "value1");
+	assertEquals("value1", edge.getProperty("property1"));
 
 	graph.commit();
+
+	DuctileDBHealthCheck.runCheck((DuctileDBGraphImpl) graph);
+
 	assertNotNull(graph.getVertex(vertex1.getId()));
 	assertNotNull(graph.getVertex(vertex2.getId()));
 	DuctileDBEdge edge2 = graph.getEdge(edge.getId());
 	assertNotNull(edge2);
 	assertEquals("value1", edge2.getProperty("property1"));
+
+	/*
+	 * The next operation needs to work...
+	 */
+	edge.removeProperty("property1");
+	assertNull(edge.getProperty("property1"));
+
+	graph.commit();
+
+	DuctileDBHealthCheck.runCheck((DuctileDBGraphImpl) graph);
+	edge2 = graph.getEdge(edge.getId());
+	assertNotNull(edge2);
+	assertNull(edge2.getProperty("property1"));
+
     }
 }

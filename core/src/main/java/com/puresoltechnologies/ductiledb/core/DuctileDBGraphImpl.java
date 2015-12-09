@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.core;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,11 +43,6 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    transactions.set(transaction);
 	}
 	return transaction;
-    }
-
-    @Override
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType) {
-	return addEdge(startVertex, targetVertex, edgeType, new HashMap<>());
     }
 
     @Override

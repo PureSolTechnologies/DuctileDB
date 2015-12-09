@@ -43,6 +43,10 @@ public class DuctileDBHealthCheck {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBHealthCheck.class);
 
+    public static void runCheck(DuctileDBGraphImpl graph) throws IOException {
+	new DuctileDBHealthCheck(graph).runCheck();
+    }
+
     private final DuctileDBGraphImpl graph;
     private final Connection connection;
 

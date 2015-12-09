@@ -112,7 +112,9 @@ public interface GraphOperations {
      * @return A {@link DuctileDBEdge} object is returned containing the newly
      *         created edge.
      */
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType);
+    public default DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType) {
+	return addEdge(startVertex, targetVertex, edgeType, new HashMap<>());
+    }
 
     /**
      * This method adds a new edge to the graph. This method is used in favor

@@ -2,26 +2,19 @@ package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGEID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_LABELS_INDEX_TABLE;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_PROPERTIES_INDEX_TABLE;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.ID_ROW_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.METADATA_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.METADATA_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEXID_COLUMN_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_LABELS_INDEX_TABLE;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_PROPERTIES_INDEX_TABLE;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,9 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -52,10 +43,19 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeIterable;
-import com.puresoltechnologies.ductiledb.core.EdgeKey;
-import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.ResultDecoder;
 import com.puresoltechnologies.ductiledb.core.VertexIterable;
+import com.puresoltechnologies.ductiledb.core.tx.ops.AddEdgeOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.AddVertexLabelOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.AddVertexOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveEdgeOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveEdgePropertyOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveVertexLabelOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveVertexOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveVertexPropertyOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.SetEdgePropertyOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.SetVertexPropertyOperation;
+import com.puresoltechnologies.ductiledb.core.tx.ops.TxOperation;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 /**
@@ -73,7 +73,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private long nextVertexId = -1;
     private long nextEdgeId = -1;
 
-    public final Map<TableName, List<DuctileDBOperation>> tableOperations = new HashMap<>();
+    public final List<TxOperation> tableOperations = new ArrayList<>();
     private final DuctileDBGraphImpl graph;
     private final Connection connection;
     private boolean closed = false;
@@ -84,118 +84,16 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     }
 
-    private void put(String tableName, Put put) {
-	checkForClosed();
-	TableName table = TableName.valueOf(tableName);
-	List<DuctileDBOperation> operationList = tableOperations.get(table);
-	if (operationList == null) {
-	    operationList = new ArrayList<>();
-	    tableOperations.put(table, operationList);
-	}
-	operationList.add(new DuctileDBOperation(put));
-    }
-
-    private void put(String tableName, List<Put> puts) {
-	checkForClosed();
-	if (puts.isEmpty()) {
-	    return;
-	}
-	TableName table = TableName.valueOf(tableName);
-	List<DuctileDBOperation> operationList = tableOperations.get(table);
-	if (operationList == null) {
-	    operationList = new ArrayList<>();
-	    tableOperations.put(table, operationList);
-	}
-	for (Put put : puts) {
-	    operationList.add(new DuctileDBOperation(put));
-	}
-    }
-
-    private void delete(String tableName, Delete delete) {
-	checkForClosed();
-	TableName table = TableName.valueOf(tableName);
-	List<DuctileDBOperation> operationList = tableOperations.get(table);
-	if (operationList == null) {
-	    operationList = new ArrayList<>();
-	    tableOperations.put(table, operationList);
-	}
-	operationList.add(new DuctileDBOperation(delete));
-    }
-
-    private void delete(String tableName, List<Delete> deletes) {
-	checkForClosed();
-	if (deletes.isEmpty()) {
-	    return;
-	}
-	TableName table = TableName.valueOf(tableName);
-	List<DuctileDBOperation> operationList = tableOperations.get(table);
-	if (operationList == null) {
-	    operationList = new ArrayList<>();
-	    tableOperations.put(table, operationList);
-	}
-	for (Delete delete : deletes) {
-	    operationList.add(new DuctileDBOperation(delete));
-	}
-    }
-
     @Override
     public void commit() {
 	checkForClosed();
 	try {
-	    for (Entry<TableName, List<DuctileDBOperation>> entry : tableOperations.entrySet()) {
-		mutateTable(entry.getKey(), entry.getValue());
+	    for (TxOperation operation : tableOperations) {
+		operation.perform();
 	    }
 	    tableOperations.clear();
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not cmomit changes.", e);
-	}
-    }
-
-    private void mutateTable(TableName tableName, List<DuctileDBOperation> operations) throws IOException {
-	try (Table table = connection.getTable(tableName)) {
-	    List<Put> puts = new ArrayList<>();
-	    List<Delete> deletes = new ArrayList<>();
-	    OperationType currentOperationType = null;
-	    for (DuctileDBOperation operation : operations) {
-		if (currentOperationType != operation.getOperationType()) {
-		    if (currentOperationType != null) {
-			switch (currentOperationType) {
-			case PUT:
-			    table.put(puts);
-			    puts.clear();
-			    break;
-			case DELETE:
-			    table.delete(deletes);
-			    deletes.clear();
-			    break;
-			default:
-			    throw new DuctileDBException(
-				    "Operation type '" + currentOperationType + "' is not implemented.");
-			}
-		    }
-		    currentOperationType = operation.getOperationType();
-		}
-		switch (currentOperationType) {
-		case PUT:
-		    puts.add(operation.getPut());
-		    break;
-		case DELETE:
-		    deletes.add(operation.getDelete());
-		    break;
-		default:
-		    throw new DuctileDBException("Operation type '" + currentOperationType + "' is not implemented.");
-		}
-	    }
-	    switch (currentOperationType) {
-	    case PUT:
-		table.put(puts);
-		break;
-	    case DELETE:
-		table.delete(deletes);
-		break;
-	    default:
-		throw new DuctileDBException("Operation type '" + currentOperationType + "' is not implemented.");
-	    }
 	}
     }
 
@@ -277,119 +175,21 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return id;
     }
 
-    private Put createVertexLabelIndexPut(long vertexId, String label) {
-	Put labelIndexPut = new Put(Bytes.toBytes(label));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId), new byte[0]);
-	return labelIndexPut;
-    }
-
-    private Put createVertexPropertyIndexPut(long vertexId, String key, Object value) {
-	Put indexPut = new Put(Bytes.toBytes(key));
-	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId),
-		SerializationUtils.serialize((Serializable) value));
-	return indexPut;
-    }
-
-    private Delete createVertexLabelIndexDelete(long vertexId, String label) {
-	Delete labelIndexPut = new Delete(Bytes.toBytes(label));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId));
-	return labelIndexPut;
-    }
-
-    private Delete createVertexPropertyIndexDelete(long vertexId, String key) {
-	Delete indexPut = new Delete(Bytes.toBytes(key));
-	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId));
-	return indexPut;
-    }
-
-    private Put createEdgeLabelIndexPut(long edgeId, String edgeType) {
-	Put labelIndexPut = new Put(Bytes.toBytes(edgeType));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId), new byte[0]);
-	return labelIndexPut;
-    }
-
-    private Put createEdgePropertyIndexPut(long edgeId, String key, Object value) {
-	Put indexPut = new Put(Bytes.toBytes(key));
-	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId),
-		SerializationUtils.serialize((Serializable) value));
-	return indexPut;
-    }
-
-    private Delete createEdgeLabelIndexDelete(long edgeId, String edgeType) {
-	Delete labelIndexPut = new Delete(Bytes.toBytes(edgeType));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId));
-	return labelIndexPut;
-    }
-
-    private Delete createEdgePropertyIndexDelete(long edgeId, String key) {
-	Delete indexPut = new Delete(Bytes.toBytes(key));
-	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId));
-	return indexPut;
-    }
-
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	byte[] id = IdEncoder.encodeRowId(vertexId);
-	Put put = new Put(id);
-	List<Put> labelIndex = new ArrayList<>();
-	for (String label : labels) {
-	    put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), new byte[0]);
-	    labelIndex.add(createVertexLabelIndexPut(vertexId, label));
-	}
-	List<Put> propertyIndex = new ArrayList<>();
+	tableOperations.add(new AddVertexOperation(connection, vertexId, labels, properties));
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
-	for (Entry<String, Object> property : properties.entrySet()) {
-	    String key = property.getKey();
-	    Object value = property.getValue();
-	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
-		    SerializationUtils.serialize((Serializable) value));
-	    propertyIndex.add(createVertexPropertyIndexPut(vertexId, property.getKey(), property.getValue()));
-	}
-	put(VERTICES_TABLE, put);
-	put(VERTEX_LABELS_INDEX_TABLE, labelIndex);
-	put(VERTEX_PROPERTIES_INDEX_TABLE, propertyIndex);
-	return new DuctileDBVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
-    }
-
-    @Override
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType) {
-	return addEdge(startVertex, targetVertex, edgeType, new HashMap<>());
+	DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
+	return vertex;
     }
 
     @Override
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
-	byte[] edgeValue = new EdgeValue(properties).encode();
-	// Put to Start Vertex
-	Put outPut = new Put(IdEncoder.encodeRowId(startVertex.getId()));
-	outPut.addColumn(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertex.getId(), edgeType).encode(), edgeValue);
-	// Put to Target Vertex
-	Put inPut = new Put(IdEncoder.encodeRowId(targetVertex.getId()));
-	inPut.addColumn(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.IN, edgeId, startVertex.getId(), edgeType).encode(), edgeValue);
-	// Put to Edges Table
-	Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
-	edgePut.addColumn(VERICES_COLUMN_FAMILY_BYTES, START_VERTEXID_COLUMN_BYTES,
-		IdEncoder.encodeRowId(startVertex.getId()));
-	edgePut.addColumn(VERICES_COLUMN_FAMILY_BYTES, TARGET_VERTEXID_COLUMN_BYTES,
-		IdEncoder.encodeRowId(targetVertex.getId()));
-	edgePut.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(edgeType), new byte[0]);
-	Put labelIndexPut = createEdgeLabelIndexPut(edgeId, edgeType);
-	List<Put> propertyIndexPuts = new ArrayList<>();
-	for (Entry<String, Object> property : properties.entrySet()) {
-	    edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
-		    SerializationUtils.serialize((Serializable) property.getValue()));
-	    propertyIndexPuts.add(createEdgePropertyIndexPut(edgeId, property.getKey(), property.getValue()));
-	}
-	// Add to transaction
-	put(VERTICES_TABLE, outPut);
-	put(VERTICES_TABLE, inPut);
-	put(EDGES_TABLE, edgePut);
-	put(EDGE_LABELS_INDEX_TABLE, labelIndexPut);
-	put(EDGE_PROPERTIES_INDEX_TABLE, propertyIndexPuts);
+	tableOperations.add(new AddEdgeOperation(connection, edgeId, startVertex.getId(), targetVertex.getId(),
+		edgeType, properties));
 	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, edgeType, startVertex, targetVertex,
 		new HashMap<>());
 	((DuctileDBVertexImpl) targetVertex).addEdge(edge);
@@ -540,177 +340,56 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void removeEdge(DuctileDBEdge edge) {
-	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(edge.getVertex(EdgeDirection.OUT).getId()));
 	long edgeId = edge.getId();
-	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.OUT, edgeId, edge.getVertex(EdgeDirection.IN).getId(), edge.getType())
-			.encode());
-	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(edge.getVertex(EdgeDirection.IN).getId()));
-	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.IN, edgeId, edge.getVertex(EdgeDirection.OUT).getId(), edge.getType())
-			.encode());
-	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
-	Delete labelIndex = createEdgeLabelIndexDelete(edgeId, edge.getType());
-	List<Delete> propertyIndices = new ArrayList<>();
-	for (String key : edge.getPropertyKeys()) {
-	    propertyIndices.add(createEdgePropertyIndexDelete(edgeId, key));
-	}
-	// Add to transaction
-	delete(VERTICES_TABLE, deleteOutEdge);
-	delete(VERTICES_TABLE, deleteInEdge);
-	delete(EDGES_TABLE, deleteEdges);
-	delete(EDGE_LABELS_INDEX_TABLE, labelIndex);
-	delete(EDGE_PROPERTIES_INDEX_TABLE, propertyIndices);
+	tableOperations.add(new RemoveEdgeOperation(connection, edgeId, edge.getVertex(EdgeDirection.IN).getId(),
+		edge.getVertex(EdgeDirection.OUT).getId(), edge.getType(), edge.getPropertyKeys()));
     }
 
     @Override
     public void removeVertex(DuctileDBVertex vertex) {
 	long vertexId = vertex.getId();
-	byte[] id = IdEncoder.encodeRowId(vertexId);
 	for (DuctileDBEdge edge : vertex.getEdges(EdgeDirection.BOTH)) {
 	    removeEdge(edge);
 	}
 	for (String label : vertex.getLabels()) {
-	    Delete delete = createVertexLabelIndexDelete(vertexId, label);
-	    delete(VERTEX_LABELS_INDEX_TABLE, delete);
+	    removeLabel(vertex, label);
 	}
 	for (String key : vertex.getPropertyKeys()) {
-	    Delete delete = createVertexPropertyIndexDelete(vertexId, key);
-	    delete(VERTEX_PROPERTIES_INDEX_TABLE, delete);
+	    removeProperty(vertex, key);
 	}
-	Delete delete = new Delete(id);
-	delete(VERTICES_TABLE, delete);
+	tableOperations.add(new RemoveVertexOperation(connection, vertexId));
     }
 
     @Override
     public void addLabel(DuctileDBVertex vertex, String label) {
-	byte[] id = IdEncoder.encodeRowId(vertex.getId());
-	Put put = new Put(id);
-	put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));
-	Put index = createVertexLabelIndexPut(vertex.getId(), label);
-	// Add to transaction
-	put(VERTICES_TABLE, put);
-	put(VERTEX_LABELS_INDEX_TABLE, index);
+	tableOperations.add(new AddVertexLabelOperation(connection, vertex.getId(), label));
     }
 
     @Override
     public void removeLabel(DuctileDBVertex vertex, String label) {
-	byte[] id = IdEncoder.encodeRowId(vertex.getId());
-	Delete delete = new Delete(id);
-	delete.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label));
-	Delete index = createVertexLabelIndexDelete(vertex.getId(), label);
-	// Add to transaction
-	delete(VERTICES_TABLE, delete);
-	delete(VERTEX_LABELS_INDEX_TABLE, index);
+	tableOperations.add(new RemoveVertexLabelOperation(connection, vertex.getId(), label));
     }
 
     @Override
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
-	byte[] id = IdEncoder.encodeRowId(vertex.getId());
-	Put put = new Put(id);
-	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
-		SerializationUtils.serialize((Serializable) value));
-	Put index = createVertexPropertyIndexPut(vertex.getId(), key, value);
-	// Add to transaction
-	put(VERTICES_TABLE, put);
-	put(VERTEX_PROPERTIES_INDEX_TABLE, index);
+	tableOperations.add(new SetVertexPropertyOperation(connection, vertex.getId(), key, value));
     }
 
     @Override
     public void removeProperty(DuctileDBVertex vertex, String key) {
-	byte[] id = IdEncoder.encodeRowId(vertex.getId());
-	Delete delete = new Delete(id);
-	delete.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key));
-	Delete index = createVertexPropertyIndexDelete(vertex.getId(), key);
-	// Add to transaction
-	delete(VERTICES_TABLE, delete);
-	delete(VERTEX_PROPERTIES_INDEX_TABLE, index);
+	tableOperations.add(new RemoveVertexPropertyOperation(connection, vertex.getId(), key));
     }
 
     @Override
     public void setProperty(DuctileDBEdge edge, String key, Object value) {
-	try (Table table = openVertexTable()) {
-	    long startVertexId = edge.getStartVertex().getId();
-	    long targetVertexId = edge.getTargetVertex().getId();
-	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getType());
-	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getType());
-	    Result startVertexResult = table.get(new Get(startVertexRowId));
-	    if (startVertexResult.isEmpty()) {
-		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
-	    }
-	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
-		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
-	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
-	    @SuppressWarnings("unchecked")
-	    Map<String, Object> startVertexProperties = (Map<String, Object>) SerializationUtils
-		    .deserialize(startVertexPropertyBytes);
-	    startVertexProperties.put(key, value);
-	    Put startVertexPut = new Put(startVertexRowId);
-	    startVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode(),
-		    SerializationUtils.serialize((Serializable) startVertexProperties));
-	    Result targetVertexResult = table.get(new Get(targetVertexRowId));
-	    if (targetVertexResult.isEmpty()) {
-		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
-	    }
-	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
-		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
-	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
-	    @SuppressWarnings("unchecked")
-	    Map<String, Object> targetVertexProperties = (Map<String, Object>) SerializationUtils
-		    .deserialize(targetVertexPropertyBytes);
-	    targetVertexProperties.put(key, value);
-	    Put targetVertexPut = new Put(targetVertexRowId);
-	    targetVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode(),
-		    SerializationUtils.serialize((Serializable) targetVertexProperties));
-	    Put index = createEdgePropertyIndexPut(edge.getId(), key, value);
-	    // Add to transaction
-	    put(VERTICES_TABLE, startVertexPut);
-	    put(VERTICES_TABLE, targetVertexPut);
-	    put(EDGE_PROPERTIES_INDEX_TABLE, index);
-	} catch (IOException e) {
-	    throw new DuctileDBException("Could not set edge property (id='" + edge.getId() + "').", e);
-	}
+	tableOperations.add(new SetEdgePropertyOperation(connection, edge.getId(), edge.getStartVertex().getId(),
+		edge.getTargetVertex().getId(), edge.getType(), key, value));
     }
 
     @Override
     public void removeProperty(DuctileDBEdge edge, String key) {
-	try (Table table = openVertexTable()) {
-	    long startVertexId = edge.getStartVertex().getId();
-	    long targetVertexId = edge.getTargetVertex().getId();
-	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edge.getId(), targetVertexId, edge.getType());
-	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edge.getId(), startVertexId, edge.getType());
-	    Result startVertexResult = table.get(new Get(startVertexRowId));
-	    byte[] startVertexPropertyBytes = startVertexResult
-		    .getColumnLatestCell(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode()).getValueArray();
-	    @SuppressWarnings("unchecked")
-	    Map<String, Object> startVertexProperties = (Map<String, Object>) SerializationUtils
-		    .deserialize(startVertexPropertyBytes);
-	    startVertexProperties.remove(key);
-	    Put startVertexPut = new Put(startVertexRowId);
-	    startVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode(),
-		    SerializationUtils.serialize((Serializable) startVertexProperties));
-	    Result targetVertexResult = table.get(new Get(targetVertexRowId));
-	    byte[] targetVertexPropertyBytes = targetVertexResult
-		    .getColumnLatestCell(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode()).getValueArray();
-	    @SuppressWarnings("unchecked")
-	    Map<String, Object> targetVertexProperties = (Map<String, Object>) SerializationUtils
-		    .deserialize(targetVertexPropertyBytes);
-	    targetVertexProperties.remove(key);
-	    Put targetVertexPut = new Put(targetVertexRowId);
-	    targetVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode(),
-		    SerializationUtils.serialize((Serializable) targetVertexProperties));
-	    Delete index = createEdgePropertyIndexDelete(edge.getId(), key);
-	    // Add to transaction
-	    put(VERTICES_TABLE, startVertexPut);
-	    put(VERTICES_TABLE, targetVertexPut);
-	    delete(EDGE_PROPERTIES_INDEX_TABLE, index);
-	} catch (IOException e) {
-	    throw new DuctileDBException("Could not set edge property (id='" + edge.getId() + "').", e);
-	}
+	tableOperations.add(new RemoveEdgePropertyOperation(connection, edge.getId(), edge.getStartVertex().getId(),
+		edge.getTargetVertex().getId(), edge.getType(), key));
     }
 
 }
