@@ -90,7 +90,7 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 
     @Override
     public String label() {
-	return baseEdge.getType();
+	return baseEdge.getLabel();
     }
 
     @Override

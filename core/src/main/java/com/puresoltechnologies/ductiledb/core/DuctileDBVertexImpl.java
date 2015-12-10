@@ -61,7 +61,7 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	List<DuctileDBEdge> edges = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
 	for (DuctileDBEdge edge : this.edges) {
-	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getType()))) {
+	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getLabel()))) {
 		switch (direction) {
 		case IN:
 		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
@@ -89,7 +89,7 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	List<DuctileDBVertex> vertices = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
 	for (DuctileDBEdge edge : this.edges) {
-	    if (labelList.contains(edge.getType())) {
+	    if (labelList.contains(edge.getLabel())) {
 		switch (direction) {
 		case IN:
 		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {

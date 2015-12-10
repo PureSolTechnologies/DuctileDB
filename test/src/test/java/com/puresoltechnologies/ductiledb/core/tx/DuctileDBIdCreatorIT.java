@@ -12,6 +12,11 @@ import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
 
+/**
+ * This integration tests check the creation of vertex and edge IDs.
+ * 
+ * @author Rick-Rainer Ludwig
+ */
 public class DuctileDBIdCreatorIT extends AbstractDuctileDBGraphTest {
 
     private static final int NUMBER = 10000;

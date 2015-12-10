@@ -20,6 +20,8 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexOperation extends AbstractTxOperation {
@@ -34,6 +36,18 @@ public class AddVertexOperation extends AbstractTxOperation {
 	this.vertexId = vertexId;
 	this.labels = Collections.unmodifiableSet(labels);
 	this.properties = Collections.unmodifiableMap(properties);
+    }
+
+    public long getVertexId() {
+	return vertexId;
+    }
+
+    public Set<String> getLabels() {
+	return labels;
+    }
+
+    public Map<String, Object> getProperties() {
+	return properties;
     }
 
     @Override
@@ -59,4 +73,13 @@ public class AddVertexOperation extends AbstractTxOperation {
 	put(VERTEX_PROPERTIES_INDEX_TABLE, propertyIndex);
     }
 
+    @Override
+    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
+	return vertex;
+    }
+
+    @Override
+    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
+	return edge;
+    }
 }

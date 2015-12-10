@@ -111,7 +111,7 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     }
 
     @Override
-    public String getType() {
+    public String getLabel() {
 	return label;
     }
 

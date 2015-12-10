@@ -59,10 +59,10 @@ public class ResultDecoder {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
 		EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
 		if (EdgeDirection.IN == edgeKey.getDirection()) {
-		    vertex.addEdge(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getEdgeType(),
+		    vertex.addEdge(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(),
 			    edgeKey.getVertexId(), vertex, edgeValue.getProperties()));
 		} else {
-		    vertex.addEdge(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getEdgeType(), vertex,
+		    vertex.addEdge(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(), vertex,
 			    edgeKey.getVertexId(), edgeValue.getProperties()));
 		}
 	    }

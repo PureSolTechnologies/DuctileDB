@@ -8,6 +8,6 @@ public interface DuctileDBEdge extends DuctileDBElement {
 
     public DuctileDBVertex getVertex(EdgeDirection direction) throws IllegalArgumentException;
 
-    public String getType();
+    public String getLabel();
 
 }

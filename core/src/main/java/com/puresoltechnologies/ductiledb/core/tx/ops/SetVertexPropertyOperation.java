@@ -6,12 +6,19 @@ import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TA
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class SetVertexPropertyOperation extends AbstractTxOperation {
@@ -36,6 +43,22 @@ public class SetVertexPropertyOperation extends AbstractTxOperation {
 	Put index = OperationsHelper.createVertexPropertyIndexPut(vertexId, key, value);
 	put(VERTICES_TABLE, put);
 	put(VERTEX_PROPERTIES_INDEX_TABLE, index);
+    }
+
+    @Override
+    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
+	if (vertex.getId() != vertexId) {
+	    return vertex;
+	}
+	Map<String, Object> properties = new HashMap<>(ElementUtils.getProperties(vertex));
+	properties.put(key, value);
+	return new DuctileDBVertexImpl((DuctileDBGraphImpl) vertex.getGraph(), vertex.getId(),
+		ElementUtils.getLabels(vertex), properties, ElementUtils.getEdges(vertex));
+    }
+
+    @Override
+    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
+	return edge;
     }
 
 }

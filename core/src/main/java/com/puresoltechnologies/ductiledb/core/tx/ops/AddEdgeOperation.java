@@ -24,6 +24,8 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
@@ -34,17 +36,37 @@ public class AddEdgeOperation extends AbstractTxOperation {
     private final long edgeId;
     private final long startVertexId;
     private final long targetVertexId;
-    private final String edgeType;
+    private final String label;
     private final Map<String, Object> properties;
 
-    public AddEdgeOperation(Connection connection, long edgeId, long startVertexId, long targetVertexId,
-	    String edgeType, Map<String, Object> properties) {
+    public AddEdgeOperation(Connection connection, long edgeId, long startVertexId, long targetVertexId, String label,
+	    Map<String, Object> properties) {
 	super(connection);
 	this.edgeId = edgeId;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
-	this.edgeType = edgeType;
+	this.label = label;
 	this.properties = Collections.unmodifiableMap(properties);
+    }
+
+    public long getEdgeId() {
+	return edgeId;
+    }
+
+    public long getStartVertexId() {
+	return startVertexId;
+    }
+
+    public long getTargetVertexId() {
+	return targetVertexId;
+    }
+
+    public String getLabel() {
+	return label;
+    }
+
+    public Map<String, Object> getProperties() {
+	return properties;
     }
 
     @Override
@@ -53,19 +75,19 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	// Put to Start Vertex
 	Put outPut = new Put(IdEncoder.encodeRowId(startVertexId));
 	outPut.addColumn(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, edgeType).encode(), edgeValue);
+		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label).encode(), edgeValue);
 	// Put to Target Vertex
 	Put inPut = new Put(IdEncoder.encodeRowId(targetVertexId));
-	inPut.addColumn(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, edgeType).encode(), edgeValue);
+	inPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, label).encode(),
+		edgeValue);
 	// Put to Edges Table
 	Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
 	edgePut.addColumn(VERICES_COLUMN_FAMILY_BYTES, START_VERTEXID_COLUMN_BYTES,
 		IdEncoder.encodeRowId(startVertexId));
 	edgePut.addColumn(VERICES_COLUMN_FAMILY_BYTES, TARGET_VERTEXID_COLUMN_BYTES,
 		IdEncoder.encodeRowId(targetVertexId));
-	edgePut.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(edgeType), new byte[0]);
-	Put labelIndexPut = OperationsHelper.createEdgeLabelIndexPut(edgeId, edgeType);
+	edgePut.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), new byte[0]);
+	Put labelIndexPut = OperationsHelper.createEdgeLabelIndexPut(edgeId, label);
 	List<Put> propertyIndexPuts = new ArrayList<>();
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
@@ -78,6 +100,16 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	put(EDGES_TABLE, edgePut);
 	put(EDGE_LABELS_INDEX_TABLE, labelIndexPut);
 	put(EDGE_PROPERTIES_INDEX_TABLE, propertyIndexPuts);
+    }
+
+    @Override
+    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
+	return vertex;
+    }
+
+    @Override
+    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
+	return edge;
     }
 
 }

@@ -107,13 +107,13 @@ public interface GraphOperations {
      * @param targetVertex
      *            is a {@link DuctileDBVertex} where the edge is ending
      *            (incoming).
-     * @param edgeType
+     * @param label
      *            is the type (or label) of the edge as {@link String}.
      * @return A {@link DuctileDBEdge} object is returned containing the newly
      *         created edge.
      */
-    public default DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType) {
-	return addEdge(startVertex, targetVertex, edgeType, new HashMap<>());
+    public default DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label) {
+	return addEdge(startVertex, targetVertex, label, new HashMap<>());
     }
 
     /**
@@ -127,7 +127,7 @@ public interface GraphOperations {
      * @param targetVertex
      *            is a {@link DuctileDBVertex} where the edge is ending
      *            (incoming).
-     * @param edgeType
+     * @param label
      *            is the type (or label) of the edge as {@link String}.
      * @param properties
      *            is a {@link Map} containing the properties to be set during
@@ -135,7 +135,7 @@ public interface GraphOperations {
      * @return A {@link DuctileDBEdge} object is returned containing the newly
      *         created edge.
      */
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String edgeType,
+    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
 	    Map<String, Object> properties);
 
     /**
@@ -173,12 +173,12 @@ public interface GraphOperations {
      * This method is used to get all edges of a certain type (with a certain
      * label).
      * 
-     * @param edgeType
+     * @param label
      *            is the type name of the edges to be returned.
      * @return An {@link Iterable} of {@link DuctileDBEdge} is returned
      *         containing the result edges.
      */
-    public Iterable<DuctileDBEdge> getEdges(String edgeType);
+    public Iterable<DuctileDBEdge> getEdges(String label);
 
     /**
      * This method is used to get all edges with a certain property.

@@ -24,7 +24,8 @@ public abstract class DuctileDBElementImpl implements DuctileDBElement {
 	this.properties.putAll(properties);
     }
 
-    protected DuctileDBGraphImpl getGraph() {
+    @Override
+    public DuctileDBGraphImpl getGraph() {
 	return graph;
     }
 

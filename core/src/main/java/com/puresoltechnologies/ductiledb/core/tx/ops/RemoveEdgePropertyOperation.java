@@ -7,6 +7,8 @@ import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableMap;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -19,10 +21,15 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveEdgePropertyOperation extends AbstractTxOperation {
@@ -30,16 +37,16 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
     private final long edgeId;
     private final long startVertexId;
     private final long targetVertexId;
-    private final String edgeType;
+    private final String label;
     private final String key;
 
     public RemoveEdgePropertyOperation(Connection connection, long edgeId, long startVertexId, long targetVertexId,
-	    String edgeType, String key) {
+	    String label, String key) {
 	super(connection);
 	this.edgeId = edgeId;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
-	this.edgeType = edgeType;
+	this.label = label;
 	this.key = key;
     }
 
@@ -47,7 +54,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	try (Table table = getConnection().getTable(TableName.valueOf(DuctileDBSchema.VERTICES_TABLE))) {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, edgeType);
+	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
@@ -62,7 +69,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 		    startVertexEdgeValue.encode());
 
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
-	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, edgeType);
+	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, label);
 	    Result targetVertexResult = table.get(new Get(targetVertexRowId));
 	    if (targetVertexResult.isEmpty()) {
 		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
@@ -88,4 +95,19 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 	}
     }
 
+    @Override
+    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
+	return vertex;
+    }
+
+    @Override
+    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
+	if (edge.getId() != edgeId) {
+	    return edge;
+	}
+	Map<String, Object> properties = new HashMap<>(ElementUtils.getProperties(edge));
+	properties.remove(key);
+	return new DuctileDBEdgeImpl((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getLabel(),
+		edge.getStartVertex().getId(), edge.getTargetVertex().getId(), properties);
+    }
 }

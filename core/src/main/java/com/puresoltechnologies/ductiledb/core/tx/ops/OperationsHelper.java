@@ -44,8 +44,8 @@ public class OperationsHelper {
 	return indexPut;
     }
 
-    public static Put createEdgeLabelIndexPut(long edgeId, String edgeType) {
-	Put labelIndexPut = new Put(Bytes.toBytes(edgeType));
+    public static Put createEdgeLabelIndexPut(long edgeId, String label) {
+	Put labelIndexPut = new Put(Bytes.toBytes(label));
 	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId), new byte[0]);
 	return labelIndexPut;
     }
@@ -57,8 +57,8 @@ public class OperationsHelper {
 	return indexPut;
     }
 
-    public static Delete createEdgeLabelIndexDelete(long edgeId, String edgeType) {
-	Delete labelIndexPut = new Delete(Bytes.toBytes(edgeType));
+    public static Delete createEdgeLabelIndexDelete(long edgeId, String label) {
+	Delete labelIndexPut = new Delete(Bytes.toBytes(label));
 	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId));
 	return labelIndexPut;
     }

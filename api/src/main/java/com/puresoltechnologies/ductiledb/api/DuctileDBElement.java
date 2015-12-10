@@ -11,6 +11,13 @@ import java.util.Set;
 public interface DuctileDBElement {
 
     /**
+     * This method returns the graph which is the source of the current element.
+     * 
+     * @return A {@link DuctileDBGraph} is returned.
+     */
+    public DuctileDBGraph getGraph();
+
+    /**
      * This method returns the internal id of the element. This id is used to
      * retrieve the element from database.
      * 

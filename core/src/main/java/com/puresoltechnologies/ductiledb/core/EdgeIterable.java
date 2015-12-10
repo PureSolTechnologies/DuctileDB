@@ -6,32 +6,68 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class EdgeIterable implements Iterable<DuctileDBEdge> {
 
     private final DuctileDBGraphImpl graph;
+    private final DuctileDBTransactionImpl transaction;
     private final Iterator<Result> resultIterator;
+    private final Iterator<DuctileDBEdge> addedIterator;
 
-    public EdgeIterable(DuctileDBGraphImpl graph, ResultScanner resultScanner) {
+    public EdgeIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, ResultScanner resultScanner) {
 	super();
 	this.graph = graph;
+	this.transaction = transaction;
 	resultIterator = resultScanner.iterator();
+	addedIterator = transaction.addedEdges().iterator();
     }
 
     @Override
     public Iterator<DuctileDBEdge> iterator() {
 	return new Iterator<DuctileDBEdge>() {
 
+	    private DuctileDBEdge next = null;
+
 	    @Override
 	    public boolean hasNext() {
-		return resultIterator.hasNext();
+		if (next != null) {
+		    return true;
+		}
+		findNext();
+		return next != null;
 	    }
 
 	    @Override
 	    public DuctileDBEdge next() {
-		Result result = resultIterator.next();
-		return ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()), result);
+		if (next != null) {
+		    DuctileDBEdge result = next;
+		    next = null;
+		    return result;
+		}
+		findNext();
+		if (next == null) {
+		    return null;
+		}
+		return transaction.updateEdgeResult(next);
+	    }
+
+	    private void findNext() {
+		while ((next == null) && (resultIterator.hasNext())) {
+		    Result result = resultIterator.next();
+		    DuctileDBEdgeImpl edge = ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()),
+			    result);
+		    if (!transaction.wasEdgeRemoved(edge.getId())) {
+			next = edge;
+		    }
+		}
+		while ((next == null) && (addedIterator.hasNext())) {
+		    DuctileDBEdge vertex = addedIterator.next();
+		    if (!transaction.wasEdgeRemoved(vertex.getId())) {
+			next = vertex;
+		    }
+		}
 	    }
 	};
     }
