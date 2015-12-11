@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
 

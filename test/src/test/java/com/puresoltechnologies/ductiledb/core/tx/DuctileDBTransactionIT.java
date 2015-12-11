@@ -46,9 +46,9 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBEdge edge = graph.addEdge(vertex1, vertex2, "edge");
 
-	assertNull(graph.getVertex(vertex1.getId()));
-	assertNull(graph.getVertex(vertex2.getId()));
-	assertNull(graph.getEdge(edge.getId()));
+	assertEquals(vertex1, graph.getVertex(vertex1.getId()));
+	assertEquals(vertex2, graph.getVertex(vertex2.getId()));
+	assertEquals(edge, graph.getEdge(edge.getId()));
 
 	graph.commit();
 
@@ -58,21 +58,21 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
 	edge.remove();
 
-	assertNotNull(graph.getVertex(vertex1.getId()));
-	assertNotNull(graph.getVertex(vertex2.getId()));
-	assertNotNull(graph.getEdge(edge.getId()));
+	assertEquals(vertex1, graph.getVertex(vertex1.getId()));
+	assertEquals(vertex2, graph.getVertex(vertex2.getId()));
+	assertNull(graph.getEdge(edge.getId()));
 
 	graph.commit();
 
-	assertNotNull(graph.getVertex(vertex1.getId()));
-	assertNotNull(graph.getVertex(vertex2.getId()));
+	assertEquals(vertex1, graph.getVertex(vertex1.getId()));
+	assertEquals(vertex2, graph.getVertex(vertex2.getId()));
 	assertNull(graph.getEdge(edge.getId()));
 
 	vertex1.remove();
 	vertex2.remove();
 
-	assertNotNull(graph.getVertex(vertex1.getId()));
-	assertNotNull(graph.getVertex(vertex2.getId()));
+	assertNull(graph.getVertex(vertex1.getId()));
+	assertNull(graph.getVertex(vertex2.getId()));
 	assertNull(graph.getEdge(edge.getId()));
 
 	graph.commit();
@@ -128,9 +128,9 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	/*
 	 * Without a commit the vertices and edge are not available, yet.
 	 */
-	assertNull(graph.getVertex(vertex1.getId()));
-	assertNull(graph.getVertex(vertex2.getId()));
-	assertNull(graph.getEdge(edge.getId()));
+	assertEquals(vertex1, graph.getVertex(vertex1.getId()));
+	assertEquals(vertex2, graph.getVertex(vertex2.getId()));
+	assertEquals(edge, graph.getEdge(edge.getId()));
 	/*
 	 * The next operation needs to work...
 	 */
@@ -139,9 +139,9 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	/*
 	 * Without a commit the vertices and edge are not available, yet.
 	 */
-	assertNull(graph.getVertex(vertex1.getId()));
-	assertNull(graph.getVertex(vertex2.getId()));
-	assertNull(graph.getEdge(edge.getId()));
+	assertEquals(vertex1, graph.getVertex(vertex1.getId()));
+	assertEquals(vertex2, graph.getVertex(vertex2.getId()));
+	assertEquals(edge, graph.getEdge(edge.getId()));
 	/*
 	 * Commit...
 	 */

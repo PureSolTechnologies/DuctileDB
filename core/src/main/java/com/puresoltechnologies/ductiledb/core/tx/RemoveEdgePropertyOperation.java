@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
@@ -7,13 +7,11 @@ import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
@@ -22,10 +20,8 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
@@ -40,14 +36,18 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
     private final String label;
     private final String key;
 
-    public RemoveEdgePropertyOperation(Connection connection, long edgeId, long startVertexId, long targetVertexId,
-	    String label, String key) {
-	super(connection);
-	this.edgeId = edgeId;
-	this.startVertexId = startVertexId;
-	this.targetVertexId = targetVertexId;
-	this.label = label;
+    public RemoveEdgePropertyOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge, String key) {
+	super(transaction);
+	this.edgeId = edge.getId();
+	this.startVertexId = edge.getStartVertex().getId();
+	this.targetVertexId = edge.getTargetVertex().getId();
+	this.label = edge.getLabel();
 	this.key = key;
+	Map<String, Object> properties = ElementUtils.getProperties(edge);
+	properties.remove(key);
+	DuctileDBEdgeImpl cachedVertex = new DuctileDBEdgeImpl(transaction.getGraph(), edge.getId(), edge.getLabel(),
+		edge.getStartVertex().getId(), edge.getTargetVertex().getId(), properties);
+	transaction.setCachedEdge(cachedVertex);
     }
 
     @Override
@@ -93,21 +93,5 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 	    delete(EDGES_TABLE, edgeDelete);
 	    delete(EDGE_PROPERTIES_INDEX_TABLE, index);
 	}
-    }
-
-    @Override
-    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
-	return vertex;
-    }
-
-    @Override
-    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
-	if (edge.getId() != edgeId) {
-	    return edge;
-	}
-	Map<String, Object> properties = new HashMap<>(ElementUtils.getProperties(edge));
-	properties.remove(key);
-	return new DuctileDBEdgeImpl((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getLabel(),
-		edge.getStartVertex().getId(), edge.getTargetVertex().getId(), properties);
     }
 }

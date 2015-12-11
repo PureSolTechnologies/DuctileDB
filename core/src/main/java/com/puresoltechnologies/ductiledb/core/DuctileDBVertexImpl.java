@@ -121,6 +121,10 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	edges.add(edge);
     }
 
+    public void removeEdge(DuctileDBEdge edge) {
+	edges.remove(edge);
+    }
+
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
 	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label);

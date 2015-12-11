@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import java.util.Iterator;
 
@@ -6,7 +6,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.ResultDecoder;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class VertexIterable implements Iterable<DuctileDBVertex> {
@@ -47,10 +49,7 @@ public class VertexIterable implements Iterable<DuctileDBVertex> {
 		    return result;
 		}
 		findNext();
-		if (next == null) {
-		    return null;
-		}
-		return transaction.updateVertexResult(next);
+		return next;
 	    }
 
 	    private void findNext() {
@@ -58,13 +57,13 @@ public class VertexIterable implements Iterable<DuctileDBVertex> {
 		    Result result = resultIterator.next();
 		    DuctileDBVertexImpl vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
-		    if (!transaction.wasEdgeRemoved(vertex.getId())) {
+		    if (!transaction.wasVertexRemoved(vertex.getId())) {
 			next = vertex;
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {
 		    DuctileDBVertex vertex = addedIterator.next();
-		    if (!transaction.wasEdgeRemoved(vertex.getId())) {
+		    if (!transaction.wasVertexRemoved(vertex.getId())) {
 			next = vertex;
 		    }
 		}

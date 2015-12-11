@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
@@ -20,15 +20,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddEdgeOperation extends AbstractTxOperation {
@@ -39,14 +41,37 @@ public class AddEdgeOperation extends AbstractTxOperation {
     private final String label;
     private final Map<String, Object> properties;
 
-    public AddEdgeOperation(Connection connection, long edgeId, long startVertexId, long targetVertexId, String label,
-	    Map<String, Object> properties) {
-	super(connection);
+    public AddEdgeOperation(DuctileDBTransactionImpl transaction, long edgeId, long startVertexId, long targetVertexId,
+	    String label, Map<String, Object> properties) {
+	super(transaction);
 	this.edgeId = edgeId;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
 	this.label = label;
 	this.properties = Collections.unmodifiableMap(properties);
+	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId,
+		targetVertexId, properties);
+	transaction.setCachedEdge(edge);
+	{
+	    DuctileDBVertex cachedStartVertex = transaction.getVertex(startVertexId);
+	    if (cachedStartVertex != null) {
+		List<DuctileDBEdge> edges = ElementUtils.getEdges(cachedStartVertex);
+		edges.add(edge);
+		transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), cachedStartVertex.getId(),
+			ElementUtils.getLabels(cachedStartVertex), ElementUtils.getProperties(cachedStartVertex),
+			edges));
+	    }
+	}
+	{
+	    DuctileDBVertex cachedTargetVertex = transaction.getVertex(targetVertexId);
+	    if (cachedTargetVertex != null) {
+		List<DuctileDBEdge> edges = ElementUtils.getEdges(cachedTargetVertex);
+		edges.add(edge);
+		transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), cachedTargetVertex.getId(),
+			ElementUtils.getLabels(cachedTargetVertex), ElementUtils.getProperties(cachedTargetVertex),
+			edges));
+	    }
+	}
     }
 
     public long getEdgeId() {
@@ -101,15 +126,4 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	put(EDGE_LABELS_INDEX_TABLE, labelIndexPut);
 	put(EDGE_PROPERTIES_INDEX_TABLE, propertyIndexPuts);
     }
-
-    @Override
-    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
-	return vertex;
-    }
-
-    @Override
-    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
-	return edge;
-    }
-
 }

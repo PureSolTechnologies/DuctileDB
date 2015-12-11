@@ -1,23 +1,21 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
 
 import java.io.IOException;
 
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Delete;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveVertexOperation extends AbstractTxOperation {
 
     private final long vertexId;
 
-    public RemoveVertexOperation(Connection connection, long vertexId) {
-	super(connection);
+    public RemoveVertexOperation(DuctileDBTransactionImpl transaction, long vertexId) {
+	super(transaction);
 	this.vertexId = vertexId;
+	transaction.removeCachedVertex(vertexId);
     }
 
     public long getVertexId() {
@@ -30,15 +28,4 @@ public class RemoveVertexOperation extends AbstractTxOperation {
 	Delete delete = new Delete(id);
 	delete(VERTICES_TABLE, delete);
     }
-
-    @Override
-    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
-	return vertex;
-    }
-
-    @Override
-    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
-	return edge;
-    }
-
 }

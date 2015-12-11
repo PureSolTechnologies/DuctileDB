@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import java.io.IOException;
 import java.util.List;
@@ -11,11 +11,17 @@ import org.apache.hadoop.hbase.client.Table;
 
 public abstract class AbstractTxOperation implements TxOperation {
 
+    private final DuctileDBTransactionImpl transaction;
     private final Connection connection;
 
-    public AbstractTxOperation(Connection connection) {
+    public AbstractTxOperation(DuctileDBTransactionImpl transaction) {
 	super();
-	this.connection = connection;
+	this.transaction = transaction;
+	this.connection = transaction.getConnection();
+    }
+
+    public final DuctileDBTransactionImpl getTransaction() {
+	return transaction;
     }
 
     public final Connection getConnection() {

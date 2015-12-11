@@ -42,20 +42,7 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
-import com.puresoltechnologies.ductiledb.core.EdgeIterable;
 import com.puresoltechnologies.ductiledb.core.ResultDecoder;
-import com.puresoltechnologies.ductiledb.core.VertexIterable;
-import com.puresoltechnologies.ductiledb.core.tx.ops.AddEdgeOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.AddVertexLabelOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.AddVertexOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveEdgeOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveEdgePropertyOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveVertexLabelOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveVertexOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.RemoveVertexPropertyOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.SetEdgePropertyOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.SetVertexPropertyOperation;
-import com.puresoltechnologies.ductiledb.core.tx.ops.TxOperation;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 /**
@@ -73,7 +60,10 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private long nextVertexId = -1;
     private long nextEdgeId = -1;
 
-    public final List<TxOperation> tableOperations = new ArrayList<>();
+    private final List<TxOperation> txOperations = new ArrayList<>();
+    private final Map<Long, DuctileDBVertex> vertexCache = new HashMap<>();
+    private final Map<Long, DuctileDBEdge> edgeCache = new HashMap<>();
+
     private final DuctileDBGraphImpl graph;
     private final Connection connection;
     private boolean closed = false;
@@ -84,14 +74,22 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     }
 
+    public Connection getConnection() {
+	return connection;
+    }
+
+    public DuctileDBGraphImpl getGraph() {
+	return graph;
+    }
+
     @Override
     public void commit() {
 	checkForClosed();
 	try {
-	    for (TxOperation operation : tableOperations) {
+	    for (TxOperation operation : txOperations) {
 		operation.perform();
 	    }
-	    tableOperations.clear();
+	    clear();
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not cmomit changes.", e);
 	}
@@ -100,7 +98,13 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public void rollback() {
 	checkForClosed();
-	tableOperations.clear();
+	clear();
+    }
+
+    private void clear() {
+	txOperations.clear();
+	vertexCache.clear();
+	edgeCache.clear();
     }
 
     private void checkForClosed() {
@@ -111,8 +115,40 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void close() {
-	tableOperations.clear();
+	txOperations.clear();
 	closed = true;
+    }
+
+    void setCachedVertex(DuctileDBVertex vertex) {
+	vertexCache.put(vertex.getId(), vertex);
+    }
+
+    DuctileDBVertex getCachedVertex(long vertexId) {
+	return vertexCache.get(vertexId);
+    }
+
+    void removeCachedVertex(long vertexId) {
+	vertexCache.put(vertexId, null);
+    }
+
+    boolean wasVertexRemoved(long vertexId) {
+	return (vertexCache.containsKey(vertexId)) && (vertexCache.get(vertexId) == null);
+    }
+
+    void setCachedEdge(DuctileDBEdge edge) {
+	edgeCache.put(edge.getId(), edge);
+    }
+
+    DuctileDBEdge getCachedEdge(long edgeId) {
+	return edgeCache.get(edgeId);
+    }
+
+    void removeCachedEdge(long edgeId) {
+	edgeCache.put(edgeId, null);
+    }
+
+    boolean wasEdgeRemoved(long edgeId) {
+	return (edgeCache.containsKey(edgeId)) && (edgeCache.get(edgeId) == null);
     }
 
     Table openMetaDataTable() throws IOException {
@@ -178,8 +214,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	tableOperations.add(new AddVertexOperation(connection, vertexId, labels, properties));
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
+	txOperations.add(new AddVertexOperation(this, vertexId, labels, properties));
 	DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
 	return vertex;
     }
@@ -188,10 +224,11 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
-	tableOperations.add(
-		new AddEdgeOperation(connection, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
+	txOperations
+		.add(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
 	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
 		new HashMap<>());
+	((DuctileDBVertexImpl) startVertex).addEdge(edge);
 	((DuctileDBVertexImpl) targetVertex).addEdge(edge);
 	return edge;
     }
@@ -201,9 +238,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (wasEdgeRemoved(edgeId)) {
 	    return null;
 	}
-	DuctileDBEdge edge = addedEdge(edgeId);
-	if (edge != null) {
-	    return updateEdgeResult(edge);
+	DuctileDBEdge edge = getCachedEdge(edgeId);
+	if ((edge != null) || (edgeCache.containsKey(edgeId))) {
+	    return edge;
 	}
 	try (Table table = openEdgeTable()) {
 	    byte[] id = IdEncoder.encodeRowId(edgeId);
@@ -212,7 +249,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    if (!result.isEmpty()) {
 		edge = ResultDecoder.toEdge(graph, edgeId, result);
 	    }
-	    return updateEdgeResult(edge);
+	    return edge;
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get edge.", e);
 	}
@@ -242,7 +279,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		if ((propertyValue == null) || (value.equals(propertyValue))) {
 		    long edgeId = IdEncoder.decodeRowId(entry.getKey());
 		    if (!wasEdgeRemoved(edgeId)) {
-			edges.add(updateEdgeResult(getEdge(edgeId)));
+			edges.add(getEdge(edgeId));
 		    }
 		}
 	    }
@@ -269,7 +306,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    for (byte[] edgeIdBytes : map.keySet()) {
 		long edgeId = IdEncoder.decodeRowId(edgeIdBytes);
 		if (!wasEdgeRemoved(edgeId)) {
-		    edges.add(updateEdgeResult(getEdge(edgeId)));
+		    edges.add(getEdge(edgeId));
 		}
 	    }
 	    return new Iterable<DuctileDBEdge>() {
@@ -288,9 +325,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (wasVertexRemoved(vertexId)) {
 	    return null;
 	}
-	DuctileDBVertex vertex = addedVertex(vertexId);
-	if (vertex != null) {
-	    return updateVertexResult(vertex);
+	DuctileDBVertex vertex = getCachedVertex(vertexId);
+	if ((vertex != null) || (vertexCache.containsKey(vertexId))) {
+	    return vertex;
 	}
 	try (Table vertexTable = openVertexTable()) {
 	    byte[] id = IdEncoder.encodeRowId(vertexId);
@@ -299,7 +336,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    if (!result.isEmpty()) {
 		vertex = ResultDecoder.toVertex(graph, vertexId, result);
 	    }
-	    return updateVertexResult(vertex);
+	    return vertex;
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get vertex.", e);
 	}
@@ -334,7 +371,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 			if (!wasVertexRemoved(vertexId)) {
 			    DuctileDBVertex vertex = getVertex(vertexId);
 			    if (vertex != null) {
-				vertices.add(updateVertexResult(vertex));
+				vertices.add(vertex);
 			    }
 			}
 		    }
@@ -366,7 +403,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		for (byte[] vertexIdBytes : propertyMap.keySet()) {
 		    long vertexId = IdEncoder.decodeRowId(vertexIdBytes);
 		    if (!wasVertexRemoved(vertexId)) {
-			vertices.add(updateVertexResult(getVertex(vertexId)));
+			vertices.add(getVertex(vertexId));
 		    }
 		}
 	    }
@@ -383,9 +420,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void removeEdge(DuctileDBEdge edge) {
-	long edgeId = edge.getId();
-	tableOperations.add(new RemoveEdgeOperation(connection, edgeId, edge.getVertex(EdgeDirection.IN).getId(),
-		edge.getVertex(EdgeDirection.OUT).getId(), edge.getLabel(), edge.getPropertyKeys()));
+	txOperations.add(new RemoveEdgeOperation(this, edge));
+	((DuctileDBVertexImpl) edge.getStartVertex()).removeEdge(edge);
+	((DuctileDBVertexImpl) edge.getTargetVertex()).removeEdge(edge);
     }
 
     @Override
@@ -400,44 +437,42 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	for (String key : vertex.getPropertyKeys()) {
 	    removeProperty(vertex, key);
 	}
-	tableOperations.add(new RemoveVertexOperation(connection, vertexId));
+	txOperations.add(new RemoveVertexOperation(this, vertexId));
     }
 
     @Override
     public void addLabel(DuctileDBVertex vertex, String label) {
-	tableOperations.add(new AddVertexLabelOperation(connection, vertex.getId(), label));
+	txOperations.add(new AddVertexLabelOperation(this, vertex, label));
     }
 
     @Override
     public void removeLabel(DuctileDBVertex vertex, String label) {
-	tableOperations.add(new RemoveVertexLabelOperation(connection, vertex.getId(), label));
+	txOperations.add(new RemoveVertexLabelOperation(this, vertex, label));
     }
 
     @Override
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
-	tableOperations.add(new SetVertexPropertyOperation(connection, vertex.getId(), key, value));
+	txOperations.add(new SetVertexPropertyOperation(this, vertex, key, value));
     }
 
     @Override
     public void removeProperty(DuctileDBVertex vertex, String key) {
-	tableOperations.add(new RemoveVertexPropertyOperation(connection, vertex.getId(), key));
+	txOperations.add(new RemoveVertexPropertyOperation(this, vertex, key));
     }
 
     @Override
     public void setProperty(DuctileDBEdge edge, String key, Object value) {
-	tableOperations.add(new SetEdgePropertyOperation(connection, edge.getId(), edge.getStartVertex().getId(),
-		edge.getTargetVertex().getId(), edge.getLabel(), key, value));
+	txOperations.add(new SetEdgePropertyOperation(this, edge, key, value));
     }
 
     @Override
     public void removeProperty(DuctileDBEdge edge, String key) {
-	tableOperations.add(new RemoveEdgePropertyOperation(connection, edge.getId(), edge.getStartVertex().getId(),
-		edge.getTargetVertex().getId(), edge.getLabel(), key));
+	txOperations.add(new RemoveEdgePropertyOperation(this, edge, key));
     }
 
     public List<DuctileDBVertex> addedVertices() {
 	List<DuctileDBVertex> vertices = new ArrayList<>();
-	for (TxOperation operation : tableOperations) {
+	for (TxOperation operation : txOperations) {
 	    if (AddVertexOperation.class.isAssignableFrom(operation.getClass())) {
 		AddVertexOperation addOperation = (AddVertexOperation) operation;
 		vertices.add(new DuctileDBVertexImpl(graph, addOperation.getVertexId(), addOperation.getLabels(),
@@ -449,7 +484,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     public List<DuctileDBEdge> addedEdges() {
 	List<DuctileDBEdge> edges = new ArrayList<>();
-	for (TxOperation operation : tableOperations) {
+	for (TxOperation operation : txOperations) {
 	    if (AddEdgeOperation.class.isAssignableFrom(operation.getClass())) {
 		AddEdgeOperation addOperation = (AddEdgeOperation) operation;
 		edges.add(new DuctileDBEdgeImpl(graph, addOperation.getEdgeId(), addOperation.getLabel(),
@@ -458,74 +493,5 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    }
 	}
 	return edges;
-    }
-
-    public boolean wasVertexRemoved(long vertexId) {
-	for (TxOperation operation : tableOperations) {
-	    if (RemoveVertexOperation.class.isAssignableFrom(operation.getClass())) {
-		if (vertexId == ((RemoveVertexOperation) operation).getVertexId()) {
-		    return true;
-		}
-	    }
-	}
-	return false;
-    }
-
-    public boolean wasEdgeRemoved(long edgeId) {
-	for (TxOperation operation : tableOperations) {
-	    if (RemoveEdgeOperation.class.isAssignableFrom(operation.getClass())) {
-		if (edgeId == ((RemoveEdgeOperation) operation).getEdgeId()) {
-		    return true;
-		}
-	    }
-	}
-	return false;
-    }
-
-    public DuctileDBVertex updateVertexResult(DuctileDBVertex vertex) {
-	if (vertex == null) {
-	    return null;
-	}
-	for (TxOperation operation : tableOperations) {
-	    vertex = operation.updateVertex(vertex);
-	}
-	return vertex;
-    }
-
-    public DuctileDBEdge updateEdgeResult(DuctileDBEdge edge) {
-	if (edge == null) {
-	    return null;
-	}
-	for (TxOperation operation : tableOperations) {
-	    edge = operation.updateEdge(edge);
-	}
-	return edge;
-    }
-
-    private DuctileDBVertex addedVertex(long vertexId) {
-	for (TxOperation operation : tableOperations) {
-	    if (AddVertexOperation.class.isAssignableFrom(operation.getClass())) {
-		AddVertexOperation addOperation = (AddVertexOperation) operation;
-		if (vertexId == addOperation.getVertexId()) {
-		    return updateVertexResult(new DuctileDBVertexImpl(graph, addOperation.getVertexId(),
-			    addOperation.getLabels(), addOperation.getProperties(), new ArrayList<>()));
-		}
-	    }
-	}
-	return null;
-    }
-
-    private DuctileDBEdge addedEdge(long edgeId) {
-	for (TxOperation operation : tableOperations) {
-	    if (AddEdgeOperation.class.isAssignableFrom(operation.getClass())) {
-		AddEdgeOperation addOperation = (AddEdgeOperation) operation;
-		if (edgeId == addOperation.getEdgeId()) {
-		    return updateEdgeResult(new DuctileDBEdgeImpl(graph, addOperation.getEdgeId(),
-			    addOperation.getLabel(), addOperation.getStartVertexId(), addOperation.getTargetVertexId(),
-			    addOperation.getProperties()));
-		}
-	    }
-	}
-	return null;
     }
 }

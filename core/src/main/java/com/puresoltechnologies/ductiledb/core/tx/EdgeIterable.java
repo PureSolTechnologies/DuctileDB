@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import java.util.Iterator;
 
@@ -6,7 +6,9 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.ResultDecoder;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class EdgeIterable implements Iterable<DuctileDBEdge> {
@@ -47,10 +49,7 @@ public class EdgeIterable implements Iterable<DuctileDBEdge> {
 		    return result;
 		}
 		findNext();
-		if (next == null) {
-		    return null;
-		}
-		return transaction.updateEdgeResult(next);
+		return next;
 	    }
 
 	    private void findNext() {

@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
@@ -8,13 +8,11 @@ import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TA
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -22,10 +20,8 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
@@ -41,15 +37,20 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     private final String key;
     private final Object value;
 
-    public SetEdgePropertyOperation(Connection connection, long edgeId, long startVertexId, long targetVertexId,
-	    String label, String key, Object value) {
-	super(connection);
-	this.edgeId = edgeId;
-	this.startVertexId = startVertexId;
-	this.targetVertexId = targetVertexId;
-	this.label = label;
+    public SetEdgePropertyOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge, String key,
+	    Object value) {
+	super(transaction);
+	this.edgeId = edge.getId();
+	this.startVertexId = edge.getStartVertex().getId();
+	this.targetVertexId = edge.getTargetVertex().getId();
+	this.label = edge.getLabel();
 	this.key = key;
 	this.value = value;
+	Map<String, Object> properties = ElementUtils.getProperties(edge);
+	properties.put(key, value);
+	DuctileDBEdgeImpl cachedVertex = new DuctileDBEdgeImpl(transaction.getGraph(), edge.getId(), edge.getLabel(),
+		edge.getStartVertex().getId(), edge.getTargetVertex().getId(), properties);
+	transaction.setCachedEdge(cachedVertex);
     }
 
     @Override
@@ -96,21 +97,5 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 	    put(EDGES_TABLE, edgePut);
 	    put(EDGE_PROPERTIES_INDEX_TABLE, index);
 	}
-    }
-
-    @Override
-    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
-	return vertex;
-    }
-
-    @Override
-    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
-	if (edge.getId() != edgeId) {
-	    return edge;
-	}
-	Map<String, Object> properties = new HashMap<>(ElementUtils.getProperties(edge));
-	properties.put(key, value);
-	return new DuctileDBEdgeImpl((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getLabel(),
-		edge.getStartVertex().getId(), edge.getTargetVertex().getId(), properties);
     }
 }

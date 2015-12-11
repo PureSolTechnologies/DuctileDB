@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx.ops;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
@@ -16,12 +16,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexOperation extends AbstractTxOperation {
@@ -30,12 +28,14 @@ public class AddVertexOperation extends AbstractTxOperation {
     private final Set<String> labels;
     private final Map<String, Object> properties;
 
-    public AddVertexOperation(Connection connection, long vertexId, Set<String> labels,
+    public AddVertexOperation(DuctileDBTransactionImpl transaction, long vertexId, Set<String> labels,
 	    Map<String, Object> properties) {
-	super(connection);
+	super(transaction);
 	this.vertexId = vertexId;
 	this.labels = Collections.unmodifiableSet(labels);
 	this.properties = Collections.unmodifiableMap(properties);
+	transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), this.vertexId, this.labels,
+		this.properties, new ArrayList<>()));
     }
 
     public long getVertexId() {
@@ -71,15 +71,5 @@ public class AddVertexOperation extends AbstractTxOperation {
 	put(VERTICES_TABLE, put);
 	put(VERTEX_LABELS_INDEX_TABLE, labelIndex);
 	put(VERTEX_PROPERTIES_INDEX_TABLE, propertyIndex);
-    }
-
-    @Override
-    public DuctileDBVertex updateVertex(DuctileDBVertex vertex) {
-	return vertex;
-    }
-
-    @Override
-    public DuctileDBEdge updateEdge(DuctileDBEdge edge) {
-	return edge;
     }
 }
