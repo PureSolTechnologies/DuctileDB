@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public abstract class DuctileDBElementImpl implements DuctileDBElement {
 
@@ -111,4 +112,16 @@ public abstract class DuctileDBElementImpl implements DuctileDBElement {
 	return true;
     }
 
+    @Override
+    public DuctileDBElementImpl clone() {
+	try {
+	    DuctileDBElementImpl cloned = (DuctileDBElementImpl) super.clone();
+	    ElementUtils.setFinalField(cloned, DuctileDBElementImpl.class, "id", id);
+	    ElementUtils.setFinalField(cloned, DuctileDBElementImpl.class, "graph", graph);
+	    ElementUtils.setFinalField(cloned, DuctileDBElementImpl.class, "properties", new HashMap<>(properties));
+	    return cloned;
+	} catch (CloneNotSupportedException e) {
+	    throw new RuntimeException(e);
+	}
+    }
 }

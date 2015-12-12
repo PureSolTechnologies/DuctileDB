@@ -24,6 +24,7 @@ public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
 	DuctileDBEdge edge = vertex1.addEdge("TestEdge", vertex2);
 	assertEquals(vertex1, edge.getStartVertex());
 	assertEquals(vertex2, edge.getTargetVertex());
+
 	graph.commit();
 
 	Iterator<DuctileDBEdge> edges = vertex1.getEdges(EdgeDirection.OUT, "TestEdge").iterator();

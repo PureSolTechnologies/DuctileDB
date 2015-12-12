@@ -239,7 +239,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    return null;
 	}
 	DuctileDBEdge edge = getCachedEdge(edgeId);
-	if ((edge != null) || (edgeCache.containsKey(edgeId))) {
+	if (edge != null) {
 	    return edge;
 	}
 	try (Table table = openEdgeTable()) {
@@ -248,6 +248,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    Result result = table.get(get);
 	    if (!result.isEmpty()) {
 		edge = ResultDecoder.toEdge(graph, edgeId, result);
+	    }
+	    if (edge != null) {
+		setCachedEdge(edge.clone());
 	    }
 	    return edge;
 	} catch (IOException e) {
@@ -326,7 +329,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    return null;
 	}
 	DuctileDBVertex vertex = getCachedVertex(vertexId);
-	if ((vertex != null) || (vertexCache.containsKey(vertexId))) {
+	if (vertex != null) {
 	    return vertex;
 	}
 	try (Table vertexTable = openVertexTable()) {
@@ -335,6 +338,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    Result result = vertexTable.get(get);
 	    if (!result.isEmpty()) {
 		vertex = ResultDecoder.toVertex(graph, vertexId, result);
+	    }
+	    if (vertex != null) {
+		setCachedVertex(vertex.clone());
 	    }
 	    return vertex;
 	} catch (IOException e) {
@@ -421,8 +427,14 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public void removeEdge(DuctileDBEdge edge) {
 	txOperations.add(new RemoveEdgeOperation(this, edge));
-	((DuctileDBVertexImpl) edge.getStartVertex()).removeEdge(edge);
-	((DuctileDBVertexImpl) edge.getTargetVertex()).removeEdge(edge);
+	DuctileDBVertex startVertex = edge.getStartVertex();
+	if (startVertex != null) {
+	    ((DuctileDBVertexImpl) startVertex).removeEdge(edge);
+	}
+	DuctileDBVertex targetVertex = edge.getTargetVertex();
+	if (targetVertex != null) {
+	    ((DuctileDBVertexImpl) targetVertex).removeEdge(edge);
+	}
     }
 
     @Override
@@ -475,8 +487,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	for (TxOperation operation : txOperations) {
 	    if (AddVertexOperation.class.isAssignableFrom(operation.getClass())) {
 		AddVertexOperation addOperation = (AddVertexOperation) operation;
-		vertices.add(new DuctileDBVertexImpl(graph, addOperation.getVertexId(), addOperation.getLabels(),
-			addOperation.getProperties(), new ArrayList<>()));
+		vertices.add(getCachedVertex(addOperation.getVertexId()));
 	    }
 	}
 	return vertices;
@@ -487,9 +498,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	for (TxOperation operation : txOperations) {
 	    if (AddEdgeOperation.class.isAssignableFrom(operation.getClass())) {
 		AddEdgeOperation addOperation = (AddEdgeOperation) operation;
-		edges.add(new DuctileDBEdgeImpl(graph, addOperation.getEdgeId(), addOperation.getLabel(),
-			addOperation.getStartVertexId(), addOperation.getTargetVertexId(),
-			addOperation.getProperties()));
+		edges.add(getCachedEdge(addOperation.getEdgeId()));
 	    }
 	}
 	return edges;

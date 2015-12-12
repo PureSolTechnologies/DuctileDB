@@ -17,6 +17,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
@@ -33,8 +34,8 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
     public RemoveEdgeOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge) {
 	super(transaction);
 	this.edgeId = edge.getId();
-	this.startVertexId = edge.getStartVertex().getId();
-	this.targetVertexId = edge.getTargetVertex().getId();
+	this.startVertexId = ((DuctileDBEdgeImpl) edge).getStartVertexId();
+	this.targetVertexId = ((DuctileDBEdgeImpl) edge).getTargetVertexId();
 	this.label = edge.getLabel();
 	this.edgePropertyKeys = Collections.unmodifiableSet(edge.getPropertyKeys());
 	transaction.removeCachedEdge(edgeId);

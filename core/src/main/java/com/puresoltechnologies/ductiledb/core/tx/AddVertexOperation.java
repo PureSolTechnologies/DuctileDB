@@ -42,14 +42,6 @@ public class AddVertexOperation extends AbstractTxOperation {
 	return vertexId;
     }
 
-    public Set<String> getLabels() {
-	return labels;
-    }
-
-    public Map<String, Object> getProperties() {
-	return properties;
-    }
-
     @Override
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);

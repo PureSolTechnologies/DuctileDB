@@ -12,6 +12,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBVertexImpl extends DuctileDBElementImpl implements DuctileDBVertex {
 
@@ -128,14 +129,12 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
 	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label);
-	edges.add(edge);
 	return edge;
     }
 
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
 	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label, properties);
-	edges.add(edge);
 	return edge;
     }
 
@@ -185,5 +184,17 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
     public String toString() {
 	return "vertex " + getId() + ": labels=" + labels + "; properties=" + getPropertiesString() + "; edges="
 		+ edges;
+    }
+
+    @Override
+    public DuctileDBVertexImpl clone() {
+	DuctileDBVertexImpl cloned = (DuctileDBVertexImpl) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBVertexImpl.class, "labels", new HashSet<>(labels));
+	List<DuctileDBEdge> clonedEdges = new ArrayList<>();
+	for (DuctileDBEdge edge : edges) {
+	    clonedEdges.add(edge.clone());
+	}
+	ElementUtils.setFinalField(cloned, DuctileDBVertexImpl.class, "edges", clonedEdges);
+	return cloned;
     }
 }

@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.api;
 
-public interface DuctileDBEdge extends DuctileDBElement {
+public interface DuctileDBEdge extends DuctileDBElement, Cloneable {
 
     public DuctileDBVertex getStartVertex();
 
@@ -10,4 +10,5 @@ public interface DuctileDBEdge extends DuctileDBElement {
 
     public String getLabel();
 
+    public DuctileDBEdge clone();
 }

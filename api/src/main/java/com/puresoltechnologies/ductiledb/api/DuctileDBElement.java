@@ -8,7 +8,7 @@ import java.util.Set;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface DuctileDBElement {
+public interface DuctileDBElement extends Cloneable {
 
     /**
      * This method returns the graph which is the source of the current element.
@@ -65,4 +65,5 @@ public interface DuctileDBElement {
 
     public void remove();
 
+    public DuctileDBElement clone();
 }

@@ -15,6 +15,7 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 
@@ -91,6 +92,9 @@ public class DuctileDBTestHelper {
 
     public static void removeGraph(DuctileDBGraph graph) throws IOException {
 	logger.info("Delete ductile graph...");
+	for (DuctileDBEdge edge : graph.getEdges()) {
+	    edge.remove();
+	}
 	for (DuctileDBVertex vertex : graph.getVertices()) {
 	    vertex.remove();
 	}

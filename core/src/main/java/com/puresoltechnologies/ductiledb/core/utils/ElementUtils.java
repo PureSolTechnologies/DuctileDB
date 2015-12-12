@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.utils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +12,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 
 /**
  * This class contains helper methods to handle Ductile DB elements.
@@ -57,5 +59,16 @@ public class ElementUtils {
 	Set<String> labels = new HashSet<>();
 	vertex.getLabels().forEach(label -> labels.add(label));
 	return labels;
+    }
+
+    public static <T> void setFinalField(Object object, Class<?> clazz, String fieldName, T value) {
+	try {
+	    Field field = clazz.getDeclaredField(fieldName);
+	    field.setAccessible(true);
+	    field.set(object, value);
+	} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+	    throw new DuctileDBException("Could not set field '" + fieldName + "' in class '" + object.getClass()
+		    + "' to value '" + value + "'.", e);
+	}
     }
 }

@@ -78,22 +78,6 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	return edgeId;
     }
 
-    public long getStartVertexId() {
-	return startVertexId;
-    }
-
-    public long getTargetVertexId() {
-	return targetVertexId;
-    }
-
-    public String getLabel() {
-	return label;
-    }
-
-    public Map<String, Object> getProperties() {
-	return properties;
-    }
-
     @Override
     public void perform() throws IOException {
 	byte[] edgeValue = new EdgeValue(properties).encode();

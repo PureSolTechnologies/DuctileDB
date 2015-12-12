@@ -6,6 +6,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDBEdge {
 
@@ -90,12 +91,20 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 	return startVertex;
     }
 
+    public long getStartVertexId() {
+	return startVertexId;
+    }
+
     @Override
     public DuctileDBVertex getTargetVertex() {
 	if (targetVertex == null) {
 	    targetVertex = getGraph().getVertex(targetVertexId);
 	}
 	return targetVertex;
+    }
+
+    public long getTargetVertexId() {
+	return targetVertexId;
     }
 
     @Override
@@ -134,5 +143,16 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     public String toString() {
 	return "edge " + getId() + " (" + startVertexId + "->" + targetVertexId + "): label=" + label + "; properties="
 		+ getPropertiesString();
+    }
+
+    @Override
+    public DuctileDBEdgeImpl clone() {
+	DuctileDBEdgeImpl cloned = (DuctileDBEdgeImpl) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "label", label);
+	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "startVertexId", startVertexId);
+	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "targetVertexId", targetVertexId);
+	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "startVertex", null);
+	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "targetVertex", null);
+	return cloned;
     }
 }

@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.api;
 
 import java.util.Map;
 
-public interface DuctileDBVertex extends DuctileDBElement {
+public interface DuctileDBVertex extends DuctileDBElement, Cloneable {
 
     public Iterable<String> getLabels();
 
@@ -20,4 +20,5 @@ public interface DuctileDBVertex extends DuctileDBElement {
 
     public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeLabels);
 
+    public DuctileDBVertex clone();
 }
