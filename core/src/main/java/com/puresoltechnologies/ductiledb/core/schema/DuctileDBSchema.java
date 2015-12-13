@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.schema;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -6,7 +6,6 @@ import java.util.Arrays;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
@@ -16,13 +15,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 public class DuctileDBSchema {
 
     public static final String DUCTILEDB_NAMESPACE = "ductiledb";
-    public static final String METADATA_TABLE = DUCTILEDB_NAMESPACE + ":metadata";
-    public static final String VERTICES_TABLE = DUCTILEDB_NAMESPACE + ":vertices";
-    public static final String EDGES_TABLE = DUCTILEDB_NAMESPACE + ":edges";
-    public static final String VERTEX_PROPERTIES_INDEX_TABLE = DUCTILEDB_NAMESPACE + ":vertex_properties";
-    public static final String VERTEX_LABELS_INDEX_TABLE = DUCTILEDB_NAMESPACE + ":vertex_labels";
-    public static final String EDGE_PROPERTIES_INDEX_TABLE = DUCTILEDB_NAMESPACE + ":edge_properties";
-    public static final String EDGE_LABELS_INDEX_TABLE = DUCTILEDB_NAMESPACE + ":edge_labels";
 
     public static final String METADATA_COLUMN_FAMILIY = "metadata";
     public static final byte[] METADATA_COLUMN_FAMILIY_BYTES = Bytes.toBytes(METADATA_COLUMN_FAMILIY);
@@ -57,7 +49,8 @@ public class DuctileDBSchema {
     public static final String INDEX_COLUMN_FAMILY = "index";
     public static final byte[] INDEX_COLUMN_FAMILY_BYTES = Bytes.toBytes(INDEX_COLUMN_FAMILY);
 
-    public static final String DUCTILEDB_ID_PROPERTY = "_ductiledb.id";
+    public static final String DUCTILEDB_ID_PROPERTY = ".ductiledb.id";
+    public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = ".ductiledb.timestamp.created";
 
     private final Connection connection;
 
@@ -93,12 +86,12 @@ public class DuctileDBSchema {
     }
 
     private void assureMetaDataTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(METADATA_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(METADATA_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.METADATA.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.METADATA.getTableName());
 	    HColumnDescriptor metaDataColumnFamily = new HColumnDescriptor(METADATA_COLUMN_FAMILIY);
 	    descriptor.addFamily(metaDataColumnFamily);
 	    admin.createTable(descriptor);
-	    try (Table table = connection.getTable(TableName.valueOf(METADATA_TABLE));) {
+	    try (Table table = connection.getTable(SchemaTable.METADATA.getTableName());) {
 		Put vertexIdPut = new Put(VERTEXID_COLUMN_BYTES);
 		vertexIdPut.addColumn(METADATA_COLUMN_FAMILIY_BYTES, VERTEXID_COLUMN_BYTES, Bytes.toBytes(0l));
 		Put edgeIdPut = new Put(EDGEID_COLUMN_BYTES);
@@ -109,8 +102,8 @@ public class DuctileDBSchema {
     }
 
     private void assureVerticesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(VERTICES_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(VERTICES_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.VERTICES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.VERTICES.getTableName());
 	    HColumnDescriptor labelColumnFamily = new HColumnDescriptor(LABELS_COLUMN_FAMILIY);
 	    descriptor.addFamily(labelColumnFamily);
 	    HColumnDescriptor edgesColumnFamily = new HColumnDescriptor(EDGES_COLUMN_FAMILY);
@@ -122,8 +115,8 @@ public class DuctileDBSchema {
     }
 
     private void assureEdgesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(EDGES_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(EDGES_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.EDGES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.EDGES.getTableName());
 	    HColumnDescriptor labelsColumnFamily = new HColumnDescriptor(LABELS_COLUMN_FAMILIY_BYTES);
 	    descriptor.addFamily(labelsColumnFamily);
 	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILY_BYTES);
@@ -135,8 +128,8 @@ public class DuctileDBSchema {
     }
 
     private void assureVertexLabelsIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(VERTEX_LABELS_INDEX_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(VERTEX_LABELS_INDEX_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.VERTEX_LABELS.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.VERTEX_LABELS.getTableName());
 	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(indexColumnFamily);
 	    admin.createTable(descriptor);
@@ -144,8 +137,8 @@ public class DuctileDBSchema {
     }
 
     private void assureVertexPropertiesIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(VERTEX_PROPERTIES_INDEX_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(VERTEX_PROPERTIES_INDEX_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.VERTEX_PROPERTIES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.VERTEX_PROPERTIES.getTableName());
 	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(indexColumnFamily);
 	    admin.createTable(descriptor);
@@ -153,8 +146,8 @@ public class DuctileDBSchema {
     }
 
     private void assureEdgeLabelsIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(EDGE_LABELS_INDEX_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(EDGE_LABELS_INDEX_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.EDGE_LABELS.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.EDGE_LABELS.getTableName());
 	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(indexColumnFamily);
 	    admin.createTable(descriptor);
@@ -162,8 +155,8 @@ public class DuctileDBSchema {
     }
 
     private void assureEdgePropertiesIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(TableName.valueOf(EDGE_PROPERTIES_INDEX_TABLE))) {
-	    HTableDescriptor descriptor = new HTableDescriptor(TableName.valueOf(EDGE_PROPERTIES_INDEX_TABLE));
+	if (!admin.isTableAvailable(SchemaTable.EDGE_PROPERTIES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.EDGE_PROPERTIES.getTableName());
 	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(indexColumnFamily);
 	    admin.createTable(descriptor);

@@ -1,22 +1,20 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.schema;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_PROPERTIES_INDEX_TABLE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
 import java.util.NavigableMap;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -25,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 /**
@@ -45,6 +44,10 @@ public class DuctileDBHealthCheck {
 
     public static void runCheck(DuctileDBGraphImpl graph) throws IOException {
 	new DuctileDBHealthCheck(graph).runCheck();
+    }
+
+    public static void runCheckForEmpty(DuctileDBGraphImpl graph) throws IOException {
+	new DuctileDBHealthCheck(graph).runCheckForEmpty();
     }
 
     private final DuctileDBGraphImpl graph;
@@ -77,7 +80,7 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    try (Table table = connection.getTable(TableName.valueOf(VERTEX_LABELS_INDEX_TABLE))) {
+	    try (Table table = connection.getTable(SchemaTable.VERTEX_LABELS.getTableName())) {
 		for (String label : vertex.getLabels()) {
 		    Result result = table.get(new Get(Bytes.toBytes(label)));
 		    assertFalse("Could not find row for label '" + label + "' in vertex label index.",
@@ -88,7 +91,7 @@ public class DuctileDBHealthCheck {
 			    + "' for vertex with id '" + vertex.getId() + "'", value);
 		}
 	    }
-	    try (Table table = connection.getTable(TableName.valueOf(VERTEX_PROPERTIES_INDEX_TABLE))) {
+	    try (Table table = connection.getTable(SchemaTable.VERTEX_PROPERTIES.getTableName())) {
 		for (String key : vertex.getPropertyKeys()) {
 		    Object value = vertex.getProperty(key);
 		    Result result = table.get(new Get(Bytes.toBytes(key)));
@@ -124,14 +127,14 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String label = edge.getLabel();
-	    try (Table table = connection.getTable(TableName.valueOf(EDGE_LABELS_INDEX_TABLE))) {
+	    try (Table table = connection.getTable(SchemaTable.EDGE_LABELS.getTableName())) {
 		Result result = table.get(new Get(Bytes.toBytes(label)));
 		assertFalse("Could not find row for label '" + label + "' in edge label index.", result.isEmpty());
 		byte[] value = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES).get(IdEncoder.encodeRowId(edge.getId()));
 		assertNotNull("Could not find edge label index entry for label '" + label + "' for edge with id '"
 			+ edge.getId() + "'", value);
 	    }
-	    try (Table table = connection.getTable(TableName.valueOf(EDGE_PROPERTIES_INDEX_TABLE))) {
+	    try (Table table = connection.getTable(SchemaTable.EDGE_PROPERTIES.getTableName())) {
 		for (String key : edge.getPropertyKeys()) {
 		    Object value = edge.getProperty(key);
 		    Result result = table.get(new Get(Bytes.toBytes(key)));
@@ -189,4 +192,22 @@ public class DuctileDBHealthCheck {
 	// TODO Auto-generated method stub
     }
 
+    public void runCheckForEmpty() throws IOException {
+	assertFalse("Vertices were found, but graph is expected to be empty.",
+		graph.getVertices().iterator().hasNext());
+	assertFalse("Edges were found, but graph is expected to be empty.", graph.getEdges().iterator().hasNext());
+	for (SchemaTable schemaTable : SchemaTable.values()) {
+	    if (schemaTable == SchemaTable.METADATA) {
+		/*
+		 * The metadata table is allowed to contain data.
+		 */
+		continue;
+	    }
+	    try (Table table = connection.getTable(schemaTable.getTableName())) {
+		ResultScanner scanner = table.getScanner(new Scan());
+		assertNull("Row data was found, but database was expected to be empty. Row found in table '"
+			+ schemaTable.name() + "'.", scanner.next());
+	    }
+	}
+    }
 }

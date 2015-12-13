@@ -1,10 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -12,7 +9,6 @@ import java.util.Map;
 import java.util.NavigableMap;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -22,9 +18,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
+import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -55,7 +51,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 
     @Override
     public void perform() throws IOException {
-	try (Table table = getConnection().getTable(TableName.valueOf(DuctileDBSchema.VERTICES_TABLE))) {
+	try (Table table = getConnection().getTable(SchemaTable.VERTICES.getTableName())) {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
@@ -92,10 +88,10 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 
 	    Put index = OperationsHelper.createEdgePropertyIndexPut(edgeId, key, value);
 	    // Add to transaction
-	    put(VERTICES_TABLE, startVertexPut);
-	    put(VERTICES_TABLE, targetVertexPut);
-	    put(EDGES_TABLE, edgePut);
-	    put(EDGE_PROPERTIES_INDEX_TABLE, index);
+	    put(SchemaTable.VERTICES.getTableName(), startVertexPut);
+	    put(SchemaTable.VERTICES.getTableName(), targetVertexPut);
+	    put(SchemaTable.EDGES.getTableName(), edgePut);
+	    put(SchemaTable.EDGE_PROPERTIES.getTableName(), index);
 	}
     }
 }

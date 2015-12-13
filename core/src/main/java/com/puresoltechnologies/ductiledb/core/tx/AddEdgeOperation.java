@@ -1,15 +1,11 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -30,6 +26,7 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
+import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -104,10 +101,10 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	    propertyIndexPuts
 		    .add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(), property.getValue()));
 	}
-	put(VERTICES_TABLE, outPut);
-	put(VERTICES_TABLE, inPut);
-	put(EDGES_TABLE, edgePut);
-	put(EDGE_LABELS_INDEX_TABLE, labelIndexPut);
-	put(EDGE_PROPERTIES_INDEX_TABLE, propertyIndexPuts);
+	put(SchemaTable.VERTICES.getTableName(), outPut);
+	put(SchemaTable.VERTICES.getTableName(), inPut);
+	put(SchemaTable.EDGES.getTableName(), edgePut);
+	put(SchemaTable.EDGE_LABELS.getTableName(), labelIndexPut);
+	put(SchemaTable.EDGE_PROPERTIES.getTableName(), propertyIndexPuts);
     }
 }

@@ -12,7 +12,9 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public abstract class AbstractTinkerpopTest {
 
@@ -34,6 +36,7 @@ public abstract class AbstractTinkerpopTest {
     @Before
     public void initialize() throws IOException {
 	DuctileDBTestHelper.removeGraph(((DuctileGraph) graph).getBaseGraph());
+	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) ((DuctileGraph) graph).getBaseGraph());
     }
 
     public static Graph getGraph() {

@@ -51,11 +51,24 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
     @Override
     public <V> Iterator<Property<V>> properties(String... propertyKeys) {
 	List<Property<V>> properties = new ArrayList<>();
-	for (String key : propertyKeys) {
-	    @SuppressWarnings("unchecked")
-	    V value = (V) baseEdge.getProperty(key);
-	    if (value != null) {
-		properties.add(new DuctileProperty<V>(this, key, value));
+	if (propertyKeys.length > 0) {
+	    for (String key : propertyKeys) {
+		@SuppressWarnings("unchecked")
+		V value = (V) baseEdge.getProperty(key);
+		if (value != null) {
+		    properties.add(new DuctileProperty<V>(this, key, value));
+		}
+	    }
+	} else {
+	    for (String key : baseEdge.getPropertyKeys()) {
+		if (key.startsWith(".")) {
+		    continue;
+		}
+		@SuppressWarnings("unchecked")
+		V value = (V) baseEdge.getProperty(key);
+		if (value != null) {
+		    properties.add(new DuctileProperty<V>(this, key, value));
+		}
 	    }
 	}
 	return properties.iterator();

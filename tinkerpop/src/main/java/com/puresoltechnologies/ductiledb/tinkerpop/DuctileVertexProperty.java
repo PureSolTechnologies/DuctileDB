@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
@@ -55,7 +56,7 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
     @Override
     public Graph graph() {
-	return graph();
+	return vertex.graph();
     }
 
     @Override
@@ -80,6 +81,16 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 	    properties.add(new DuctileProperty<>(vertex, propertyKey, propertyValue));
 	}
 	return properties.iterator();
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+	return ElementHelper.areEqual(this, object);
+    }
+
+    @Override
+    public int hashCode() {
+	return ElementHelper.hashCode((Element) this);
     }
 
 }

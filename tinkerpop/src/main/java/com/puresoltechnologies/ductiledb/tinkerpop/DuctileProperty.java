@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 
@@ -56,6 +57,16 @@ public class DuctileProperty<V> implements Property<V> {
 	if (entity.getProperty(key) != null) {
 	    entity.removeProperty(key);
 	}
+    }
+
+    @Override
+    public boolean equals(final Object object) {
+	return ElementHelper.areEqual(this, object);
+    }
+
+    @Override
+    public int hashCode() {
+	return ElementHelper.hashCode(this);
     }
 
 }

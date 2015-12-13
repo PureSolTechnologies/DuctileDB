@@ -58,6 +58,13 @@ public class EdgeIterable implements Iterable<DuctileDBEdge> {
 		    DuctileDBEdgeImpl edge = ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasEdgeRemoved(edge.getId())) {
+			DuctileDBEdge cachedEdge = transaction.getCachedEdge(edge.getId());
+			if (cachedEdge != null) {
+			    next = cachedEdge;
+
+			} else {
+			    next = edge;
+			}
 			next = edge;
 		    }
 		}

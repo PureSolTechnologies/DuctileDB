@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.DUCTILEDB_NAMESPACE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_NAMESPACE;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 /**
  * A collection of simple methods to support testing.

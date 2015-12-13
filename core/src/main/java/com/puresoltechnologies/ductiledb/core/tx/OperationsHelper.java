@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
 
 import java.io.Serializable;
 

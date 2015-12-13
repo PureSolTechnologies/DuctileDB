@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public class AbstractDuctileDBGraphConsistencyTest extends AbstractDuctileDBGraphTest {
 

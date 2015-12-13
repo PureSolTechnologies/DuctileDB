@@ -10,6 +10,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {

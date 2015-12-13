@@ -1,10 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -20,6 +17,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexOperation extends AbstractTxOperation {
@@ -60,8 +58,8 @@ public class AddVertexOperation extends AbstractTxOperation {
 	    propertyIndex.add(
 		    OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(), property.getValue()));
 	}
-	put(VERTICES_TABLE, put);
-	put(VERTEX_LABELS_INDEX_TABLE, labelIndex);
-	put(VERTEX_PROPERTIES_INDEX_TABLE, propertyIndex);
+	put(SchemaTable.VERTICES.getTableName(), put);
+	put(SchemaTable.VERTEX_LABELS.getTableName(), labelIndex);
+	put(SchemaTable.VERTEX_PROPERTIES.getTableName(), propertyIndex);
     }
 }

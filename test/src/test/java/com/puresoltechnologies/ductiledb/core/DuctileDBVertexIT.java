@@ -20,7 +20,7 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 

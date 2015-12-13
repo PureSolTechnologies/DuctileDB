@@ -1,21 +1,16 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGEID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.ID_ROW_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.METADATA_COLUMN_FAMILIY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.METADATA_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTEX_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGEID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.ID_ROW_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.METADATA_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERTEXID_COLUMN_BYTES;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,7 +20,6 @@ import java.util.NavigableMap;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
-import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -43,6 +37,7 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.ResultDecoder;
+import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 /**
@@ -152,31 +147,31 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     Table openMetaDataTable() throws IOException {
-	return connection.getTable(TableName.valueOf(METADATA_TABLE));
+	return connection.getTable(SchemaTable.METADATA.getTableName());
     }
 
     Table openVertexTable() throws IOException {
-	return connection.getTable(TableName.valueOf(VERTICES_TABLE));
+	return connection.getTable(SchemaTable.VERTICES.getTableName());
     }
 
     Table openEdgeTable() throws IOException {
-	return connection.getTable(TableName.valueOf(EDGES_TABLE));
+	return connection.getTable(SchemaTable.EDGES.getTableName());
     }
 
     Table openVertexPropertyTable() throws IOException {
-	return connection.getTable(TableName.valueOf(VERTEX_PROPERTIES_INDEX_TABLE));
+	return connection.getTable(SchemaTable.VERTEX_PROPERTIES.getTableName());
     }
 
     Table openVertexLabelTable() throws IOException {
-	return connection.getTable(TableName.valueOf(VERTEX_LABELS_INDEX_TABLE));
+	return connection.getTable(SchemaTable.VERTEX_LABELS.getTableName());
     }
 
     Table openEdgePropertyTable() throws IOException {
-	return connection.getTable(TableName.valueOf(EDGE_PROPERTIES_INDEX_TABLE));
+	return connection.getTable(SchemaTable.EDGE_PROPERTIES.getTableName());
     }
 
     Table openEdgeLabelTable() throws IOException {
-	return connection.getTable(TableName.valueOf(EDGE_LABELS_INDEX_TABLE));
+	return connection.getTable(SchemaTable.EDGE_LABELS.getTableName());
     }
 
     final long createVertexId() {
@@ -215,6 +210,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
+	properties.put(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY, new Date());
 	txOperations.add(new AddVertexOperation(this, vertexId, labels, properties));
 	DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
 	return vertex;
@@ -224,10 +220,10 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
+	properties.put(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY, new Date());
 	txOperations
 		.add(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
-	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
-		new HashMap<>());
+	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex, properties);
 	((DuctileDBVertexImpl) startVertex).addEdge(edge);
 	((DuctileDBVertexImpl) targetVertex).addEdge(edge);
 	return edge;

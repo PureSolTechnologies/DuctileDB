@@ -7,16 +7,14 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.commons.types.IntrospectionUtilities;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBHealthCheck;
-import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 
@@ -25,6 +23,11 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
     @BeforeClass
     public static void initializeHealthCheck() throws IOException {
 	healthChecker = new DuctileDBHealthCheck((DuctileDBGraphImpl) graph);
+    }
+
+    @Before
+    public void cleanup() throws IOException {
+	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @After
@@ -48,12 +51,10 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 	vertex3.addEdge("edge31", vertex1);
 	graph.commit();
 	assertEquals(3, DuctileDBTestHelper.count(graph.getEdges()));
-	healthChecker.runCheck();
 
 	vertex2.remove();
 	graph.commit();
 	assertEquals(1, DuctileDBTestHelper.count(graph.getEdges()));
-	healthChecker.runCheck();
     }
 
     /**
@@ -74,13 +75,12 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 	DuctileDBEdge edge = vertex1.addEdge("edge12", vertex2);
 	graph.commit();
 	assertEquals(1, DuctileDBTestHelper.count(graph.getEdges()));
-	healthChecker.runCheck();
 
 	DuctileDBEdge readEdge = graph.getEdge(edge.getId());
 	long startVertexId = (long) IntrospectionUtilities.getField(readEdge, "startVertexId");
-	assertEquals((long) vertex1.getId(), startVertexId);
+	assertEquals(vertex1.getId(), startVertexId);
 	long targetVertexId = (long) IntrospectionUtilities.getField(readEdge, "targetVertexId");
-	assertEquals((long) vertex2.getId(), targetVertexId);
+	assertEquals(vertex2.getId(), targetVertexId);
 	DuctileDBVertex startVertex = (DuctileDBVertex) IntrospectionUtilities.getField(readEdge, "startVertex");
 	assertNull(startVertex);
 	DuctileDBVertex targetVertex = (DuctileDBVertex) IntrospectionUtilities.getField(readEdge, "targetVertex");
@@ -91,6 +91,14 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 	vertex1.remove();
 	vertex2.remove();
 	graph.commit();
-	healthChecker.runCheck();
     }
+
+    @Test
+    public void testGraph() throws IOException {
+	int num = 10;
+	StandardGraphs.createGraph(graph, num);
+	assertEquals(num, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(num * (num - 1) / 2, DuctileDBTestHelper.count(graph.getEdges()));
+    }
+
 }

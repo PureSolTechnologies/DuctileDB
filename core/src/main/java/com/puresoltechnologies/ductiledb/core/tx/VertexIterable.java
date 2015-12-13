@@ -58,7 +58,13 @@ public class VertexIterable implements Iterable<DuctileDBVertex> {
 		    DuctileDBVertexImpl vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasVertexRemoved(vertex.getId())) {
-			next = vertex;
+			DuctileDBVertex cachedVertex = transaction.getCachedVertex(vertex.getId());
+			if (cachedVertex != null) {
+			    next = cachedVertex;
+
+			} else {
+			    next = vertex;
+			}
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

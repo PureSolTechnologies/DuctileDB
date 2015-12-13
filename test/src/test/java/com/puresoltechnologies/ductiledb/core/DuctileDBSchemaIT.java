@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
 
 public class DuctileDBSchemaIT {
 

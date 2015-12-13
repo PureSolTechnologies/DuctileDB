@@ -13,8 +13,8 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 /**
  * This intergrationt tests check the correct behavior of transactions.

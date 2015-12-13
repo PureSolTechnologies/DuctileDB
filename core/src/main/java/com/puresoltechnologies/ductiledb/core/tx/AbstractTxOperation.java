@@ -28,32 +28,32 @@ public abstract class AbstractTxOperation implements TxOperation {
 	return connection;
     }
 
-    protected void put(String tableName, Put put) throws IOException {
-	try (Table table = connection.getTable(TableName.valueOf(tableName))) {
+    protected void put(TableName tableName, Put put) throws IOException {
+	try (Table table = connection.getTable(tableName)) {
 	    table.put(put);
 	}
     }
 
-    protected void put(String tableName, List<Put> puts) throws IOException {
+    protected void put(TableName tableName, List<Put> puts) throws IOException {
 	if (puts.isEmpty()) {
 	    return;
 	}
-	try (Table table = connection.getTable(TableName.valueOf(tableName))) {
+	try (Table table = connection.getTable(tableName)) {
 	    table.put(puts);
 	}
     }
 
-    protected void delete(String tableName, Delete delete) throws IOException {
-	try (Table table = connection.getTable(TableName.valueOf(tableName))) {
+    protected void delete(TableName tableName, Delete delete) throws IOException {
+	try (Table table = connection.getTable(tableName)) {
 	    table.delete(delete);
 	}
     }
 
-    protected void delete(String tableName, List<Delete> deletes) throws IOException {
+    protected void delete(TableName tableName, List<Delete> deletes) throws IOException {
 	if (deletes.isEmpty()) {
 	    return;
 	}
-	try (Table table = connection.getTable(TableName.valueOf(tableName))) {
+	try (Table table = connection.getTable(tableName)) {
 	    table.delete(deletes);
 	}
     }

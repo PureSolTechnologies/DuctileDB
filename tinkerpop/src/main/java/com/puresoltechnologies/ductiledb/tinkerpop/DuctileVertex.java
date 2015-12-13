@@ -134,10 +134,25 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
     @Override
     public <V> Iterator<VertexProperty<V>> properties(String... propertyKeys) {
 	List<VertexProperty<V>> properties = new ArrayList<>();
-	for (String key : propertyKeys) {
-	    @SuppressWarnings("unchecked")
-	    V value = (V) baseVertex.getProperty(key);
-	    properties.add(new DuctileVertexProperty<V>(this, key, value));
+	if (propertyKeys.length > 0) {
+	    for (String key : propertyKeys) {
+		@SuppressWarnings("unchecked")
+		V value = (V) baseVertex.getProperty(key);
+		if (value != null) {
+		    properties.add(new DuctileVertexProperty<V>(this, key, value));
+		}
+	    }
+	} else {
+	    for (String key : baseVertex.getPropertyKeys()) {
+		if (key.startsWith(".")) {
+		    continue;
+		}
+		@SuppressWarnings("unchecked")
+		V value = (V) baseVertex.getProperty(key);
+		if (value != null) {
+		    properties.add(new DuctileVertexProperty<V>(this, key, value));
+		}
+	    }
 	}
 	return properties.iterator();
     }

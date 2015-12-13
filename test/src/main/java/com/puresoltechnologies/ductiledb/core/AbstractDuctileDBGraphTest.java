@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class AbstractDuctileDBGraphTest {
@@ -25,6 +26,7 @@ public class AbstractDuctileDBGraphTest {
 	graph = GraphFactory.createGraph(new BaseConfiguration());
 	assertNotNull("Graph was not created.", graph);
 	DuctileDBTestHelper.removeGraph(graph);
+	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph);
     }
 
     @AfterClass

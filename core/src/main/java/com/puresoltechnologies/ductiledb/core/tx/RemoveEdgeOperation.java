@@ -1,10 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGES_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_LABELS_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.EDGE_PROPERTIES_INDEX_TABLE;
-import static com.puresoltechnologies.ductiledb.core.DuctileDBSchema.VERTICES_TABLE;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +16,7 @@ import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
+import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -81,11 +78,11 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	for (String key : edgePropertyKeys) {
 	    propertyIndices.add(OperationsHelper.createEdgePropertyIndexDelete(edgeId, key));
 	}
-	delete(VERTICES_TABLE, deleteOutEdge);
-	delete(VERTICES_TABLE, deleteInEdge);
-	delete(EDGES_TABLE, deleteEdges);
-	delete(EDGE_LABELS_INDEX_TABLE, labelIndex);
-	delete(EDGE_PROPERTIES_INDEX_TABLE, propertyIndices);
+	delete(SchemaTable.VERTICES.getTableName(), deleteOutEdge);
+	delete(SchemaTable.VERTICES.getTableName(), deleteInEdge);
+	delete(SchemaTable.EDGES.getTableName(), deleteEdges);
+	delete(SchemaTable.EDGE_LABELS.getTableName(), labelIndex);
+	delete(SchemaTable.EDGE_PROPERTIES.getTableName(), propertyIndices);
     }
 
 }
