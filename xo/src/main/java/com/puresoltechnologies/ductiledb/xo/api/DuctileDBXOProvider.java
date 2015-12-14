@@ -8,9 +8,9 @@ import com.buschmais.xo.spi.bootstrap.XODatastoreProvider;
 import com.buschmais.xo.spi.datastore.Datastore;
 import com.puresoltechnologies.ductiledb.xo.impl.DecodedURI;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStore;
-import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStoreSession;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreSession;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
 /**
  * This class implements the XO XODatastoreProvider for Titan database.
@@ -18,10 +18,10 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadat
  * @author Rick-Rainer Ludwig
  */
 public class DuctileDBXOProvider
-	implements XODatastoreProvider<DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> {
+	implements XODatastoreProvider<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> {
 
     @Override
-    public Datastore<DuctileDBStoreSession, DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> createDatastore(
+    public Datastore<DuctileStoreSession, DuctileVertexMetadata, String, DuctileEdgeMetadata, String> createDatastore(
 	    XOUnit xoUnit) {
 	if (xoUnit == null) {
 	    throw new IllegalArgumentException("XOUnit must not be null!");

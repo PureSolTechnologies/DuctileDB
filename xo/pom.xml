@@ -14,7 +14,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>ductiledb-core</artifactId>
+			<artifactId>ductiledb-tinkerpop</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>

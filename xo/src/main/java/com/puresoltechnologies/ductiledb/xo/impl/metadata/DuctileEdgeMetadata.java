@@ -2,11 +2,11 @@ package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
 import com.buschmais.xo.spi.datastore.DatastoreRelationMetadata;
 
-public class DuctileDBEdgeMetadata implements DatastoreRelationMetadata<String> {
+public class DuctileEdgeMetadata implements DatastoreRelationMetadata<String> {
 
 	private final String label;
 
-	public DuctileDBEdgeMetadata(String label) {
+	public DuctileEdgeMetadata(String label) {
 		this.label = label;
 	}
 

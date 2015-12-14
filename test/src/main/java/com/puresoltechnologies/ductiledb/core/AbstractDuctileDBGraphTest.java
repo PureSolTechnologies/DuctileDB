@@ -23,9 +23,9 @@ public class AbstractDuctileDBGraphTest {
 
     @BeforeClass
     public static void connect() throws IOException {
+	DuctileDBTestHelper.removeTables();
 	graph = GraphFactory.createGraph(new BaseConfiguration());
 	assertNotNull("Graph was not created.", graph);
-	DuctileDBTestHelper.removeGraph(graph);
 	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph);
     }
 

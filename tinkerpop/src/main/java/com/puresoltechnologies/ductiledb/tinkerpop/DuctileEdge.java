@@ -24,12 +24,12 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
     }
 
     @Override
-    public Vertex outVertex() {
+    public DuctileVertex outVertex() {
 	return new DuctileVertex(baseEdge.getStartVertex(), graph());
     }
 
     @Override
-    public Vertex inVertex() {
+    public DuctileVertex inVertex() {
 	return new DuctileVertex(baseEdge.getTargetVertex(), graph());
     }
 

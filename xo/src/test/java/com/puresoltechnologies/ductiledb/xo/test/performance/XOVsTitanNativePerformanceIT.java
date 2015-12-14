@@ -25,7 +25,7 @@ import com.buschmais.xo.api.bootstrap.XO;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStoreSession;
+import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreSession;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 import com.puresoltechnologies.ductiledb.xo.test.relation.typed.TreeNode;
 import com.puresoltechnologies.ductiledb.xo.test.relation.typed.TreeNodeRelation;
@@ -76,7 +76,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	xoManagerFactory = XO.createXOManagerFactory(xoUnit[0]);
 
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
-	    DuctileDBStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileDBStoreSession.class);
+	    DuctileStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileStoreSession.class);
 	    DuctileDBGraph graph = datastoreSession.getGraph();
 	    // Some initial input to finish bootstrapping...
 	    DuctileDBVertex vertex1 = graph.addVertex(null);
@@ -151,7 +151,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
     public void runNative() throws IOException {
 	removeTables();
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
-	    DuctileDBStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileDBStoreSession.class);
+	    DuctileStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileStoreSession.class);
 	    DuctileDBGraph graph = datastoreSession.getGraph();
 
 	    long start = System.currentTimeMillis();

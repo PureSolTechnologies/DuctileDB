@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +13,9 @@ import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.Datastore;
 import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
-import com.puresoltechnologies.ductiledb.core.GraphFactory;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadata;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
 /**
  * <p>
@@ -27,7 +25,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadat
  * @author Rick-Rainer Ludwig
  */
 public class DuctileDBStore
-	implements Datastore<DuctileDBStoreSession, DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> {
+	implements Datastore<DuctileStoreSession, DuctileVertexMetadata, String, DuctileEdgeMetadata, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBStore.class);
 
@@ -40,7 +38,7 @@ public class DuctileDBStore
     /**
      * This field contains the whole graph after connection to the database.
      */
-    private DuctileDBGraph graph = null;
+    private DuctileGraph graph = null;
 
     /**
      * This field contains the path to hbase-site.xml to connect to HBase client
@@ -97,12 +95,12 @@ public class DuctileDBStore
      * 
      * @return A DuctileDBGraph is returned.
      */
-    public final DuctileDBGraph getGraph() {
+    public final DuctileGraph getGraph() {
 	return graph;
     }
 
     @Override
-    public DatastoreMetadataFactory<DuctileDBVertexMetadata, String, DuctileDBEdgeMetadata, String> getMetadataFactory() {
+    public DatastoreMetadataFactory<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> getMetadataFactory() {
 	return new DuctileDBMetadataFactory();
     }
 
@@ -110,24 +108,28 @@ public class DuctileDBStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    Configuration hbaseConfiguration = HBaseConfiguration.create();
-	    hbaseConfiguration.addResource(new Path(hbaseSitePath.getPath()));
-	    graph = GraphFactory.createGraph(hbaseConfiguration);
+	    BaseConfiguration configuration = new BaseConfiguration();
+	    configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
+	    graph = DuctileGraph.open(configuration);
 	} catch (IOException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
 	}
     }
 
     @Override
-    public DuctileDBStoreSession createSession() {
-	return new DuctileDBStoreSession(graph);
+    public DuctileStoreSession createSession() {
+	return new DuctileStoreSession(graph);
     }
 
     @Override
     public void close() {
 	logger.info("Shutting down eXtended Objects for DuctileDB...");
 	if (graph != null) {
-	    graph.shutdown();
+	    try {
+		graph.close();
+	    } catch (Exception e) {
+		throw new XOException("Could not close graph.", e);
+	    }
 	    graph = null;
 	}
     }

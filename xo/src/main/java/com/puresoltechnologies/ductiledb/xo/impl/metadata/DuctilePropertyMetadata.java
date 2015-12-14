@@ -1,10 +1,10 @@
 package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
-public class DuctileDBPropertyMetadata {
+public class DuctilePropertyMetadata {
 
 	private final String name;
 
-	public DuctileDBPropertyMetadata(String name) {
+	public DuctilePropertyMetadata(String name) {
 		this.name = name;
 	}
 

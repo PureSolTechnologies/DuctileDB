@@ -11,7 +11,7 @@ import org.junit.Test;
 import com.buschmais.xo.api.XOException;
 import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransaction;
-import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStoreTransaction;
+import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreTransaction;
 
 /**
  * This unit test checks the logic for active state and initialization.
@@ -31,12 +31,12 @@ public class DuctileDBStoreTransactionTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullTitanGraph() {
-	new DuctileDBStoreTransaction(null);
+	new DuctileStoreTransaction(null);
     }
 
     @Test
     public void testBeginCommitActive() {
-	DuctileDBStoreTransaction transaction = new DuctileDBStoreTransaction(titanGraphMock);
+	DuctileStoreTransaction transaction = new DuctileStoreTransaction(titanGraphMock);
 	assertFalse(transaction.isActive());
 	transaction.begin();
 	assertTrue(transaction.isActive());
@@ -46,7 +46,7 @@ public class DuctileDBStoreTransactionTest {
 
     @Test
     public void testBeginRollbackActive() {
-	DuctileDBStoreTransaction transaction = new DuctileDBStoreTransaction(titanGraphMock);
+	DuctileStoreTransaction transaction = new DuctileStoreTransaction(titanGraphMock);
 	assertFalse(transaction.isActive());
 	transaction.begin();
 	assertTrue(transaction.isActive());
@@ -56,7 +56,7 @@ public class DuctileDBStoreTransactionTest {
 
     @Test(expected = XOException.class)
     public void testBeginDoubleCommit() {
-	DuctileDBStoreTransaction transaction = new DuctileDBStoreTransaction(titanGraphMock);
+	DuctileStoreTransaction transaction = new DuctileStoreTransaction(titanGraphMock);
 	assertFalse(transaction.isActive());
 	transaction.begin();
 	assertTrue(transaction.isActive());
@@ -67,7 +67,7 @@ public class DuctileDBStoreTransactionTest {
 
     @Test(expected = XOException.class)
     public void testBeginDoubleRollback() {
-	DuctileDBStoreTransaction transaction = new DuctileDBStoreTransaction(titanGraphMock);
+	DuctileStoreTransaction transaction = new DuctileStoreTransaction(titanGraphMock);
 	assertFalse(transaction.isActive());
 	transaction.begin();
 	assertTrue(transaction.isActive());
@@ -78,7 +78,7 @@ public class DuctileDBStoreTransactionTest {
 
     @Test(expected = XOException.class)
     public void testDoubleBegin() {
-	DuctileDBStoreTransaction transaction = new DuctileDBStoreTransaction(titanGraphMock);
+	DuctileStoreTransaction transaction = new DuctileStoreTransaction(titanGraphMock);
 	assertFalse(transaction.isActive());
 	transaction.begin();
 	assertTrue(transaction.isActive());

@@ -1,23 +1,23 @@
 package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
-import com.tinkerpop.blueprints.Direction;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
 public class DuctileDBReferencePropertyMetadata {
 
-	private final String name;
-	private final EdgeDirection direction;
+    private final String name;
+    private final EdgeDirection direction;
 
-	public DuctileDBReferencePropertyMetadata(String name, EdgeDirection direction) {
-		this.name = name;
-		this.direction = direction;
-	}
+    public DuctileDBReferencePropertyMetadata(String name, EdgeDirection direction) {
+	this.name = name;
+	this.direction = direction;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+	return name;
+    }
 
-	public EdgeDirection getDirection() {
-		return direction;
-	}
+    public EdgeDirection getDirection() {
+	return direction;
+    }
 
 }

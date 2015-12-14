@@ -331,6 +331,11 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>ductiledb-tinkerpop</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>ductiledb-xo</artifactId>
 				<version>${project.version}</version>
 			</dependency>

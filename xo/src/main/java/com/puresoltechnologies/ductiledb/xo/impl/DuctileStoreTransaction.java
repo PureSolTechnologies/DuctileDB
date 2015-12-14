@@ -2,14 +2,14 @@ package com.puresoltechnologies.ductiledb.xo.impl;
 
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreTransaction;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 
 /**
  * This class implements an XO DatastoreTransaction for Titan databases.
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBStoreTransaction implements DatastoreTransaction {
+public class DuctileStoreTransaction implements DatastoreTransaction {
 
     /**
      * This field stores whether the transaction is currently active or not.
@@ -20,7 +20,7 @@ public class DuctileDBStoreTransaction implements DatastoreTransaction {
      * This method contains the Titan graph as {@link TitanGraph} to handle on
      * it its transactions.
      */
-    private final DuctileDBGraph graph;
+    private final DuctileGraph graph;
 
     /**
      * This is the initial value constructor.
@@ -29,7 +29,7 @@ public class DuctileDBStoreTransaction implements DatastoreTransaction {
      *            is the Titan graph as TitanGraph object on which this
      *            transaction shall work on.
      */
-    public DuctileDBStoreTransaction(DuctileDBGraph graph) {
+    public DuctileStoreTransaction(DuctileGraph graph) {
 	if (graph == null) {
 	    throw new IllegalArgumentException("titanGraph must not be null");
 	}
@@ -50,7 +50,7 @@ public class DuctileDBStoreTransaction implements DatastoreTransaction {
 	    throw new XOException("There is no active transaction.");
 	}
 	active = false;
-	graph.commit();
+	graph.tx().commit();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class DuctileDBStoreTransaction implements DatastoreTransaction {
 	    throw new XOException("There is no active transaction.");
 	}
 	active = false;
-	graph.rollback();
+	graph.tx().rollback();
     }
 
     @Override

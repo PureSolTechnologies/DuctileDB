@@ -17,7 +17,7 @@ public enum SchemaTable {
 
     SchemaTable(String name) {
 	this.name = DuctileDBSchema.DUCTILEDB_NAMESPACE + ":" + name;
-	this.tableName = TableName.valueOf(name);
+	this.tableName = TableName.valueOf(this.name);
     }
 
     public String getName() {

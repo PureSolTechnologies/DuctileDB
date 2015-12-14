@@ -7,14 +7,12 @@ import java.util.Map;
 import com.buschmais.xo.api.ResultIterator;
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreQuery;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Gauging;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.pipes.Pipe;
+import com.puresoltechnologies.ductiledb.xo.api.annotation.Pipe;
 
 public class DuctileQuery implements DatastoreQuery<Gauging> {
 

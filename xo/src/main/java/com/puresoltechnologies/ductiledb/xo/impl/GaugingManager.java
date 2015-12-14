@@ -6,13 +6,12 @@ import java.util.Map.Entry;
 
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.reflection.AnnotatedElement;
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Gauging;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
 
 /**
- * This class manages the Gremlin expressions for the
- * {@link DuctileDBStore}.
+ * This class manages the Gremlin expressions for the {@link DuctileDBStore}.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -30,17 +29,14 @@ public class GaugingManager {
      * @param <QL>
      *            is the query language.
      */
-    public static <QL> GaugingExpression getGaugingExpression(QL expression,
-	    Map<String, Object> parameters) {
+    public static <QL> GaugingExpression getGaugingExpression(QL expression, Map<String, Object> parameters) {
 	GaugingExpression gremlinExpression = null;
 	if (expression instanceof String) {
 	    gremlinExpression = new GaugingExpression("", (String) expression);
 	} else if (expression instanceof Gauging) {
 	    Gauging gremlin = (Gauging) expression;
-	    gremlinExpression = new GaugingExpression(gremlin.name(),
-		    gremlin.value());
-	} else if (AnnotatedElement.class.isAssignableFrom(expression
-		.getClass())) {
+	    gremlinExpression = new GaugingExpression(gremlin.name(), gremlin.value());
+	} else if (AnnotatedElement.class.isAssignableFrom(expression.getClass())) {
 	    AnnotatedElement<?> typeExpression = (AnnotatedElement<?>) expression;
 	    gremlinExpression = extractExpression(typeExpression);
 	} else if (Class.class.isAssignableFrom(expression.getClass())) {
@@ -50,19 +46,16 @@ public class GaugingManager {
 	    Method method = (Method) expression;
 	    gremlinExpression = extractExpression(method);
 	} else {
-	    throw new XOException("Unsupported query expression "
-		    + expression.toString() + "(class=" + expression.getClass()
-		    + ")");
+	    throw new XOException(
+		    "Unsupported query expression " + expression.toString() + "(class=" + expression.getClass() + ")");
 	}
 	return applyParameters(parameters, gremlinExpression);
     }
 
-    private static GaugingExpression extractExpression(
-	    AnnotatedElement<?> typeExpression) {
+    private static GaugingExpression extractExpression(AnnotatedElement<?> typeExpression) {
 	Gauging gremlin = typeExpression.getAnnotation(Gauging.class);
 	if (gremlin == null) {
-	    throw new XOException(typeExpression + " must be annotated with "
-		    + Gauging.class.getName());
+	    throw new XOException(typeExpression + " must be annotated with " + Gauging.class.getName());
 	}
 	return new GaugingExpression(gremlin);
     }
@@ -70,8 +63,7 @@ public class GaugingManager {
     private static <QL> GaugingExpression extractExpression(Class<?> clazz) {
 	Gauging gremlin = clazz.getAnnotation(Gauging.class);
 	if (gremlin == null) {
-	    throw new XOException(clazz.getName() + " must be annotated with "
-		    + Gauging.class.getName());
+	    throw new XOException(clazz.getName() + " must be annotated with " + Gauging.class.getName());
 	}
 	return new GaugingExpression(gremlin);
     }
@@ -79,31 +71,26 @@ public class GaugingManager {
     private static <QL> GaugingExpression extractExpression(Method method) {
 	Gauging gremlin = method.getAnnotation(Gauging.class);
 	if (gremlin == null) {
-	    throw new XOException(method.getName() + " must be annotated with "
-		    + Gauging.class.getName());
+	    throw new XOException(method.getName() + " must be annotated with " + Gauging.class.getName());
 	}
 	return new GaugingExpression(gremlin);
     }
 
-    private static GaugingExpression applyParameters(
-	    Map<String, Object> parameters, GaugingExpression gremlinExpression) {
+    private static GaugingExpression applyParameters(Map<String, Object> parameters,
+	    GaugingExpression gremlinExpression) {
 	StringBuffer typeDefinitions = createTypeDefinitions(parameters);
 	String expressionString = gremlinExpression.getExpression();
 	for (String type : parameters.keySet()) {
 	    String placeholder = "\\{" + type + "\\}";
 	    if (!"this".equals(type)) {
-		expressionString = expressionString.replaceAll(placeholder,
-			type);
+		expressionString = expressionString.replaceAll(placeholder, type);
 	    }
 	}
-	String enhancedExpressionString = typeDefinitions.toString()
-		+ expressionString;
-	return new GaugingExpression(gremlinExpression.getResultName(),
-		enhancedExpressionString);
+	String enhancedExpressionString = typeDefinitions.toString() + expressionString;
+	return new GaugingExpression(gremlinExpression.getResultName(), enhancedExpressionString);
     }
 
-    private static StringBuffer createTypeDefinitions(
-	    Map<String, Object> parameters) {
+    private static StringBuffer createTypeDefinitions(Map<String, Object> parameters) {
 	StringBuffer typeDefinitions = new StringBuffer();
 	for (Entry<String, Object> entry : parameters.entrySet()) {
 	    String type = entry.getKey();

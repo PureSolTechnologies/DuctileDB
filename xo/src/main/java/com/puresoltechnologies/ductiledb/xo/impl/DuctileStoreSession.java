@@ -8,30 +8,31 @@ import com.buschmais.xo.spi.datastore.DatastoreRelationManager;
 import com.buschmais.xo.spi.datastore.DatastoreSession;
 import com.buschmais.xo.spi.datastore.DatastoreTransaction;
 import com.buschmais.xo.spi.session.XOSession;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Gauging;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBEdgeMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBVertexMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
 /**
  * This class implements a XO DatastoreSession for Titan database.
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBStoreSession implements
-	DatastoreSession<Long, DuctileDBVertex, DuctileDBVertexMetadata, String, Long, DuctileDBEdge, DuctileDBEdgeMetadata, String, DuctileDBPropertyMetadata> {
+public class DuctileStoreSession implements
+	DatastoreSession<Long, DuctileVertex, DuctileVertexMetadata, String, Long, DuctileEdge, DuctileEdgeMetadata, String, DuctilePropertyMetadata> {
 
     /**
      * This field contains the graph as {@link DuctileDBGraph} object.
      */
-    private final DuctileDBGraph graph;
-    private final DuctileDBStoreTransaction transaction;
+    private final DuctileGraph graph;
+    private final DuctileStoreTransaction transaction;
 
-    private final DucileDBStoreVertexManager vertexManager;
-    private final DucileDBStoreEdgeManager edgeManager;
+    private final DucileStoreVertexManager vertexManager;
+    private final DucileStoreEdgeManager edgeManager;
 
     /**
      * This is the initial value constructor.
@@ -40,11 +41,11 @@ public class DuctileDBStoreSession implements
      *            is the Titan graph as TitanGraph object on which this session
      *            shall work on.
      */
-    public DuctileDBStoreSession(DuctileDBGraph graph) {
+    public DuctileStoreSession(DuctileGraph graph) {
 	this.graph = graph;
-	this.transaction = new DuctileDBStoreTransaction(graph);
-	this.vertexManager = new DucileDBStoreVertexManager(graph);
-	this.edgeManager = new DucileDBStoreEdgeManager(graph);
+	this.transaction = new DuctileStoreTransaction(graph);
+	this.vertexManager = new DucileStoreVertexManager(graph);
+	this.edgeManager = new DucileStoreEdgeManager(graph);
     }
 
     /**
@@ -52,7 +53,7 @@ public class DuctileDBStoreSession implements
      * 
      * @return A TitanGraph object is returned.
      */
-    public final DuctileDBGraph getGraph() {
+    public final DuctileGraph getGraph() {
 	return graph;
     }
 
@@ -67,12 +68,12 @@ public class DuctileDBStoreSession implements
     }
 
     @Override
-    public DatastoreEntityManager<Long, DuctileDBVertex, DuctileDBVertexMetadata, String, DuctileDBPropertyMetadata> getDatastoreEntityManager() {
+    public DatastoreEntityManager<Long, DuctileVertex, DuctileVertexMetadata, String, DuctilePropertyMetadata> getDatastoreEntityManager() {
 	return vertexManager;
     }
 
     @Override
-    public DatastoreRelationManager<DuctileDBVertex, Long, DuctileDBEdge, DuctileDBEdgeMetadata, String, DuctileDBPropertyMetadata> getDatastoreRelationManager() {
+    public DatastoreRelationManager<DuctileVertex, Long, DuctileEdge, DuctileEdgeMetadata, String, DuctilePropertyMetadata> getDatastoreRelationManager() {
 	return edgeManager;
     }
 

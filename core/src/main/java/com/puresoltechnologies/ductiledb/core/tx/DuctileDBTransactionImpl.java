@@ -210,23 +210,21 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(graph, vertexId, labels, new HashMap<>(properties),
-		new ArrayList<>());
 	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
 	properties.put(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY, new Date());
 	txOperations.add(new AddVertexOperation(this, vertexId, labels, properties));
-	return vertex;
+	return new DuctileDBVertexImpl(graph, vertexId, labels, new HashMap<>(properties), new ArrayList<>());
     }
 
     @Override
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
-	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
-		new HashMap<>(properties));
 	properties.put(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY, new Date());
 	txOperations
 		.add(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
+	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
+		new HashMap<>(properties));
 	((DuctileDBVertexImpl) startVertex).addEdge(edge);
 	((DuctileDBVertexImpl) targetVertex).addEdge(edge);
 	return edge;
