@@ -78,10 +78,11 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
     public <V> Property<V> property(final String key) {
 	graph().tx().readWrite();
 	V value = baseEdge.getProperty(key);
-	if (value != null)
-	    return new DuctileProperty<>(this, key, value);
-	else
+	if (value == null) {
 	    return Property.empty();
+
+	}
+	return new DuctileProperty<>(this, key, value);
     }
 
     @Override

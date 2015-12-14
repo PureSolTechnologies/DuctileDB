@@ -99,6 +99,15 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 	StandardGraphs.createGraph(graph, num);
 	assertEquals(num, DuctileDBTestHelper.count(graph.getVertices()));
 	assertEquals(num * (num - 1) / 2, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.commit();
+	assertEquals(num, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(num * (num - 1) / 2, DuctileDBTestHelper.count(graph.getEdges()));
+	// 2nd try...
+	num = 5;
+	StandardGraphs.createGraph(graph, num);
+	assertEquals(10 + 5, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(45 + 10, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.commit();
     }
 
 }

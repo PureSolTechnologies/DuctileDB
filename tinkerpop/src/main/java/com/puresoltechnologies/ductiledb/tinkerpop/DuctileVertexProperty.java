@@ -78,7 +78,9 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 	for (String propertyKey : propertyKeys) {
 	    @SuppressWarnings("unchecked")
 	    U propertyValue = (U) vertex.getBaseVertex().getProperty(propertyKey);
-	    properties.add(new DuctileProperty<>(vertex, propertyKey, propertyValue));
+	    if (propertyValue != null) {
+		properties.add(new DuctileProperty<>(vertex, propertyKey, propertyValue));
+	    }
 	}
 	return properties.iterator();
     }

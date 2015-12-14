@@ -16,8 +16,13 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 public class StandardGraphs {
 
     /**
+     * <p>
      * This method creates the specified number of vertices and connect each
      * vertex with all other vertices which have a higher id.
+     * </p>
+     * <p>
+     * <b>Beware: The commit on the graph needs to be performed by the test!</b>
+     * </p>
      * 
      * @param graph
      * @param numberOfVertices
@@ -36,7 +41,6 @@ public class StandardGraphs {
 		graph.addEdge(vertices[i], vertices[j], "connects");
 	    }
 	}
-	graph.commit();
     }
 
 }

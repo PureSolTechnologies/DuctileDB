@@ -9,7 +9,7 @@ public class DuctileGraphFeatures implements GraphFeatures {
 
     @Override
     public boolean supportsComputer() {
-	return true;
+	return false;
     }
 
     @Override

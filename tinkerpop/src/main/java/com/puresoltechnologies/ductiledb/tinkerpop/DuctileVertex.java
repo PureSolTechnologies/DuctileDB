@@ -81,8 +81,12 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
     }
 
     @Override
-    public <V> DuctileVertexProperty<V> property(String key) {
-	return new DuctileVertexProperty<V>(this, key, baseVertex.getProperty(key));
+    public <V> VertexProperty<V> property(String key) {
+	V value = baseVertex.getProperty(key);
+	if (value == null) {
+	    return VertexProperty.empty();
+	}
+	return new DuctileVertexProperty<V>(this, key, value);
     }
 
     @Override
