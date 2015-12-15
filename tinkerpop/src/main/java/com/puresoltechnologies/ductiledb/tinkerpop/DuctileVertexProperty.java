@@ -1,8 +1,6 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
@@ -61,9 +59,7 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
     @Override
     public <U> Property<U> property(String key, U value) {
-	ElementHelper.validateProperty(key, value);
-	vertex.graph().tx().readWrite();
-	return vertex.property(key, value);
+	throw VertexProperty.Exceptions.metaPropertiesNotSupported();
     }
 
     @Override
@@ -73,16 +69,7 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
     @Override
     public <U> Iterator<Property<U>> properties(String... propertyKeys) {
-	vertex.graph().tx().readWrite();
-	List<Property<U>> properties = new ArrayList<>();
-	for (String propertyKey : propertyKeys) {
-	    @SuppressWarnings("unchecked")
-	    U propertyValue = (U) vertex.getBaseVertex().getProperty(propertyKey);
-	    if (propertyValue != null) {
-		properties.add(new DuctileProperty<>(vertex, propertyKey, propertyValue));
-	    }
-	}
-	return properties.iterator();
+	throw VertexProperty.Exceptions.metaPropertiesNotSupported();
     }
 
     @Override

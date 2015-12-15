@@ -20,7 +20,6 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
-import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputer;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 
@@ -42,7 +41,6 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
     private DuctileGraphComputerView graphComputerView = null;
     private final DuctileDBGraph baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();
-    private final DuctileGraphVariables ductileGraphVariables = new DuctileGraphVariables(this);
     private final DuctileTransaction ductileTransaction = new DuctileTransaction(this);
     private final DuctileFeatures features = new DuctileFeatures();
 
@@ -84,7 +82,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     @Override
     public GraphComputer compute() throws IllegalArgumentException {
-	return new DuctileGraphComputer(this);
+	throw Graph.Exceptions.graphComputerNotSupported();
     }
 
     @Override
@@ -132,7 +130,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     @Override
     public Variables variables() {
-	return ductileGraphVariables;
+	throw Graph.Exceptions.variablesNotSupported();
     }
 
     @Override

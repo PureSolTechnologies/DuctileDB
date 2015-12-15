@@ -21,7 +21,7 @@ public class DuctileVertexPropertyFeatures extends DuctilePropertyFeatures imple
 
     @Override
     public boolean supportsNumericIds() {
-	return false;
+	return true;
     }
 
     @Override

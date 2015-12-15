@@ -16,6 +16,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedVertex;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
@@ -148,9 +149,6 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	    }
 	} else {
 	    for (String key : baseVertex.getPropertyKeys()) {
-		if (key.startsWith(".")) {
-		    continue;
-		}
 		@SuppressWarnings("unchecked")
 		V value = (V) baseVertex.getProperty(key);
 		if (value != null) {
@@ -188,6 +186,11 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
     @Override
     public int hashCode() {
 	return ElementHelper.hashCode(this);
+    }
+
+    @Override
+    public String toString() {
+	return StringFactory.vertexString(this);
     }
 
 }

@@ -9,6 +9,7 @@ import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedEdge;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 
@@ -61,9 +62,6 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 	    }
 	} else {
 	    for (String key : baseEdge.getPropertyKeys()) {
-		if (key.startsWith(".")) {
-		    continue;
-		}
 		@SuppressWarnings("unchecked")
 		V value = (V) baseEdge.getProperty(key);
 		if (value != null) {
@@ -123,4 +121,8 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 	return ElementHelper.hashCode(this);
     }
 
+    @Override
+    public String toString() {
+	return StringFactory.edgeString(this);
+    }
 }

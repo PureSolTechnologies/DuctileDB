@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGEID_COLUMN_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.ID_ROW_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
@@ -10,7 +8,6 @@ import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERT
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -210,8 +207,6 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	properties.put(DUCTILEDB_ID_PROPERTY, vertexId);
-	properties.put(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY, new Date());
 	txOperations.add(new AddVertexOperation(this, vertexId, labels, properties));
 	return new DuctileDBVertexImpl(graph, vertexId, labels, new HashMap<>(properties), new ArrayList<>());
     }
@@ -220,7 +215,6 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
-	properties.put(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY, new Date());
 	txOperations
 		.add(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
 	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
