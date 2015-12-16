@@ -47,7 +47,7 @@ public class ResultDecoder {
 	if (propertyMap != null) {
 	    for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		String key = Bytes.toString(entry.getKey());
-		if (!key.startsWith(".")) {
+		if (!key.startsWith("~")) {
 		    Object value = SerializationUtils.deserialize(entry.getValue());
 		    properties.put(key, value);
 		}
@@ -94,7 +94,7 @@ public class ResultDecoder {
 	NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
 	for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
 	    String key = Bytes.toString(property.getKey());
-	    if (!key.startsWith(".")) {
+	    if (!key.startsWith("~")) {
 		Object value = SerializationUtils.deserialize(property.getValue());
 		properties.put(key, value);
 	    }

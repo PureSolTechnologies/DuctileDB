@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -45,9 +44,10 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	    throw Edge.Exceptions.userSuppliedIdsNotSupported();
 	}
 	graph().tx().readWrite();
-	Map<String, Object> map = ElementHelper.asMap(keyValues);
-	DuctileDBEdge edge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex(), map);
-	return new DuctileEdge(edge, graph());
+	DuctileDBEdge baseEdge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex());
+	DuctileEdge edge = new DuctileEdge(baseEdge, graph());
+	ElementHelper.attachProperties(edge, keyValues);
+	return edge;
     }
 
     @Override

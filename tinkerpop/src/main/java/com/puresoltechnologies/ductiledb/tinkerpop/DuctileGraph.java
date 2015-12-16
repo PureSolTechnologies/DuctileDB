@@ -32,6 +32,7 @@ import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT)
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_INTEGRATE)
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_PERFORMANCE)
+@Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
 public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.DuctileDBGraph> {
 
     public static DuctileGraph open(Configuration configuration) throws IOException {
@@ -90,7 +91,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 	List<Vertex> vertices = new ArrayList<>();
 	if (vertexIds.length > 0) {
 	    for (Object vertexId : vertexIds) {
-		DuctileDBVertex baseVertex = baseGraph.getVertex((Long) vertexId);
+		DuctileDBVertex baseVertex = baseGraph.getVertex(convertId(vertexId));
 		if (baseVertex != null) {
 		    vertices.add(new DuctileVertex(baseVertex, this));
 		}
@@ -101,12 +102,24 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 	return vertices.iterator();
     }
 
+    private long convertId(Object vertexId) {
+	if (Long.class.isAssignableFrom(vertexId.getClass())) {
+	    return (long) vertexId;
+	} else if (Double.class.equals(vertexId.getClass())) {
+	    return Math.round((Double) vertexId);
+	} else if (String.class.equals(vertexId.getClass())) {
+	    return Long.valueOf((String) vertexId);
+	} else {
+	    throw new IllegalArgumentException("Edge id '" + vertexId + "' is not supported.");
+	}
+    }
+
     @Override
     public Iterator<Edge> edges(Object... edgeIds) {
 	List<Edge> edges = new ArrayList<>();
 	if (edgeIds.length > 0) {
-	    for (Object vertexId : edgeIds) {
-		DuctileDBEdge baseEdge = baseGraph.getEdge((long) vertexId);
+	    for (Object edgeId : edgeIds) {
+		DuctileDBEdge baseEdge = baseGraph.getEdge(convertId(edgeId));
 		edges.add(new DuctileEdge(baseEdge, this));
 	    }
 	} else {

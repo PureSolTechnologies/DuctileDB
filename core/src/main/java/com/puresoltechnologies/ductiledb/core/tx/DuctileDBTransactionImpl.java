@@ -108,7 +108,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void close() {
-	txOperations.clear();
+	rollback();
 	closed = true;
     }
 

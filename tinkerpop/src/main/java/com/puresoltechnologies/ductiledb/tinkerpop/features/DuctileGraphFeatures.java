@@ -29,7 +29,7 @@ public class DuctileGraphFeatures implements GraphFeatures {
 
     @Override
     public boolean supportsThreadedTransactions() {
-	return true;
+	return false;
     }
 
     @Override

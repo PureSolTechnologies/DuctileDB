@@ -37,7 +37,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	return new DuctileDBTransactionImpl(this);
     }
 
-    private DuctileDBTransaction getCurrentTransaction() {
+    public DuctileDBTransaction getCurrentTransaction() {
 	DuctileDBTransaction transaction = transactions.get();
 	if (transaction == null) {
 	    transaction = new DuctileDBTransactionImpl(this);

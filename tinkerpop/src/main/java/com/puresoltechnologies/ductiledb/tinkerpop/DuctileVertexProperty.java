@@ -8,6 +8,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 public class DuctileVertexProperty<V> implements VertexProperty<V> {
 
@@ -82,4 +83,8 @@ public class DuctileVertexProperty<V> implements VertexProperty<V> {
 	return ElementHelper.hashCode((Element) this);
     }
 
+    @Override
+    public String toString() {
+	return StringFactory.propertyString(this);
+    }
 }

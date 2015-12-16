@@ -49,8 +49,8 @@ public class DuctileDBSchema {
     public static final String INDEX_COLUMN_FAMILY = "index";
     public static final byte[] INDEX_COLUMN_FAMILY_BYTES = Bytes.toBytes(INDEX_COLUMN_FAMILY);
 
-    public static final String DUCTILEDB_ID_PROPERTY = ".ductiledb.id";
-    public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = ".ductiledb.timestamp.created";
+    public static final String DUCTILEDB_ID_PROPERTY = "~ductiledb.id";
+    public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
 
     private final Connection connection;
 
