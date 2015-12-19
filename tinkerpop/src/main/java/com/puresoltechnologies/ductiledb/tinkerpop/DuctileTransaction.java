@@ -1,16 +1,11 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
-import java.io.IOException;
-
 import org.apache.tinkerpop.gremlin.structure.util.AbstractThreadLocalTransaction;
-
-import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 
 public class DuctileTransaction extends AbstractThreadLocalTransaction {
 
-    private final ThreadLocal<DuctileDBTransaction> threadLocalTx = ThreadLocal.withInitial(() -> null);
-
     private final DuctileGraph graph;
+    private ThreadLocal<Boolean> open = ThreadLocal.withInitial(() -> false);
 
     public DuctileTransaction(DuctileGraph graph) {
 	super(graph);
@@ -19,44 +14,34 @@ public class DuctileTransaction extends AbstractThreadLocalTransaction {
 
     @Override
     protected void doOpen() {
-	threadLocalTx.set(graph.getBaseGraph().createTransaction());
+	open.set(true);
     }
 
     @Override
     protected void doCommit() throws TransactionException {
 	try {
-	    threadLocalTx.get().commit();
+	    graph.getBaseGraph().commit();
 	} catch (Exception ex) {
 	    throw new TransactionException(ex);
 	} finally {
-	    try {
-		threadLocalTx.get().close();
-	    } catch (IOException e) {
-		// intentionally left empty...
-	    }
-	    threadLocalTx.remove();
+	    open.set(false);
 	}
     }
 
     @Override
     protected void doRollback() throws TransactionException {
 	try {
-	    threadLocalTx.get().rollback();
+	    graph.getBaseGraph().rollback();
 	} catch (Exception e) {
 	    throw new TransactionException(e);
 	} finally {
-	    try {
-		threadLocalTx.get().close();
-	    } catch (IOException e) {
-		// intentionally left empty...
-	    }
-	    threadLocalTx.remove();
+	    open.set(false);
 	}
     }
 
     @Override
     public boolean isOpen() {
-	return (threadLocalTx.get() != null);
+	return open.get();
     }
 
 }

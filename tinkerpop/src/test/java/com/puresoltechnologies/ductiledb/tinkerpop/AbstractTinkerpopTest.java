@@ -22,6 +22,7 @@ public abstract class AbstractTinkerpopTest {
 
     @BeforeClass
     public static void connect() throws IOException {
+	// DuctileDBTestHelper.removeTables();
 	Map<String, String> configuration = new HashMap<>();
 	configuration.put(Graph.GRAPH, DuctileGraph.class.getName());
 	graph = GraphFactory.open(configuration);
@@ -34,7 +35,7 @@ public abstract class AbstractTinkerpopTest {
     }
 
     @Before
-    public void initialize() throws IOException {
+    public void cleanup() throws IOException {
 	DuctileDBTestHelper.removeGraph(((DuctileGraph) graph).getBaseGraph());
 	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) ((DuctileGraph) graph).getBaseGraph());
     }

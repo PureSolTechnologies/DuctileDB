@@ -18,8 +18,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
@@ -46,14 +44,12 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
     public void testCreateAndRemoveVertex() throws IOException {
 	DuctileDBVertex vertex = graph.addVertex();
 	graph.commit();
-	healthChecker.runCheck();
 
 	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
 	assertEquals(vertex, vertex2);
 
 	graph.removeVertex(vertex);
 	graph.commit();
-	healthChecker.runCheck();
 
 	assertNull(graph.getVertex(vertex.getId()));
 	vertex.remove();
@@ -65,7 +61,6 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	DuctileDBVertex vertex = graph.addVertex();
 	vertex.setProperty("property1", "value1");
 	graph.commit();
-	healthChecker.runCheck();
 	assertEquals("value1", vertex.getProperty("property1"));
 
 	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
@@ -73,7 +68,6 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.removeProperty("property1");
 	graph.commit();
-	healthChecker.runCheck();
 	assertNull(graph.getVertex(vertex.getId()).getProperty("property1"));
 
 	vertex.remove();
@@ -85,7 +79,6 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	DuctileDBVertex vertex = graph.addVertex();
 	vertex.addLabel("label");
 	graph.commit();
-	healthChecker.runCheck();
 	assertTrue(vertex.hasLabel("label"));
 
 	Iterator<String> iterator = vertex.getLabels().iterator();
@@ -103,7 +96,6 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.removeLabel("label");
 	graph.commit();
-	healthChecker.runCheck();
 	assertFalse(vertex.hasLabel("label"));
 	assertFalse(graph.getVertex(vertex.getId()).hasLabel("label"));
 	vertex.remove();

@@ -16,22 +16,34 @@ import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexLabelOperation extends AbstractTxOperation {
 
-    private final long vertexId;
+    private final DuctileDBVertex vertex;
     private final String label;
 
     public AddVertexLabelOperation(DuctileDBTransactionImpl transaction, DuctileDBVertex vertex, String label) {
 	super(transaction);
-	this.vertexId = vertex.getId();
+	this.vertex = vertex;
 	this.label = label;
+    }
+
+    @Override
+    public void commitInternally() {
+	DuctileDBTransactionImpl transaction = getTransaction();
 	Set<String> labels = ElementUtils.getLabels(vertex);
 	labels.add(label);
 	DuctileDBVertexImpl cachedVertex = new DuctileDBVertexImpl(transaction.getGraph(), vertex.getId(), labels,
 		ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
 	transaction.setCachedVertex(cachedVertex);
+
+    }
+
+    @Override
+    public void rollbackInternally() {
+	// TODO Auto-generated method stub
     }
 
     @Override
     public void perform() throws IOException {
+	long vertexId = vertex.getId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));

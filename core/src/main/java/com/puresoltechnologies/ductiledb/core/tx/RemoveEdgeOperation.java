@@ -22,7 +22,7 @@ import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveEdgeOperation extends AbstractTxOperation {
 
-    private final long edgeId;
+    private final DuctileDBEdge edge;
     private final long targetVertexId;
     private final long startVertexId;
     private final String label;
@@ -30,12 +30,17 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 
     public RemoveEdgeOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge) {
 	super(transaction);
-	this.edgeId = edge.getId();
+	this.edge = edge;
 	this.startVertexId = ((DuctileDBEdgeImpl) edge).getStartVertexId();
 	this.targetVertexId = ((DuctileDBEdgeImpl) edge).getTargetVertexId();
 	this.label = edge.getLabel();
 	this.edgePropertyKeys = Collections.unmodifiableSet(edge.getPropertyKeys());
-	transaction.removeCachedEdge(edgeId);
+    }
+
+    @Override
+    public void commitInternally() {
+	DuctileDBTransactionImpl transaction = getTransaction();
+	transaction.removeCachedEdge(edge.getId());
 	{
 	    DuctileDBVertex cachedStartVertex = transaction.getVertex(startVertexId);
 	    if (cachedStartVertex != null) {
@@ -58,14 +63,17 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 
 	    }
 	}
+
     }
 
-    public long getEdgeId() {
-	return edgeId;
+    @Override
+    public void rollbackInternally() {
+	// TODO Auto-generated method stub
     }
 
     @Override
     public void perform() throws IOException {
+	long edgeId = edge.getId();
 	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(startVertexId));
 	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
 		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label).encode());

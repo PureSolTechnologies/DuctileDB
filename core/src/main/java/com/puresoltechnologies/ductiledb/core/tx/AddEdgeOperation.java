@@ -35,7 +35,7 @@ import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddEdgeOperation extends AbstractTxOperation {
 
-    private final long edgeId;
+    private final DuctileDBEdgeImpl edge;
     private final long startVertexId;
     private final long targetVertexId;
     private final String label;
@@ -44,13 +44,21 @@ public class AddEdgeOperation extends AbstractTxOperation {
     public AddEdgeOperation(DuctileDBTransactionImpl transaction, long edgeId, long startVertexId, long targetVertexId,
 	    String label, Map<String, Object> properties) {
 	super(transaction);
-	this.edgeId = edgeId;
+	this.edge = new DuctileDBEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId, targetVertexId,
+		properties);
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
 	this.label = label;
 	this.properties = Collections.unmodifiableMap(properties);
-	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId,
-		targetVertexId, properties);
+    }
+
+    public long getEdgeId() {
+	return edge.getId();
+    }
+
+    @Override
+    public void commitInternally() {
+	DuctileDBTransactionImpl transaction = getTransaction();
 	transaction.setCachedEdge(edge);
 	{
 	    DuctileDBVertex cachedStartVertex = transaction.getVertex(startVertexId);
@@ -74,12 +82,14 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	}
     }
 
-    public long getEdgeId() {
-	return edgeId;
+    @Override
+    public void rollbackInternally() {
+	// TODO Auto-generated method stub
     }
 
     @Override
     public void perform() throws IOException {
+	long edgeId = edge.getId();
 	byte[] edgeValue = new EdgeValue(properties).encode();
 	// Put to Start Vertex
 	Put outPut = new Put(IdEncoder.encodeRowId(startVertexId));

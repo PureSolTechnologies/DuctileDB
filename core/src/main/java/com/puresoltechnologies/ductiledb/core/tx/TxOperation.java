@@ -19,4 +19,13 @@ public interface TxOperation {
      */
     void perform() throws IOException;
 
+    /**
+     * This method is used to "commit" the changes into the transaction buffer.
+     */
+    void commitInternally();
+
+    /**
+     * This method is used to "rollback" the changes in the transaction buffer.
+     */
+    void rollbackInternally();
 }

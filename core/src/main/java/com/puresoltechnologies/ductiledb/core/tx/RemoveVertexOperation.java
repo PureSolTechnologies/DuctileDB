@@ -14,11 +14,17 @@ public class RemoveVertexOperation extends AbstractTxOperation {
     public RemoveVertexOperation(DuctileDBTransactionImpl transaction, long vertexId) {
 	super(transaction);
 	this.vertexId = vertexId;
+    }
+
+    @Override
+    public void commitInternally() {
+	DuctileDBTransactionImpl transaction = getTransaction();
 	transaction.removeCachedVertex(vertexId);
     }
 
-    public long getVertexId() {
-	return vertexId;
+    @Override
+    public void rollbackInternally() {
+	// TODO Auto-generated method stub
     }
 
     @Override

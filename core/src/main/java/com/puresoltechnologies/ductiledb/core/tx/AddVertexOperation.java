@@ -35,12 +35,23 @@ public class AddVertexOperation extends AbstractTxOperation {
 	this.vertexId = vertexId;
 	this.labels = Collections.unmodifiableSet(labels);
 	this.properties = Collections.unmodifiableMap(properties);
-	transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), this.vertexId, this.labels,
-		this.properties, new ArrayList<>()));
     }
 
     public long getVertexId() {
 	return vertexId;
+    }
+
+    @Override
+    public void commitInternally() {
+	DuctileDBTransactionImpl transaction = getTransaction();
+	transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), this.vertexId, this.labels,
+		this.properties, new ArrayList<>()));
+
+    }
+
+    @Override
+    public void rollbackInternally() {
+	// TODO Auto-generated method stub
     }
 
     @Override

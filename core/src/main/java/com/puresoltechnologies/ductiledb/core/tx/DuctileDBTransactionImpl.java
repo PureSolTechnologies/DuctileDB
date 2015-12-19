@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,7 +54,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private long nextVertexId = -1;
     private long nextEdgeId = -1;
 
-    private final List<TxOperation> txOperations = new ArrayList<>();
+    private final LinkedList<TxOperation> txOperations = new LinkedList<>();
     private final Map<Long, DuctileDBVertex> vertexCache = new HashMap<>();
     private final Map<Long, DuctileDBEdge> edgeCache = new HashMap<>();
 
@@ -82,16 +83,21 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    for (TxOperation operation : txOperations) {
 		operation.perform();
 	    }
-	    clear();
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not cmomit changes.", e);
+	} finally {
+	    clear();
 	}
     }
 
     @Override
     public void rollback() {
 	checkForClosed();
-	clear();
+	try {
+	    txOperations.descendingIterator().forEachRemaining(operation -> operation.rollbackInternally());
+	} finally {
+	    clear();
+	}
     }
 
     private void clear() {
@@ -207,7 +213,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	txOperations.add(new AddVertexOperation(this, vertexId, labels, properties));
+	AddVertexOperation operation = new AddVertexOperation(this, vertexId, labels, properties);
+	addTxOperation(operation);
 	return new DuctileDBVertexImpl(graph, vertexId, labels, new HashMap<>(properties), new ArrayList<>());
     }
 
@@ -215,8 +222,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
-	txOperations
-		.add(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
+	addTxOperation(
+		new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
 	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
 		new HashMap<>(properties));
 	((DuctileDBVertexImpl) startVertex).addEdge(edge);
@@ -429,7 +436,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void removeEdge(DuctileDBEdge edge) {
-	txOperations.add(new RemoveEdgeOperation(this, edge));
+	addTxOperation(new RemoveEdgeOperation(this, edge));
 	DuctileDBVertex startVertex = edge.getStartVertex();
 	if (startVertex != null) {
 	    ((DuctileDBVertexImpl) startVertex).removeEdge(edge);
@@ -452,37 +459,42 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	for (String key : vertex.getPropertyKeys()) {
 	    removeProperty(vertex, key);
 	}
-	txOperations.add(new RemoveVertexOperation(this, vertexId));
+	addTxOperation(new RemoveVertexOperation(this, vertexId));
     }
 
     @Override
     public void addLabel(DuctileDBVertex vertex, String label) {
-	txOperations.add(new AddVertexLabelOperation(this, vertex, label));
+	addTxOperation(new AddVertexLabelOperation(this, vertex, label));
     }
 
     @Override
     public void removeLabel(DuctileDBVertex vertex, String label) {
-	txOperations.add(new RemoveVertexLabelOperation(this, vertex, label));
+	addTxOperation(new RemoveVertexLabelOperation(this, vertex, label));
     }
 
     @Override
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
-	txOperations.add(new SetVertexPropertyOperation(this, vertex, key, value));
+	addTxOperation(new SetVertexPropertyOperation(this, vertex, key, value));
     }
 
     @Override
     public void removeProperty(DuctileDBVertex vertex, String key) {
-	txOperations.add(new RemoveVertexPropertyOperation(this, vertex, key));
+	addTxOperation(new RemoveVertexPropertyOperation(this, vertex, key));
     }
 
     @Override
     public void setProperty(DuctileDBEdge edge, String key, Object value) {
-	txOperations.add(new SetEdgePropertyOperation(this, edge, key, value));
+	addTxOperation(new SetEdgePropertyOperation(this, edge, key, value));
     }
 
     @Override
     public void removeProperty(DuctileDBEdge edge, String key) {
-	txOperations.add(new RemoveEdgePropertyOperation(this, edge, key));
+	addTxOperation(new RemoveEdgePropertyOperation(this, edge, key));
+    }
+
+    private void addTxOperation(TxOperation operation) {
+	operation.commitInternally();
+	txOperations.add(operation);
     }
 
     public List<DuctileDBVertex> addedVertices() {

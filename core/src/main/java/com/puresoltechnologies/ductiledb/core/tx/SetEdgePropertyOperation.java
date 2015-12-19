@@ -26,22 +26,29 @@ import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class SetEdgePropertyOperation extends AbstractTxOperation {
 
-    private final long edgeId;
+    private final DuctileDBEdge edge;
     private final long startVertexId;
     private final long targetVertexId;
     private final String label;
     private final String key;
     private final Object value;
+    private final Object oldValue;
 
     public SetEdgePropertyOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge, String key,
 	    Object value) {
 	super(transaction);
-	this.edgeId = edge.getId();
+	this.edge = edge;
 	this.startVertexId = edge.getStartVertex().getId();
 	this.targetVertexId = edge.getTargetVertex().getId();
 	this.label = edge.getLabel();
 	this.key = key;
 	this.value = value;
+	this.oldValue = edge.getProperty(key);
+    }
+
+    @Override
+    public void commitInternally() {
+	DuctileDBTransactionImpl transaction = getTransaction();
 	Map<String, Object> properties = ElementUtils.getProperties(edge);
 	properties.put(key, value);
 	DuctileDBEdgeImpl cachedVertex = new DuctileDBEdgeImpl(transaction.getGraph(), edge.getId(), edge.getLabel(),
@@ -50,8 +57,18 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     }
 
     @Override
+    public void rollbackInternally() {
+	if (oldValue == null) {
+	    edge.removeProperty(key);
+	} else {
+	    edge.setProperty(key, oldValue);
+	}
+    }
+
+    @Override
     public void perform() throws IOException {
 	try (Table table = getConnection().getTable(SchemaTable.VERTICES.getTableName())) {
+	    long edgeId = edge.getId();
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
