@@ -19,43 +19,43 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexOperation extends AbstractTxOperation {
 
-    private final long vertexId;
     private final Set<String> labels;
     private final Map<String, Object> properties;
+    private final DuctileDBVertex vertex;
 
     public AddVertexOperation(DuctileDBTransactionImpl transaction, long vertexId, Set<String> labels,
 	    Map<String, Object> properties) {
 	super(transaction);
-	this.vertexId = vertexId;
 	this.labels = Collections.unmodifiableSet(labels);
 	this.properties = Collections.unmodifiableMap(properties);
+	this.vertex = new DuctileDBVertexImpl(transaction.getGraph(), vertexId, labels, properties, new ArrayList<>());
     }
 
     public long getVertexId() {
-	return vertexId;
+	return vertex.getId();
     }
 
     @Override
     public void commitInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), this.vertexId, this.labels,
-		this.properties, new ArrayList<>()));
-
+	transaction.setCachedVertex(vertex);
     }
 
     @Override
     public void rollbackInternally() {
-	// TODO Auto-generated method stub
+	// Intentionally left empty...
     }
 
     @Override
     public void perform() throws IOException {
+	long vertexId = vertex.getId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	List<Put> labelIndex = new ArrayList<>();

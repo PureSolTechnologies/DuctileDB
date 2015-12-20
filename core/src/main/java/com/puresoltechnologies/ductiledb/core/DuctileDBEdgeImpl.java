@@ -125,7 +125,7 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     }
 
     @Override
-    protected void setProperty(DuctileDBGraph graph, String key, Object value) {
+    protected <T> void setProperty(DuctileDBGraph graph, String key, T value) {
 	graph.setProperty(this, key, value);
     }
 

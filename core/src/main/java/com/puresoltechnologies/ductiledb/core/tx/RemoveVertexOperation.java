@@ -24,7 +24,7 @@ public class RemoveVertexOperation extends AbstractTxOperation {
 
     @Override
     public void rollbackInternally() {
-	// TODO Auto-generated method stub
+	// Intentionally left empty...
     }
 
     @Override

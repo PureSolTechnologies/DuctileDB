@@ -22,7 +22,6 @@ import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
@@ -30,26 +29,25 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
-import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddEdgeOperation extends AbstractTxOperation {
 
-    private final DuctileDBEdgeImpl edge;
     private final long startVertexId;
     private final long targetVertexId;
     private final String label;
     private final Map<String, Object> properties;
+    private final DuctileDBEdgeImpl edge;
 
     public AddEdgeOperation(DuctileDBTransactionImpl transaction, long edgeId, long startVertexId, long targetVertexId,
 	    String label, Map<String, Object> properties) {
 	super(transaction);
-	this.edge = new DuctileDBEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId, targetVertexId,
-		properties);
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
 	this.label = label;
 	this.properties = Collections.unmodifiableMap(properties);
+	this.edge = new DuctileDBEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId, targetVertexId,
+		properties);
     }
 
     public long getEdgeId() {
@@ -61,30 +59,34 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	DuctileDBTransactionImpl transaction = getTransaction();
 	transaction.setCachedEdge(edge);
 	{
-	    DuctileDBVertex cachedStartVertex = transaction.getVertex(startVertexId);
-	    if (cachedStartVertex != null) {
-		List<DuctileDBEdge> edges = ElementUtils.getEdges(cachedStartVertex);
-		edges.add(edge);
-		transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), cachedStartVertex.getId(),
-			ElementUtils.getLabels(cachedStartVertex), ElementUtils.getProperties(cachedStartVertex),
-			edges));
+	    DuctileDBVertex startVertex = transaction.getVertex(startVertexId);
+	    if (startVertex != null) {
+		((DuctileDBVertexImpl) startVertex).addEdgeInternally(edge);
 	    }
 	}
 	{
-	    DuctileDBVertex cachedTargetVertex = transaction.getVertex(targetVertexId);
-	    if (cachedTargetVertex != null) {
-		List<DuctileDBEdge> edges = ElementUtils.getEdges(cachedTargetVertex);
-		edges.add(edge);
-		transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), cachedTargetVertex.getId(),
-			ElementUtils.getLabels(cachedTargetVertex), ElementUtils.getProperties(cachedTargetVertex),
-			edges));
+	    DuctileDBVertex targetVertex = transaction.getVertex(targetVertexId);
+	    if (targetVertex != null) {
+		((DuctileDBVertexImpl) targetVertex).addEdgeInternally(edge);
 	    }
 	}
     }
 
     @Override
     public void rollbackInternally() {
-	// TODO Auto-generated method stub
+	DuctileDBTransactionImpl transaction = getTransaction();
+	{
+	    DuctileDBVertex startVertex = transaction.getVertex(startVertexId);
+	    if (startVertex != null) {
+		((DuctileDBVertexImpl) startVertex).removeEdgeInternally(edge);
+	    }
+	}
+	{
+	    DuctileDBVertex targetVertex = transaction.getVertex(targetVertexId);
+	    if (targetVertex != null) {
+		((DuctileDBVertexImpl) targetVertex).removeEdgeInternally(edge);
+	    }
+	}
     }
 
     @Override

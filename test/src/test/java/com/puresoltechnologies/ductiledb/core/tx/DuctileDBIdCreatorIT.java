@@ -21,11 +21,13 @@ public class DuctileDBIdCreatorIT extends AbstractDuctileDBGraphTest {
 
     private static final int NUMBER = 10000;
 
+    private static DuctileDBGraphImpl graph;
     private static DuctileDBGraphImpl graphImpl;
 
     @BeforeClass
     public static void initialize() throws IOException {
-	graphImpl = ((DuctileDBGraphImpl) graph);
+	graph = getGraph();
+	graphImpl = (graph);
 	StarWarsGraph.addStarWarsFiguresData(graphImpl);
     }
 

@@ -6,7 +6,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public class AbstractDuctileDBGraphConsistencyTest extends AbstractDuctileDBGraphTest {
@@ -15,7 +14,7 @@ public class AbstractDuctileDBGraphConsistencyTest extends AbstractDuctileDBGrap
 
     @BeforeClass
     public static void connect() throws IOException {
-	check = new DuctileDBHealthCheck((DuctileDBGraphImpl) graph);
+	check = new DuctileDBHealthCheck(getGraph());
     }
 
     @AfterClass

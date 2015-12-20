@@ -5,12 +5,17 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-
 public class GraphFactoryIT extends AbstractDuctileDBGraphTest {
+
+    private static DuctileDBGraphImpl graph;
+
+    @BeforeClass
+    public void initialize() {
+	graph = getGraph();
+    }
 
     @Test
     public void testConnection() throws IOException {

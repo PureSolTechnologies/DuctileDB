@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Connection;
@@ -30,10 +31,8 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
-import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.ResultDecoder;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
@@ -57,6 +56,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private final LinkedList<TxOperation> txOperations = new LinkedList<>();
     private final Map<Long, DuctileDBVertex> vertexCache = new HashMap<>();
     private final Map<Long, DuctileDBEdge> edgeCache = new HashMap<>();
+
+    private final ThreadLocal<List<Consumer<Status>>> transactionListeners = ThreadLocal
+	    .withInitial(() -> new ArrayList<>());
 
     private final DuctileDBGraphImpl graph;
     private final Connection connection;
@@ -83,6 +85,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    for (TxOperation operation : txOperations) {
 		operation.perform();
 	    }
+	    fireOnCommit();
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not cmomit changes.", e);
 	} finally {
@@ -95,9 +98,15 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	checkForClosed();
 	try {
 	    txOperations.descendingIterator().forEachRemaining(operation -> operation.rollbackInternally());
+	    fireOnRollback();
 	} finally {
 	    clear();
 	}
+    }
+
+    @Override
+    public boolean isOpen() {
+	return (!vertexCache.isEmpty()) || (!edgeCache.isEmpty()) || (!txOperations.isEmpty());
     }
 
     private void clear() {
@@ -213,9 +222,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	AddVertexOperation operation = new AddVertexOperation(this, vertexId, labels, properties);
-	addTxOperation(operation);
-	return new DuctileDBVertexImpl(graph, vertexId, labels, new HashMap<>(properties), new ArrayList<>());
+	addTxOperation(new AddVertexOperation(this, vertexId, labels, properties));
+	return getVertex(vertexId);
     }
 
     @Override
@@ -224,11 +232,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	long edgeId = createEdgeId();
 	addTxOperation(
 		new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
-	DuctileDBEdgeImpl edge = new DuctileDBEdgeImpl(graph, edgeId, label, startVertex, targetVertex,
-		new HashMap<>(properties));
-	((DuctileDBVertexImpl) startVertex).addEdge(edge);
-	((DuctileDBVertexImpl) targetVertex).addEdge(edge);
-	return edge;
+	return getEdge(edgeId);
     }
 
     @Override
@@ -248,7 +252,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		edge = ResultDecoder.toEdge(graph, edgeId, result);
 	    }
 	    if (edge != null) {
-		setCachedEdge(edge.clone());
+		setCachedEdge(edge);
 	    }
 	    return edge;
 	} catch (IOException e) {
@@ -345,7 +349,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		vertex = ResultDecoder.toVertex(graph, vertexId, result);
 	    }
 	    if (vertex != null) {
-		setCachedVertex(vertex.clone());
+		setCachedVertex(vertex);
 	    }
 	    return vertex;
 	} catch (IOException e) {
@@ -437,14 +441,6 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public void removeEdge(DuctileDBEdge edge) {
 	addTxOperation(new RemoveEdgeOperation(this, edge));
-	DuctileDBVertex startVertex = edge.getStartVertex();
-	if (startVertex != null) {
-	    ((DuctileDBVertexImpl) startVertex).removeEdge(edge);
-	}
-	DuctileDBVertex targetVertex = edge.getTargetVertex();
-	if (targetVertex != null) {
-	    ((DuctileDBVertexImpl) targetVertex).removeEdge(edge);
-	}
     }
 
     @Override
@@ -464,7 +460,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void addLabel(DuctileDBVertex vertex, String label) {
-	addTxOperation(new AddVertexLabelOperation(this, vertex, label));
+	addTxOperation(new AddVertexLabelOperation(this, vertex.getId(), label));
     }
 
     @Override
@@ -518,4 +514,28 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	}
 	return edges;
     }
+
+    private void fireOnCommit() {
+	transactionListeners.get().forEach(c -> c.accept(Status.COMMIT));
+    }
+
+    private void fireOnRollback() {
+	transactionListeners.get().forEach(c -> c.accept(Status.ROLLBACK));
+    }
+
+    @Override
+    public void addTransactionListener(Consumer<Status> listener) {
+	transactionListeners.get().add(listener);
+    }
+
+    @Override
+    public void removeTransactionListener(final Consumer<Status> listener) {
+	transactionListeners.get().remove(listener);
+    }
+
+    @Override
+    public void clearTransactionListeners() {
+	transactionListeners.get().clear();
+    }
+
 }

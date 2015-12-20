@@ -6,6 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.AfterClass;
@@ -19,20 +22,38 @@ import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class AbstractDuctileDBGraphTest {
 
-    protected static DuctileDBGraph graph;
+    private static DuctileDBGraphImpl graph;
 
     @BeforeClass
     public static void connect() throws IOException {
 	DuctileDBTestHelper.removeTables();
-	graph = GraphFactory.createGraph(new BaseConfiguration());
-	assertNotNull("Graph was not created.", graph);
-	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph);
+	DuctileDBGraph graphImplementation = GraphFactory.createGraph(new BaseConfiguration());
+	assertNotNull("Graph was not created.", graphImplementation);
+	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
+		DuctileDBGraphImpl.class, graphImplementation.getClass());
+	graph = (DuctileDBGraphImpl) graphImplementation;
+	DuctileDBHealthCheck.runCheckForEmpty(graph);
     }
 
     @AfterClass
     public static void disconnect() throws IOException {
 	graph.close();
 	graph = null;
+    }
+
+    protected static DuctileDBGraphImpl getGraph() {
+	return graph;
+    }
+
+    protected static Map<String, Object> toMap(Object... keyValues) {
+	Map<String, Object> map = new HashMap<>();
+	if (keyValues.length % 2 != 0) {
+	    throw new IllegalArgumentException("keyValues list needs an even length.");
+	}
+	for (int i = 0; i < keyValues.length; i = i + 2) {
+	    map.put((String) keyValues[i], keyValues[i + 1]);
+	}
+	return map;
     }
 
     protected void assertInTransaction(DuctileDBVertex vertex) {
@@ -99,5 +120,13 @@ public class AbstractDuctileDBGraphTest {
 
     protected void assertNotInGraph(DuctileDBEdge edge) {
 	assertNull(graph.createTransaction().getEdge(edge.getId()));
+    }
+
+    public static Consumer<DuctileDBGraph> assertVertexEdgeCounts(final int expectedVertexCount,
+	    final int expectedEdgeCount) {
+	return (g) -> {
+	    assertEquals(expectedVertexCount, DuctileDBTestHelper.count(g.getVertices()));
+	    assertEquals(expectedEdgeCount, DuctileDBTestHelper.count(g.getEdges()));
+	};
     }
 }

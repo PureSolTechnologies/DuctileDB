@@ -23,11 +23,13 @@ import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     private static int NUMBER = 1000;
+    private static DuctileDBGraphImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 
     @BeforeClass
     public static void initializeHealthCheck() throws IOException {
-	healthChecker = new DuctileDBHealthCheck((DuctileDBGraphImpl) graph);
+	graph = getGraph();
+	healthChecker = new DuctileDBHealthCheck(graph);
     }
 
     @Before

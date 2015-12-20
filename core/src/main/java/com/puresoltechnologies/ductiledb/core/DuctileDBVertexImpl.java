@@ -118,28 +118,31 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	return vertices;
     }
 
-    public void addEdge(DuctileDBEdge edge) {
+    public void addEdgeInternally(DuctileDBEdge edge) {
 	edges.add(edge);
     }
 
     public void removeEdge(DuctileDBEdge edge) {
+	getGraph().removeEdge(edge);
+	removeEdgeInternally(edge);
+    }
+
+    public void removeEdgeInternally(DuctileDBEdge edge) {
 	edges.remove(edge);
     }
 
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
-	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label);
-	return edge;
+	return getGraph().addEdge(this, inVertex, label);
     }
 
     @Override
     public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
-	DuctileDBEdge edge = getGraph().addEdge(this, inVertex, label, properties);
-	return edge;
+	return getGraph().addEdge(this, inVertex, label, properties);
     }
 
     @Override
-    protected void setProperty(DuctileDBGraph graph, String key, Object value) {
+    protected <T> void setProperty(DuctileDBGraph graph, String key, T value) {
 	graph.setProperty(this, key, value);
     }
 
@@ -166,12 +169,20 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
     @Override
     public void addLabel(String label) {
 	getGraph().addLabel(this, label);
+	addLabelInternally(label);
+    }
+
+    public void addLabelInternally(String label) {
 	labels.add(label);
     }
 
     @Override
     public void removeLabel(String label) {
 	getGraph().removeLabel(this, label);
+	removeLabelInternally(label);
+    }
+
+    public void removeLabelInternally(String label) {
 	labels.remove(label);
     }
 

@@ -41,12 +41,19 @@ public abstract class DuctileDBElementImpl implements DuctileDBElement {
     }
 
     @Override
-    public final void setProperty(String key, Object value) {
+    public final <T> void setProperty(String key, T value) {
+	setPropertyInternally(key, value);
 	setProperty(graph, key, value);
+    }
+
+    public final void setPropertyInternally(String key, Object value) {
+	if (DuctileDBElement.class.isAssignableFrom(value.getClass())) {
+	    throw new IllegalArgumentException("A graph element is not allowed to be used as property value.");
+	}
 	properties.put(key, value);
     }
 
-    protected abstract void setProperty(DuctileDBGraph graph, String key, Object value);
+    protected abstract <T> void setProperty(DuctileDBGraph graph, String key, T value);
 
     @Override
     public final <T> T getProperty(String key) {
@@ -56,12 +63,13 @@ public abstract class DuctileDBElementImpl implements DuctileDBElement {
     }
 
     @Override
-    public final <T> T removeProperty(String key) {
-	@SuppressWarnings("unchecked")
-	T value = (T) getProperty(key);
+    public final void removeProperty(String key) {
 	removeProperty(graph, key);
+	removePropertyInternally(key);
+    }
+
+    public final void removePropertyInternally(String key) {
 	properties.remove(key);
-	return value;
     }
 
     protected abstract void removeProperty(DuctileDBGraph graph, String key);

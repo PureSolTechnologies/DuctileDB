@@ -3,47 +3,45 @@ package com.puresoltechnologies.ductiledb.core.tx;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
 
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
-import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexLabelOperation extends AbstractTxOperation {
 
-    private final DuctileDBVertex vertex;
+    private final long vertexId;
     private final String label;
+    private final boolean wasPresent;
 
-    public AddVertexLabelOperation(DuctileDBTransactionImpl transaction, DuctileDBVertex vertex, String label) {
+    public AddVertexLabelOperation(DuctileDBTransactionImpl transaction, long vertexId, String label) {
 	super(transaction);
-	this.vertex = vertex;
+	this.vertexId = vertexId;
 	this.label = label;
+	this.wasPresent = getTransaction().getVertex(vertexId).hasLabel(label);
     }
 
     @Override
     public void commitInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	Set<String> labels = ElementUtils.getLabels(vertex);
-	labels.add(label);
-	DuctileDBVertexImpl cachedVertex = new DuctileDBVertexImpl(transaction.getGraph(), vertex.getId(), labels,
-		ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
-	transaction.setCachedVertex(cachedVertex);
-
+	DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	vertex.addLabelInternally(label);
     }
 
     @Override
     public void rollbackInternally() {
-	// TODO Auto-generated method stub
+	if (!wasPresent) {
+	    DuctileDBTransactionImpl transaction = getTransaction();
+	    DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	    vertex.removeLabelInternally(label);
+	}
     }
 
     @Override
     public void perform() throws IOException {
-	long vertexId = vertex.getId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));

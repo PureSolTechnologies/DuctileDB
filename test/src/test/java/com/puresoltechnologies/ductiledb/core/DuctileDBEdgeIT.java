@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
@@ -16,6 +17,13 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
 public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
+
+    private static DuctileDBGraphImpl graph;
+
+    @BeforeClass
+    public void initialize() {
+	graph = getGraph();
+    }
 
     @Test
     public void testAddAndRemoveEdge() throws IOException {

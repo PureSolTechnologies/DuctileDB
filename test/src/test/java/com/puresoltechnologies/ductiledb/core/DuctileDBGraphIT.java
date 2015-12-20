@@ -16,11 +16,13 @@ import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
 public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
+    private static DuctileDBGraphImpl graph;
     private static DuctileDBGraphImpl graphImpl;
 
     @BeforeClass
     public static void initialize() throws IOException {
-	graphImpl = ((DuctileDBGraphImpl) graph);
+	graph = getGraph();
+	graphImpl = (graph);
 	StarWarsGraph.addStarWarsFiguresData(graphImpl);
     }
 

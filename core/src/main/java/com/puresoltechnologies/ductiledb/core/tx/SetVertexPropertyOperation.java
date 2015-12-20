@@ -4,7 +4,6 @@ import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROP
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Map;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Put;
@@ -13,42 +12,44 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
-import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class SetVertexPropertyOperation extends AbstractTxOperation {
 
-    private final DuctileDBVertex vertex;
+    private final long vertexId;
     private final String key;
     private final Object value;
+    private final Object oldValue;
 
     public SetVertexPropertyOperation(DuctileDBTransactionImpl transaction, DuctileDBVertex vertex, String key,
 	    Object value) {
 	super(transaction);
-	this.vertex = vertex;
+	this.vertexId = vertex.getId();
 	this.key = key;
 	this.value = value;
+	this.oldValue = vertex.getProperty(key);
     }
 
     @Override
     public void commitInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	Map<String, Object> properties = ElementUtils.getProperties(vertex);
-	properties.put(key, value);
-	DuctileDBVertexImpl cachedVertex = new DuctileDBVertexImpl(transaction.getGraph(), vertex.getId(),
-		ElementUtils.getLabels(vertex), properties, ElementUtils.getEdges(vertex));
-	transaction.setCachedVertex(cachedVertex);
-
+	DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	vertex.setPropertyInternally(key, value);
     }
 
     @Override
     public void rollbackInternally() {
-	// TODO Auto-generated method stub
+	DuctileDBTransactionImpl transaction = getTransaction();
+	DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	if (oldValue == null) {
+	    vertex.removePropertyInternally(key);
+	} else {
+	    vertex.setPropertyInternally(key, oldValue);
+	}
     }
 
     @Override
     public void perform() throws IOException {
-	long vertexId = vertex.getId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),

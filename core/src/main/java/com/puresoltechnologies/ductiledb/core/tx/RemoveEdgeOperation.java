@@ -17,7 +17,6 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
-import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveEdgeOperation extends AbstractTxOperation {
@@ -42,33 +41,22 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	DuctileDBTransactionImpl transaction = getTransaction();
 	transaction.removeCachedEdge(edge.getId());
 	{
-	    DuctileDBVertex cachedStartVertex = transaction.getVertex(startVertexId);
-	    if (cachedStartVertex != null) {
-		List<DuctileDBEdge> edges = ElementUtils.getEdges(cachedStartVertex);
-		edges.remove(edge);
-		transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), cachedStartVertex.getId(),
-			ElementUtils.getLabels(cachedStartVertex), ElementUtils.getProperties(cachedStartVertex),
-			edges));
+	    DuctileDBVertex startVertex = transaction.getVertex(startVertexId);
+	    if (startVertex != null) {
+		((DuctileDBVertexImpl) startVertex).removeEdgeInternally(edge);
 	    }
 	}
 	{
-	    DuctileDBVertex cachedTargetVertex = transaction.getVertex(targetVertexId);
-	    if (cachedTargetVertex != null) {
-		List<DuctileDBEdge> edges = ElementUtils.getEdges(cachedTargetVertex);
-		edges.remove(edge);
-		transaction.setCachedVertex(new DuctileDBVertexImpl(transaction.getGraph(), cachedTargetVertex.getId(),
-			ElementUtils.getLabels(cachedTargetVertex), ElementUtils.getProperties(cachedTargetVertex),
-			edges));
-	    } else {
-
+	    DuctileDBVertex targetVertex = transaction.getVertex(targetVertexId);
+	    if (targetVertex != null) {
+		((DuctileDBVertexImpl) targetVertex).removeEdgeInternally(edge);
 	    }
 	}
-
     }
 
     @Override
     public void rollbackInternally() {
-	// TODO Auto-generated method stub
+	// Intentionally left empty...
     }
 
     @Override

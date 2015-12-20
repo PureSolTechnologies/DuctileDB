@@ -42,7 +42,7 @@ public interface DuctileDBElement extends Cloneable {
      * @param value
      *            is the value to be set for the property.
      */
-    public void setProperty(String key, Object value);
+    public <T> void setProperty(String key, T value);
 
     /**
      * This method is used to read the property value of a specified property.
@@ -61,9 +61,17 @@ public interface DuctileDBElement extends Cloneable {
      *            is the key of the property to be removed.
      * @return
      */
-    public <T> T removeProperty(String key);
+    public void removeProperty(String key);
 
+    /**
+     * Removes the element from the graph entirely.
+     */
     public void remove();
 
+    /**
+     * Clones the object of this element.
+     * 
+     * @return A {@link DuctileDBElement} is returned.
+     */
     public DuctileDBElement clone();
 }
