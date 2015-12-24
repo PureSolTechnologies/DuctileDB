@@ -413,7 +413,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void shouldRollbackPropertyAutoTransactionByDefault() {
+    public void shouldRollbackPropertyAutoTransactionByDefault() throws IOException {
 	final DuctileDBVertex v1 = graph.addVertex(new HashSet<>(), toMap("name", "marko"));
 	final DuctileDBEdge e1 = v1.addEdge("l", v1, toMap("name", "xxx"));
 	assertVertexEdgeCounts(1, 1);
@@ -421,7 +421,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	assertEquals(e1.getId(), graph.getEdge(e1.getId()).getId());
 	assertEquals("marko", v1.<String> getProperty("name"));
 	assertEquals("xxx", e1.<String> getProperty("name"));
-	graph.getCurrentTransaction().commit();
+	graph.commit();
 
 	assertEquals("marko", v1.<String> getProperty("name"));
 	assertEquals("marko", graph.getVertex(v1.getId()).<String> getProperty("name"));

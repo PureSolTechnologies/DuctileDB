@@ -24,8 +24,9 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachhedEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
@@ -37,7 +38,7 @@ public class AddEdgeOperation extends AbstractTxOperation {
     private final long targetVertexId;
     private final String label;
     private final Map<String, Object> properties;
-    private final DuctileDBEdgeImpl edge;
+    private final DuctileDBDetachhedEdgeImpl edge;
 
     public AddEdgeOperation(DuctileDBTransactionImpl transaction, long edgeId, long startVertexId, long targetVertexId,
 	    String label, Map<String, Object> properties) {
@@ -46,7 +47,7 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	this.targetVertexId = targetVertexId;
 	this.label = label;
 	this.properties = Collections.unmodifiableMap(properties);
-	this.edge = new DuctileDBEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId, targetVertexId,
+	this.edge = new DuctileDBDetachhedEdgeImpl(transaction.getGraph(), edgeId, label, startVertexId, targetVertexId,
 		properties);
     }
 
@@ -61,13 +62,13 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	{
 	    DuctileDBVertex startVertex = transaction.getVertex(startVertexId);
 	    if (startVertex != null) {
-		((DuctileDBVertexImpl) startVertex).addEdgeInternally(edge);
+		((DuctileDBDetachedVertexImpl) startVertex).addEdgeInternally(edge);
 	    }
 	}
 	{
 	    DuctileDBVertex targetVertex = transaction.getVertex(targetVertexId);
 	    if (targetVertex != null) {
-		((DuctileDBVertexImpl) targetVertex).addEdgeInternally(edge);
+		((DuctileDBDetachedVertexImpl) targetVertex).addEdgeInternally(edge);
 	    }
 	}
     }
@@ -78,13 +79,13 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	{
 	    DuctileDBVertex startVertex = transaction.getVertex(startVertexId);
 	    if (startVertex != null) {
-		((DuctileDBVertexImpl) startVertex).removeEdgeInternally(edge);
+		((DuctileDBAttachedVertexImpl) startVertex).removeEdgeInternally(edge);
 	    }
 	}
 	{
 	    DuctileDBVertex targetVertex = transaction.getVertex(targetVertexId);
 	    if (targetVertex != null) {
-		((DuctileDBVertexImpl) targetVertex).removeEdgeInternally(edge);
+		((DuctileDBAttachedVertexImpl) targetVertex).removeEdgeInternally(edge);
 	    }
 	}
     }

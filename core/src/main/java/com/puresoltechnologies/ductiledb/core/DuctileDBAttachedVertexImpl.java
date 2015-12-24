@@ -14,13 +14,13 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
-public class DuctileDBVertexImpl extends DuctileDBElementImpl implements DuctileDBVertex {
+public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl implements DuctileDBVertex {
 
     private final Set<String> labels = new HashSet<>();
     private final List<DuctileDBEdge> edges = new ArrayList<>();
 
-    public DuctileDBVertexImpl(DuctileDBGraphImpl graph, long id, Set<String> labels, Map<String, Object> properties,
-	    List<DuctileDBEdge> edges) {
+    public DuctileDBAttachedVertexImpl(DuctileDBGraphImpl graph, long id, Set<String> labels,
+	    Map<String, Object> properties, List<DuctileDBEdge> edges) {
 	super(graph, id, properties);
 	this.labels.addAll(labels);
 	this.edges.addAll(edges);
@@ -43,7 +43,7 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DuctileDBVertexImpl other = (DuctileDBVertexImpl) obj;
+	DuctileDBAttachedVertexImpl other = (DuctileDBAttachedVertexImpl) obj;
 	if (edges == null) {
 	    if (other.edges != null)
 		return false;
@@ -198,14 +198,14 @@ public class DuctileDBVertexImpl extends DuctileDBElementImpl implements Ductile
     }
 
     @Override
-    public DuctileDBVertexImpl clone() {
-	DuctileDBVertexImpl cloned = (DuctileDBVertexImpl) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBVertexImpl.class, "labels", new HashSet<>(labels));
+    public DuctileDBAttachedVertexImpl clone() {
+	DuctileDBAttachedVertexImpl cloned = (DuctileDBAttachedVertexImpl) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertexImpl.class, "labels", new HashSet<>(labels));
 	List<DuctileDBEdge> clonedEdges = new ArrayList<>();
 	for (DuctileDBEdge edge : edges) {
 	    clonedEdges.add(edge.clone());
 	}
-	ElementUtils.setFinalField(cloned, DuctileDBVertexImpl.class, "edges", clonedEdges);
+	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertexImpl.class, "edges", clonedEdges);
 	return cloned;
     }
 }

@@ -29,7 +29,7 @@ import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
  */
 public class ResultDecoder {
 
-    public static DuctileDBVertexImpl toVertex(DuctileDBGraphImpl graph, long vertexId, Result result) {
+    public static DuctileDBDetachedVertexImpl toVertex(DuctileDBGraphImpl graph, long vertexId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -54,17 +54,17 @@ public class ResultDecoder {
 	    }
 	}
 	// Read edges...
-	DuctileDBVertexImpl vertex = new DuctileDBVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
+	DuctileDBDetachedVertexImpl vertex = new DuctileDBDetachedVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
 	NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	if (edgesMap != null) {
 	    for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
 		EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
 		if (EdgeDirection.IN == edgeKey.getDirection()) {
-		    vertex.addEdgeInternally(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(),
+		    vertex.addEdgeInternally(new DuctileDBDetachhedEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(),
 			    edgeKey.getVertexId(), vertex, edgeValue.getProperties()));
 		} else {
-		    vertex.addEdgeInternally(new DuctileDBEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(), vertex,
+		    vertex.addEdgeInternally(new DuctileDBDetachhedEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(), vertex,
 			    edgeKey.getVertexId(), edgeValue.getProperties()));
 		}
 	    }
@@ -72,7 +72,7 @@ public class ResultDecoder {
 	return vertex;
     }
 
-    public static DuctileDBEdgeImpl toEdge(DuctileDBGraphImpl graph, long edgeId, Result result) {
+    public static DuctileDBDetachhedEdgeImpl toEdge(DuctileDBGraphImpl graph, long edgeId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -99,6 +99,6 @@ public class ResultDecoder {
 		properties.put(key, value);
 	    }
 	}
-	return new DuctileDBEdgeImpl(graph, edgeId, label, startVertexId, targetVertexId, properties);
+	return new DuctileDBDetachhedEdgeImpl(graph, edgeId, label, startVertexId, targetVertexId, properties);
     }
 }

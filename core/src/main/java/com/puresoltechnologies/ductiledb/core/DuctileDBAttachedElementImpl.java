@@ -8,19 +8,19 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
-public abstract class DuctileDBElementImpl implements DuctileDBElement {
+public abstract class DuctileDBAttachedElementImpl implements DuctileDBElement {
 
     private final Map<String, Object> properties = new HashMap<>();
     private final DuctileDBGraphImpl graph;
     private final long id;
 
-    public DuctileDBElementImpl(DuctileDBGraphImpl graph, long id) {
+    public DuctileDBAttachedElementImpl(DuctileDBGraphImpl graph, long id) {
 	super();
 	this.graph = graph;
 	this.id = id;
     }
 
-    public DuctileDBElementImpl(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
+    public DuctileDBAttachedElementImpl(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
 	this(graph, id);
 	this.properties.putAll(properties);
     }
@@ -109,7 +109,7 @@ public abstract class DuctileDBElementImpl implements DuctileDBElement {
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DuctileDBElementImpl other = (DuctileDBElementImpl) obj;
+	DuctileDBAttachedElementImpl other = (DuctileDBAttachedElementImpl) obj;
 	if (id != other.id)
 	    return false;
 	if (properties == null) {
@@ -121,12 +121,13 @@ public abstract class DuctileDBElementImpl implements DuctileDBElement {
     }
 
     @Override
-    public DuctileDBElementImpl clone() {
+    public DuctileDBAttachedElementImpl clone() {
 	try {
-	    DuctileDBElementImpl cloned = (DuctileDBElementImpl) super.clone();
-	    ElementUtils.setFinalField(cloned, DuctileDBElementImpl.class, "id", id);
-	    ElementUtils.setFinalField(cloned, DuctileDBElementImpl.class, "graph", graph);
-	    ElementUtils.setFinalField(cloned, DuctileDBElementImpl.class, "properties", new HashMap<>(properties));
+	    DuctileDBAttachedElementImpl cloned = (DuctileDBAttachedElementImpl) super.clone();
+	    ElementUtils.setFinalField(cloned, DuctileDBAttachedElementImpl.class, "id", id);
+	    ElementUtils.setFinalField(cloned, DuctileDBAttachedElementImpl.class, "graph", graph);
+	    ElementUtils.setFinalField(cloned, DuctileDBAttachedElementImpl.class, "properties",
+		    new HashMap<>(properties));
 	    return cloned;
 	} catch (CloneNotSupportedException e) {
 	    throw new RuntimeException(e);

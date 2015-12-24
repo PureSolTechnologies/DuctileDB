@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachhedEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
@@ -47,14 +47,14 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     @Override
     public void commitInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	DuctileDBEdgeImpl edge = (DuctileDBEdgeImpl) transaction.getEdge(edgeId);
+	DuctileDBDetachhedEdgeImpl edge = (DuctileDBDetachhedEdgeImpl) transaction.getEdge(edgeId);
 	edge.setPropertyInternally(key, value);
     }
 
     @Override
     public void rollbackInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	DuctileDBEdgeImpl edge = (DuctileDBEdgeImpl) transaction.getEdge(edgeId);
+	DuctileDBDetachhedEdgeImpl edge = (DuctileDBDetachhedEdgeImpl) transaction.getEdge(edgeId);
 	if (oldValue == null) {
 	    edge.removePropertyInternally(key);
 	} else {

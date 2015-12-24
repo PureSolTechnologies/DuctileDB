@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -28,7 +28,7 @@ public class RemoveVertexLabelOperation extends AbstractTxOperation {
     @Override
     public void commitInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	DuctileDBAttachedVertexImpl vertex = (DuctileDBAttachedVertexImpl) transaction.getVertex(vertexId);
 	vertex.removeLabelInternally(label);
     }
 
@@ -36,7 +36,7 @@ public class RemoveVertexLabelOperation extends AbstractTxOperation {
     public void rollbackInternally() {
 	if (!wasPresent) {
 	    DuctileDBTransactionImpl transaction = getTransaction();
-	    DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	    DuctileDBAttachedVertexImpl vertex = (DuctileDBAttachedVertexImpl) transaction.getVertex(vertexId);
 	    vertex.addLabelInternally(label);
 	}
     }

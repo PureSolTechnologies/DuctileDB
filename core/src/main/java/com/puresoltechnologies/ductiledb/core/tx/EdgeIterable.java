@@ -6,7 +6,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.core.DuctileDBEdgeImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachhedEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.ResultDecoder;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
@@ -55,7 +55,7 @@ public class EdgeIterable implements Iterable<DuctileDBEdge> {
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBEdgeImpl edge = ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()),
+		    DuctileDBDetachhedEdgeImpl edge = ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasEdgeRemoved(edge.getId())) {
 			DuctileDBEdge cachedEdge = transaction.getCachedEdge(edge.getId());

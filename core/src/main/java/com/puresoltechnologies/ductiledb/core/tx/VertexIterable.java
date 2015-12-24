@@ -7,7 +7,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertexImpl;
 import com.puresoltechnologies.ductiledb.core.ResultDecoder;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -55,7 +55,7 @@ public class VertexIterable implements Iterable<DuctileDBVertex> {
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBVertexImpl vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
+		    DuctileDBDetachedVertexImpl vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasVertexRemoved(vertex.getId())) {
 			DuctileDBVertex cachedVertex = transaction.getCachedVertex(vertex.getId());

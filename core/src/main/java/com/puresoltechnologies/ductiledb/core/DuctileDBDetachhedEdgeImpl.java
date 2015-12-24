@@ -8,7 +8,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
-public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDBEdge {
+public class DuctileDBDetachhedEdgeImpl extends DuctileDBDetachedElementImpl implements DuctileDBEdge {
 
     private final String label;
     private final long startVertexId;
@@ -16,15 +16,15 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     private DuctileDBVertex startVertex = null;
     private DuctileDBVertex targetVertex = null;
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId, long targetVertexId,
-	    Map<String, Object> properties) {
+    public DuctileDBDetachhedEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
+	    long targetVertexId, Map<String, Object> properties) {
 	super(graph, id, properties);
 	this.label = label;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
+    public DuctileDBDetachhedEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
 	    long targetVertexId, Map<String, Object> properties) {
 	super(graph, id, properties);
 	this.label = label;
@@ -33,7 +33,7 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 	this.targetVertexId = targetVertexId;
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
+    public DuctileDBDetachhedEdgeImpl(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
 	super(graph, id, properties);
 	this.label = label;
@@ -42,7 +42,7 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 	this.targetVertexId = targetVertex.getId();
     }
 
-    public DuctileDBEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
+    public DuctileDBDetachhedEdgeImpl(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
 	super(graph, id, properties);
 	this.label = label;
@@ -50,6 +50,10 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 	this.targetVertexId = targetVertex.getId();
 	this.startVertex = startVertex;
 	this.targetVertex = targetVertex;
+    }
+
+    private void throwDetachedException() {
+	throw new DuctileDBException("This edge is detached from graph and cannot be altered.");
     }
 
     @Override
@@ -70,7 +74,7 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DuctileDBEdgeImpl other = (DuctileDBEdgeImpl) obj;
+	DuctileDBDetachhedEdgeImpl other = (DuctileDBDetachhedEdgeImpl) obj;
 	if (label == null) {
 	    if (other.label != null)
 		return false;
@@ -126,17 +130,17 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
 
     @Override
     protected <T> void setProperty(DuctileDBGraph graph, String key, T value) {
-	graph.setProperty(this, key, value);
+	throwDetachedException();
     }
 
     @Override
     protected void removeProperty(DuctileDBGraph graph, String key) {
-	graph.removeProperty(this, key);
+	throwDetachedException();
     }
 
     @Override
     public void remove() {
-	getGraph().removeEdge(this);
+	throwDetachedException();
     }
 
     @Override
@@ -146,13 +150,13 @@ public class DuctileDBEdgeImpl extends DuctileDBElementImpl implements DuctileDB
     }
 
     @Override
-    public DuctileDBEdgeImpl clone() {
-	DuctileDBEdgeImpl cloned = (DuctileDBEdgeImpl) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "label", label);
-	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "startVertexId", startVertexId);
-	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "targetVertexId", targetVertexId);
-	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "startVertex", null);
-	ElementUtils.setFinalField(cloned, DuctileDBEdgeImpl.class, "targetVertex", null);
+    public DuctileDBDetachhedEdgeImpl clone() {
+	DuctileDBDetachhedEdgeImpl cloned = (DuctileDBDetachhedEdgeImpl) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBDetachhedEdgeImpl.class, "label", label);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachhedEdgeImpl.class, "startVertexId", startVertexId);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachhedEdgeImpl.class, "targetVertexId", targetVertexId);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachhedEdgeImpl.class, "startVertex", null);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachhedEdgeImpl.class, "targetVertex", null);
 	return cloned;
     }
 }

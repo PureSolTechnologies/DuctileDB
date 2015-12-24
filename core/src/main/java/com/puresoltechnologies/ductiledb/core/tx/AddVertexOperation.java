@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -35,7 +35,7 @@ public class AddVertexOperation extends AbstractTxOperation {
 	super(transaction);
 	this.labels = Collections.unmodifiableSet(labels);
 	this.properties = Collections.unmodifiableMap(properties);
-	this.vertex = new DuctileDBVertexImpl(transaction.getGraph(), vertexId, labels, properties, new ArrayList<>());
+	this.vertex = new DuctileDBDetachedVertexImpl(transaction.getGraph(), vertexId, labels, properties, new ArrayList<>());
     }
 
     public long getVertexId() {

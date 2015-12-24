@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBVertexImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -33,14 +33,14 @@ public class SetVertexPropertyOperation extends AbstractTxOperation {
     @Override
     public void commitInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	DuctileDBDetachedVertexImpl vertex = (DuctileDBDetachedVertexImpl) transaction.getVertex(vertexId);
 	vertex.setPropertyInternally(key, value);
     }
 
     @Override
     public void rollbackInternally() {
 	DuctileDBTransactionImpl transaction = getTransaction();
-	DuctileDBVertexImpl vertex = (DuctileDBVertexImpl) transaction.getVertex(vertexId);
+	DuctileDBDetachedVertexImpl vertex = (DuctileDBDetachedVertexImpl) transaction.getVertex(vertexId);
 	if (oldValue == null) {
 	    vertex.removePropertyInternally(key);
 	} else {
