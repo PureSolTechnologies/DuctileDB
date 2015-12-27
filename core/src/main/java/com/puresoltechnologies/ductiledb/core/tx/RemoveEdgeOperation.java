@@ -11,10 +11,7 @@ import java.util.Set;
 import org.apache.hadoop.hbase.client.Delete;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertexImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBDetachhedEdgeImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
@@ -30,8 +27,8 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
     public RemoveEdgeOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge) {
 	super(transaction);
 	this.edge = edge;
-	this.startVertexId = ((DuctileDBDetachhedEdgeImpl) edge).getStartVertexId();
-	this.targetVertexId = ((DuctileDBDetachhedEdgeImpl) edge).getTargetVertexId();
+	this.startVertexId = edge.getStartVertex().getId();
+	this.targetVertexId = edge.getTargetVertex().getId();
 	this.label = edge.getLabel();
 	this.edgePropertyKeys = Collections.unmodifiableSet(edge.getPropertyKeys());
     }
@@ -41,15 +38,15 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	DuctileDBTransactionImpl transaction = getTransaction();
 	transaction.removeCachedEdge(edge.getId());
 	{
-	    DuctileDBVertex startVertex = transaction.getVertex(startVertexId);
+	    DuctileDBCacheVertex startVertex = transaction.getCachedVertex(startVertexId);
 	    if (startVertex != null) {
-		((DuctileDBAttachedVertexImpl) startVertex).removeEdgeInternally(edge);
+		startVertex.removeEdge(edge);
 	    }
 	}
 	{
-	    DuctileDBVertex targetVertex = transaction.getVertex(targetVertexId);
+	    DuctileDBCacheVertex targetVertex = transaction.getCachedVertex(targetVertexId);
 	    if (targetVertex != null) {
-		((DuctileDBAttachedVertexImpl) targetVertex).removeEdgeInternally(edge);
+		targetVertex.removeEdge(edge);
 	    }
 	}
     }

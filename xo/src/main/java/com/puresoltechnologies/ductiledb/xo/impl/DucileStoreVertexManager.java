@@ -116,12 +116,11 @@ public class DucileStoreVertexManager
 	PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> propertyMethodMetadata = indexedProperty
 		.getPropertyMethodMetadata();
 	String name = propertyMethodMetadata.getDatastoreMetadata().getName();
-	Iterable<DuctileVertex> vertices = graph.getVertices(name, values.values().iterator().next());
+	Object value = values.values().iterator().next();
+	Iterator<Vertex> vertices = graph.traversal().V().addV(discriminator).property(name, value);
 	List<DuctileVertex> result = new ArrayList<>();
-	for (DuctileVertex vertex : vertices) {
-	    if (vertex.getBaseVertex().hasLabel(discriminator)) {
-		result.add(vertex);
-	    }
+	while (vertices.hasNext()) {
+	    result.add((DuctileVertex) vertices.next());
 	}
 	final Iterator<DuctileVertex> iterator = result.iterator();
 	return new ResultIterator<DuctileVertex>() {

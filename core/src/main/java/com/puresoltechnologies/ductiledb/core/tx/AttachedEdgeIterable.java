@@ -6,19 +6,20 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.core.DuctileDBDetachhedEdgeImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.ResultDecoder;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
-public class EdgeIterable implements Iterable<DuctileDBEdge> {
+public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 
     private final DuctileDBGraphImpl graph;
     private final DuctileDBTransactionImpl transaction;
     private final Iterator<Result> resultIterator;
-    private final Iterator<DuctileDBEdge> addedIterator;
+    private final Iterator<DuctileDBCacheEdge> addedIterator;
 
-    public EdgeIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, ResultScanner resultScanner) {
+    public AttachedEdgeIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction,
+	    ResultScanner resultScanner) {
 	super();
 	this.graph = graph;
 	this.transaction = transaction;
@@ -42,30 +43,23 @@ public class EdgeIterable implements Iterable<DuctileDBEdge> {
 	    }
 
 	    @Override
-	    public DuctileDBEdge next() {
+	    public DuctileDBAttachedEdge next() {
 		if (next != null) {
 		    DuctileDBEdge result = next;
 		    next = null;
-		    return result;
+		    return ElementUtils.toAttached(result);
 		}
 		findNext();
-		return next;
+		return ElementUtils.toAttached(next);
 	    }
 
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBDetachhedEdgeImpl edge = ResultDecoder.toEdge(graph, IdEncoder.decodeRowId(result.getRow()),
+		    DuctileDBEdge edge = ResultDecoder.toCacheEdge(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasEdgeRemoved(edge.getId())) {
-			DuctileDBEdge cachedEdge = transaction.getCachedEdge(edge.getId());
-			if (cachedEdge != null) {
-			    next = cachedEdge;
-
-			} else {
-			    next = edge;
-			}
-			next = edge;
+			next = new DuctileDBAttachedEdge(graph, edge.getId());
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

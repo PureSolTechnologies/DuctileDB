@@ -128,34 +128,4 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	    transactions.remove();
 	}
     }
-
-    @Override
-    public void addLabel(DuctileDBVertex vertex, String label) {
-	getCurrentTransaction().addLabel(vertex, label);
-    }
-
-    @Override
-    public void removeLabel(DuctileDBVertex vertex, String label) {
-	getCurrentTransaction().removeLabel(vertex, label);
-    }
-
-    @Override
-    public void setProperty(DuctileDBVertex vertex, String key, Object value) {
-	getCurrentTransaction().setProperty(vertex, key, value);
-    }
-
-    @Override
-    public void removeProperty(DuctileDBVertex vertex, String key) {
-	getCurrentTransaction().removeProperty(vertex, key);
-    }
-
-    @Override
-    public void setProperty(DuctileDBEdge edge, String key, Object value) {
-	getCurrentTransaction().setProperty(edge, key, value);
-    }
-
-    @Override
-    public void removeProperty(DuctileDBEdge edge, String key) {
-	getCurrentTransaction().removeProperty(edge, key);
-    }
 }

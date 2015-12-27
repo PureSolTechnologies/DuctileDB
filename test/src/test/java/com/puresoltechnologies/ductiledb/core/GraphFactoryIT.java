@@ -13,7 +13,7 @@ public class GraphFactoryIT extends AbstractDuctileDBGraphTest {
     private static DuctileDBGraphImpl graph;
 
     @BeforeClass
-    public void initialize() {
+    public static void initialize() {
 	graph = getGraph();
     }
 

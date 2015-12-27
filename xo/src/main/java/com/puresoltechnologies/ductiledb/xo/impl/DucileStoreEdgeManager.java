@@ -12,7 +12,6 @@ import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreRelationManager;
 import com.buschmais.xo.spi.metadata.method.PrimitivePropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.RelationTypeMetadata;
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
@@ -58,23 +57,22 @@ public class DucileStoreEdgeManager implements
     public DuctileEdge getSingleRelation(DuctileVertex source, RelationTypeMetadata<EdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String descriminator = metadata.getDatastoreMetadata().getDiscriminator();
-	Iterable<DuctileEdge> edges;
+	Iterator<Edge> edges;
 	switch (direction) {
 	case FROM:
-	    edges = source.getEdges(EdgeDirection.OUT, descriminator);
+	    edges = source.edges(Direction.OUT, descriminator);
 	    break;
 	case TO:
-	    edges = source.getEdges(EdgeDirection.IN, descriminator);
+	    edges = source.edges(Direction.IN, descriminator);
 	    break;
 	default:
 	    throw new XOException("Unkown direction '" + direction.name() + "'.");
 	}
-	Iterator<DuctileEdge> iterator = edges.iterator();
-	if (!iterator.hasNext()) {
+	if (!edges.hasNext()) {
 	    throw new XOException("No result is available.");
 	}
-	DuctileEdge result = iterator.next();
-	if (iterator.hasNext()) {
+	DuctileEdge result = (DuctileEdge) edges.next();
+	if (edges.hasNext()) {
 	    throw new XOException("Multiple results are available.");
 	}
 	return result;
@@ -84,20 +82,20 @@ public class DucileStoreEdgeManager implements
     public Iterable<DuctileEdge> getRelations(DuctileVertex source, RelationTypeMetadata<EdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String discriminator = metadata.getDatastoreMetadata().getDiscriminator();
-	Iterable<DuctileEdge> edges = null;
+	Iterator<Edge> edges = null;
 	switch (direction) {
 	case TO:
-	    edges = source.getEdges(EdgeDirection.IN, discriminator);
+	    edges = source.edges(Direction.IN, discriminator);
 	    break;
 	case FROM:
-	    edges = source.getEdges(EdgeDirection.OUT, discriminator);
+	    edges = source.edges(Direction.OUT, discriminator);
 	    break;
 	default:
 	    throw new XOException("Unknown direction '" + direction.name() + "'.");
 	}
 	List<DuctileEdge> result = new ArrayList<>();
-	for (DuctileEdge edge : edges) {
-	    result.add(edge);
+	while (edges.hasNext()) {
+	    result.add((DuctileEdge) edges.next());
 	}
 	return new Iterable<DuctileEdge>() {
 	    @Override

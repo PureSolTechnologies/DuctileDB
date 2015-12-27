@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.exceptions.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
@@ -53,9 +55,12 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	graph.removeVertex(vertex);
 	graph.commit();
 
-	assertNull(graph.getVertex(vertex.getId()));
-	vertex.remove();
-	graph.commit();
+	try {
+	    graph.getVertex(vertex.getId());
+	    fail("An exception was expected.");
+	} catch (NoSuchGraphElementException e) {
+	    // intentionally left empty
+	}
     }
 
     @Test

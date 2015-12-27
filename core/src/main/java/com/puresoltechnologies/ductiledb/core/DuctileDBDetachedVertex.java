@@ -13,14 +13,15 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
-public class DuctileDBDetachedVertexImpl extends DuctileDBDetachedElementImpl implements DuctileDBVertex {
+public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements DuctileDBVertex {
 
     private final Set<String> labels;
     private final List<DuctileDBEdge> edges;
 
-    public DuctileDBDetachedVertexImpl(DuctileDBGraphImpl graph, long id, Set<String> labels,
+    public DuctileDBDetachedVertex(DuctileDBGraphImpl graph, long id, Set<String> labels,
 	    Map<String, Object> properties, List<DuctileDBEdge> edges) {
 	super(graph, id, properties);
 	this.labels = Collections.unmodifiableSet(labels);
@@ -48,7 +49,7 @@ public class DuctileDBDetachedVertexImpl extends DuctileDBDetachedElementImpl im
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DuctileDBDetachedVertexImpl other = (DuctileDBDetachedVertexImpl) obj;
+	DuctileDBDetachedVertex other = (DuctileDBDetachedVertex) obj;
 	if (edges == null) {
 	    if (other.edges != null)
 		return false;
@@ -123,10 +124,6 @@ public class DuctileDBDetachedVertexImpl extends DuctileDBDetachedElementImpl im
 	return vertices;
     }
 
-    public void addEdgeInternally(DuctileDBEdge edge) {
-	throwDetachedException();
-    }
-
     public void removeEdge(DuctileDBEdge edge) {
 	throwDetachedException();
     }
@@ -185,19 +182,19 @@ public class DuctileDBDetachedVertexImpl extends DuctileDBDetachedElementImpl im
 
     @Override
     public String toString() {
-	return "vertex " + getId() + ": labels=" + labels + "; properties=" + getPropertiesString() + "; edges="
-		+ edges;
+	return getClass().getSimpleName() + " " + getId() + ": labels=" + labels + "; properties="
+		+ getPropertiesString() + "; edges=" + edges;
     }
 
     @Override
-    public DuctileDBDetachedVertexImpl clone() {
-	DuctileDBDetachedVertexImpl cloned = (DuctileDBDetachedVertexImpl) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBDetachedVertexImpl.class, "labels", new HashSet<>(labels));
+    public DuctileDBDetachedVertex clone() {
+	DuctileDBDetachedVertex cloned = (DuctileDBDetachedVertex) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedVertex.class, "labels", new HashSet<>(labels));
 	List<DuctileDBEdge> clonedEdges = new ArrayList<>();
 	for (DuctileDBEdge edge : edges) {
 	    clonedEdges.add(edge.clone());
 	}
-	ElementUtils.setFinalField(cloned, DuctileDBDetachedVertexImpl.class, "edges", clonedEdges);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedVertex.class, "edges", clonedEdges);
 	return cloned;
     }
 }

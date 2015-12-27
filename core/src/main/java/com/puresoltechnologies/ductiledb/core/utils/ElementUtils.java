@@ -12,7 +12,12 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedEdge;
+import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 
 /**
  * This class contains helper methods to handle Ductile DB elements.
@@ -70,5 +75,23 @@ public class ElementUtils {
 	    throw new DuctileDBException("Could not set field '" + fieldName + "' in class '" + object.getClass()
 		    + "' to value '" + value + "'.", e);
 	}
+    }
+
+    public static DuctileDBAttachedVertex toAttached(DuctileDBVertex vertex) {
+	return new DuctileDBAttachedVertex((DuctileDBGraphImpl) vertex.getGraph(), vertex.getId());
+    }
+
+    public static DuctileDBDetachedVertex toDetached(DuctileDBVertex vertex) {
+	return new DuctileDBDetachedVertex((DuctileDBGraphImpl) vertex.getGraph(), vertex.getId(),
+		ElementUtils.getLabels(vertex), ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
+    }
+
+    public static DuctileDBAttachedEdge toAttached(DuctileDBEdge edge) {
+	return new DuctileDBAttachedEdge((DuctileDBGraphImpl) edge.getGraph(), edge.getId());
+    }
+
+    public static DuctileDBDetachedEdge toDetached(DuctileDBEdge edge) {
+	return new DuctileDBDetachedEdge((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getLabel(),
+		edge.getStartVertex(), edge.getTargetVertex(), ElementUtils.getProperties(edge));
     }
 }

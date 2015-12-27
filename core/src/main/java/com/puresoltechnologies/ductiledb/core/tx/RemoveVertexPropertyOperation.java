@@ -8,7 +8,6 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertexImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
@@ -27,17 +26,15 @@ public class RemoveVertexPropertyOperation extends AbstractTxOperation {
 
     @Override
     public void commitInternally() {
-	DuctileDBTransactionImpl transaction = getTransaction();
-	DuctileDBDetachedVertexImpl vertex = (DuctileDBDetachedVertexImpl) transaction.getVertex(vertexId);
-	vertex.removePropertyInternally(key);
+	DuctileDBCacheVertex vertex = getTransaction().getCachedVertex(vertexId);
+	vertex.removeProperty(key);
     }
 
     @Override
     public void rollbackInternally() {
 	if (oldValue != null) {
-	    DuctileDBTransactionImpl transaction = getTransaction();
-	    DuctileDBDetachedVertexImpl vertex = (DuctileDBDetachedVertexImpl) transaction.getVertex(vertexId);
-	    vertex.setPropertyInternally(key, oldValue);
+	    DuctileDBCacheVertex vertex = getTransaction().getCachedVertex(vertexId);
+	    vertex.setProperty(key, oldValue);
 	}
     }
 

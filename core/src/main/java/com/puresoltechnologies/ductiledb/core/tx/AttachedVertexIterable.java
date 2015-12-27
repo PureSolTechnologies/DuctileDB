@@ -6,19 +6,20 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertexImpl;
-import com.puresoltechnologies.ductiledb.core.ResultDecoder;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
-public class VertexIterable implements Iterable<DuctileDBVertex> {
+public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 
     private final DuctileDBGraphImpl graph;
     private final DuctileDBTransactionImpl transaction;
     private final Iterator<Result> resultIterator;
-    private final Iterator<DuctileDBVertex> addedIterator;
+    private final Iterator<DuctileDBCacheVertex> addedIterator;
 
-    public VertexIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, ResultScanner resultScanner) {
+    public AttachedVertexIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction,
+	    ResultScanner resultScanner) {
 	super();
 	this.graph = graph;
 	this.transaction = transaction;
@@ -42,29 +43,23 @@ public class VertexIterable implements Iterable<DuctileDBVertex> {
 	    }
 
 	    @Override
-	    public DuctileDBVertex next() {
+	    public DuctileDBAttachedVertex next() {
 		if (next != null) {
 		    DuctileDBVertex result = next;
 		    next = null;
-		    return result;
+		    return ElementUtils.toAttached(result);
 		}
 		findNext();
-		return next;
+		return ElementUtils.toAttached(next);
 	    }
 
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBDetachedVertexImpl vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
+		    DuctileDBVertex vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasVertexRemoved(vertex.getId())) {
-			DuctileDBVertex cachedVertex = transaction.getCachedVertex(vertex.getId());
-			if (cachedVertex != null) {
-			    next = cachedVertex;
-
-			} else {
-			    next = vertex;
-			}
+			next = new DuctileDBAttachedVertex(graph, vertex.getId());
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

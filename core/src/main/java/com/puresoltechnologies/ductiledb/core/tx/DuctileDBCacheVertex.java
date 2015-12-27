@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,18 +9,20 @@ import java.util.Map;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
+import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
-public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl implements DuctileDBVertex {
+class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVertex {
 
     private final Set<String> labels = new HashSet<>();
-    private final List<DuctileDBEdge> edges = new ArrayList<>();
+    private final List<DuctileDBCacheEdge> edges = new ArrayList<>();
 
-    public DuctileDBAttachedVertexImpl(DuctileDBGraphImpl graph, long id, Set<String> labels,
-	    Map<String, Object> properties, List<DuctileDBEdge> edges) {
+    public DuctileDBCacheVertex(DuctileDBGraphImpl graph, long id, Set<String> labels, Map<String, Object> properties,
+	    List<DuctileDBCacheEdge> edges) {
 	super(graph, id, properties);
 	this.labels.addAll(labels);
 	this.edges.addAll(edges);
@@ -43,7 +45,7 @@ public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl im
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DuctileDBAttachedVertexImpl other = (DuctileDBAttachedVertexImpl) obj;
+	DuctileDBCacheVertex other = (DuctileDBCacheVertex) obj;
 	if (edges == null) {
 	    if (other.edges != null)
 		return false;
@@ -61,8 +63,9 @@ public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl im
     public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeLabels) {
 	List<DuctileDBEdge> edges = new ArrayList<>();
 	List<String> labelList = Arrays.asList(edgeLabels);
-	for (DuctileDBEdge edge : this.edges) {
-	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getLabel()))) {
+	for (DuctileDBEdge cachedEdge : this.edges) {
+	    if ((edgeLabels.length == 0) || (labelList.contains(cachedEdge.getLabel()))) {
+		DuctileDBAttachedEdge edge = ElementUtils.toAttached(cachedEdge);
 		switch (direction) {
 		case IN:
 		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
@@ -118,37 +121,22 @@ public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl im
 	return vertices;
     }
 
-    public void addEdgeInternally(DuctileDBEdge edge) {
-	edges.add(edge);
-    }
-
     public void removeEdge(DuctileDBEdge edge) {
-	getGraph().removeEdge(edge);
-	removeEdgeInternally(edge);
-    }
-
-    public void removeEdgeInternally(DuctileDBEdge edge) {
 	edges.remove(edge);
     }
 
     @Override
-    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
-	return getGraph().addEdge(this, inVertex, label);
+    public DuctileDBCacheEdge addEdge(String label, DuctileDBVertex inVertex) {
+	throw new DuctileDBException("This method cannot be used for a cached vertex.");
     }
 
     @Override
-    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
-	return getGraph().addEdge(this, inVertex, label, properties);
+    public DuctileDBCacheEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
+	throw new DuctileDBException("This method cannot be used for a cached vertex.");
     }
 
-    @Override
-    protected <T> void setProperty(DuctileDBGraph graph, String key, T value) {
-	graph.setProperty(this, key, value);
-    }
-
-    @Override
-    public void removeProperty(DuctileDBGraph graph, String key) {
-	graph.removeProperty(this, key);
+    public void addEdge(DuctileDBCacheEdge edge) {
+	edges.add(edge);
     }
 
     @Override
@@ -168,21 +156,11 @@ public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl im
 
     @Override
     public void addLabel(String label) {
-	getGraph().addLabel(this, label);
-	addLabelInternally(label);
-    }
-
-    public void addLabelInternally(String label) {
 	labels.add(label);
     }
 
     @Override
     public void removeLabel(String label) {
-	getGraph().removeLabel(this, label);
-	removeLabelInternally(label);
-    }
-
-    public void removeLabelInternally(String label) {
 	labels.remove(label);
     }
 
@@ -193,19 +171,19 @@ public class DuctileDBAttachedVertexImpl extends DuctileDBAttachedElementImpl im
 
     @Override
     public String toString() {
-	return "vertex " + getId() + ": labels=" + labels + "; properties=" + getPropertiesString() + "; edges="
-		+ edges;
+	return getClass().getSimpleName() + " " + getId() + ": labels=" + labels + "; properties="
+		+ getPropertiesString() + "; edges=" + edges;
     }
 
     @Override
-    public DuctileDBAttachedVertexImpl clone() {
-	DuctileDBAttachedVertexImpl cloned = (DuctileDBAttachedVertexImpl) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertexImpl.class, "labels", new HashSet<>(labels));
+    public DuctileDBCacheVertex clone() {
+	DuctileDBCacheVertex cloned = (DuctileDBCacheVertex) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBCacheVertex.class, "labels", new HashSet<>(labels));
 	List<DuctileDBEdge> clonedEdges = new ArrayList<>();
 	for (DuctileDBEdge edge : edges) {
 	    clonedEdges.add(edge.clone());
 	}
-	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertexImpl.class, "edges", clonedEdges);
+	ElementUtils.setFinalField(cloned, DuctileDBCacheVertex.class, "edges", clonedEdges);
 	return cloned;
     }
 }

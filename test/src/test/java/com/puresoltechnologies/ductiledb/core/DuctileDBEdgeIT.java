@@ -3,7 +3,6 @@ package com.puresoltechnologies.ductiledb.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
     private static DuctileDBGraphImpl graph;
 
     @BeforeClass
-    public void initialize() {
+    public static void initialize() {
 	graph = getGraph();
     }
 
@@ -51,7 +50,6 @@ public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
 	readEdge.remove();
 	graph.commit();
 
-	readEdge = graph.getEdge(edge.getId());
-	assertNull(readEdge);
+	assertNotInTransaction(edge);
     }
 }

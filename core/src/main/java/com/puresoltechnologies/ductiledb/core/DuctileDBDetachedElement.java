@@ -5,21 +5,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
-public abstract class DuctileDBDetachedElementImpl implements DuctileDBElement {
+public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement {
 
     private final Map<String, Object> properties;
     private final DuctileDBGraphImpl graph;
     private final long id;
 
-    public DuctileDBDetachedElementImpl(DuctileDBGraphImpl graph, long id) {
+    public DuctileDBDetachedElement(DuctileDBGraphImpl graph, long id) {
 	this(graph, id, new HashMap<>());
     }
 
-    public DuctileDBDetachedElementImpl(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
+    public DuctileDBDetachedElement(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
 	super();
 	this.graph = graph;
 	this.id = id;
@@ -50,10 +50,6 @@ public abstract class DuctileDBDetachedElementImpl implements DuctileDBElement {
 	throwDetachedException();
     }
 
-    public final void setPropertyInternally(String key, Object value) {
-	throwDetachedException();
-    }
-
     protected abstract <T> void setProperty(DuctileDBGraph graph, String key, T value);
 
     @Override
@@ -68,29 +64,7 @@ public abstract class DuctileDBDetachedElementImpl implements DuctileDBElement {
 	throwDetachedException();
     }
 
-    public final void removePropertyInternally(String key) {
-	throwDetachedException();
-    }
-
     protected abstract void removeProperty(DuctileDBGraph graph, String key);
-
-    protected String getPropertiesString() {
-	StringBuilder builder = new StringBuilder("{");
-	boolean first = true;
-	for (String key : getPropertyKeys()) {
-	    if (first) {
-		first = false;
-	    } else {
-		builder.append(", ");
-	    }
-	    Object value = getProperty(key);
-	    builder.append(key);
-	    builder.append('=');
-	    builder.append(value);
-	}
-	builder.append('}');
-	return builder.toString();
-    }
 
     @Override
     public int hashCode() {
@@ -109,7 +83,7 @@ public abstract class DuctileDBDetachedElementImpl implements DuctileDBElement {
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	DuctileDBDetachedElementImpl other = (DuctileDBDetachedElementImpl) obj;
+	DuctileDBDetachedElement other = (DuctileDBDetachedElement) obj;
 	if (id != other.id)
 	    return false;
 	if (properties == null) {
@@ -121,16 +95,11 @@ public abstract class DuctileDBDetachedElementImpl implements DuctileDBElement {
     }
 
     @Override
-    public DuctileDBDetachedElementImpl clone() {
-	try {
-	    DuctileDBDetachedElementImpl cloned = (DuctileDBDetachedElementImpl) super.clone();
-	    ElementUtils.setFinalField(cloned, DuctileDBDetachedElementImpl.class, "id", id);
-	    ElementUtils.setFinalField(cloned, DuctileDBDetachedElementImpl.class, "graph", graph);
-	    ElementUtils.setFinalField(cloned, DuctileDBDetachedElementImpl.class, "properties",
-		    new HashMap<>(properties));
-	    return cloned;
-	} catch (CloneNotSupportedException e) {
-	    throw new RuntimeException(e);
-	}
+    public DuctileDBDetachedElement clone() {
+	DuctileDBDetachedElement cloned = (DuctileDBDetachedElement) super.clone();
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedElement.class, "id", id);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedElement.class, "graph", graph);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedElement.class, "properties", new HashMap<>(properties));
+	return cloned;
     }
 }

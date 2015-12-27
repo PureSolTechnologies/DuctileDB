@@ -3,12 +3,13 @@ package com.puresoltechnologies.ductiledb.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.AfterClass;
@@ -17,6 +18,7 @@ import org.junit.BeforeClass;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.exceptions.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
@@ -65,10 +67,6 @@ public class AbstractDuctileDBGraphTest {
 	assertNotNull(graph.getVertex(vertex.getId()));
     }
 
-    protected void assertNotInTransaction(DuctileDBVertex vertex) {
-	assertNull(graph.getVertex(vertex.getId()));
-    }
-
     protected void assertInGraph(DuctileDBVertex vertex) {
 	DuctileDBVertex readVertex = graph.createTransaction().getVertex(vertex.getId());
 	assertNotNull(readVertex);
@@ -90,7 +88,7 @@ public class AbstractDuctileDBGraphTest {
     }
 
     protected void assertNotInGraph(DuctileDBVertex vertex) {
-	assertNull(graph.createTransaction().getVertex(vertex.getId()));
+	assertException(NoSuchGraphElementException.class, () -> graph.createTransaction().getVertex(vertex.getId()));
     }
 
     protected void assertInTransaction(DuctileDBEdge edge) {
@@ -102,8 +100,12 @@ public class AbstractDuctileDBGraphTest {
 	assertNotNull(graph.getEdge(edge.getId()));
     }
 
+    protected void assertNotInTransaction(DuctileDBVertex vertex) {
+	assertException(NoSuchGraphElementException.class, () -> graph.getVertex(vertex.getId()));
+    }
+
     protected void assertNotInTransaction(DuctileDBEdge edge) {
-	assertNull(graph.getEdge(edge.getId()));
+	assertException(NoSuchGraphElementException.class, () -> graph.getEdge(edge.getId()));
     }
 
     protected void assertInGraph(DuctileDBEdge edge) {
@@ -119,7 +121,7 @@ public class AbstractDuctileDBGraphTest {
     }
 
     protected void assertNotInGraph(DuctileDBEdge edge) {
-	assertNull(graph.createTransaction().getEdge(edge.getId()));
+	assertException(NoSuchGraphElementException.class, () -> graph.createTransaction().getEdge(edge.getId()));
     }
 
     public static Consumer<DuctileDBGraph> assertVertexEdgeCounts(final int expectedVertexCount,
@@ -128,5 +130,23 @@ public class AbstractDuctileDBGraphTest {
 	    assertEquals(expectedVertexCount, DuctileDBTestHelper.count(g.getVertices()));
 	    assertEquals(expectedEdgeCount, DuctileDBTestHelper.count(g.getEdges()));
 	};
+    }
+
+    protected void assertException(Class<?> clazz, Supplier<Object> function) {
+	try {
+	    function.get();
+	    fail("A '" + clazz.getSimpleName() + "' exception was expected");
+	} catch (Exception e) {
+	    assertEquals(clazz, e.getClass());
+	}
+    }
+
+    protected void assertException(String message, Class<?> clazz, Supplier<Object> function) {
+	try {
+	    function.get();
+	    fail(message);
+	} catch (Exception e) {
+	    assertEquals(clazz, e.getClass());
+	}
     }
 }

@@ -1,7 +1,8 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.api.exceptions;
 
 /**
- * General purpose exception for all HGraph related issues.
+ * General purpose exception for all DuctileDB related issues. It is also used
+ * as base class for more specific exceptions.
  * 
  * @author Rick-Rainer Ludwig
  */

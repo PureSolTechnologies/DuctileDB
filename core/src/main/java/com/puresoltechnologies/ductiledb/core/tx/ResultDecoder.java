@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
@@ -10,6 +10,7 @@ import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERI
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -20,6 +21,10 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.EdgeKey;
+import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 /**
@@ -29,7 +34,7 @@ import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
  */
 public class ResultDecoder {
 
-    public static DuctileDBDetachedVertexImpl toVertex(DuctileDBGraphImpl graph, long vertexId, Result result) {
+    public static DuctileDBCacheVertex toVertex(DuctileDBGraphImpl graph, long vertexId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -54,25 +59,25 @@ public class ResultDecoder {
 	    }
 	}
 	// Read edges...
-	DuctileDBDetachedVertexImpl vertex = new DuctileDBDetachedVertexImpl(graph, vertexId, labels, properties, new ArrayList<>());
+	List<DuctileDBCacheEdge> edges = new ArrayList<>();
 	NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	if (edgesMap != null) {
 	    for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
 		EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
 		if (EdgeDirection.IN == edgeKey.getDirection()) {
-		    vertex.addEdgeInternally(new DuctileDBDetachhedEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(),
-			    edgeKey.getVertexId(), vertex, edgeValue.getProperties()));
+		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getLabel(), edgeKey.getVertexId(),
+			    vertexId, edgeValue.getProperties()));
 		} else {
-		    vertex.addEdgeInternally(new DuctileDBDetachhedEdgeImpl(graph, edgeKey.getId(), edgeKey.getLabel(), vertex,
+		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getLabel(), vertexId,
 			    edgeKey.getVertexId(), edgeValue.getProperties()));
 		}
 	    }
 	}
-	return vertex;
+	return new DuctileDBCacheVertex(graph, vertexId, labels, properties, edges);
     }
 
-    public static DuctileDBDetachhedEdgeImpl toEdge(DuctileDBGraphImpl graph, long edgeId, Result result) {
+    public static DuctileDBCacheEdge toCacheEdge(DuctileDBGraphImpl graph, long edgeId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -99,6 +104,6 @@ public class ResultDecoder {
 		properties.put(key, value);
 	    }
 	}
-	return new DuctileDBDetachhedEdgeImpl(graph, edgeId, label, startVertexId, targetVertexId, properties);
+	return new DuctileDBCacheEdge(graph, edgeId, label, startVertexId, targetVertexId, properties);
     }
 }
