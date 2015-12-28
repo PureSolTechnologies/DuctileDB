@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.utils;
+package com.puresoltechnologies.ductiledb.core.utils;
 
 import static org.junit.Assert.assertEquals;
 
