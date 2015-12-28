@@ -9,17 +9,30 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.AbstractGraphProvider;
 import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.GraphFactory;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
+    private static final Logger logger = LoggerFactory.getLogger(DuctileGraphProvider.class);
+
     @Override
     public void clear(Graph graph, Configuration configuration) throws Exception {
 	try (DuctileDBGraph ductileGraph = GraphFactory.createGraph(configuration)) {
-	    DuctileDBTestHelper.removeGraph(ductileGraph);
+	    logger.info("Delete ductile graph...");
+	    for (DuctileDBEdge edge : ductileGraph.getEdges()) {
+		edge.remove();
+	    }
+	    for (DuctileDBVertex vertex : ductileGraph.getVertices()) {
+		vertex.remove();
+	    }
+	    ductileGraph.commit();
+	    logger.info("Ductile graph deleted.");
 	}
     }
 

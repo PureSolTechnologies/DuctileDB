@@ -13,11 +13,11 @@ import org.junit.runners.Parameterized;
 import com.buschmais.xo.api.Query;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 
 @RunWith(Parameterized.class)
-public class DuctileDBStoreBootstrapIT extends AbstractXOTitanTest {
+public class DuctileDBStoreBootstrapIT extends AbstractXODuctileDBTest {
 
     public DuctileDBStoreBootstrapIT(XOUnit xoUnit) {
 	super(xoUnit);

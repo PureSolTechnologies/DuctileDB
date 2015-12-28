@@ -11,12 +11,12 @@ import org.junit.runners.Parameterized;
 import com.buschmais.xo.api.CompositeObject;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
-import com.tinkerpop.blueprints.Vertex;
 
 @RunWith(Parameterized.class)
-public class DelegateIT extends AbstractXOTitanTest {
+public class DelegateIT extends AbstractXODuctileDBTest {
 
     public DelegateIT(XOUnit xoUnit) {
 	super(xoUnit);
@@ -31,7 +31,7 @@ public class DelegateIT extends AbstractXOTitanTest {
     public void entity() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
-	DuctileDBVertex node = ((CompositeObject) xoManager.create(A.class)).getDelegate();
+	DuctileVertex node = ((CompositeObject) xoManager.create(A.class)).getDelegate();
 	xoManager.currentTransaction().commit();
     }
 

@@ -14,14 +14,14 @@ import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
  * 
  * @author Rick-Rainer Ludwig
  */
-public abstract class AbstractXOTitanTest extends AbstractDuctileDBGraphTest {
+public abstract class AbstractXODuctileDBTest extends AbstractDuctileDBGraphTest {
 
     private XOManagerFactory xoManagerFactory;
     private XOManager xoManager;
 
     private final XOUnit xoUnit;
 
-    public AbstractXOTitanTest(XOUnit xoUnit) {
+    public AbstractXODuctileDBTest(XOUnit xoUnit) {
 	super();
 	this.xoUnit = xoUnit;
     }

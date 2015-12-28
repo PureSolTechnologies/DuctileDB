@@ -15,12 +15,12 @@ import com.buschmais.xo.api.ResultIterable;
 import com.buschmais.xo.api.ResultIterator;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 import com.puresoltechnologies.ductiledb.xo.test.bootstrap.TestEntity;
 
 @RunWith(Parameterized.class)
-public class StoreAndReadVerticesIT extends AbstractXOTitanTest {
+public class StoreAndReadVerticesIT extends AbstractXODuctileDBTest {
 
     public StoreAndReadVerticesIT(XOUnit xoUnit) {
 	super(xoUnit);

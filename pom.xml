@@ -375,7 +375,8 @@
 				<groupId>org.apache.tinkerpop</groupId>
 				<artifactId>gremlin-test</artifactId>
 				<version>${gremlin.version}</version>
-				<scope>test</scope>
+				<!-- compile scope to use AbstractGraphProvider -->
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tinkerpop</groupId>
@@ -393,6 +394,11 @@
 				<groupId>com.buschmais.xo</groupId>
 				<artifactId>xo.spi</artifactId>
 				<version>${xo.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>3.3.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.osgi</groupId>

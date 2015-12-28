@@ -1,13 +1,13 @@
 package com.puresoltechnologies.ductiledb.xo.test.implementedby;
 
 import com.buschmais.xo.api.proxy.ProxyMethod;
-import com.tinkerpop.blueprints.Vertex;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 
-public class CompareToMethod implements ProxyMethod<DuctileDBVertex> {
+public class CompareToMethod implements ProxyMethod<DuctileVertex> {
 
-	@Override
-	public Object invoke(DuctileDBVertex node, Object instance, Object[] args) {
-		return ((A) instance).getValue() - ((A) args[0]).getValue();
-	}
+    @Override
+    public Object invoke(DuctileVertex node, Object instance, Object[] args) {
+	return ((A) instance).getValue() - ((A) args[0]).getValue();
+    }
 
 }

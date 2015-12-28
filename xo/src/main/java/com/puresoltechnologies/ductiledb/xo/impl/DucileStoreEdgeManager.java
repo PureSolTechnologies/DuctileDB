@@ -39,10 +39,10 @@ public class DucileStoreEdgeManager implements
 	long count;
 	switch (direction) {
 	case FROM:
-	    count = source.query().direction(Direction.OUT).labels(label).count();
+	    count = graph.traversal().V(source.id()).outE(label).count().next();
 	    break;
 	case TO:
-	    count = source.query().direction(Direction.IN).labels(label).count();
+	    count = graph.traversal().V(source.id()).inE(label).count().next();
 	    break;
 	default:
 	    throw new XOException("Unkown direction '" + direction.name() + "'.");
@@ -54,7 +54,7 @@ public class DucileStoreEdgeManager implements
     }
 
     @Override
-    public DuctileEdge getSingleRelation(DuctileVertex source, RelationTypeMetadata<EdgeMetadata> metadata,
+    public DuctileEdge getSingleRelation(DuctileVertex source, RelationTypeMetadata<DuctileEdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String descriminator = metadata.getDatastoreMetadata().getDiscriminator();
 	Iterator<Edge> edges;
@@ -79,7 +79,7 @@ public class DucileStoreEdgeManager implements
     }
 
     @Override
-    public Iterable<DuctileEdge> getRelations(DuctileVertex source, RelationTypeMetadata<EdgeMetadata> metadata,
+    public Iterable<DuctileEdge> getRelations(DuctileVertex source, RelationTypeMetadata<DuctileEdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String discriminator = metadata.getDatastoreMetadata().getDiscriminator();
 	Iterator<Edge> edges = null;
@@ -106,7 +106,7 @@ public class DucileStoreEdgeManager implements
     }
 
     @Override
-    public DuctileEdge createRelation(DuctileVertex source, RelationTypeMetadata<EdgeMetadata> metadata,
+    public DuctileEdge createRelation(DuctileVertex source, RelationTypeMetadata<DuctileEdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction, DuctileVertex target,
 	    Map<PrimitivePropertyMethodMetadata<DuctilePropertyMetadata>, Object> exampleEntity) {
 	String name = metadata.getDatastoreMetadata().getDiscriminator();

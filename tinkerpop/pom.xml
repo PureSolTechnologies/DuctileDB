@@ -21,6 +21,10 @@
 			<artifactId>ductiledb-test</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-client</artifactId>
 		</dependency>
@@ -33,7 +37,7 @@
 			<artifactId>tinkergraph-gremlin</artifactId>
 			<version>3.1.0-incubating</version>
 		</dependency>
-<dependency>
+		<dependency>
 			<groupId>org.apache.tinkerpop</groupId>
 			<artifactId>gremlin-test</artifactId>
 		</dependency>

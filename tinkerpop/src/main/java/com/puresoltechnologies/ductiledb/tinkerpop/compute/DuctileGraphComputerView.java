@@ -59,13 +59,13 @@ public class DuctileGraphComputerView {
 	}
     }
 
-    public List<Property<?>> getProperties(DuctileVertex vertex) {
-	@SuppressWarnings("rawtypes")
+    @SuppressWarnings("rawtypes")
+    public List<Property> getProperties(DuctileVertex vertex) {
 	Stream<Property> a = DuctileHelper.getProperties(vertex).values().stream().flatMap(list -> list.stream());
-	@SuppressWarnings("rawtypes")
 	Stream<Property> b = computeProperties.containsKey(vertex)
 		? computeProperties.get(vertex).values().stream().flatMap(list -> list.stream()) : Stream.empty();
-	return Stream.concat(a, b).collect(Collectors.toList());
+	Stream<Property> concat = Stream.<Property> concat(a, b);
+	return concat.collect(Collectors.<Property> toList());
     }
 
     public void removeProperty(DuctileVertex vertex, String key, DuctileVertexProperty<?> property) {

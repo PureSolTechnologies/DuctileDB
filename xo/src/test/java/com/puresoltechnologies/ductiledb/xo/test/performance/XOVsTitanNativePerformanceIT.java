@@ -24,12 +24,13 @@ import com.buschmais.xo.api.XOManagerFactory;
 import com.buschmais.xo.api.bootstrap.XO;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.core.core.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreSession;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 import com.puresoltechnologies.ductiledb.xo.test.relation.typed.TreeNode;
 import com.puresoltechnologies.ductiledb.xo.test.relation.typed.TreeNodeRelation;
-import com.tinkerpop.blueprints.Vertex;
 
 public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 
@@ -77,10 +78,10 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 	    DuctileStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileStoreSession.class);
-	    DuctileDBGraph graph = datastoreSession.getGraph();
+	    DuctileGraph graph = datastoreSession.getGraph();
 	    // Some initial input to finish bootstrapping...
-	    DuctileDBVertex vertex1 = graph.addVertex(null);
-	    DuctileDBVertex vertex2 = graph.addVertex(null);
+	    DuctileVertex vertex1 = graph.addVertex();
+	    DuctileVertex vertex2 = graph.addVertex();
 	    vertex1.addEdge("BOOTSTRAPPING", vertex2);
 	}
     }
@@ -105,7 +106,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
     }
 
     public void runWithXO() throws IOException {
-	removeTables();
+	DuctileDBTestHelper.removeTables();
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 
 	    long start = System.currentTimeMillis();
@@ -149,16 +150,16 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
     }
 
     public void runNative() throws IOException {
-	removeTables();
+	DuctileDBTestHelper.removeTables();
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 	    DuctileStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileStoreSession.class);
-	    DuctileDBGraph graph = datastoreSession.getGraph();
+	    DuctileGraph graph = datastoreSession.getGraph();
 
 	    long start = System.currentTimeMillis();
 
-	    DuctileDBVertex root = graph.addVertex(null);
-	    root.setProperty("name", "1");
-	    graph.commit();
+	    DuctileVertex root = graph.addVertex();
+	    root.property("name", "1");
+	    graph.tx().commit();
 
 	    long counter = 1;
 	    counter += addChildrenNative(graph, root, 2, "1");
@@ -173,7 +174,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	}
     }
 
-    private long addChildrenNative(DuctileDBGraph graph, DuctileDBVertex parent, int i, String namePrefix) {
+    private long addChildrenNative(DuctileGraph graph, DuctileVertex parent, int i, String namePrefix) {
 	if (i > TREE_DEPTH) {
 	    return 0;
 	}
@@ -181,11 +182,11 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	for (int id = 1; id <= i; id++) {
 	    String name = namePrefix + id;
 
-	    DuctileDBVertex child = graph.addVertex(null);
-	    child.setProperty("name", name);
+	    DuctileVertex child = graph.addVertex();
+	    child.property("name", name);
 	    parent.addEdge("treeNodeRelation", child);
 	    counter++;
-	    graph.commit();
+	    graph.tx().commit();
 
 	    counter += addChildrenNative(graph, child, i + 1, name);
 	}

@@ -1,5 +1,5 @@
 <v1:xo version="1.0" xmlns:v1="http://buschmais.com/xo/schema/v1.0">
-    <xo-unit name="Titan">
+    <xo-unit name="DuctileDB">
         <description>This is a test unit for the DuctileDB file datastore.</description>
         <url>ductiledb:/opt/hbase/conf/hbase-site.xml</url>
         <provider>com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider</provider>

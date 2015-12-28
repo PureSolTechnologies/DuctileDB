@@ -15,12 +15,12 @@ import com.buschmais.xo.api.Query;
 import com.buschmais.xo.api.Query.Result;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 import com.puresoltechnologies.ductiledb.xo.test.data.Person;
 
 @RunWith(Parameterized.class)
-public class GremlinIT extends AbstractXOTitanTest {
+public class GremlinIT extends AbstractXODuctileDBTest {
 
     public GremlinIT(XOUnit xoUnit) {
 	super(xoUnit);

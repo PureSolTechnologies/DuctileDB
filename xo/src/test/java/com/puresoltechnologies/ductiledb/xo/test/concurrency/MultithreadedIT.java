@@ -22,11 +22,11 @@ import com.buschmais.xo.api.Transaction;
 import com.buschmais.xo.api.ValidationMode;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 
 @RunWith(Parameterized.class)
-public class MultithreadedIT extends AbstractXOTitanTest {
+public class MultithreadedIT extends AbstractXODuctileDBTest {
 
 	public MultithreadedIT(XOUnit xoUnit) {
 		super(xoUnit);

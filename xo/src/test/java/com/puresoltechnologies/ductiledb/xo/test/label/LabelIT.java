@@ -14,11 +14,11 @@ import com.buschmais.xo.api.Query;
 import com.buschmais.xo.api.Query.Result.CompositeRowObject;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 
 @RunWith(Parameterized.class)
-public class LabelIT extends AbstractXOTitanTest {
+public class LabelIT extends AbstractXODuctileDBTest {
 
 	public LabelIT(XOUnit xoUnit) {
 		super(xoUnit);

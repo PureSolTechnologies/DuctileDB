@@ -18,11 +18,11 @@ import org.junit.runners.Parameterized;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.annotation.PreUpdate;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.xo.test.AbstractXOTitanTest;
+import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 
 @RunWith(Parameterized.class)
-public class ValidationIT extends AbstractXOTitanTest {
+public class ValidationIT extends AbstractXODuctileDBTest {
 
 	public ValidationIT(XOUnit xoUnit) {
 		super(xoUnit);
