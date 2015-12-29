@@ -56,7 +56,7 @@ public class DuctileDBTestHelper {
     }
 
     public static void removeTables() throws IOException {
-	try (Connection connection = GraphFactory.createConnection(new BaseConfiguration())) {
+	try (Connection connection = DuctileDBGraphFactory.createConnection(new BaseConfiguration())) {
 	    removeTables(connection);
 	}
     }

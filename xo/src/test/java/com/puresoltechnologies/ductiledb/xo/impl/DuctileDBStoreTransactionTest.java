@@ -9,8 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.buschmais.xo.api.XOException;
-import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileTransaction;
 
 /**
  * This unit test checks the logic for active state and initialization.
@@ -23,8 +23,9 @@ public class DuctileDBStoreTransactionTest {
 
     @Before
     public void initialize() {
-	DuctileDBTransaction transactionMock = mock(DuctileDBTransaction.class);
+	DuctileTransaction transactionMock = mock(DuctileTransaction.class);
 	when(transactionMock.isOpen()).thenReturn(true);
+	when(graphMock.tx()).thenReturn(transactionMock);
     }
 
     @Test(expected = IllegalArgumentException.class)

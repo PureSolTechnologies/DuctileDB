@@ -21,7 +21,7 @@ public class DuctileDBSchemaIT {
 
     @Test
     public void testExplicitSchemaCreation() throws IOException {
-	try (Connection connection = GraphFactory.createConnection(new BaseConfiguration())) {
+	try (Connection connection = DuctileDBGraphFactory.createConnection(new BaseConfiguration())) {
 	    DuctileDBSchema schema = new DuctileDBSchema(connection);
 	    schema.checkAndCreateEnvironment();
 	}
@@ -29,7 +29,7 @@ public class DuctileDBSchemaIT {
 
     @Test
     public void testImplicitSchemaCreation() throws IOException {
-	try (DuctileDBGraph graph = GraphFactory.createGraph(new BaseConfiguration())) {
+	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(new BaseConfiguration())) {
 	    assertNotNull(graph.addVertex());
 	}
     }

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
@@ -23,7 +23,7 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 
     @Override
     public void clear(Graph graph, Configuration configuration) throws Exception {
-	try (DuctileDBGraph ductileGraph = GraphFactory.createGraph(configuration)) {
+	try (DuctileDBGraph ductileGraph = DuctileDBGraphFactory.createGraph(configuration)) {
 	    logger.info("Delete ductile graph...");
 	    for (DuctileDBEdge edge : ductileGraph.getEdges()) {
 		edge.remove();

@@ -373,6 +373,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tinkerpop</groupId>
+				<artifactId>tinkergraph-gremlin</artifactId>
+				<version>${gremlin.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tinkerpop</groupId>
 				<artifactId>gremlin-test</artifactId>
 				<version>${gremlin.version}</version>
 				<!-- compile scope to use AbstractGraphProvider -->

@@ -20,7 +20,7 @@ import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider;
 
@@ -102,7 +102,7 @@ public class DuctileDBTestUtils {
      * @throws IOException
      */
     public static void addStarwarsData(XOManager xoManager) throws IOException {
-	try (DuctileDBGraph graph = GraphFactory.createGraph(new BaseConfiguration())) {
+	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(new BaseConfiguration())) {
 	    StarWarsGraph.addStarWarsFiguresData(graph);
 	}
     }

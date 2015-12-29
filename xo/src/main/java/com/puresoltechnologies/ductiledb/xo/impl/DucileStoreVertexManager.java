@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.VertexProperty;
 
 import com.buschmais.xo.api.ResultIterator;
 import com.buschmais.xo.api.XOException;
@@ -56,7 +57,11 @@ public class DucileStoreVertexManager
 
     @Override
     public Object getProperty(DuctileVertex vertex, PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> metadata) {
-	return vertex.property(metadata.getDatastoreMetadata().getName());
+	VertexProperty<Object> property = vertex.property(metadata.getDatastoreMetadata().getName());
+	if (!property.isPresent()) {
+	    return null;
+	}
+	return property.value();
     }
 
     @Override

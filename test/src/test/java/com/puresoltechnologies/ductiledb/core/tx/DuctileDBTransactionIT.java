@@ -26,7 +26,7 @@ import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
-import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 /**
@@ -337,7 +337,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	// are being mutated by multiple threads. originally replicated a bug
 	// that was part of OrientDB.
 
-	final DuctileDBGraph g1 = GraphFactory.createGraph(new BaseConfiguration());
+	final DuctileDBGraph g1 = DuctileDBGraphFactory.createGraph(new BaseConfiguration());
 
 	final Thread threadModFirstGraph = new Thread() {
 	    @Override

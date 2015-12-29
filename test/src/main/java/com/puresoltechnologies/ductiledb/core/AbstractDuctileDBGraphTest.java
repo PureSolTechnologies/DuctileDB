@@ -29,7 +29,7 @@ public class AbstractDuctileDBGraphTest {
     @BeforeClass
     public static void connect() throws IOException {
 	DuctileDBTestHelper.removeTables();
-	DuctileDBGraph graphImplementation = GraphFactory.createGraph(new BaseConfiguration());
+	DuctileDBGraph graphImplementation = DuctileDBGraphFactory.createGraph(new BaseConfiguration());
 	assertNotNull("Graph was not created.", graphImplementation);
 	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
 		DuctileDBGraphImpl.class, graphImplementation.getClass());

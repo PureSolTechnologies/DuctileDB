@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Property;
 
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.DatastoreRelationManager;
@@ -154,7 +155,11 @@ public class DucileStoreEdgeManager implements
 
     @Override
     public Object getProperty(DuctileEdge edge, PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> metadata) {
-	return edge.property(metadata.getDatastoreMetadata().getName());
+	Property<Object> property = edge.property(metadata.getDatastoreMetadata().getName());
+	if (!property.isPresent()) {
+	    return null;
+	}
+	return property.value();
     }
 
     @Override

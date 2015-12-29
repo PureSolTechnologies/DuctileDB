@@ -19,7 +19,7 @@ import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.GraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 
@@ -33,7 +33,7 @@ import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_INTEGRATE)
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_PERFORMANCE)
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
-public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.DuctileDBGraph> {
+public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.DuctileDBGraph> {
 
     public static DuctileGraph open(Configuration configuration) throws IOException {
 	return new DuctileGraph(configuration);
@@ -52,7 +52,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
 
     protected DuctileGraph(Configuration configuration) throws IOException {
 	this.configuration.copy(configuration);
-	this.baseGraph = GraphFactory.createGraph(configuration);
+	this.baseGraph = DuctileDBGraphFactory.createGraph(configuration);
     }
 
     @Override
@@ -134,7 +134,7 @@ public final class DuctileGraph implements Graph, WrappedGraph<com.puresoltechno
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
 	tx().close();
 	if (baseGraph != null) {
 	    baseGraph.close();

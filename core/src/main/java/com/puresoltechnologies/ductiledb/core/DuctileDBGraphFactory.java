@@ -12,15 +12,20 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 
-public class GraphFactory {
+public class DuctileDBGraphFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(GraphFactory.class);
+    private static final Logger logger = LoggerFactory.getLogger(DuctileDBGraphFactory.class);
+
+    public static Configuration createConfiguration() {
+	Configuration hbaseConfiguration = HBaseConfiguration.create();
+	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
+	return hbaseConfiguration;
+    }
 
     public static Connection createConnection(org.apache.commons.configuration.Configuration configuration)
 	    throws IOException {
 	// TODO incorporate configuration...
-	Configuration hbaseConfiguration = HBaseConfiguration.create();
-	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
+	Configuration hbaseConfiguration = createConfiguration();
 	return createConnection(hbaseConfiguration);
     }
 
@@ -37,7 +42,8 @@ public class GraphFactory {
 	return createGraph(connection);
     }
 
-    public static DuctileDBGraph createGraph(org.apache.commons.configuration.Configuration configuration) throws IOException {
+    public static DuctileDBGraph createGraph(org.apache.commons.configuration.Configuration configuration)
+	    throws IOException {
 	Connection connection = createConnection(configuration);
 	return createGraph(connection);
     }
