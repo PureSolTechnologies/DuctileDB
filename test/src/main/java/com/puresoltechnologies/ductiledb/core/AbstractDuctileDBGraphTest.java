@@ -39,7 +39,9 @@ public class AbstractDuctileDBGraphTest {
 
     @AfterClass
     public static void disconnect() throws IOException {
-	graph.close();
+	if (graph != null) {
+	    graph.close();
+	}
 	graph = null;
     }
 
@@ -77,7 +79,7 @@ public class AbstractDuctileDBGraphTest {
 	DuctileDBVertex readVertex = graph.createTransaction().getVertex(vertex.getId());
 	assertNotNull(readVertex);
 	assertEquals(vertex.getId(), readVertex.getId());
-	assertEquals(ElementUtils.getLabels(vertex), ElementUtils.getLabels(readVertex));
+	assertEquals(ElementUtils.getTypes(vertex), ElementUtils.getTypes(readVertex));
 	assertEquals(ElementUtils.getProperties(vertex), ElementUtils.getProperties(readVertex));
     }
 

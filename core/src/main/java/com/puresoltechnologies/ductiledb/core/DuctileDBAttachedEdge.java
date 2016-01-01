@@ -4,7 +4,6 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
 public class DuctileDBAttachedEdge extends DuctileDBAttachedElement implements DuctileDBEdge {
 
@@ -23,20 +22,8 @@ public class DuctileDBAttachedEdge extends DuctileDBAttachedElement implements D
     }
 
     @Override
-    public DuctileDBVertex getVertex(EdgeDirection direction) throws IllegalArgumentException {
-	switch (direction) {
-	case OUT:
-	    return getStartVertex();
-	case IN:
-	    return getTargetVertex();
-	default:
-	    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
-	}
-    }
-
-    @Override
-    public String getLabel() {
-	return getCurrentTransaction().getEdgeLabel(getId());
+    public String getType() {
+	return getCurrentTransaction().getEdgeType(getId());
     }
 
     @Override
@@ -67,7 +54,7 @@ public class DuctileDBAttachedEdge extends DuctileDBAttachedElement implements D
     @Override
     public String toString() {
 	return getClass().getSimpleName() + " " + getId() + " (" + getStartVertex().getId() + "->"
-		+ getTargetVertex().getId() + "): label=" + getLabel() + "; properties=" + getPropertiesString();
+		+ getTargetVertex().getId() + "): type=" + getType() + "; properties=" + getPropertiesString();
     }
 
     @Override

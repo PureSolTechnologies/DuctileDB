@@ -62,9 +62,9 @@ public class DuctileDBHealthCheck {
     public void runCheck() throws IOException {
 	checkForCorrectVertexIndices();
 	checkForCorrectEdgeIndices();
-	checkVertexLabelIndex();
+	checkVertexTypeIndex();
 	checkVertexPropertyIndex();
-	checkEdgeLabelIndex();
+	checkEdgeTypeIndex();
 	checkEdgePropertyIndex();
     }
 
@@ -80,15 +80,14 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    try (Table table = connection.getTable(SchemaTable.VERTEX_LABELS.getTableName())) {
-		for (String label : vertex.getLabels()) {
-		    Result result = table.get(new Get(Bytes.toBytes(label)));
-		    assertFalse("Could not find row for label '" + label + "' in vertex label index.",
-			    result.isEmpty());
+	    try (Table table = connection.getTable(SchemaTable.VERTEX_TYPES.getTableName())) {
+		for (String type : vertex.getTypes()) {
+		    Result result = table.get(new Get(Bytes.toBytes(type)));
+		    assertFalse("Could not find row for type '" + type + "' in vertex type index.", result.isEmpty());
 		    byte[] value = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES)
 			    .get(IdEncoder.encodeRowId(vertex.getId()));
-		    assertNotNull("Could not find vertex label index entry for label '" + label
-			    + "' for vertex with id '" + vertex.getId() + "'", value);
+		    assertNotNull("Could not find vertex type index entry for type '" + type + "' for vertex with id '"
+			    + vertex.getId() + "'", value);
 		}
 	    }
 	    try (Table table = connection.getTable(SchemaTable.VERTEX_PROPERTIES.getTableName())) {
@@ -126,12 +125,12 @@ public class DuctileDBHealthCheck {
 	Iterable<DuctileDBEdge> edges = graph.getEdges();
 	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
-	    String label = edge.getLabel();
-	    try (Table table = connection.getTable(SchemaTable.EDGE_LABELS.getTableName())) {
-		Result result = table.get(new Get(Bytes.toBytes(label)));
-		assertFalse("Could not find row for label '" + label + "' in edge label index.", result.isEmpty());
+	    String type = edge.getType();
+	    try (Table table = connection.getTable(SchemaTable.EDGE_TYPES.getTableName())) {
+		Result result = table.get(new Get(Bytes.toBytes(type)));
+		assertFalse("Could not find row for type '" + type + "' in edge type index.", result.isEmpty());
 		byte[] value = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES).get(IdEncoder.encodeRowId(edge.getId()));
-		assertNotNull("Could not find edge label index entry for label '" + label + "' for edge with id '"
+		assertNotNull("Could not find edge type index entry for type '" + type + "' for edge with id '"
 			+ edge.getId() + "'", value);
 	    }
 	    try (Table table = connection.getTable(SchemaTable.EDGE_PROPERTIES.getTableName())) {
@@ -158,10 +157,10 @@ public class DuctileDBHealthCheck {
     }
 
     /**
-     * This method reads the complete vertex label index and checks for the
+     * This method reads the complete vertex type index and checks for the
      * correct values and to not have stray entries.
      */
-    private void checkVertexLabelIndex() {
+    private void checkVertexTypeIndex() {
 	// TODO Auto-generated method stub
 
     }
@@ -176,10 +175,10 @@ public class DuctileDBHealthCheck {
     }
 
     /**
-     * This method reads the complete edge label index and checks for the
-     * correct values and to not have stray entries.
+     * This method reads the complete edge type index and checks for the correct
+     * values and to not have stray entries.
      */
-    private void checkEdgeLabelIndex() {
+    private void checkEdgeTypeIndex() {
 	// TODO Auto-generated method stub
 
     }

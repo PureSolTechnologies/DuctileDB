@@ -55,15 +55,15 @@ public class ElementUtils {
     }
 
     /**
-     * This method returns the labels of a vertex as {@link Set}.
+     * This method returns the types of a vertex as {@link Set}.
      * 
      * @param vertex
      * @return
      */
-    public static Set<String> getLabels(DuctileDBVertex vertex) {
-	Set<String> labels = new HashSet<>();
-	vertex.getLabels().forEach(label -> labels.add(label));
-	return labels;
+    public static Set<String> getTypes(DuctileDBVertex vertex) {
+	Set<String> types = new HashSet<>();
+	vertex.getTypes().forEach(type -> types.add(type));
+	return types;
     }
 
     public static <T> void setFinalField(Object object, Class<?> clazz, String fieldName, T value) {
@@ -83,7 +83,7 @@ public class ElementUtils {
 
     public static DuctileDBDetachedVertex toDetached(DuctileDBVertex vertex) {
 	return new DuctileDBDetachedVertex((DuctileDBGraphImpl) vertex.getGraph(), vertex.getId(),
-		ElementUtils.getLabels(vertex), ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
+		ElementUtils.getTypes(vertex), ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
     }
 
     public static DuctileDBAttachedEdge toAttached(DuctileDBEdge edge) {
@@ -91,7 +91,7 @@ public class ElementUtils {
     }
 
     public static DuctileDBDetachedEdge toDetached(DuctileDBEdge edge) {
-	return new DuctileDBDetachedEdge((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getLabel(),
+	return new DuctileDBDetachedEdge((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getType(),
 		edge.getStartVertex(), edge.getTargetVertex(), ElementUtils.getProperties(edge));
     }
 }

@@ -41,7 +41,9 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @AfterClass
     public static void checkFinalHealth() throws IOException {
-	healthChecker.runCheck();
+	if (healthChecker != null) {
+	    healthChecker.runCheck();
+	}
     }
 
     @Test
@@ -82,29 +84,29 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testSetAndRemoveVertexLabel() throws IOException {
+    public void testSetAndRemoveVertexType() throws IOException {
 	DuctileDBVertex vertex = graph.addVertex();
-	vertex.addLabel("label");
+	vertex.addType("type");
 	graph.commit();
-	assertTrue(vertex.hasLabel("label"));
+	assertTrue(vertex.hasType("type"));
 
-	Iterator<String> iterator = vertex.getLabels().iterator();
+	Iterator<String> iterator = vertex.getTypes().iterator();
 	assertTrue(iterator.hasNext());
-	assertEquals("label", iterator.next());
+	assertEquals("type", iterator.next());
 	assertFalse(iterator.hasNext());
 
 	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
 	assertEquals(vertex, vertex2);
-	assertTrue(vertex2.hasLabel("label"));
-	iterator = vertex2.getLabels().iterator();
+	assertTrue(vertex2.hasType("type"));
+	iterator = vertex2.getTypes().iterator();
 	assertTrue(iterator.hasNext());
-	assertEquals("label", iterator.next());
+	assertEquals("type", iterator.next());
 	assertFalse(iterator.hasNext());
 
-	vertex.removeLabel("label");
+	vertex.removeType("type");
 	graph.commit();
-	assertFalse(vertex.hasLabel("label"));
-	assertFalse(graph.getVertex(vertex.getId()).hasLabel("label"));
+	assertFalse(vertex.hasType("type"));
+	assertFalse(graph.getVertex(vertex.getId()).hasType("type"));
 	vertex.remove();
 	graph.commit();
     }
@@ -136,13 +138,13 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
-	    Set<String> labels = new HashSet<>();
+	    Set<String> types = new HashSet<>();
 	    Map<String, Object> properties = new HashMap<>();
 	    for (int j = 0; j < 10; ++j) {
-		labels.add("label" + j);
+		types.add("type" + j);
 		properties.put("property" + j, j);
 	    }
-	    DuctileDBVertex vertex = graph.addVertex(labels, properties);
+	    DuctileDBVertex vertex = graph.addVertex(types, properties);
 	    vertices.add(vertex);
 	}
 	graph.commit();
@@ -180,20 +182,20 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testSetLabelPerformance() throws IOException {
+    public void testAddTypePerformance() throws IOException {
 	DuctileDBVertex vertex = graph.addVertex();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
-	    vertex.addLabel("label" + i);
-	    assertTrue(vertex.hasLabel("label" + i));
+	    vertex.addType("type" + i);
+	    assertTrue(vertex.hasType("type" + i));
 	}
 	graph.commit();
 	long stop = System.currentTimeMillis();
 	long duration = stop - start;
 	double speed = (double) NUMBER / (double) duration * 1000.0;
 	System.out.println("time: " + duration + "ms");
-	System.out.println("speed: " + speed + " labels/s");
-	System.out.println("speed: " + 1000 / speed + " ms/label");
+	System.out.println("speed: " + speed + " types/s");
+	System.out.println("speed: " + 1000 / speed + " ms/type");
 	assertTrue(duration < 10000);
 	vertex.remove();
 	graph.commit();

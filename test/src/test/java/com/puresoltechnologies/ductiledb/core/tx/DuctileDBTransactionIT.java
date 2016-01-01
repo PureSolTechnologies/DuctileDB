@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -24,9 +25,9 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.exceptions.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 /**
@@ -130,7 +131,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     @Test
     public void shouldCommitElementAutoTransactionByDefault() {
 	final DuctileDBVertex v1 = graph.addVertex();
-	final DuctileDBEdge e1 = v1.addEdge("l", v1);
+	final DuctileDBEdge e1 = v1.addEdge("l", v1, Collections.emptyMap());
 	assertVertexEdgeCounts(1, 1);
 	assertEquals(v1.getId(), graph.getVertex(v1.getId()).getId());
 	assertEquals(e1.getId(), graph.getEdge(e1.getId()).getId());
@@ -153,7 +154,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     @Test
     public void shouldRollbackElementAutoTransactionByDefault() {
 	final DuctileDBVertex v1 = graph.addVertex();
-	final DuctileDBEdge e1 = v1.addEdge("l", v1);
+	final DuctileDBEdge e1 = v1.addEdge("l", v1, Collections.emptyMap());
 	assertVertexEdgeCounts(1, 1);
 	assertEquals(v1.getId(), graph.getVertex(v1.getId()).getId());
 	assertEquals(e1.getId(), graph.getEdge(e1.getId()).getId());
@@ -164,7 +165,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     @Test
     public void shouldCommitPropertyAutoTransactionByDefault() {
 	final DuctileDBVertex v1 = graph.addVertex();
-	final DuctileDBEdge e1 = v1.addEdge("l", v1);
+	final DuctileDBEdge e1 = v1.addEdge("l", v1, Collections.emptyMap());
 	graph.getCurrentTransaction().commit();
 	assertVertexEdgeCounts(1, 1);
 	assertEquals(v1.getId(), graph.getVertex(v1.getId()).getId());
@@ -281,7 +282,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 		    if (random.nextBoolean()) {
 			final DuctileDBVertex a = graph.addVertex();
 			final DuctileDBVertex b = graph.addVertex();
-			final DuctileDBEdge e = a.addEdge("friend", b);
+			final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
 
 			vertices.getAndAdd(2);
 			a.setProperty("test", this.getId());
@@ -296,7 +297,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 		    } else {
 			final DuctileDBVertex a = graph.addVertex();
 			final DuctileDBVertex b = graph.addVertex();
-			final DuctileDBEdge e = a.addEdge("friend", b);
+			final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
 
 			a.setProperty("test", this.getId());
 			b.setProperty("blah", random.nextDouble());
@@ -445,7 +446,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
 	final DuctileDBVertex v2 = graph.addVertex();
 	v1 = graph.getVertex(v1.getId());
-	v1.addEdge("friend", v2);
+	v1.addEdge("friend", v2, Collections.emptyMap());
 
 	assertVertexEdgeCounts(2, 1);
 

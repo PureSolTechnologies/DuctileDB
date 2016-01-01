@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 
 import java.io.IOException;
 
@@ -11,30 +11,30 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
-public class RemoveVertexLabelOperation extends AbstractTxOperation {
+public class RemoveVertexTypeOperation extends AbstractTxOperation {
 
     private final long vertexId;
-    private final String label;
+    private final String type;
     private final boolean wasPresent;
 
-    public RemoveVertexLabelOperation(DuctileDBTransactionImpl transaction, DuctileDBVertex vertex, String label) {
+    public RemoveVertexTypeOperation(DuctileDBTransactionImpl transaction, DuctileDBVertex vertex, String type) {
 	super(transaction);
 	this.vertexId = vertex.getId();
-	this.label = label;
-	this.wasPresent = vertex.hasLabel(label);
+	this.type = type;
+	this.wasPresent = vertex.hasType(type);
     }
 
     @Override
     public void commitInternally() {
 	DuctileDBCacheVertex vertex = getTransaction().getCachedVertex(vertexId);
-	vertex.removeLabel(label);
+	vertex.removeType(type);
     }
 
     @Override
     public void rollbackInternally() {
 	if (!wasPresent) {
 	    DuctileDBCacheVertex vertex = getTransaction().getCachedVertex(vertexId);
-	    vertex.addLabel(label);
+	    vertex.addType(type);
 	}
     }
 
@@ -42,9 +42,9 @@ public class RemoveVertexLabelOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label));
-	Delete index = OperationsHelper.createVertexLabelIndexDelete(vertexId, label);
+	delete.addColumn(TYPES_COLUMN_FAMILIY_BYTES, Bytes.toBytes(type));
+	Delete index = OperationsHelper.createVertexTypeIndexDelete(vertexId, type);
 	delete(SchemaTable.VERTICES.getTableName(), delete);
-	delete(SchemaTable.VERTEX_LABELS.getTableName(), index);
+	delete(SchemaTable.VERTEX_TYPES.getTableName(), index);
     }
 }

@@ -18,13 +18,13 @@ import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements DuctileDBVertex {
 
-    private final Set<String> labels;
+    private final Set<String> types;
     private final List<DuctileDBEdge> edges;
 
-    public DuctileDBDetachedVertex(DuctileDBGraphImpl graph, long id, Set<String> labels,
-	    Map<String, Object> properties, List<DuctileDBEdge> edges) {
+    public DuctileDBDetachedVertex(DuctileDBGraphImpl graph, long id, Set<String> types, Map<String, Object> properties,
+	    List<DuctileDBEdge> edges) {
 	super(graph, id, properties);
-	this.labels = Collections.unmodifiableSet(labels);
+	this.types = Collections.unmodifiableSet(types);
 	this.edges = Collections.unmodifiableList(edges);
     }
 
@@ -37,7 +37,7 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
 	final int prime = 31;
 	int result = super.hashCode();
 	result = prime * result + ((edges == null) ? 0 : edges.hashCode());
-	result = prime * result + ((labels == null) ? 0 : labels.hashCode());
+	result = prime * result + ((types == null) ? 0 : types.hashCode());
 	return result;
     }
 
@@ -55,28 +55,28 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
 		return false;
 	} else if (!edges.equals(other.edges))
 	    return false;
-	if (labels == null) {
-	    if (other.labels != null)
+	if (types == null) {
+	    if (other.types != null)
 		return false;
-	} else if (!labels.equals(other.labels))
+	} else if (!types.equals(other.types))
 	    return false;
 	return true;
     }
 
     @Override
-    public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeLabels) {
+    public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeTypes) {
 	List<DuctileDBEdge> edges = new ArrayList<>();
-	List<String> labelList = Arrays.asList(edgeLabels);
+	List<String> typeList = Arrays.asList(edgeTypes);
 	for (DuctileDBEdge edge : this.edges) {
-	    if ((edgeLabels.length == 0) || (labelList.contains(edge.getLabel()))) {
+	    if ((edgeTypes.length == 0) || (typeList.contains(edge.getType()))) {
 		switch (direction) {
 		case IN:
-		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
+		    if (edge.getTargetVertex().getId() == getId()) {
 			edges.add(edge);
 		    }
 		    break;
 		case OUT:
-		    if (edge.getVertex(EdgeDirection.OUT).getId() == getId()) {
+		    if (edge.getStartVertex().getId() == getId()) {
 			edges.add(edge);
 		    }
 		    break;
@@ -92,26 +92,26 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
     }
 
     @Override
-    public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeLabels) {
+    public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeTypes) {
 	List<DuctileDBVertex> vertices = new ArrayList<>();
-	List<String> labelList = Arrays.asList(edgeLabels);
+	List<String> typeList = Arrays.asList(edgeTypes);
 	for (DuctileDBEdge edge : this.edges) {
-	    if (labelList.contains(edge.getLabel())) {
+	    if (typeList.contains(edge.getType())) {
 		switch (direction) {
 		case IN:
-		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
-			vertices.add(edge.getVertex(EdgeDirection.OUT));
+		    if (edge.getTargetVertex().getId() == getId()) {
+			vertices.add(edge.getStartVertex());
 		    }
 		    break;
 		case OUT:
-		    if (edge.getVertex(EdgeDirection.OUT).getId() == getId()) {
-			vertices.add(edge.getVertex(EdgeDirection.OUT));
+		    if (edge.getStartVertex().getId() == getId()) {
+			vertices.add(edge.getTargetVertex());
 		    }
 		    break;
 		case BOTH:
-		    DuctileDBVertex vertex = edge.getVertex(EdgeDirection.IN);
+		    DuctileDBVertex vertex = edge.getTargetVertex();
 		    if (vertex.getId() == getId()) {
-			vertices.add(edge.getVertex(EdgeDirection.OUT));
+			vertices.add(edge.getStartVertex());
 		    } else {
 			vertices.add(vertex);
 		    }
@@ -129,13 +129,7 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
     }
 
     @Override
-    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
-	throwDetachedException();
-	return null;
-    }
-
-    @Override
-    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
+    public DuctileDBEdge addEdge(String type, DuctileDBVertex targetVertex, Map<String, Object> properties) {
 	throwDetachedException();
 	return null;
     }
@@ -156,40 +150,40 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
     }
 
     @Override
-    public Iterable<String> getLabels() {
+    public Iterable<String> getTypes() {
 	return new Iterable<String>() {
 	    @Override
 	    public Iterator<String> iterator() {
-		return labels.iterator();
+		return types.iterator();
 	    }
 	};
     }
 
     @Override
-    public void addLabel(String label) {
+    public void addType(String type) {
 	throwDetachedException();
     }
 
     @Override
-    public void removeLabel(String label) {
+    public void removeType(String type) {
 	throwDetachedException();
     }
 
     @Override
-    public boolean hasLabel(String label) {
-	return labels.contains(label);
+    public boolean hasType(String type) {
+	return types.contains(type);
     }
 
     @Override
     public String toString() {
-	return getClass().getSimpleName() + " " + getId() + ": labels=" + labels + "; properties="
-		+ getPropertiesString() + "; edges=" + edges;
+	return getClass().getSimpleName() + " " + getId() + ": types=" + types + "; properties=" + getPropertiesString()
+		+ "; edges=" + edges;
     }
 
     @Override
     public DuctileDBDetachedVertex clone() {
 	DuctileDBDetachedVertex cloned = (DuctileDBDetachedVertex) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBDetachedVertex.class, "labels", new HashSet<>(labels));
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedVertex.class, "types", new HashSet<>(types));
 	List<DuctileDBEdge> clonedEdges = new ArrayList<>();
 	for (DuctileDBEdge edge : edges) {
 	    clonedEdges.add(edge.clone());

@@ -223,16 +223,16 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return connection.getTable(SchemaTable.VERTEX_PROPERTIES.getTableName());
     }
 
-    Table openVertexLabelTable() throws IOException {
-	return connection.getTable(SchemaTable.VERTEX_LABELS.getTableName());
+    Table openVertexTypesTable() throws IOException {
+	return connection.getTable(SchemaTable.VERTEX_TYPES.getTableName());
     }
 
     Table openEdgePropertyTable() throws IOException {
 	return connection.getTable(SchemaTable.EDGE_PROPERTIES.getTableName());
     }
 
-    Table openEdgeLabelTable() throws IOException {
-	return connection.getTable(SchemaTable.EDGE_LABELS.getTableName());
+    Table openEdgeTypesTable() throws IOException {
+	return connection.getTable(SchemaTable.EDGE_TYPES.getTableName());
     }
 
     final long createVertexId() {
@@ -268,18 +268,17 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     @Override
-    public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
+    public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties) {
 	long vertexId = createVertexId();
-	addTxOperation(new AddVertexOperation(this, vertexId, labels, properties));
+	addTxOperation(new AddVertexOperation(this, vertexId, types, properties));
 	return getVertex(vertexId);
     }
 
     @Override
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
+    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String type,
 	    Map<String, Object> properties) {
 	long edgeId = createEdgeId();
-	addTxOperation(
-		new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), label, properties));
+	addTxOperation(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), type, properties));
 	return getEdge(edgeId);
     }
 
@@ -333,19 +332,19 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     @Override
-    public Iterable<DuctileDBEdge> getEdges(String label) {
-	if ((label == null) || (label.isEmpty())) {
-	    throw new IllegalArgumentException("Label must not be null.");
+    public Iterable<DuctileDBEdge> getEdges(String type) {
+	if ((type == null) || (type.isEmpty())) {
+	    throw new IllegalArgumentException("Type must not be null.");
 	}
-	try (Table table = openEdgeLabelTable()) {
-	    Result result = table.get(new Get(Bytes.toBytes(label)));
+	try (Table table = openEdgeTypesTable()) {
+	    Result result = table.get(new Get(Bytes.toBytes(type)));
 	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    for (byte[] edgeIdBytes : map.keySet()) {
 		long edgeId = IdEncoder.decodeRowId(edgeIdBytes);
 		if (!wasEdgeRemoved(edgeId)) {
 		    DuctileDBEdge edge = getEdge(edgeId);
-		    if ((edge != null) && (label.equals(edge.getLabel()))) {
+		    if ((edge != null) && (type.equals(edge.getType()))) {
 			edges.add(edge);
 		    }
 		}
@@ -416,13 +415,13 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     @Override
-    public Iterable<DuctileDBVertex> getVertices(String label) {
-	if ((label == null) || (label.isEmpty())) {
-	    throw new IllegalArgumentException("Label must not be null.");
+    public Iterable<DuctileDBVertex> getVertices(String type) {
+	if ((type == null) || (type.isEmpty())) {
+	    throw new IllegalArgumentException("Type must not be null.");
 	}
-	try (Table table = openVertexLabelTable()) {
+	try (Table table = openVertexTypesTable()) {
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
-	    Get get = new Get(Bytes.toBytes(label));
+	    Get get = new Get(Bytes.toBytes(type));
 	    get.addFamily(INDEX_COLUMN_FAMILY_BYTES);
 	    Result result = table.get(get);
 	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
@@ -431,7 +430,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    long vertexId = IdEncoder.decodeRowId(vertexIdBytes);
 		    if (!wasVertexRemoved(vertexId)) {
 			DuctileDBVertex vertex = getVertex(vertexId);
-			if ((vertex != null) && (ElementUtils.getLabels(vertex).contains(label))) {
+			if ((vertex != null) && (ElementUtils.getTypes(vertex).contains(type))) {
 			    vertices.add(vertex);
 			}
 		    }
@@ -465,8 +464,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	for (DuctileDBEdge edge : vertex.getEdges(EdgeDirection.BOTH)) {
 	    removeEdge(edge);
 	}
-	for (String label : ElementUtils.getLabels(vertex)) {
-	    removeLabel(vertex, label);
+	for (String type : ElementUtils.getTypes(vertex)) {
+	    removeType(vertex, type);
 	}
 	for (String key : new HashSet<>(vertex.getPropertyKeys())) {
 	    removeProperty(vertex, key);
@@ -474,12 +473,12 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	addTxOperation(new RemoveVertexOperation(this, vertexId));
     }
 
-    public void addLabel(DuctileDBVertex vertex, String label) {
-	addTxOperation(new AddVertexLabelOperation(this, vertex.getId(), label));
+    public void addType(DuctileDBVertex vertex, String type) {
+	addTxOperation(new AddVertexTypeOperation(this, vertex.getId(), type));
     }
 
-    public void removeLabel(DuctileDBVertex vertex, String label) {
-	addTxOperation(new RemoveVertexLabelOperation(this, vertex, label));
+    public void removeType(DuctileDBVertex vertex, String type) {
+	addTxOperation(new RemoveVertexTypeOperation(this, vertex, type));
     }
 
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
@@ -548,21 +547,21 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	transactionListeners.get().clear();
     }
 
-    public List<DuctileDBEdge> getEdges(long vertexId, EdgeDirection direction, String[] edgeLabels) {
+    public List<DuctileDBEdge> getEdges(long vertexId, EdgeDirection direction, String[] edgeTypes) {
 	DuctileDBCacheVertex cachedVertex = getCachedVertex(vertexId);
 	List<DuctileDBEdge> edges = new ArrayList<>();
-	List<String> labelList = Arrays.asList(edgeLabels);
-	for (DuctileDBEdge cachedEdge : cachedVertex.getEdges(direction, edgeLabels)) {
-	    if ((edgeLabels.length == 0) || (labelList.contains(cachedEdge.getLabel()))) {
+	List<String> typeList = Arrays.asList(edgeTypes);
+	for (DuctileDBEdge cachedEdge : cachedVertex.getEdges(direction, edgeTypes)) {
+	    if ((edgeTypes.length == 0) || (typeList.contains(cachedEdge.getType()))) {
 		DuctileDBAttachedEdge edge = ElementUtils.toAttached(cachedEdge);
 		switch (direction) {
 		case IN:
-		    if (edge.getVertex(EdgeDirection.IN).getId() == vertexId) {
+		    if (edge.getTargetVertex().getId() == vertexId) {
 			edges.add(ElementUtils.toAttached(edge));
 		    }
 		    break;
 		case OUT:
-		    if (edge.getVertex(EdgeDirection.OUT).getId() == vertexId) {
+		    if (edge.getStartVertex().getId() == vertexId) {
 			edges.add(ElementUtils.toAttached(edge));
 		    }
 		    break;
@@ -588,14 +587,14 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return edges;
     }
 
-    public Iterable<String> getVertexLabels(long vertexId) {
+    public Iterable<String> getVertexTypes(long vertexId) {
 	DuctileDBCacheVertex cachedVertex = getCachedVertex(vertexId);
-	return cachedVertex.getLabels();
+	return cachedVertex.getTypes();
     }
 
-    public boolean hasLabel(long vertexId, String label) {
+    public boolean hasType(long vertexId, String type) {
 	DuctileDBCacheVertex cachedVertex = getCachedVertex(vertexId);
-	return cachedVertex.hasLabel(label);
+	return cachedVertex.hasType(type);
     }
 
     public Set<String> getVertexPropertyKeys(long vertexId) {
@@ -618,9 +617,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return getVertex(cachedEdge.getTargetVertexId());
     }
 
-    public String getEdgeLabel(long edgeId) {
+    public String getEdgeType(long edgeId) {
 	DuctileDBCacheEdge cachedEdge = getCachedEdge(edgeId);
-	return cachedEdge.getLabel();
+	return cachedEdge.getType();
     }
 
     public Set<String> getEdgePropertyKeys(long edgeId) {

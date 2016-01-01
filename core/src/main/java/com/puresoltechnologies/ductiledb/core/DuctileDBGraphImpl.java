@@ -47,14 +47,14 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
+    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String type,
 	    Map<String, Object> properties) {
-	return getCurrentTransaction().addEdge(startVertex, targetVertex, label, properties);
+	return getCurrentTransaction().addEdge(startVertex, targetVertex, type, properties);
     }
 
     @Override
-    public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties) {
-	return getCurrentTransaction().addVertex(labels, properties);
+    public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties) {
+	return getCurrentTransaction().addVertex(types, properties);
     }
 
     @Override
@@ -73,8 +73,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public Iterable<DuctileDBEdge> getEdges(String label) {
-	return getCurrentTransaction().getEdges(label);
+    public Iterable<DuctileDBEdge> getEdges(String type) {
+	return getCurrentTransaction().getEdges(type);
     }
 
     @Override
@@ -93,8 +93,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public Iterable<DuctileDBVertex> getVertices(String label) {
-	return getCurrentTransaction().getVertices(label);
+    public Iterable<DuctileDBVertex> getVertices(String type) {
+	return getCurrentTransaction().getVertices(type);
     }
 
     @Override

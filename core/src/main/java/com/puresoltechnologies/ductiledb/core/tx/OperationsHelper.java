@@ -19,16 +19,16 @@ public class OperationsHelper {
     private OperationsHelper() {
     }
 
-    public static Put createVertexLabelIndexPut(long vertexId, String label) {
-	Put labelIndexPut = new Put(Bytes.toBytes(label));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId), new byte[0]);
-	return labelIndexPut;
+    public static Put createVertexTypeIndexPut(long vertexId, String type) {
+	Put typeIndexPut = new Put(Bytes.toBytes(type));
+	typeIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId), new byte[0]);
+	return typeIndexPut;
     }
 
-    public static Delete createVertexLabelIndexDelete(long vertexId, String label) {
-	Delete labelIndexPut = new Delete(Bytes.toBytes(label));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId));
-	return labelIndexPut;
+    public static Delete createVertexTypeIndexDelete(long vertexId, String type) {
+	Delete typeIndexPut = new Delete(Bytes.toBytes(type));
+	typeIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId));
+	return typeIndexPut;
     }
 
     public static Put createVertexPropertyIndexPut(long vertexId, String key, Object value) {
@@ -44,10 +44,10 @@ public class OperationsHelper {
 	return indexPut;
     }
 
-    public static Put createEdgeLabelIndexPut(long edgeId, String label) {
-	Put labelIndexPut = new Put(Bytes.toBytes(label));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId), new byte[0]);
-	return labelIndexPut;
+    public static Put createEdgeTypeIndexPut(long edgeId, String type) {
+	Put typeIndexPut = new Put(Bytes.toBytes(type));
+	typeIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId), new byte[0]);
+	return typeIndexPut;
     }
 
     public static Put createEdgePropertyIndexPut(long edgeId, String key, Object value) {
@@ -57,10 +57,10 @@ public class OperationsHelper {
 	return indexPut;
     }
 
-    public static Delete createEdgeLabelIndexDelete(long edgeId, String label) {
-	Delete labelIndexPut = new Delete(Bytes.toBytes(label));
-	labelIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId));
-	return labelIndexPut;
+    public static Delete createEdgeTypeIndexDelete(long edgeId, String type) {
+	Delete typeIndexPut = new Delete(Bytes.toBytes(type));
+	typeIndexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId));
+	return typeIndexPut;
     }
 
     public static Delete createEdgePropertyIndexDelete(long edgeId, String key) {

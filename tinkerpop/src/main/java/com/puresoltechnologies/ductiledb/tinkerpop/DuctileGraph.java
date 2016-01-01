@@ -65,7 +65,7 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 	String[] labels = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL)
 		.split(DuctileVertex.LABEL_DELIMINATOR);
 	for (String label : labels) {
-	    vertex.addLabel(label);
+	    vertex.addType(label);
 	}
 	DuctileVertex ductileVertex = new DuctileVertex(vertex, this);
 	ElementHelper.attachProperties(ductileVertex, keyValues);

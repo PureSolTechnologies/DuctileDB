@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,9 +45,9 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
 	DuctileDBVertex vertex3 = graph.addVertex();
-	vertex1.addEdge("edge12", vertex2);
-	vertex2.addEdge("edge23", vertex3);
-	vertex3.addEdge("edge31", vertex1);
+	vertex1.addEdge("edge12", vertex2, Collections.emptyMap());
+	vertex2.addEdge("edge23", vertex3, Collections.emptyMap());
+	vertex3.addEdge("edge31", vertex1, Collections.emptyMap());
 	graph.commit();
 	assertEquals(3, DuctileDBTestHelper.count(graph.getEdges()));
 

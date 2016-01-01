@@ -8,9 +8,9 @@ public enum SchemaTable {
     VERTICES("vertices"), //
     EDGES("edges"), //
     VERTEX_PROPERTIES("vertex_properties"), //
-    VERTEX_LABELS("vertex_labels"), //
+    VERTEX_TYPES("vertex_types"), //
     EDGE_PROPERTIES("edge_properties"), //
-    EDGE_LABELS("edge_labels");
+    EDGE_TYPES("edge_types");
 
     private final String name;
     private final TableName tableName;

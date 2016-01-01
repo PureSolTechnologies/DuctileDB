@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 
 import java.io.IOException;
 
@@ -10,30 +10,30 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
-public class AddVertexLabelOperation extends AbstractTxOperation {
+public class AddVertexTypeOperation extends AbstractTxOperation {
 
     private final long vertexId;
-    private final String label;
+    private final String type;
     private final boolean wasPresent;
 
-    public AddVertexLabelOperation(DuctileDBTransactionImpl transaction, long vertexId, String label) {
+    public AddVertexTypeOperation(DuctileDBTransactionImpl transaction, long vertexId, String type) {
 	super(transaction);
 	this.vertexId = vertexId;
-	this.label = label;
-	this.wasPresent = getTransaction().getVertex(vertexId).hasLabel(label);
+	this.type = type;
+	this.wasPresent = getTransaction().getVertex(vertexId).hasType(type);
     }
 
     @Override
     public void commitInternally() {
 	DuctileDBCacheVertex vertex = getTransaction().getCachedVertex(vertexId);
-	vertex.addLabel(label);
+	vertex.addType(type);
     }
 
     @Override
     public void rollbackInternally() {
 	if (!wasPresent) {
 	    DuctileDBCacheVertex vertex = getTransaction().getCachedVertex(vertexId);
-	    vertex.removeLabel(label);
+	    vertex.removeType(type);
 	}
     }
 
@@ -41,9 +41,9 @@ public class AddVertexLabelOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
-	put.addColumn(LABELS_COLUMN_FAMILIY_BYTES, Bytes.toBytes(label), Bytes.toBytes(label));
-	Put index = OperationsHelper.createVertexLabelIndexPut(vertexId, label);
+	put.addColumn(TYPES_COLUMN_FAMILIY_BYTES, Bytes.toBytes(type), Bytes.toBytes(type));
+	Put index = OperationsHelper.createVertexTypeIndexPut(vertexId, type);
 	put(SchemaTable.VERTICES.getTableName(), put);
-	put(SchemaTable.VERTEX_LABELS.getTableName(), index);
+	put(SchemaTable.VERTEX_TYPES.getTableName(), index);
     }
 }

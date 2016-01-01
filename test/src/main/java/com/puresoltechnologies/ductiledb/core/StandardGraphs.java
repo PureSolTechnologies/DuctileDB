@@ -31,9 +31,9 @@ public class StandardGraphs {
     public static void createGraph(DuctileDBGraph graph, int numberOfVertices) throws IOException {
 	DuctileDBVertex[] vertices = new DuctileDBVertex[numberOfVertices];
 	for (int i = 0; i < numberOfVertices; ++i) {
-	    Set<String> labels = new HashSet<>();
-	    labels.add("vertex" + i);
-	    DuctileDBVertex vertex = graph.addVertex(labels, new HashMap<>());
+	    Set<String> types = new HashSet<>();
+	    types.add("vertex" + i);
+	    DuctileDBVertex vertex = graph.addVertex(types, new HashMap<>());
 	    vertices[i] = vertex;
 	}
 	for (int i = 0; i < numberOfVertices - 1; ++i) {

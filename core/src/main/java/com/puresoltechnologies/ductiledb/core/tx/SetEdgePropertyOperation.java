@@ -26,7 +26,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     private final long edgeId;
     private final long startVertexId;
     private final long targetVertexId;
-    private final String label;
+    private final String type;
     private final String key;
     private final Object value;
     private final Object oldValue;
@@ -37,7 +37,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 	this.edgeId = edge.getId();
 	this.startVertexId = edge.getStartVertex().getId();
 	this.targetVertexId = edge.getTargetVertex().getId();
-	this.label = edge.getLabel();
+	this.type = edge.getType();
 	this.key = key;
 	this.value = value;
 	this.oldValue = edge.getProperty(key);
@@ -63,7 +63,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	try (Table table = getConnection().getTable(SchemaTable.VERTICES.getTableName())) {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label);
+	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
@@ -78,7 +78,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 		    startVertexEdgeValue.encode());
 
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
-	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, label);
+	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type);
 	    Result targetVertexResult = table.get(new Get(targetVertexRowId));
 	    if (targetVertexResult.isEmpty()) {
 		throw new IllegalStateException("Target vertex of edge was not found in graph store.");

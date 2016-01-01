@@ -34,8 +34,8 @@ public class DuctileDBSchema {
     public static final String EDGEID_COLUMN = "EdgeId";
     public static final byte[] EDGEID_COLUMN_BYTES = Bytes.toBytes(EDGEID_COLUMN);
 
-    public static final String LABELS_COLUMN_FAMILIY = "labels";
-    public static final byte[] LABELS_COLUMN_FAMILIY_BYTES = Bytes.toBytes(LABELS_COLUMN_FAMILIY);
+    public static final String TYPES_COLUMN_FAMILIY = "types";
+    public static final byte[] TYPES_COLUMN_FAMILIY_BYTES = Bytes.toBytes(TYPES_COLUMN_FAMILIY);
 
     public static final String EDGES_COLUMN_FAMILY = "edges";
     public static final byte[] EDGES_COLUMN_FAMILY_BYTES = Bytes.toBytes(EDGES_COLUMN_FAMILY);
@@ -65,9 +65,9 @@ public class DuctileDBSchema {
 	    assureMetaDataTablePresence(admin);
 	    assureVerticesTablePresence(admin);
 	    assureEdgesTablePresence(admin);
-	    assureVertexLabelsIndexTablePresence(admin);
+	    assureVertexTypesIndexTablePresence(admin);
 	    assureVertexPropertiesIndexTablePresence(admin);
-	    assureEdgeLabelsIndexTablePresence(admin);
+	    assureEdgeTypesIndexTablePresence(admin);
 	    assureEdgePropertiesIndexTablePresence(admin);
 	}
     }
@@ -104,8 +104,8 @@ public class DuctileDBSchema {
     private void assureVerticesTablePresence(Admin admin) throws IOException {
 	if (!admin.isTableAvailable(SchemaTable.VERTICES.getTableName())) {
 	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.VERTICES.getTableName());
-	    HColumnDescriptor labelColumnFamily = new HColumnDescriptor(LABELS_COLUMN_FAMILIY);
-	    descriptor.addFamily(labelColumnFamily);
+	    HColumnDescriptor typeColumnFamily = new HColumnDescriptor(TYPES_COLUMN_FAMILIY);
+	    descriptor.addFamily(typeColumnFamily);
 	    HColumnDescriptor edgesColumnFamily = new HColumnDescriptor(EDGES_COLUMN_FAMILY);
 	    descriptor.addFamily(edgesColumnFamily);
 	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILY);
@@ -117,8 +117,8 @@ public class DuctileDBSchema {
     private void assureEdgesTablePresence(Admin admin) throws IOException {
 	if (!admin.isTableAvailable(SchemaTable.EDGES.getTableName())) {
 	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.EDGES.getTableName());
-	    HColumnDescriptor labelsColumnFamily = new HColumnDescriptor(LABELS_COLUMN_FAMILIY_BYTES);
-	    descriptor.addFamily(labelsColumnFamily);
+	    HColumnDescriptor typesColumnFamily = new HColumnDescriptor(TYPES_COLUMN_FAMILIY_BYTES);
+	    descriptor.addFamily(typesColumnFamily);
 	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(propertiesColumnFamily);
 	    HColumnDescriptor verticesColumnFamily = new HColumnDescriptor(VERICES_COLUMN_FAMILY_BYTES);
@@ -127,9 +127,9 @@ public class DuctileDBSchema {
 	}
     }
 
-    private void assureVertexLabelsIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(SchemaTable.VERTEX_LABELS.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.VERTEX_LABELS.getTableName());
+    private void assureVertexTypesIndexTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(SchemaTable.VERTEX_TYPES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.VERTEX_TYPES.getTableName());
 	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(indexColumnFamily);
 	    admin.createTable(descriptor);
@@ -145,9 +145,9 @@ public class DuctileDBSchema {
 	}
     }
 
-    private void assureEdgeLabelsIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(SchemaTable.EDGE_LABELS.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.EDGE_LABELS.getTableName());
+    private void assureEdgeTypesIndexTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(SchemaTable.EDGE_TYPES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.EDGE_TYPES.getTableName());
 	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(INDEX_COLUMN_FAMILY_BYTES);
 	    descriptor.addFamily(indexColumnFamily);
 	    admin.createTable(descriptor);

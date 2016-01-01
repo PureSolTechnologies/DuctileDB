@@ -18,31 +18,31 @@ public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements
     }
 
     @Override
-    public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeLabels) {
-	return getCurrentTransaction().getEdges(getId(), direction, edgeLabels);
+    public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeTypes) {
+	return getCurrentTransaction().getEdges(getId(), direction, edgeTypes);
     }
 
     @Override
-    public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeLabels) {
+    public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeTypes) {
 	List<DuctileDBVertex> vertices = new ArrayList<>();
-	List<String> labelList = Arrays.asList(edgeLabels);
+	List<String> typeList = Arrays.asList(edgeTypes);
 	for (DuctileDBEdge edge : getCurrentTransaction().getVertexEdges(getId())) {
-	    if (labelList.contains(edge.getLabel())) {
+	    if (typeList.contains(edge.getType())) {
 		switch (direction) {
 		case IN:
-		    if (edge.getVertex(EdgeDirection.IN).getId() == getId()) {
-			vertices.add(edge.getVertex(EdgeDirection.OUT));
+		    if (edge.getTargetVertex().getId() == getId()) {
+			vertices.add(edge.getStartVertex());
 		    }
 		    break;
 		case OUT:
-		    if (edge.getVertex(EdgeDirection.OUT).getId() == getId()) {
-			vertices.add(edge.getVertex(EdgeDirection.OUT));
+		    if (edge.getStartVertex().getId() == getId()) {
+			vertices.add(edge.getTargetVertex());
 		    }
 		    break;
 		case BOTH:
-		    DuctileDBVertex vertex = edge.getVertex(EdgeDirection.IN);
+		    DuctileDBVertex vertex = edge.getTargetVertex();
 		    if (vertex.getId() == getId()) {
-			vertices.add(edge.getVertex(EdgeDirection.OUT));
+			vertices.add(edge.getStartVertex());
 		    } else {
 			vertices.add(vertex);
 		    }
@@ -60,13 +60,8 @@ public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements
     }
 
     @Override
-    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex) {
-	return getCurrentTransaction().addEdge(this, inVertex, label);
-    }
-
-    @Override
-    public DuctileDBEdge addEdge(String label, DuctileDBVertex inVertex, Map<String, Object> properties) {
-	return getCurrentTransaction().addEdge(this, inVertex, label, properties);
+    public DuctileDBEdge addEdge(String type, DuctileDBVertex targetVertex, Map<String, Object> properties) {
+	return getCurrentTransaction().addEdge(this, targetVertex, type, properties);
     }
 
     @Override
@@ -75,23 +70,23 @@ public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements
     }
 
     @Override
-    public Iterable<String> getLabels() {
-	return getCurrentTransaction().getVertexLabels(getId());
+    public Iterable<String> getTypes() {
+	return getCurrentTransaction().getVertexTypes(getId());
     }
 
     @Override
-    public void addLabel(String label) {
-	getCurrentTransaction().addLabel(this, label);
+    public void addType(String type) {
+	getCurrentTransaction().addType(this, type);
     }
 
     @Override
-    public void removeLabel(String label) {
-	getCurrentTransaction().removeLabel(this, label);
+    public void removeType(String type) {
+	getCurrentTransaction().removeType(this, type);
     }
 
     @Override
-    public boolean hasLabel(String label) {
-	return getCurrentTransaction().hasLabel(getId(), label);
+    public boolean hasType(String type) {
+	return getCurrentTransaction().hasType(getId(), type);
     }
 
     @Override
@@ -116,14 +111,14 @@ public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements
 
     @Override
     public String toString() {
-	return getClass().getSimpleName() + " " + getId() + ": labels=" + ElementUtils.getLabels(this) + "; properties="
+	return getClass().getSimpleName() + " " + getId() + ": types=" + ElementUtils.getTypes(this) + "; properties="
 		+ getPropertiesString() + "; edges=" + getEdges(EdgeDirection.BOTH);
     }
 
     @Override
     public DuctileDBAttachedVertex clone() {
 	DuctileDBAttachedVertex cloned = (DuctileDBAttachedVertex) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertex.class, "labels", ElementUtils.getLabels(this));
+	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertex.class, "types", ElementUtils.getTypes(this));
 	ElementUtils.setFinalField(cloned, DuctileDBAttachedVertex.class, "edges", ElementUtils.getEdges(this));
 	return cloned;
     }

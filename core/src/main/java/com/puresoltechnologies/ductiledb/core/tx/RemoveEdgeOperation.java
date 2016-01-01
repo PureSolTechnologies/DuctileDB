@@ -21,7 +21,7 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
     private final DuctileDBEdge edge;
     private final long targetVertexId;
     private final long startVertexId;
-    private final String label;
+    private final String type;
     private final Set<String> edgePropertyKeys;
 
     public RemoveEdgeOperation(DuctileDBTransactionImpl transaction, DuctileDBEdge edge) {
@@ -29,7 +29,7 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	this.edge = edge;
 	this.startVertexId = edge.getStartVertex().getId();
 	this.targetVertexId = edge.getTargetVertex().getId();
-	this.label = edge.getLabel();
+	this.type = edge.getType();
 	this.edgePropertyKeys = Collections.unmodifiableSet(edge.getPropertyKeys());
     }
 
@@ -61,12 +61,12 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	long edgeId = edge.getId();
 	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(startVertexId));
 	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, label).encode());
+		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode());
 	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(targetVertexId));
 	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
-		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, label).encode());
+		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode());
 	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
-	Delete labelIndex = OperationsHelper.createEdgeLabelIndexDelete(edgeId, label);
+	Delete typeIndex = OperationsHelper.createEdgeTypeIndexDelete(edgeId, type);
 	List<Delete> propertyIndices = new ArrayList<>();
 	for (String key : edgePropertyKeys) {
 	    propertyIndices.add(OperationsHelper.createEdgePropertyIndexDelete(edgeId, key));
@@ -74,7 +74,7 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	delete(SchemaTable.VERTICES.getTableName(), deleteOutEdge);
 	delete(SchemaTable.VERTICES.getTableName(), deleteInEdge);
 	delete(SchemaTable.EDGES.getTableName(), deleteEdges);
-	delete(SchemaTable.EDGE_LABELS.getTableName(), labelIndex);
+	delete(SchemaTable.EDGE_TYPES.getTableName(), typeIndex);
 	delete(SchemaTable.EDGE_PROPERTIES.getTableName(), propertyIndices);
     }
 

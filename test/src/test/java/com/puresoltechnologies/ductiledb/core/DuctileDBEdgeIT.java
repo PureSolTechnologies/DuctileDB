@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.junit.BeforeClass;
@@ -28,7 +29,7 @@ public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
     public void testAddAndRemoveEdge() throws IOException {
 	DuctileDBVertex vertex1 = graph.addVertex();
 	DuctileDBVertex vertex2 = graph.addVertex();
-	DuctileDBEdge edge = vertex1.addEdge("TestEdge", vertex2);
+	DuctileDBEdge edge = vertex1.addEdge("TestEdge", vertex2, Collections.emptyMap());
 	assertEquals(vertex1, edge.getStartVertex());
 	assertEquals(vertex2, edge.getTargetVertex());
 

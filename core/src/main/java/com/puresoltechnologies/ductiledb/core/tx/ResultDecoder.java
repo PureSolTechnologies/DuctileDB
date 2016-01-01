@@ -1,10 +1,10 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.LABELS_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
 
 import java.util.ArrayList;
@@ -38,12 +38,12 @@ public class ResultDecoder {
 	if (result.isEmpty()) {
 	    return null;
 	}
-	// Reading labels...
-	Set<String> labels = new HashSet<>();
-	NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
-	if (labelsMap != null) {
-	    for (byte[] label : labelsMap.keySet()) {
-		labels.add(Bytes.toString(label));
+	// Reading types...
+	Set<String> types = new HashSet<>();
+	NavigableMap<byte[], byte[]> typesMap = result.getFamilyMap(TYPES_COLUMN_FAMILIY_BYTES);
+	if (typesMap != null) {
+	    for (byte[] type : typesMap.keySet()) {
+		types.add(Bytes.toString(type));
 	    }
 	}
 	// Reading properties...
@@ -66,15 +66,15 @@ public class ResultDecoder {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
 		EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
 		if (EdgeDirection.IN == edgeKey.getDirection()) {
-		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getLabel(), edgeKey.getVertexId(),
+		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getType(), edgeKey.getVertexId(),
 			    vertexId, edgeValue.getProperties()));
 		} else {
-		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getLabel(), vertexId,
+		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getType(), vertexId,
 			    edgeKey.getVertexId(), edgeValue.getProperties()));
 		}
 	    }
 	}
-	return new DuctileDBCacheVertex(graph, vertexId, labels, properties, edges);
+	return new DuctileDBCacheVertex(graph, vertexId, types, properties, edges);
     }
 
     public static DuctileDBCacheEdge toCacheEdge(DuctileDBGraphImpl graph, long edgeId, Result result) {
@@ -84,17 +84,17 @@ public class ResultDecoder {
 	NavigableMap<byte[], byte[]> verticesColumnFamily = result.getFamilyMap(VERICES_COLUMN_FAMILY_BYTES);
 	long startVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(START_VERTEXID_COLUMN_BYTES));
 	long targetVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(TARGET_VERTEXID_COLUMN_BYTES));
-	NavigableMap<byte[], byte[]> labelsMap = result.getFamilyMap(LABELS_COLUMN_FAMILIY_BYTES);
-	Set<byte[]> labelBytes = labelsMap.keySet();
-	if (labelBytes.size() == 0) {
-	    throw new DuctileDBException("Found edge without label (id='" + edgeId
+	NavigableMap<byte[], byte[]> typesMap = result.getFamilyMap(TYPES_COLUMN_FAMILIY_BYTES);
+	Set<byte[]> typeBytes = typesMap.keySet();
+	if (typeBytes.size() == 0) {
+	    throw new DuctileDBException("Found edge without type (id='" + edgeId
 		    + "'). This is not supported and an inconsistency in graph.");
 	}
-	if (labelBytes.size() > 1) {
-	    throw new DuctileDBException("Found edge with multiple labels (id='" + edgeId
+	if (typeBytes.size() > 1) {
+	    throw new DuctileDBException("Found edge with multiple types (id='" + edgeId
 		    + "'). This is not supported and an inconsistency in graph.");
 	}
-	String label = Bytes.toString(labelBytes.iterator().next());
+	String type = Bytes.toString(typeBytes.iterator().next());
 	Map<String, Object> properties = new HashMap<>();
 	NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
 	for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
@@ -104,6 +104,6 @@ public class ResultDecoder {
 		properties.put(key, value);
 	    }
 	}
-	return new DuctileDBCacheEdge(graph, edgeId, label, startVertexId, targetVertexId, properties);
+	return new DuctileDBCacheEdge(graph, edgeId, type, startVertexId, targetVertexId, properties);
     }
 }

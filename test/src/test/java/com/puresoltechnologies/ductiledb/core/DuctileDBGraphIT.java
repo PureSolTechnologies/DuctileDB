@@ -34,12 +34,12 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 	DuctileDBVertex vertex = iterator.next();
 	assertEquals("Luke", vertex.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertEquals("Skywalker", vertex.getProperty(StarWarsGraph.LAST_NAME_PROPERTY));
-	assertTrue(vertex.hasLabel("Yeti"));
+	assertTrue(vertex.hasType("Yeti"));
 	assertFalse(iterator.hasNext());
     }
 
     @Test
-    public void testLabelSearch() throws IOException {
+    public void testTypeSearch() throws IOException {
 	Iterable<DuctileDBVertex> vertices = graph.getVertices("Yeti");
 	Iterator<DuctileDBVertex> iterator = vertices.iterator();
 	assertTrue(iterator.hasNext());
@@ -63,7 +63,7 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 		.iterator();
 	assertTrue(edges.hasNext());
 	DuctileDBEdge hasSister = edges.next();
-	DuctileDBVertex leiaOrgana = hasSister.getVertex(EdgeDirection.IN);
+	DuctileDBVertex leiaOrgana = hasSister.getTargetVertex();
 	assertEquals("Leia", leiaOrgana.getProperty(StarWarsGraph.FIRST_NAME_PROPERTY));
 	assertFalse(edges.hasNext());
     }

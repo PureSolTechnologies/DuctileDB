@@ -72,7 +72,7 @@ public class DucileStoreVertexManager
     @Override
     public Set<String> getEntityDiscriminators(DuctileVertex vertex) {
 	Set<String> discriminators = new HashSet<>();
-	for (String label : vertex.getBaseVertex().getLabels()) {
+	for (String label : vertex.getBaseVertex().getTypes()) {
 	    discriminators.add(label);
 	}
 	if (discriminators.size() == 0) {
@@ -93,7 +93,7 @@ public class DucileStoreVertexManager
 	    Map<PrimitivePropertyMethodMetadata<DuctilePropertyMetadata>, Object> exampleEntity) {
 	DuctileVertex vertex = graph.addVertex();
 	for (String discriminator : discriminators) {
-	    vertex.getBaseVertex().addLabel(discriminator);
+	    vertex.getBaseVertex().addType(discriminator);
 	}
 	return vertex;
     }
@@ -173,7 +173,7 @@ public class DucileStoreVertexManager
 	}
 	for (String discriminator : targetDiscriminators) {
 	    if (!discriminators.contains(discriminator)) {
-		vertex.getBaseVertex().addLabel(discriminator);
+		vertex.getBaseVertex().addType(discriminator);
 	    }
 	}
     }
@@ -186,14 +186,14 @@ public class DucileStoreVertexManager
     @Override
     public void addDiscriminators(DuctileVertex entity, Set<String> discriminators) {
 	for (String dicriminator : discriminators) {
-	    entity.getBaseVertex().addLabel(dicriminator);
+	    entity.getBaseVertex().addType(dicriminator);
 	}
     }
 
     @Override
     public void removeDiscriminators(DuctileVertex entity, Set<String> discriminators) {
 	for (String dicriminator : discriminators) {
-	    entity.getBaseVertex().removeLabel(dicriminator);
+	    entity.getBaseVertex().removeType(dicriminator);
 	}
     }
 

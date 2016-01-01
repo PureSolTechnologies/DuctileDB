@@ -18,7 +18,7 @@ public interface GraphOperations {
 
     /**
      * This method adds a new vertex with a new internal id. There are neither
-     * labels nor properties set, yet.
+     * types nor properties set, yet.
      * 
      * @return A {@link DuctileDBVertex} is returned containing the vertex
      *         content.
@@ -28,13 +28,13 @@ public interface GraphOperations {
     }
 
     /**
-     * This method adds a new vertex with a new internal id. The labels and
+     * This method adds a new vertex with a new internal id. The types and
      * properties can be predefined, so that the newly created vertex contains
      * all information already. This method is to be used in favor over
      * {@link #addVertex()} for performance.
      * 
-     * @param labels
-     *            is a {@link Set} of {@link String} containing the labels to be
+     * @param types
+     *            is a {@link Set} of {@link String} containing the types to be
      *            set for initial creation.
      * @param properties
      *            is a {@link Map} of {@link String} and {@link Object} to
@@ -42,7 +42,7 @@ public interface GraphOperations {
      * @return A {@link DuctileDBVertex} is returned containing the vertex
      *         content.
      */
-    public DuctileDBVertex addVertex(Set<String> labels, Map<String, Object> properties);
+    public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties);
 
     /**
      * This method returns the vertex defined via its id.
@@ -75,14 +75,14 @@ public interface GraphOperations {
     public Iterable<DuctileDBVertex> getVertices();
 
     /**
-     * This method returns all vertices with a given label.
+     * This method returns all vertices with a given type.
      * 
-     * @param label
-     *            is the label to be looked up.
+     * @param type
+     *            is the type to be looked up.
      * @return Returns an {@link Iterable} of {@link DuctileDBVertex} containing
      *         the result vertices.
      */
-    public Iterable<DuctileDBVertex> getVertices(String label);
+    public Iterable<DuctileDBVertex> getVertices(String type);
 
     /**
      * This method returns all vertices with a given property.
@@ -107,13 +107,13 @@ public interface GraphOperations {
      * @param targetVertex
      *            is a {@link DuctileDBVertex} where the edge is ending
      *            (incoming).
-     * @param label
+     * @param type
      *            is the type (or label) of the edge as {@link String}.
      * @return A {@link DuctileDBEdge} object is returned containing the newly
      *         created edge.
      */
-    public default DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label) {
-	return addEdge(startVertex, targetVertex, label, new HashMap<>());
+    public default DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String type) {
+	return addEdge(startVertex, targetVertex, type, new HashMap<>());
     }
 
     /**
@@ -127,7 +127,7 @@ public interface GraphOperations {
      * @param targetVertex
      *            is a {@link DuctileDBVertex} where the edge is ending
      *            (incoming).
-     * @param label
+     * @param type
      *            is the type (or label) of the edge as {@link String}.
      * @param properties
      *            is a {@link Map} containing the properties to be set during
@@ -135,7 +135,7 @@ public interface GraphOperations {
      * @return A {@link DuctileDBEdge} object is returned containing the newly
      *         created edge.
      */
-    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String label,
+    public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String type,
 	    Map<String, Object> properties);
 
     /**
@@ -173,12 +173,12 @@ public interface GraphOperations {
      * This method is used to get all edges of a certain type (with a certain
      * label).
      * 
-     * @param label
+     * @param type
      *            is the type name of the edges to be returned.
      * @return An {@link Iterable} of {@link DuctileDBEdge} is returned
      *         containing the result edges.
      */
-    public Iterable<DuctileDBEdge> getEdges(String label);
+    public Iterable<DuctileDBEdge> getEdges(String type);
 
     /**
      * This method is used to get all edges with a certain property.

@@ -21,16 +21,16 @@ public class EdgeKey implements Serializable {
 	}
 	long id = IdEncoder.decodeRowId(edgeKey, 1);
 	long vertexId = IdEncoder.decodeRowId(edgeKey, 9);
-	String label = new String(Arrays.copyOfRange(edgeKey, 17, edgeKey.length));
-	return new EdgeKey(direction, id, vertexId, label);
+	String type = new String(Arrays.copyOfRange(edgeKey, 17, edgeKey.length));
+	return new EdgeKey(direction, id, vertexId, type);
     }
 
     private final EdgeDirection direction;
     private final long id;
     private final long vertexId;
-    private final String label;
+    private final String type;
 
-    public EdgeKey(EdgeDirection direction, long id, long vertexId, String label) {
+    public EdgeKey(EdgeDirection direction, long id, long vertexId, String type) {
 	super();
 	if ((direction != EdgeDirection.IN) && (direction != EdgeDirection.OUT)) {
 	    throw new IllegalArgumentException("Direction needs to be IN or OUT.");
@@ -38,7 +38,7 @@ public class EdgeKey implements Serializable {
 	this.direction = direction;
 	this.id = id;
 	this.vertexId = vertexId;
-	this.label = label;
+	this.type = type;
     }
 
     public EdgeDirection getDirection() {
@@ -53,8 +53,8 @@ public class EdgeKey implements Serializable {
 	return vertexId;
     }
 
-    public String getLabel() {
-	return label;
+    public String getType() {
+	return type;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class EdgeKey implements Serializable {
 	final int prime = 31;
 	int result = 1;
 	result = prime * result + ((direction == null) ? 0 : direction.hashCode());
-	result = prime * result + ((label == null) ? 0 : label.hashCode());
+	result = prime * result + ((type == null) ? 0 : type.hashCode());
 	result = prime * result + (int) (id ^ (id >>> 32));
 	result = prime * result + (int) (vertexId ^ (vertexId >>> 32));
 	return result;
@@ -79,10 +79,10 @@ public class EdgeKey implements Serializable {
 	EdgeKey other = (EdgeKey) obj;
 	if (direction != other.direction)
 	    return false;
-	if (label == null) {
-	    if (other.label != null)
+	if (type == null) {
+	    if (other.type != null)
 		return false;
-	} else if (!label.equals(other.label))
+	} else if (!type.equals(other.type))
 	    return false;
 	if (id != other.id)
 	    return false;
@@ -92,8 +92,8 @@ public class EdgeKey implements Serializable {
     }
 
     public byte[] encode() {
-	byte[] type = label.getBytes();
-	byte[] encoded = new byte[17 + type.length];
+	byte[] typeBytes = type.getBytes();
+	byte[] encoded = new byte[17 + typeBytes.length];
 	switch (direction) {
 	case IN:
 	    encoded[0] = 0;
@@ -114,8 +114,8 @@ public class EdgeKey implements Serializable {
 	    encoded[9 + i] = (byte) (tempId & 0xff);
 	    tempId >>= 8;
 	}
-	for (int i = 0; i < type.length; ++i) {
-	    encoded[17 + i] = type[i];
+	for (int i = 0; i < typeBytes.length; ++i) {
+	    encoded[17 + i] = typeBytes[i];
 	}
 	return encoded;
     }
@@ -125,7 +125,7 @@ public class EdgeKey implements Serializable {
 	StringBuffer buffer = new StringBuffer();
 	buffer.append(direction.name());
 	buffer.append(":");
-	buffer.append(label);
+	buffer.append(type);
 	buffer.append("=");
 	buffer.append(id);
 	buffer.append("; vertex=");

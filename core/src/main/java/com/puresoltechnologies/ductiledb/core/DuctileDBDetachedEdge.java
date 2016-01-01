@@ -5,48 +5,47 @@ import java.util.Map;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements DuctileDBEdge {
 
-    private final String label;
+    private final String type;
     private final long startVertexId;
     private final long targetVertexId;
     private DuctileDBVertex startVertex = null;
     private DuctileDBVertex targetVertex = null;
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
+    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, long startVertexId,
 	    long targetVertexId, Map<String, Object> properties) {
 	super(graph, id, properties);
-	this.label = label;
+	this.type = type;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
     }
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
+    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, DuctileDBVertex startVertex,
 	    long targetVertexId, Map<String, Object> properties) {
 	super(graph, id, properties);
-	this.label = label;
+	this.type = type;
 	this.startVertex = startVertex;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertexId;
     }
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String label, long startVertexId,
+    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, long startVertexId,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
 	super(graph, id, properties);
-	this.label = label;
+	this.type = type;
 	this.startVertexId = startVertexId;
 	this.targetVertex = targetVertex;
 	this.targetVertexId = targetVertex.getId();
     }
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String label, DuctileDBVertex startVertex,
+    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, DuctileDBVertex startVertex,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
 	super(graph, id, properties);
-	this.label = label;
+	this.type = type;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertex.getId();
 	this.startVertex = startVertex;
@@ -61,7 +60,7 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
     public int hashCode() {
 	final int prime = 31;
 	int result = super.hashCode();
-	result = prime * result + ((label == null) ? 0 : label.hashCode());
+	result = prime * result + ((type == null) ? 0 : type.hashCode());
 	result = prime * result + (int) (startVertexId ^ (startVertexId >>> 32));
 	result = prime * result + (int) (targetVertexId ^ (targetVertexId >>> 32));
 	return result;
@@ -76,10 +75,10 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
 	if (getClass() != obj.getClass())
 	    return false;
 	DuctileDBDetachedEdge other = (DuctileDBDetachedEdge) obj;
-	if (label == null) {
-	    if (other.label != null)
+	if (type == null) {
+	    if (other.type != null)
 		return false;
-	} else if (!label.equals(other.label))
+	} else if (!type.equals(other.type))
 	    return false;
 	if (startVertexId != other.startVertexId)
 	    return false;
@@ -113,20 +112,8 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
     }
 
     @Override
-    public DuctileDBVertex getVertex(EdgeDirection direction) throws IllegalArgumentException {
-	switch (direction) {
-	case OUT:
-	    return getStartVertex();
-	case IN:
-	    return getTargetVertex();
-	default:
-	    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
-	}
-    }
-
-    @Override
-    public String getLabel() {
-	return label;
+    public String getType() {
+	return type;
     }
 
     @Override
@@ -146,14 +133,14 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
 
     @Override
     public String toString() {
-	return getClass().getSimpleName() + " " + getId() + " (" + startVertexId + "->" + targetVertexId + "): label="
-		+ label + "; properties=" + getPropertiesString();
+	return getClass().getSimpleName() + " " + getId() + " (" + startVertexId + "->" + targetVertexId + "): type="
+		+ type + "; properties=" + getPropertiesString();
     }
 
     @Override
     public DuctileDBDetachedEdge clone() {
 	DuctileDBDetachedEdge cloned = (DuctileDBDetachedEdge) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBDetachedEdge.class, "label", label);
+	ElementUtils.setFinalField(cloned, DuctileDBDetachedEdge.class, "type", type);
 	ElementUtils.setFinalField(cloned, DuctileDBDetachedEdge.class, "startVertexId", startVertexId);
 	ElementUtils.setFinalField(cloned, DuctileDBDetachedEdge.class, "targetVertexId", targetVertexId);
 	ElementUtils.setFinalField(cloned, DuctileDBDetachedEdge.class, "startVertex", null);

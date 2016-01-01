@@ -172,7 +172,7 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 
     public Set<String> labels() {
 	final Set<String> labels = new TreeSet<>();
-	for (String label : baseVertex.getLabels()) {
+	for (String label : baseVertex.getTypes()) {
 	    labels.add(label);
 	}
 	return Collections.unmodifiableSet(labels);
