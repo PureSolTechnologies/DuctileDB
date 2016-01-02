@@ -11,6 +11,12 @@ public abstract class DuctileDBAttachedElement extends AbstractDuctileDBElement 
 
     public DuctileDBAttachedElement(DuctileDBGraphImpl graph, long id) {
 	super();
+	if (graph == null) {
+	    throw new IllegalArgumentException("Graph must not be null.");
+	}
+	if (id <= 0) {
+	    throw new IllegalArgumentException("Id must be a positive number.");
+	}
 	this.graph = graph;
 	this.id = id;
     }

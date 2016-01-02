@@ -24,6 +24,12 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
     public DuctileDBCacheVertex(DuctileDBGraphImpl graph, long id, Set<String> types, Map<String, Object> properties,
 	    List<DuctileDBCacheEdge> edges) {
 	super(graph, id, properties);
+	if (types == null) {
+	    throw new IllegalArgumentException("Types must not be null.");
+	}
+	if (edges == null) {
+	    throw new IllegalArgumentException("Edges must not be null.");
+	}
 	this.types.addAll(types);
 	this.edges.addAll(edges);
     }

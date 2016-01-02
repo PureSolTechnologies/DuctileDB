@@ -66,7 +66,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
 		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
-	    EdgeValue startVertexEdgeValue = (EdgeValue) Serializer.deserialize(startVertexPropertyBytes);
+	    EdgeValue startVertexEdgeValue = Serializer.deserialize(startVertexPropertyBytes, EdgeValue.class);
 	    startVertexEdgeValue.getProperties().remove(key);
 	    Put startVertexPut = new Put(startVertexRowId);
 	    startVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode(),
@@ -81,7 +81,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
 		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
-	    EdgeValue targetVertexEdgeValue = (EdgeValue) Serializer.deserialize(targetVertexPropertyBytes);
+	    EdgeValue targetVertexEdgeValue = Serializer.deserialize(targetVertexPropertyBytes, EdgeValue.class);
 	    targetVertexEdgeValue.getProperties().remove(key);
 	    Put targetVertexPut = new Put(targetVertexRowId);
 	    targetVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode(),

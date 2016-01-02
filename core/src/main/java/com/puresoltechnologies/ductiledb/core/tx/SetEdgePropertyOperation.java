@@ -71,7 +71,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
 		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
-	    EdgeValue startVertexEdgeValue = (EdgeValue) Serializer.deserialize(startVertexPropertyBytes);
+	    EdgeValue startVertexEdgeValue = EdgeValue.decode(startVertexPropertyBytes);
 	    startVertexEdgeValue.getProperties().put(key, value);
 	    Put startVertexPut = new Put(startVertexRowId);
 	    startVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode(),
@@ -86,7 +86,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
 		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
-	    EdgeValue targetVertexEdgeValue = (EdgeValue) Serializer.deserialize(targetVertexPropertyBytes);
+	    EdgeValue targetVertexEdgeValue = EdgeValue.decode(targetVertexPropertyBytes);
 	    targetVertexEdgeValue.getProperties().put(key, value);
 	    Put targetVertexPut = new Put(targetVertexRowId);
 	    targetVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode(),
@@ -94,9 +94,9 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 
 	    Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
 	    edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
-		    Serializer.serialize((Serializable) value));
+		    Serializer.serializePropertyValue((Serializable) value));
 
-	    Put index = OperationsHelper.createEdgePropertyIndexPut(edgeId, key, value);
+	    Put index = OperationsHelper.createEdgePropertyIndexPut(edgeId, key, (Serializable) value);
 	    // Add to transaction
 	    put(SchemaTable.VERTICES.getTableName(), startVertexPut);
 	    put(SchemaTable.VERTICES.getTableName(), targetVertexPut);

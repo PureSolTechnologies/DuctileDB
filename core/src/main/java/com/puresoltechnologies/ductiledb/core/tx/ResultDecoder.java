@@ -53,7 +53,7 @@ public class ResultDecoder {
 	    for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		String key = Bytes.toString(entry.getKey());
 		if (!key.startsWith("~")) {
-		    Object value = Serializer.deserialize(entry.getValue());
+		    Object value = Serializer.deserializePropertyValue(entry.getValue());
 		    properties.put(key, value);
 		}
 	    }
@@ -100,7 +100,7 @@ public class ResultDecoder {
 	for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
 	    String key = Bytes.toString(property.getKey());
 	    if (!key.startsWith("~")) {
-		Object value = Serializer.deserialize(property.getValue());
+		Object value = Serializer.deserializePropertyValue(property.getValue());
 		properties.put(key, value);
 	    }
 	}

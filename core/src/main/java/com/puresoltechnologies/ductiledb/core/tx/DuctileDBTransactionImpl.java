@@ -308,7 +308,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    for (Entry<byte[], byte[]> entry : map.entrySet()) {
-		Object value = Serializer.deserialize(entry.getValue());
+		Object value = Serializer.deserializePropertyValue(entry.getValue());
 		if ((propertyValue == null) || (value.equals(propertyValue))) {
 		    long edgeId = IdEncoder.decodeRowId(entry.getKey());
 		    if (!wasEdgeRemoved(edgeId)) {
@@ -389,7 +389,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 	    if (propertyMap != null) {
 		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
-		    Object value = Serializer.deserialize(entry.getValue());
+		    Object value = Serializer.deserializePropertyValue(entry.getValue());
 		    if ((propertyValue == null) || (propertyValue.equals(value))) {
 			long vertexId = IdEncoder.decodeRowId(entry.getKey());
 			if (!wasVertexRemoved(vertexId)) {

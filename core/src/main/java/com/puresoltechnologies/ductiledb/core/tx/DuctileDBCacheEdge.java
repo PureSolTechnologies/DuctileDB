@@ -16,6 +16,9 @@ class DuctileDBCacheEdge extends DuctileDBCacheElement implements DuctileDBEdge 
     public DuctileDBCacheEdge(DuctileDBGraphImpl graph, long id, String type, long startVertexId, long targetVertexId,
 	    Map<String, Object> properties) {
 	super(graph, id, properties);
+	if (type == null) {
+	    throw new IllegalArgumentException("Type must not be null.");
+	}
 	this.type = type;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;

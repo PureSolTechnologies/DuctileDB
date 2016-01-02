@@ -21,6 +21,15 @@ public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement 
 
     public DuctileDBDetachedElement(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
 	super();
+	if (graph == null) {
+	    throw new IllegalArgumentException("Graph must not be null.");
+	}
+	if (id <= 0) {
+	    throw new IllegalArgumentException("Id must be a positive number.");
+	}
+	if (properties == null) {
+	    throw new IllegalArgumentException("Properties must not be null.");
+	}
 	this.graph = graph;
 	this.id = id;
 	this.properties = Collections.unmodifiableMap(properties);

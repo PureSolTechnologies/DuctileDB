@@ -49,8 +49,9 @@ public class SetVertexPropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
-	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key), Serializer.serialize((Serializable) value));
-	Put index = OperationsHelper.createVertexPropertyIndexPut(vertexId, key, value);
+	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
+		Serializer.serializePropertyValue((Serializable) value));
+	Put index = OperationsHelper.createVertexPropertyIndexPut(vertexId, key, (Serializable) value);
 	put(SchemaTable.VERTICES.getTableName(), put);
 	put(SchemaTable.VERTEX_PROPERTIES.getTableName(), index);
     }

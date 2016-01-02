@@ -99,7 +99,8 @@ public class DuctileDBHealthCheck {
 		    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 		    assertNotNull("Could not find vertex property index entry for property '" + key
 			    + "' for vertex with id '" + vertex.getId() + "'", familyMap);
-		    Object deserialized = Serializer.deserialize(familyMap.get(IdEncoder.encodeRowId(vertex.getId())));
+		    Object deserialized = Serializer
+			    .deserializePropertyValue(familyMap.get(IdEncoder.encodeRowId(vertex.getId())));
 		    assertEquals("Value for vertex property '" + key + "' for vertex '" + vertex.getId()
 			    + "' is not as expected. ", value, deserialized);
 		}
@@ -141,7 +142,8 @@ public class DuctileDBHealthCheck {
 		    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 		    assertNotNull("Could not find edge property index entry for property '" + key
 			    + "' for edge with id '" + edge.getId() + "'", familyMap);
-		    Object deserialized = Serializer.deserialize(familyMap.get(IdEncoder.encodeRowId(edge.getId())));
+		    Object deserialized = Serializer
+			    .deserializePropertyValue(familyMap.get(IdEncoder.encodeRowId(edge.getId())));
 		    assertEquals("Value for edge property '" + key + "' for edge '" + edge.getId()
 			    + "' is not as expected. ", value, deserialized);
 		}

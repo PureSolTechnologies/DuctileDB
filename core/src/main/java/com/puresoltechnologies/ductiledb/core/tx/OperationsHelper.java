@@ -32,10 +32,10 @@ public class OperationsHelper {
 	return typeIndexPut;
     }
 
-    public static Put createVertexPropertyIndexPut(long vertexId, String key, Object value) throws IOException {
+    public static Put createVertexPropertyIndexPut(long vertexId, String key, Serializable value) throws IOException {
 	Put indexPut = new Put(Bytes.toBytes(key));
 	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId),
-		Serializer.serialize((Serializable) value));
+		Serializer.serializePropertyValue(value));
 	return indexPut;
     }
 
@@ -51,10 +51,10 @@ public class OperationsHelper {
 	return typeIndexPut;
     }
 
-    public static Put createEdgePropertyIndexPut(long edgeId, String key, Object value) throws IOException {
+    public static Put createEdgePropertyIndexPut(long edgeId, String key, Serializable value) throws IOException {
 	Put indexPut = new Put(Bytes.toBytes(key));
 	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId),
-		Serializer.serialize((Serializable) value));
+		Serializer.serializePropertyValue(value));
 	return indexPut;
     }
 

@@ -108,14 +108,14 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	Put typeIndexPut = OperationsHelper.createEdgeTypeIndexPut(edgeId, type);
 	List<Put> propertyIndexPuts = new ArrayList<>();
 	edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
-		Serializer.serialize(edgeId));
+		Serializer.serializePropertyValue(edgeId));
 	edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
-		Serializer.serialize(new Date()));
+		Serializer.serializePropertyValue(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
-		    Serializer.serialize((Serializable) property.getValue()));
-	    propertyIndexPuts
-		    .add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(), property.getValue()));
+		    Serializer.serializePropertyValue((Serializable) property.getValue()));
+	    propertyIndexPuts.add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(),
+		    (Serializable) property.getValue()));
 	}
 	put(SchemaTable.VERTICES.getTableName(), outPut);
 	put(SchemaTable.VERTICES.getTableName(), inPut);

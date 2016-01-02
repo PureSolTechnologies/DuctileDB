@@ -63,16 +63,16 @@ public class AddVertexOperation extends AbstractTxOperation {
 	}
 	List<Put> propertyIndex = new ArrayList<>();
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
-		Serializer.serialize(vertexId));
+		Serializer.serializePropertyValue(vertexId));
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
-		Serializer.serialize(new Date()));
+		Serializer.serializePropertyValue(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    String key = property.getKey();
 	    Object value = property.getValue();
 	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
-		    Serializer.serialize((Serializable) value));
-	    propertyIndex.add(
-		    OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(), property.getValue()));
+		    Serializer.serializePropertyValue((Serializable) value));
+	    propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
+		    (Serializable) property.getValue()));
 	}
 	put(SchemaTable.VERTICES.getTableName(), put);
 	put(SchemaTable.VERTEX_TYPES.getTableName(), typeIndex);

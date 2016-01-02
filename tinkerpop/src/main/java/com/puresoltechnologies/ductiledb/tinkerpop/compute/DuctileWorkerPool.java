@@ -6,16 +6,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.apache.tinkerpop.gremlin.process.computer.MapReduce;
 import org.apache.tinkerpop.gremlin.process.computer.VertexProgram;
 import org.apache.tinkerpop.gremlin.process.computer.util.MapReducePool;
 import org.apache.tinkerpop.gremlin.process.computer.util.VertexProgramPool;
 
+import io.netty.util.concurrent.DefaultThreadFactory;
+
 public class DuctileWorkerPool<R, M> implements AutoCloseable {
 
-    private static final BasicThreadFactory THREAD_FACTORY_WORKER = new BasicThreadFactory.Builder()
-	    .namingPattern("ductile-worker-%d").build();
+    private static final DefaultThreadFactory THREAD_FACTORY_WORKER = new DefaultThreadFactory("ductile-worker-%d");
 
     private final int numberOfWorkers;
     private final ExecutorService workerPool;

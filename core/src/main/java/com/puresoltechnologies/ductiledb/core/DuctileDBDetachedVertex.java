@@ -24,6 +24,12 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
     public DuctileDBDetachedVertex(DuctileDBGraphImpl graph, long id, Set<String> types, Map<String, Object> properties,
 	    List<DuctileDBEdge> edges) {
 	super(graph, id, properties);
+	if (types == null) {
+	    throw new IllegalArgumentException("Types must not be null.");
+	}
+	if (edges == null) {
+	    throw new IllegalArgumentException("Edges must not be null.");
+	}
 	this.types = Collections.unmodifiableSet(types);
 	this.edges = Collections.unmodifiableList(edges);
     }
