@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.api.exceptions;
+package com.puresoltechnologies.ductiledb.api;
 
 /**
  * This exception is used to signal general constraint issues during operation.

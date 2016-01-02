@@ -18,7 +18,7 @@ import org.junit.BeforeClass;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.exceptions.NoSuchGraphElementException;
+import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 

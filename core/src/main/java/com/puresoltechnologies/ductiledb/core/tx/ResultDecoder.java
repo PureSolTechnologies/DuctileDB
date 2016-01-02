@@ -19,8 +19,8 @@ import java.util.Set;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;

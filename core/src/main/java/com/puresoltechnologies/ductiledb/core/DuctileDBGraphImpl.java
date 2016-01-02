@@ -1,22 +1,30 @@
 package com.puresoltechnologies.ductiledb.core;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.hadoop.hbase.client.Connection;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.exceptions.manager.GraphManager;
+import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.api.tx.DuctileDBCommitException;
+import com.puresoltechnologies.ductiledb.api.tx.DuctileDBRollbackException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
-import com.puresoltechnologies.ductiledb.core.manager.GraphManagerImpl;
+import com.puresoltechnologies.ductiledb.core.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
+
     private final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
+
+    private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
 
     private final Connection connection;
 
@@ -49,8 +57,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public GraphManager getGraphManager() {
-	return new GraphManagerImpl(this);
+    public DuctileDBGraphManager getGraphManager() {
+	return new DuctileDBGraphManagerImpl(this);
     }
 
     @Override
@@ -115,24 +123,62 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public void commit() throws IOException {
+    public void commit() {
 	DuctileDBTransaction currentTransaction = getCurrentTransaction();
 	currentTransaction.commit();
 	try {
 	    currentTransaction.close();
+	} catch (IOException e) {
+	    throw new DuctileDBCommitException(e);
 	} finally {
 	    transactions.remove();
+	    fireOnCommit();
 	}
     }
 
     @Override
-    public void rollback() throws IOException {
+    public void rollback() {
 	DuctileDBTransaction currentTransaction = getCurrentTransaction();
 	currentTransaction.rollback();
 	try {
 	    currentTransaction.close();
+	} catch (IOException e) {
+	    throw new DuctileDBRollbackException(e);
 	} finally {
 	    transactions.remove();
+	    fireOnRollback();
 	}
+    }
+
+    @Override
+    public boolean isOpen() {
+	/*
+	 * On graph level, there is always a transaction available. If not, one
+	 * is created instantaneously.
+	 */
+	return true;
+    }
+
+    @Override
+    public void addTransactionListener(Consumer<Status> listener) {
+	transactionListeners.add(listener);
+    }
+
+    @Override
+    public void removeTransactionListener(Consumer<Status> listener) {
+	transactionListeners.remove(listener);
+    }
+
+    @Override
+    public void clearTransactionListeners() {
+	transactionListeners.clear();
+    }
+
+    private void fireOnCommit() {
+	transactionListeners.forEach(c -> c.accept(Status.COMMIT));
+    }
+
+    private void fireOnRollback() {
+	transactionListeners.forEach(c -> c.accept(Status.ROLLBACK));
     }
 }

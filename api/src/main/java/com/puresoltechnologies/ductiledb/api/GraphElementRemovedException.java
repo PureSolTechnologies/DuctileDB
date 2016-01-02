@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.api.exceptions;
+package com.puresoltechnologies.ductiledb.api;
 
 /**
  * This exception is thrown in cases where an element is tried to be

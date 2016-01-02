@@ -22,7 +22,7 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.exceptions.NoSuchGraphElementException;
+import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
@@ -289,11 +289,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 			b.setProperty("blah", random.nextDouble());
 			e.setProperty("bloop", random.nextInt());
 			edges.getAndAdd(1);
-			try {
-			    graph.commit();
-			} catch (IOException e1) {
-			    throw new RuntimeException(e1);
-			}
+			graph.commit();
 		    } else {
 			final DuctileDBVertex a = graph.addVertex();
 			final DuctileDBVertex b = graph.addVertex();
@@ -304,19 +300,11 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 			e.setProperty("bloop", random.nextInt());
 
 			if (random.nextBoolean()) {
-			    try {
-				graph.commit();
-			    } catch (IOException e1) {
-				throw new RuntimeException(e1);
-			    }
+			    graph.commit();
 			    vertices.getAndAdd(2);
 			    edges.getAndAdd(1);
 			} else {
-			    try {
-				graph.rollback();
-			    } catch (IOException e1) {
-				throw new RuntimeException(e1);
-			    }
+			    graph.rollback();
 			}
 		    }
 		    completedThreads.getAndAdd(1);
@@ -391,11 +379,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 		    throw new RuntimeException(ie);
 		}
 
-		try {
-		    graph.rollback();
-		} catch (IOException e) {
-		    throw new RuntimeException(e);
-		}
+		graph.rollback();
 
 		// there should be no vertices here
 		noVerticesInFirstThread.set(!graph.getVertices().iterator().hasNext());
@@ -416,11 +400,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 		}
 
 		// try to commit the other transaction
-		try {
-		    graph.commit();
-		} catch (IOException e) {
-		    throw new RuntimeException(e);
-		}
+		graph.commit();
 
 		latchCommittedInOtherThread.countDown();
 	    }

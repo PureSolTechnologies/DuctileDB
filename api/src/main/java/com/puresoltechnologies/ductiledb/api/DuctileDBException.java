@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.api.exceptions;
+package com.puresoltechnologies.ductiledb.api;
 
 /**
  * General purpose exception for all DuctileDB related issues. It is also used

@@ -1,9 +1,8 @@
 package com.puresoltechnologies.ductiledb.api;
 
 import java.io.Closeable;
-import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.api.exceptions.manager.GraphManager;
+import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 
 /**
@@ -11,7 +10,7 @@ import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface DuctileDBGraph extends GraphOperations, Closeable {
+public interface DuctileDBGraph extends DuctileDBTransaction, GraphOperations, Closeable {
 
     /**
      * This method creates a {@link DuctileDBTransaction} to be used
@@ -22,27 +21,9 @@ public interface DuctileDBGraph extends GraphOperations, Closeable {
     public DuctileDBTransaction createTransaction();
 
     /**
-     * This method is used to trigger the persistence of the current changes in
-     * the thread local transaction.
+     * This method returns the {@link DuctileDBGraphManager} for this graph.
      * 
-     * @throws IOException
-     *             is thrown in case of an database issue.
+     * @return A {@link DuctileDBGraphManager} object is returned.
      */
-    public void commit() throws IOException;
-
-    /**
-     * This method is used to drop the current changes in the thread local
-     * transaction. No graph changes take place.
-     * 
-     * @throws IOException
-     *             is thrown in case of an database issue.
-     */
-    public void rollback() throws IOException;
-
-    /**
-     * This method returns the {@link GraphManager} for this graph.
-     * 
-     * @return A {@link GraphManager} object is returned.
-     */
-    public GraphManager getGraphManager();
+    public DuctileDBGraphManager getGraphManager();
 }

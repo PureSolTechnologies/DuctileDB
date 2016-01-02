@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.api.exceptions;
+package com.puresoltechnologies.ductiledb.api;
 
 /**
  * This exception is thrown in cases of access to non-existing graph elements.

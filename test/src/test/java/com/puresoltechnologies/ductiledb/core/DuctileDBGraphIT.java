@@ -14,8 +14,8 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.exceptions.manager.GraphManager;
-import com.puresoltechnologies.ductiledb.core.manager.GraphManagerImpl;
+import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.core.manager.DuctileDBGraphManagerImpl;
 
 public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
@@ -31,9 +31,9 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testGraphReturnsGraphManager() {
-	GraphManager graphManager = graph.getGraphManager();
+	DuctileDBGraphManager graphManager = graph.getGraphManager();
 	assertNotNull("No graph manager provided.", graphManager);
-	assertEquals("The wrong implementation of graph manager is provided.", GraphManagerImpl.class,
+	assertEquals("The wrong implementation of graph manager is provided.", DuctileDBGraphManagerImpl.class,
 		graphManager.getClass());
     }
 

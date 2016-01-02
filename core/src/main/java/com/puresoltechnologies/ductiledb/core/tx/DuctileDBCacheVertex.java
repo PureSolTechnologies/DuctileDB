@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;

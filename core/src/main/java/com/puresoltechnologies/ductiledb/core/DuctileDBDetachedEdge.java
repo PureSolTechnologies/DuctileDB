@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.core;
 import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements DuctileDBEdge {

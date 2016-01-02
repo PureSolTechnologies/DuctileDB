@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement {

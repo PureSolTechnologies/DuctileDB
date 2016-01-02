@@ -29,11 +29,12 @@ import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.exceptions.DuctileDBException;
-import com.puresoltechnologies.ductiledb.api.exceptions.GraphElementRemovedException;
-import com.puresoltechnologies.ductiledb.api.exceptions.NoSuchGraphElementException;
+import com.puresoltechnologies.ductiledb.api.GraphElementRemovedException;
+import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
+import com.puresoltechnologies.ductiledb.api.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
@@ -92,7 +93,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    }
 	    fireOnCommit();
 	} catch (IOException e) {
-	    throw new DuctileDBException("Could not cmomit changes.", e);
+	    throw new DuctileDBCommitException(e);
 	} finally {
 	    clear();
 	}
