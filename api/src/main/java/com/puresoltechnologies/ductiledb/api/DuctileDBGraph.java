@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.api;
 import java.io.Closeable;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.api.exceptions.manager.GraphManager;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 
 /**
@@ -38,4 +39,10 @@ public interface DuctileDBGraph extends GraphOperations, Closeable {
      */
     public void rollback() throws IOException;
 
+    /**
+     * This method returns the {@link GraphManager} for this graph.
+     * 
+     * @return A {@link GraphManager} object is returned.
+     */
+    public GraphManager getGraphManager();
 }

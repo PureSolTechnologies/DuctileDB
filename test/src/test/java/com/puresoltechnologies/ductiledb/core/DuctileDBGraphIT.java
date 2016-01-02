@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -13,6 +14,8 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.exceptions.manager.GraphManager;
+import com.puresoltechnologies.ductiledb.core.manager.GraphManagerImpl;
 
 public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
@@ -24,6 +27,14 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 	graph = getGraph();
 	graphImpl = (graph);
 	StarWarsGraph.addStarWarsFiguresData(graphImpl);
+    }
+
+    @Test
+    public void testGraphReturnsGraphManager() {
+	GraphManager graphManager = graph.getGraphManager();
+	assertNotNull("No graph manager provided.", graphManager);
+	assertEquals("The wrong implementation of graph manager is provided.", GraphManagerImpl.class,
+		graphManager.getClass());
     }
 
     @Test
