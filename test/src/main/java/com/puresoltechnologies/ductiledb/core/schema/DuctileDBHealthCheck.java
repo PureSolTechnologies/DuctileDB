@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 import java.util.NavigableMap;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -25,6 +24,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 /**
  * This class is used to check for consistency in DuctileDB. It is primarily
@@ -99,8 +99,7 @@ public class DuctileDBHealthCheck {
 		    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 		    assertNotNull("Could not find vertex property index entry for property '" + key
 			    + "' for vertex with id '" + vertex.getId() + "'", familyMap);
-		    Object deserialized = SerializationUtils
-			    .deserialize(familyMap.get(IdEncoder.encodeRowId(vertex.getId())));
+		    Object deserialized = Serializer.deserialize(familyMap.get(IdEncoder.encodeRowId(vertex.getId())));
 		    assertEquals("Value for vertex property '" + key + "' for vertex '" + vertex.getId()
 			    + "' is not as expected. ", value, deserialized);
 		}
@@ -142,8 +141,7 @@ public class DuctileDBHealthCheck {
 		    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 		    assertNotNull("Could not find edge property index entry for property '" + key
 			    + "' for edge with id '" + edge.getId() + "'", familyMap);
-		    Object deserialized = SerializationUtils
-			    .deserialize(familyMap.get(IdEncoder.encodeRowId(edge.getId())));
+		    Object deserialized = Serializer.deserialize(familyMap.get(IdEncoder.encodeRowId(edge.getId())));
 		    assertEquals("Value for edge property '" + key + "' for edge '" + edge.getId()
 			    + "' is not as expected. ", value, deserialized);
 		}

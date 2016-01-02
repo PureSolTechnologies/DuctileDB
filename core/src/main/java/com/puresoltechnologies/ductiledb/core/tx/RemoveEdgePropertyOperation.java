@@ -6,7 +6,6 @@ import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROP
 import java.io.IOException;
 import java.util.NavigableMap;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
@@ -20,6 +19,7 @@ import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 
@@ -66,7 +66,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
 		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
-	    EdgeValue startVertexEdgeValue = (EdgeValue) SerializationUtils.deserialize(startVertexPropertyBytes);
+	    EdgeValue startVertexEdgeValue = (EdgeValue) Serializer.deserialize(startVertexPropertyBytes);
 	    startVertexEdgeValue.getProperties().remove(key);
 	    Put startVertexPut = new Put(startVertexRowId);
 	    startVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, startVertexEdgeKey.encode(),
@@ -81,7 +81,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
 		    .getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
 	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
-	    EdgeValue targetVertexEdgeValue = (EdgeValue) SerializationUtils.deserialize(targetVertexPropertyBytes);
+	    EdgeValue targetVertexEdgeValue = (EdgeValue) Serializer.deserialize(targetVertexPropertyBytes);
 	    targetVertexEdgeValue.getProperties().remove(key);
 	    Put targetVertexPut = new Put(targetVertexRowId);
 	    targetVertexPut.addColumn(EDGES_COLUMN_FAMILY_BYTES, targetVertexEdgeKey.encode(),

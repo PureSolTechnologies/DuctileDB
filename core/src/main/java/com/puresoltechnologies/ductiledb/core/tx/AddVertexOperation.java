@@ -2,8 +2,8 @@ package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -15,12 +15,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 public class AddVertexOperation extends AbstractTxOperation {
 
@@ -63,14 +63,14 @@ public class AddVertexOperation extends AbstractTxOperation {
 	}
 	List<Put> propertyIndex = new ArrayList<>();
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
-		SerializationUtils.serialize(vertexId));
+		Serializer.serialize(vertexId));
 	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
-		SerializationUtils.serialize(new Date()));
+		Serializer.serialize(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    String key = property.getKey();
 	    Object value = property.getValue();
 	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
-		    SerializationUtils.serialize((Serializable) value));
+		    Serializer.serialize((Serializable) value));
 	    propertyIndex.add(
 		    OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(), property.getValue()));
 	}

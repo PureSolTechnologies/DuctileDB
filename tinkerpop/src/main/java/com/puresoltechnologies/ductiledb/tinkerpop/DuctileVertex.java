@@ -44,7 +44,8 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	    throw Edge.Exceptions.userSuppliedIdsNotSupported();
 	}
 	graph().tx().readWrite();
-	DuctileDBEdge baseEdge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex());
+	DuctileDBEdge baseEdge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex(),
+		Collections.emptyMap());
 	DuctileEdge edge = new DuctileEdge(baseEdge, graph());
 	ElementHelper.attachProperties(edge, keyValues);
 	return edge;

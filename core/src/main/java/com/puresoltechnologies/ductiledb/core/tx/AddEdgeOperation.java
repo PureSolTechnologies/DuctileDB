@@ -3,10 +3,10 @@ package com.puresoltechnologies.ductiledb.core.tx;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
 
 import java.io.IOException;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -27,6 +26,7 @@ import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 public class AddEdgeOperation extends AbstractTxOperation {
 
@@ -108,12 +108,12 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	Put typeIndexPut = OperationsHelper.createEdgeTypeIndexPut(edgeId, type);
 	List<Put> propertyIndexPuts = new ArrayList<>();
 	edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
-		SerializationUtils.serialize(edgeId));
+		Serializer.serialize(edgeId));
 	edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
-		SerializationUtils.serialize(new Date()));
+		Serializer.serialize(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    edgePut.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(property.getKey()),
-		    SerializationUtils.serialize((Serializable) property.getValue()));
+		    Serializer.serialize((Serializable) property.getValue()));
 	    propertyIndexPuts
 		    .add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(), property.getValue()));
 	}

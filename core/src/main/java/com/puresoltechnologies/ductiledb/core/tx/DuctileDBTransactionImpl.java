@@ -20,7 +20,6 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
@@ -42,6 +41,7 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 /**
  * This transaction is used per thread to record changes in the graph to be
@@ -308,7 +308,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    for (Entry<byte[], byte[]> entry : map.entrySet()) {
-		Object value = SerializationUtils.deserialize(entry.getValue());
+		Object value = Serializer.deserialize(entry.getValue());
 		if ((propertyValue == null) || (value.equals(propertyValue))) {
 		    long edgeId = IdEncoder.decodeRowId(entry.getKey());
 		    if (!wasEdgeRemoved(edgeId)) {
@@ -389,7 +389,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
 	    if (propertyMap != null) {
 		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
-		    Object value = SerializationUtils.deserialize(entry.getValue());
+		    Object value = Serializer.deserialize(entry.getValue());
 		    if ((propertyValue == null) || (propertyValue.equals(value))) {
 			long vertexId = IdEncoder.decodeRowId(entry.getKey());
 			if (!wasVertexRemoved(vertexId)) {

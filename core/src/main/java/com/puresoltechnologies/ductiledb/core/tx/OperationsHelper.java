@@ -4,12 +4,12 @@ import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDE
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 public class OperationsHelper {
 
@@ -34,7 +34,7 @@ public class OperationsHelper {
     public static Put createVertexPropertyIndexPut(long vertexId, String key, Object value) {
 	Put indexPut = new Put(Bytes.toBytes(key));
 	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId),
-		SerializationUtils.serialize((Serializable) value));
+		Serializer.serialize((Serializable) value));
 	return indexPut;
     }
 
@@ -53,7 +53,7 @@ public class OperationsHelper {
     public static Put createEdgePropertyIndexPut(long edgeId, String key, Object value) {
 	Put indexPut = new Put(Bytes.toBytes(key));
 	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId),
-		SerializationUtils.serialize((Serializable) value));
+		Serializer.serialize((Serializable) value));
 	return indexPut;
     }
 

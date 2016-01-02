@@ -4,14 +4,14 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.SerializationUtils;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 public class EdgeValue implements Serializable {
 
     private static final long serialVersionUID = -1991386644968007525L;
 
     public static EdgeValue decode(byte[] edgeKey) {
-	return (EdgeValue) SerializationUtils.deserialize(edgeKey);
+	return (EdgeValue) Serializer.deserialize(edgeKey);
     }
 
     private final Map<String, Object> properties = new HashMap<>();
@@ -25,7 +25,7 @@ public class EdgeValue implements Serializable {
     }
 
     public byte[] encode() {
-	return SerializationUtils.serialize(this);
+	return Serializer.serialize(this);
     }
 
 }

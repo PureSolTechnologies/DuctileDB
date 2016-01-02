@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 
-import org.apache.commons.lang.SerializationUtils;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
@@ -26,6 +25,7 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
 /**
  * This class is used to convert {@link Result}s into objects.
@@ -53,7 +53,7 @@ public class ResultDecoder {
 	    for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		String key = Bytes.toString(entry.getKey());
 		if (!key.startsWith("~")) {
-		    Object value = SerializationUtils.deserialize(entry.getValue());
+		    Object value = Serializer.deserialize(entry.getValue());
 		    properties.put(key, value);
 		}
 	    }
@@ -100,7 +100,7 @@ public class ResultDecoder {
 	for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
 	    String key = Bytes.toString(property.getKey());
 	    if (!key.startsWith("~")) {
-		Object value = SerializationUtils.deserialize(property.getValue());
+		Object value = Serializer.deserialize(property.getValue());
 		properties.put(key, value);
 	    }
 	}
