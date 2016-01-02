@@ -30,6 +30,17 @@ public class EdgeKey implements Serializable {
     private final long vertexId;
     private final String type;
 
+    /**
+     * Constructor needed for serialization.
+     */
+    public EdgeKey() {
+	super();
+	direction = null;
+	id = -1;
+	vertexId = -1;
+	type = null;
+    }
+
     public EdgeKey(EdgeDirection direction, long id, long vertexId, String type) {
 	super();
 	if ((direction != EdgeDirection.IN) && (direction != EdgeDirection.OUT)) {

@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.tx;
 
 import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 import org.apache.hadoop.hbase.client.Delete;
@@ -31,7 +32,7 @@ public class OperationsHelper {
 	return typeIndexPut;
     }
 
-    public static Put createVertexPropertyIndexPut(long vertexId, String key, Object value) {
+    public static Put createVertexPropertyIndexPut(long vertexId, String key, Object value) throws IOException {
 	Put indexPut = new Put(Bytes.toBytes(key));
 	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(vertexId),
 		Serializer.serialize((Serializable) value));
@@ -50,7 +51,7 @@ public class OperationsHelper {
 	return typeIndexPut;
     }
 
-    public static Put createEdgePropertyIndexPut(long edgeId, String key, Object value) {
+    public static Put createEdgePropertyIndexPut(long edgeId, String key, Object value) throws IOException {
 	Put indexPut = new Put(Bytes.toBytes(key));
 	indexPut.addColumn(INDEX_COLUMN_FAMILY_BYTES, IdEncoder.encodeRowId(edgeId),
 		Serializer.serialize((Serializable) value));

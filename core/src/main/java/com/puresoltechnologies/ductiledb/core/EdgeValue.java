@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +21,17 @@ public class EdgeValue implements Serializable {
 	this.properties.putAll(properties);
     }
 
+    /**
+     * Constructor needed for serialization.
+     */
+    public EdgeValue() {
+    }
+
     public Map<String, Object> getProperties() {
 	return properties;
     }
 
-    public byte[] encode() {
+    public byte[] encode() throws IOException {
 	return Serializer.serialize(this);
     }
 
