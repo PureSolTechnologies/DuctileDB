@@ -16,7 +16,7 @@ public class BuildInformationTest {
     public void testInceptionYear() {
 	String year = BuildInformation.getInceptionYear();
 	assertNotNull(year);
-	assertEquals("2014", year);
+	assertEquals("2015", year);
     }
 
     @Test

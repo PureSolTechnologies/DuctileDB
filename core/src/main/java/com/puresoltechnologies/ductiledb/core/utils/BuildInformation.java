@@ -17,7 +17,8 @@ public class BuildInformation {
     }
 
     public static String getVersion() {
-	return buildProperties.get("project.version").toString();
+	String versionString = buildProperties.get("project.version").toString();
+	return versionString.replaceAll("-.*$", "");
     }
 
     public static String getInceptionYear() {

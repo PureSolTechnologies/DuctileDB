@@ -1,9 +1,13 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
+
+import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
 
 public class DuctileGraphVariables implements Graph.Variables {
 
@@ -15,24 +19,30 @@ public class DuctileGraphVariables implements Graph.Variables {
 
     @Override
     public Set<String> keys() {
-	// TODO Auto-generated method stub
-	return null;
+	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
+	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	return (Set<String>) graphManager.getVariableNames();
     }
 
     @Override
     public <R> Optional<R> get(String key) {
-	// TODO Auto-generated method stub
-	return null;
+	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
+	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	return graphManager.getVariable(key);
     }
 
     @Override
     public void set(String key, Object value) {
-	// TODO Auto-generated method stub
+	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
+	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	graphManager.setVariable(key, (Serializable) value);
     }
 
     @Override
     public void remove(String key) {
-	// TODO Auto-generated method stu
+	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
+	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	graphManager.removeVariable(key);
     }
 
 }

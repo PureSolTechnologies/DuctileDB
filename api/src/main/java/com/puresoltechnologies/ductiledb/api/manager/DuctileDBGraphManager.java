@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.manager;
 
+import java.io.Serializable;
+
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.versioning.Version;
 
@@ -41,7 +43,7 @@ public interface DuctileDBGraphManager {
      * @param value
      *            is the value to be set.
      */
-    public <T> void setVariable(String variableName, T value);
+    public <T extends Serializable> void setVariable(String variableName, T value);
 
     /**
      * This method returns the variable value of a variable.

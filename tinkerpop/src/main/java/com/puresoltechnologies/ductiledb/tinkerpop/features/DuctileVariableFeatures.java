@@ -6,7 +6,7 @@ public class DuctileVariableFeatures implements VariableFeatures {
 
     @Override
     public boolean supportsVariables() {
-	return false;
+	return true;
     }
 
     @Override
