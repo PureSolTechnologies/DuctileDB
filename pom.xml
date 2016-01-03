@@ -14,6 +14,7 @@
 		<slf4j.version>1.6.6</slf4j.version>
 		<xo.version>0.6.0</xo.version>
 		<commons.version>0.6.0</commons.version>
+		<versioning.version>1.1.0</versioning.version>
 		<kryo.version>3.0.3</kryo.version>
 	</properties>
 
@@ -354,6 +355,11 @@
 				<groupId>com.puresoltechnologies.commons</groupId>
 				<artifactId>types</artifactId>
 				<version>${commons.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.versioning</groupId>
+				<artifactId>versioning</artifactId>
+				<version>${versioning.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.hbase</groupId>

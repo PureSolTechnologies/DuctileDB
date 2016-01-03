@@ -11,4 +11,10 @@
 	<artifactId>ductiledb-api</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
 
+	<dependencies>
+		<dependency>
+			<groupId>com.puresoltechnologies.versioning</groupId>
+			<artifactId>versioning</artifactId>
+		</dependency>
+	</dependencies>
 </project>

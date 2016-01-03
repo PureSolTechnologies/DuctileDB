@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.manager;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.versioning.Version;
 
 /**
  * The graph manager is used to configure the graph and define its schema.
@@ -15,6 +16,14 @@ public interface DuctileDBGraphManager {
      * @return A {@link DuctileDBGraph} is returned.
      */
     public DuctileDBGraph getGraph();
+
+    /**
+     * This method returns the version of the current implementation.
+     * 
+     * @return A {@link Version} object is returned containing the current
+     *         version of DuctileDB.
+     */
+    public Version getVersion();
 
     /**
      * This method returns all variable names of the graph.

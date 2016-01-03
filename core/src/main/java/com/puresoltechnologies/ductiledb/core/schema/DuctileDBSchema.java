@@ -12,6 +12,8 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
+
 public class DuctileDBSchema {
 
     public static final String DUCTILEDB_NAMESPACE = "ductiledb";
@@ -103,9 +105,14 @@ public class DuctileDBSchema {
 		vertexIdPut.addColumn(METADATA_COLUMN_FAMILIY_BYTES, VERTEXID_COLUMN_BYTES, Bytes.toBytes(0l));
 		Put edgeIdPut = new Put(EDGEID_COLUMN_BYTES);
 		edgeIdPut.addColumn(METADATA_COLUMN_FAMILIY_BYTES, EDGEID_COLUMN_BYTES, Bytes.toBytes(0l));
-		Put schemaVersionPut = new Put(EDGEID_COLUMN_BYTES);
+		Put schemaVersionPut = new Put(SCHEMA_VERSION_COLUMN_BYTES);
+		String version = BuildInformation.getVersion();
+		if (version.startsWith("${")) {
+		    // fallback for test environments, but backed up by test.
+		    version = "0.1.0";
+		}
 		schemaVersionPut.addColumn(METADATA_COLUMN_FAMILIY_BYTES, SCHEMA_VERSION_COLUMN_BYTES,
-			Bytes.toBytes("0.1.0"));
+			Bytes.toBytes(version));
 		table.put(Arrays.asList(vertexIdPut, edgeIdPut, schemaVersionPut));
 	    }
 	}

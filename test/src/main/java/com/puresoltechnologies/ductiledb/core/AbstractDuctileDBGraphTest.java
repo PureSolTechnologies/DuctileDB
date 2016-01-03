@@ -20,6 +20,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class AbstractDuctileDBGraphTest {
@@ -35,6 +36,11 @@ public class AbstractDuctileDBGraphTest {
 		DuctileDBGraphImpl.class, graphImplementation.getClass());
 	graph = (DuctileDBGraphImpl) graphImplementation;
 	DuctileDBHealthCheck.runCheckForEmpty(graph);
+
+	String version = BuildInformation.getVersion();
+	if (!version.startsWith("${")) {
+	    assertEquals("Schema version is wrong.", version, graph.getGraphManager().getVersion().toString());
+	}
     }
 
     @AfterClass

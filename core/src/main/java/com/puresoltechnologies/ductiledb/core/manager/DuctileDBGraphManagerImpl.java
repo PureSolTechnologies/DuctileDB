@@ -1,27 +1,57 @@
 package com.puresoltechnologies.ductiledb.core.manager;
 
+import java.io.IOException;
+
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
+
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
+import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
-    private final DuctileDBGraphImpl ductileDBGraphImpl;
+    private final DuctileDBGraphImpl graph;
 
-    public DuctileDBGraphManagerImpl(DuctileDBGraphImpl ductileDBGraphImpl) {
+    public DuctileDBGraphManagerImpl(DuctileDBGraphImpl graph) {
 	super();
-	this.ductileDBGraphImpl = ductileDBGraphImpl;
+	this.graph = graph;
     }
 
     @Override
     public DuctileDBGraph getGraph() {
-	return ductileDBGraphImpl;
+	return graph;
+    }
+
+    @Override
+    public Version getVersion() {
+	Connection connection = graph.getConnection();
+	try (Table table = connection.getTable(SchemaTable.METADATA.getTableName())) {
+	    Result result = table.get(new Get(DuctileDBSchema.SCHEMA_VERSION_COLUMN_BYTES));
+	    byte[] version = result.getFamilyMap(DuctileDBSchema.METADATA_COLUMN_FAMILIY_BYTES)
+		    .get(DuctileDBSchema.SCHEMA_VERSION_COLUMN_BYTES);
+	    return Version.valueOf(Bytes.toString(version));
+	} catch (IOException e) {
+	    throw new DuctileDBGraphManagerException("Could not read variable names.", e);
+	}
     }
 
     @Override
     public Iterable<String> getVariableNames() {
-	// TODO Auto-generated method stub
-	return null;
+	Connection connection = graph.getConnection();
+	try (Table table = connection.getTable(SchemaTable.METADATA.getTableName())) {
+
+	    return null;
+	} catch (IOException e) {
+	    throw new DuctileDBGraphManagerException("Could not read variable names.", e);
+	}
     }
 
     @Override
