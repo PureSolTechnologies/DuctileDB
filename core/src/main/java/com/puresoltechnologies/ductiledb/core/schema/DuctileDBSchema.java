@@ -20,6 +20,22 @@ public class DuctileDBSchema {
 
     public static final String METADATA_COLUMN_FAMILIY = "metadata";
     public static final byte[] METADATA_COLUMN_FAMILIY_BYTES = Bytes.toBytes(METADATA_COLUMN_FAMILIY);
+
+    public static final String DEFINITION_COLUMN_FAMILIY = "definition";
+    public static final byte[] DEFINITION_COLUMN_FAMILIY_BYTES = Bytes.toBytes(DEFINITION_COLUMN_FAMILIY);
+
+    public static final String PROPERTY_TYPE_COLUMN = "PropertyType";
+    public static final byte[] PROPERTY_TYPE_COLUMN_BYTES = Bytes.toBytes(PROPERTY_TYPE_COLUMN);
+
+    public static final String ELEMENT_TYPE_COLUMN = "ElementType";
+    public static final byte[] ELEMENT_TYPE_COLUMN_BYTES = Bytes.toBytes(ELEMENT_TYPE_COLUMN);
+
+    public static final String UNIQUENESS_COLUMN = "unique";
+    public static final byte[] UNIQUENESS_COLUMN_BYTES = Bytes.toBytes(UNIQUENESS_COLUMN);
+
+    public static final String PROPERTIES_COLUMN_FAMILIY = "properties";
+    public static final byte[] PROPERTIES_COLUMN_FAMILIY_BYTES = Bytes.toBytes(PROPERTIES_COLUMN_FAMILIY);
+
     public static final String VARIABLES_COLUMN_FAMILIY = "variables";
     public static final byte[] VARIABLES_COLUMN_FAMILIY_BYTES = Bytes.toBytes(VARIABLES_COLUMN_FAMILIY);
 
@@ -70,6 +86,8 @@ public class DuctileDBSchema {
 	try (Admin admin = connection.getAdmin()) {
 	    assureNamespacePresence(admin);
 	    assureMetaDataTablePresence(admin);
+	    assurePropertiesTablePresence(admin);
+	    assureTypesTablePresence(admin);
 	    assureVerticesTablePresence(admin);
 	    assureEdgesTablePresence(admin);
 	    assureVertexTypesIndexTablePresence(admin);
@@ -115,6 +133,24 @@ public class DuctileDBSchema {
 			Bytes.toBytes(version));
 		table.put(Arrays.asList(vertexIdPut, edgeIdPut, schemaVersionPut));
 	    }
+	}
+    }
+
+    private void assurePropertiesTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(SchemaTable.PROPERTIES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.PROPERTIES.getTableName());
+	    HColumnDescriptor typeColumnFamily = new HColumnDescriptor(DEFINITION_COLUMN_FAMILIY);
+	    descriptor.addFamily(typeColumnFamily);
+	    admin.createTable(descriptor);
+	}
+    }
+
+    private void assureTypesTablePresence(Admin admin) throws IOException {
+	if (!admin.isTableAvailable(SchemaTable.TYPES.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(SchemaTable.TYPES.getTableName());
+	    HColumnDescriptor typeColumnFamily = new HColumnDescriptor(PROPERTIES_COLUMN_FAMILIY);
+	    descriptor.addFamily(typeColumnFamily);
+	    admin.createTable(descriptor);
 	}
     }
 

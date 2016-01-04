@@ -5,6 +5,8 @@ import org.apache.hadoop.hbase.TableName;
 public enum SchemaTable {
 
     METADATA("metadata"), //
+    PROPERTIES("properties"), //
+    TYPES("types"), //
     VERTICES("vertices"), //
     EDGES("edges"), //
     VERTEX_PROPERTIES("vertex_properties"), //

@@ -46,8 +46,8 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     private final DuctileFeatures features = new DuctileFeatures();
 
     protected DuctileGraph(DuctileDBGraph baseGraph, Configuration configuration) {
-	this.baseGraph = baseGraph;
 	this.configuration.copy(configuration);
+	this.baseGraph = baseGraph;
     }
 
     protected DuctileGraph(Configuration configuration) throws IOException {

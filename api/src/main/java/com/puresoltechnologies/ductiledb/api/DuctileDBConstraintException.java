@@ -6,7 +6,7 @@ package com.puresoltechnologies.ductiledb.api;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBConstraintException extends DuctileDBException {
+public class DuctileDBConstraintException extends DuctileDBSchemaException {
 
     private static final long serialVersionUID = -2105669455021490034L;
 

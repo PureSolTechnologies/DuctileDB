@@ -6,34 +6,45 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Iterator;
 
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.DuctileDBPropertyAlreadyDefinedException;
+import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.api.manager.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.api.manager.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 
 public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 
     private static DuctileDBGraph graph;
+    private static DuctileDBGraphManager graphManager;
 
     @BeforeClass
     public static void initialize() {
 	graph = getGraph();
+	graphManager = graph.getGraphManager();
+    }
+
+    @Before
+    public void cleanup() throws IOException {
+	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @Test
     public void testVersion() {
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
 	assertEquals("0.1.0", graphManager.getVersion().toString());
     }
 
     @Test
     public void testInitialGraphVariables() {
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
 	Iterable<String> variableNames = graphManager.getVariableNames();
 	assertNotNull(variableNames);
 	assertFalse(variableNames.iterator().hasNext());
@@ -41,7 +52,6 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testSetGetAndRemoveGraphVariable() {
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
 	assertNull(graphManager.getVariable("variable"));
 	graphManager.setVariable("variable", "value");
 	assertEquals("value", graphManager.getVariable("variable"));
@@ -57,7 +67,6 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testSetGetAndRemoveMultipleGraphVariables() {
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
 	assertNull(graphManager.getVariable("variable1"));
 	assertNull(graphManager.getVariable("variable2"));
 	graphManager.setVariable("variable1", "value1");
@@ -78,5 +87,37 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 	assertNull(graphManager.getVariable("variable1"));
 	assertNull(graphManager.getVariable("variable2"));
 	assertNull(graphManager.getVariable("variable3"));
+    }
+
+    @Test
+    public void testInitialPropertyDefinitions() {
+	Iterable<String> definedProperties = graphManager.getDefinedProperties();
+	assertNotNull(definedProperties);
+	assertFalse(definedProperties.iterator().hasNext());
+    }
+
+    @Test
+    public void testAddGetAndRemovePropertyDefinitions() {
+	assertNull(graphManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
+		UniqueConstraint.GLOBAL);
+	graphManager.defineProperty(definition);
+	PropertyDefinition<String> readDefinition = graphManager.getPropertyDefinition("property");
+	assertNotNull(readDefinition);
+	assertEquals(definition, readDefinition);
+	graphManager.removePropertyDefinition("property");
+	assertNull(graphManager.getPropertyDefinition("property"));
+    }
+
+    @Test(expected = DuctileDBPropertyAlreadyDefinedException.class)
+    public void testDoubleAddedPropertyLeadsToException() {
+	assertNull(graphManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
+		UniqueConstraint.GLOBAL);
+	graphManager.defineProperty(definition);
+	PropertyDefinition<String> readDefinition = graphManager.getPropertyDefinition("property");
+	assertNotNull(readDefinition);
+	assertEquals(definition, readDefinition);
+	graphManager.defineProperty(definition);
     }
 }
