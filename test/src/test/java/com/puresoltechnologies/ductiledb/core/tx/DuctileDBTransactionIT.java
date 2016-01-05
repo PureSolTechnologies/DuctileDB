@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +23,8 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidPropertyKeyException;
+import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
@@ -521,4 +525,105 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 		DuctileDBTestHelper.count(graph.getVertices()));
     }
 
+    @Test
+    public void testValidTypes() {
+	Set<String> types = new HashSet<>();
+	types.add("1234567890");
+	types.add("abcdefghijklmnopqrstuvwxyz");
+	types.add("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	types.add("1._-");
+	try {
+	    graph.addVertex(types, new HashMap<>());
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBInvalidTypeNameException.class)
+    public void testInvalidType1() {
+	Set<String> types = new HashSet<>();
+	types.add(".123");
+	try {
+	    graph.addVertex(types, new HashMap<>());
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBInvalidTypeNameException.class)
+    public void testInvalidType2() {
+	Set<String> types = new HashSet<>();
+	types.add("_123");
+	try {
+	    graph.addVertex(types, new HashMap<>());
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBInvalidTypeNameException.class)
+    public void testInvalidType3() {
+	Set<String> types = new HashSet<>();
+	types.add("-123");
+	try {
+	    graph.addVertex(types, new HashMap<>());
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test
+    public void testValidPropertyNames() {
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	HashMap<String, Object> properties = new HashMap<>();
+	properties.put("1234567890", "value");
+	properties.put("abcdefghijklmnopqrstuvwxyz", "value");
+	properties.put("ABCDEFGHIJKLMNOPQRSTUVWXYZ", "value");
+	properties.put("1._-", "value");
+	try {
+	    graph.addVertex(types, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBInvalidPropertyKeyException.class)
+    public void testInvalidPropertyName() {
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	HashMap<String, Object> properties = new HashMap<>();
+	properties.put(".123", "value");
+	try {
+	    graph.addVertex(types, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBInvalidPropertyKeyException.class)
+    public void testInvalidPropertyName2() {
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	HashMap<String, Object> properties = new HashMap<>();
+	properties.put("_123", "value");
+	try {
+	    graph.addVertex(types, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBInvalidPropertyKeyException.class)
+    public void testInvalidPropertyName3() {
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	HashMap<String, Object> properties = new HashMap<>();
+	properties.put("-123", "value");
+	try {
+	    graph.addVertex(types, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
 }
