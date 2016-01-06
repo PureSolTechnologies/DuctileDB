@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
@@ -22,7 +21,7 @@ import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyTypeException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBPropertyAlreadyDefinedException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
@@ -130,8 +129,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 	}
     }
 
-    @Ignore
-    @Test(expected = DuctileDBUniqueConstraintException.class)
+    @Test(expected = DuctileDBUniqueConstraintViolationException.class)
     public void testGlobalUniqueConstraint() {
 	assertNull(schemaManager.getPropertyDefinition("property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,

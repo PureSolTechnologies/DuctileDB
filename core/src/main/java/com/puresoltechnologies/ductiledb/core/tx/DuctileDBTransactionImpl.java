@@ -417,6 +417,20 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    }
 		}
 	    }
+
+	    for (DuctileDBCacheVertex cacheVertex : addedVertices()) {
+		Object value = cacheVertex.getProperty(propertyKey);
+		if ((propertyValue == null) || (propertyValue.equals(value))) {
+		    if (!wasVertexRemoved(cacheVertex.getId())) {
+			DuctileDBVertex vertex = getVertex(cacheVertex.getId());
+			if ((vertex != null) && //
+				((propertyValue == null) || (vertex.getProperty(propertyKey).equals(propertyValue)))) {
+			    vertices.add(vertex);
+			}
+		    }
+		}
+	    }
+
 	    return new Iterable<DuctileDBVertex>() {
 		@Override
 		public Iterator<DuctileDBVertex> iterator() {
@@ -450,6 +464,17 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    }
 		}
 	    }
+
+	    for (DuctileDBCacheVertex cacheVertex : addedVertices()) {
+		long vertexId = cacheVertex.getId();
+		if (!wasVertexRemoved(vertexId)) {
+		    DuctileDBVertex vertex = getVertex(vertexId);
+		    if ((vertex != null) && (ElementUtils.getTypes(vertex).contains(type))) {
+			vertices.add(vertex);
+		    }
+		}
+	    }
+
 	    return new Iterable<DuctileDBVertex>() {
 		@Override
 		public Iterator<DuctileDBVertex> iterator() {

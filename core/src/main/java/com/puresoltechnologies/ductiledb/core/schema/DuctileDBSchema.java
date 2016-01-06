@@ -6,12 +6,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyKeyException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyTypeException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 
 /**
@@ -83,6 +86,12 @@ public class DuctileDBSchema {
 	if (definition != null) {
 	    if (!value.getClass().equals(definition.getPropertyType())) {
 		throw new DuctileDBInvalidPropertyTypeException(value.getClass(), definition.getPropertyType());
+	    }
+	    if (definition.getUniqueConstraint() == UniqueConstraint.GLOBAL) {
+		Iterable<DuctileDBVertex> vertices = graph.getVertices(key, value);
+		if (vertices.iterator().hasNext()) {
+		    throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.GLOBAL, key, value);
+		}
 	    }
 	}
     }

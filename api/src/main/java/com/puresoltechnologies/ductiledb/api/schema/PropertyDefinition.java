@@ -86,4 +86,9 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
 	return true;
     }
 
+    @Override
+    public String toString() {
+	return "Property definition for '" + propertyName + "': type='" + propertyType.getName() + "', element='"
+		+ elementType.name() + "', unique='" + uniqueConstraint.name() + "'";
+    }
 }
