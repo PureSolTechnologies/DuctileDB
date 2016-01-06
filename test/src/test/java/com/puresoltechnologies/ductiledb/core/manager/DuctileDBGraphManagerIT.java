@@ -7,23 +7,14 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidPropertyTypeException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBPropertyAlreadyDefinedException;
-import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
-import com.puresoltechnologies.ductiledb.api.manager.PropertyDefinition;
-import com.puresoltechnologies.ductiledb.api.manager.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 
@@ -35,7 +26,8 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
     @BeforeClass
     public static void initialize() {
 	graph = getGraph();
-	graphManager = graph.getGraphManager();
+	graphManager = graph.createGraphManager();
+	assertNotNull("Graph manager was not provided.", graphManager);
     }
 
     @Before
@@ -92,73 +84,5 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 	assertNull(graphManager.getVariable("variable1"));
 	assertNull(graphManager.getVariable("variable2"));
 	assertNull(graphManager.getVariable("variable3"));
-    }
-
-    @Test
-    public void testInitialPropertyDefinitions() {
-	Iterable<String> definedProperties = graphManager.getDefinedProperties();
-	assertNotNull(definedProperties);
-	assertFalse(definedProperties.iterator().hasNext());
-    }
-
-    @Test
-    public void testAddGetAndRemovePropertyDefinitions() {
-	assertNull(graphManager.getPropertyDefinition("property"));
-	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
-		UniqueConstraint.GLOBAL);
-	graphManager.defineProperty(definition);
-	PropertyDefinition<String> readDefinition = graphManager.getPropertyDefinition("property");
-	assertNotNull(readDefinition);
-	assertEquals(definition, readDefinition);
-	graphManager.removePropertyDefinition("property");
-	assertNull(graphManager.getPropertyDefinition("property"));
-    }
-
-    @Test(expected = DuctileDBPropertyAlreadyDefinedException.class)
-    public void testDoubleAddedPropertyLeadsToException() {
-	assertNull(graphManager.getPropertyDefinition("property"));
-	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
-		UniqueConstraint.GLOBAL);
-	graphManager.defineProperty(definition);
-	PropertyDefinition<String> readDefinition = graphManager.getPropertyDefinition("property");
-	assertNotNull(readDefinition);
-	assertEquals(definition, readDefinition);
-	graphManager.defineProperty(definition);
-    }
-
-    @Test
-    public void testCorrectPropertyType() {
-	assertNull(graphManager.getPropertyDefinition("property"));
-	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
-		UniqueConstraint.NONE);
-	graphManager.defineProperty(definition);
-
-	Set<String> types = new HashSet<>();
-	types.add("type");
-	Map<String, Object> properties = new HashMap<>();
-	properties.put("property", "StringValue");
-	try {
-	    graph.addVertex(types, properties);
-	} finally {
-	    graph.rollback();
-	}
-    }
-
-    @Test(expected = DuctileDBInvalidPropertyTypeException.class)
-    public void testIncorrectPropertyType() {
-	assertNull(graphManager.getPropertyDefinition("property"));
-	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
-		UniqueConstraint.NONE);
-	graphManager.defineProperty(definition);
-
-	Set<String> types = new HashSet<>();
-	types.add("type");
-	Map<String, Object> properties = new HashMap<>();
-	properties.put("property", 1l);
-	try {
-	    graph.addVertex(types, properties);
-	} finally {
-	    graph.rollback();
-	}
     }
 }

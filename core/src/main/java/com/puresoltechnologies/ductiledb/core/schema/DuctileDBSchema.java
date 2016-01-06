@@ -6,11 +6,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidPropertyKeyException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidPropertyTypeException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
-import com.puresoltechnologies.ductiledb.api.manager.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyKeyException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyTypeException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidTypeNameException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 
 /**
@@ -34,7 +35,7 @@ public class DuctileDBSchema {
     }
 
     private void readSchemaInformation() {
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
+	DuctileDBSchemaManager graphManager = graph.createSchemaManager();
 	Iterable<String> definedProperties = graphManager.getDefinedProperties();
 	for (String propertyKey : definedProperties) {
 	    PropertyDefinition<Serializable> propertyDefinition = graphManager.getPropertyDefinition(propertyKey);

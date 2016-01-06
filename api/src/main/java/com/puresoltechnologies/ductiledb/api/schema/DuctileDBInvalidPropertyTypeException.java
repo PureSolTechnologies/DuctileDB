@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.api;
+package com.puresoltechnologies.ductiledb.api.schema;
 
 /**
  * This exception is thrown in cases an invalid property type is used to add a

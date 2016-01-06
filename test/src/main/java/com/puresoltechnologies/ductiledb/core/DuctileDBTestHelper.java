@@ -19,6 +19,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 /**
@@ -101,12 +102,13 @@ public class DuctileDBTestHelper {
 	    vertex.remove();
 	}
 	graph.commit();
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
+	DuctileDBGraphManager graphManager = graph.createGraphManager();
 	for (String variableName : graphManager.getVariableNames()) {
 	    graphManager.removeVariable(variableName);
 	}
-	for (String propertyName : graphManager.getDefinedProperties()) {
-	    graphManager.removePropertyDefinition(propertyName);
+	DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
+	for (String propertyName : schemaManager.getDefinedProperties()) {
+	    schemaManager.removePropertyDefinition(propertyName);
 	}
 	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
 	new DuctileDBHealthCheck((DuctileDBGraphImpl) graph).runCheck();

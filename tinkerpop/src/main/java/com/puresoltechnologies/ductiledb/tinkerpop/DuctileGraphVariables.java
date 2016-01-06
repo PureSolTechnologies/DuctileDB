@@ -20,28 +20,28 @@ public class DuctileGraphVariables implements Graph.Variables {
     @Override
     public Set<String> keys() {
 	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
-	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	DuctileDBGraphManager graphManager = baseGraph.createGraphManager();
 	return (Set<String>) graphManager.getVariableNames();
     }
 
     @Override
     public <R> Optional<R> get(String key) {
 	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
-	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	DuctileDBGraphManager graphManager = baseGraph.createGraphManager();
 	return graphManager.getVariable(key);
     }
 
     @Override
     public void set(String key, Object value) {
 	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
-	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	DuctileDBGraphManager graphManager = baseGraph.createGraphManager();
 	graphManager.setVariable(key, (Serializable) value);
     }
 
     @Override
     public void remove(String key) {
 	DuctileDBGraph baseGraph = ductileGraph.getBaseGraph();
-	DuctileDBGraphManager graphManager = baseGraph.getGraphManager();
+	DuctileDBGraphManager graphManager = baseGraph.createGraphManager();
 	graphManager.removeVariable(key);
     }
 

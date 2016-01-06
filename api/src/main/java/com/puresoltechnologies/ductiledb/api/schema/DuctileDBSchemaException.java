@@ -1,4 +1,6 @@
-package com.puresoltechnologies.ductiledb.api;
+package com.puresoltechnologies.ductiledb.api.schema;
+
+import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 
 /**
  * This exception is thrown in cases of schema violations.

@@ -13,11 +13,13 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBRollbackException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchemaManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
@@ -59,8 +61,13 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     }
 
     @Override
-    public DuctileDBGraphManager getGraphManager() {
+    public DuctileDBGraphManager createGraphManager() {
 	return new DuctileDBGraphManagerImpl(this);
+    }
+
+    @Override
+    public DuctileDBSchemaManager createSchemaManager() {
+	return new DuctileDBSchemaManagerImpl(this);
     }
 
     public DuctileDBSchema getSchema() {

@@ -31,7 +31,7 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testGraphReturnsGraphManager() {
-	DuctileDBGraphManager graphManager = graph.getGraphManager();
+	DuctileDBGraphManager graphManager = graph.createGraphManager();
 	assertNotNull("No graph manager provided.", graphManager);
 	assertEquals("The wrong implementation of graph manager is provided.", DuctileDBGraphManagerImpl.class,
 		graphManager.getClass());

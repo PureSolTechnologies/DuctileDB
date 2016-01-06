@@ -23,10 +23,10 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidPropertyKeyException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyKeyException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;

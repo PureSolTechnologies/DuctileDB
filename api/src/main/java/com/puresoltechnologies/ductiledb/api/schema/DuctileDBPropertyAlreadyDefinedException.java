@@ -1,6 +1,4 @@
-package com.puresoltechnologies.ductiledb.api;
-
-import com.puresoltechnologies.ductiledb.api.manager.PropertyDefinition;
+package com.puresoltechnologies.ductiledb.api.schema;
 
 /**
  * This exception is thrown in case a new property is added, but of property

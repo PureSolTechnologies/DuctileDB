@@ -39,7 +39,7 @@ public class AbstractDuctileDBGraphTest {
 
 	String version = BuildInformation.getVersion();
 	if (!version.startsWith("${")) {
-	    assertEquals("Schema version is wrong.", version, graph.getGraphManager().getVersion().toString());
+	    assertEquals("Schema version is wrong.", version, graph.createGraphManager().getVersion().toString());
 	}
     }
 

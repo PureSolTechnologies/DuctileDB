@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.api.manager;
+package com.puresoltechnologies.ductiledb.api.schema;
 
 import java.io.Serializable;
 

@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.api;
 import java.io.Closeable;
 
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 
 /**
@@ -25,5 +26,13 @@ public interface DuctileDBGraph extends DuctileDBTransaction, GraphOperations, C
      * 
      * @return A {@link DuctileDBGraphManager} object is returned.
      */
-    public DuctileDBGraphManager getGraphManager();
+    public DuctileDBGraphManager createGraphManager();
+
+    /**
+     * This method returns the {@link DuctileDBSchemaManager} which is
+     * responsible to configure the graph schema.
+     * 
+     * @return A {@link DuctileDBSchemaManager} object is returned.
+     */
+    public DuctileDBSchemaManager createSchemaManager();
 }
