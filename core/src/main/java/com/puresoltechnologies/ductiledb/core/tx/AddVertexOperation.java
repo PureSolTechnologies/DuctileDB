@@ -1,9 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_ID_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.HBaseSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.schema.HBaseSchema.DUCTILEDB_ID_PROPERTY;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -18,7 +16,8 @@ import java.util.Set;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
@@ -58,24 +57,24 @@ public class AddVertexOperation extends AbstractTxOperation {
 	Put put = new Put(id);
 	List<Put> typeIndex = new ArrayList<>();
 	for (String type : types) {
-	    put.addColumn(TYPES_COLUMN_FAMILIY_BYTES, Bytes.toBytes(type), new byte[0]);
+	    put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
 	    typeIndex.add(OperationsHelper.createVertexTypeIndexPut(vertexId, type));
 	}
 	List<Put> propertyIndex = new ArrayList<>();
-	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
+	put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
 		Serializer.serializePropertyValue(vertexId));
-	put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
+	put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
 		Serializer.serializePropertyValue(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    String key = property.getKey();
 	    Object value = property.getValue();
-	    put.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key),
+	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
 		    Serializer.serializePropertyValue((Serializable) value));
 	    propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 		    (Serializable) property.getValue()));
 	}
-	put(SchemaTable.VERTICES.getTableName(), put);
-	put(SchemaTable.VERTEX_TYPES.getTableName(), typeIndex);
-	put(SchemaTable.VERTEX_PROPERTIES.getTableName(), propertyIndex);
+	put(HBaseTable.VERTICES.getTableName(), put);
+	put(HBaseTable.VERTEX_TYPES.getTableName(), typeIndex);
+	put(HBaseTable.VERTEX_PROPERTIES.getTableName(), propertyIndex);
     }
 }

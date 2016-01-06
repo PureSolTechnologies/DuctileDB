@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +11,8 @@ import org.apache.hadoop.hbase.client.Delete;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
-import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveEdgeOperation extends AbstractTxOperation {
@@ -60,10 +59,10 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	long edgeId = edge.getId();
 	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(startVertexId));
-	deleteOutEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
+	deleteOutEdge.addColumns(HBaseColumnFamily.EDGES.getNameBytes(),
 		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode());
 	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(targetVertexId));
-	deleteInEdge.addColumns(EDGES_COLUMN_FAMILY_BYTES,
+	deleteInEdge.addColumns(HBaseColumnFamily.EDGES.getNameBytes(),
 		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode());
 	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
 	Delete typeIndex = OperationsHelper.createEdgeTypeIndexDelete(edgeId, type);
@@ -71,11 +70,11 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	for (String key : edgePropertyKeys) {
 	    propertyIndices.add(OperationsHelper.createEdgePropertyIndexDelete(edgeId, key));
 	}
-	delete(SchemaTable.VERTICES.getTableName(), deleteOutEdge);
-	delete(SchemaTable.VERTICES.getTableName(), deleteInEdge);
-	delete(SchemaTable.EDGES.getTableName(), deleteEdges);
-	delete(SchemaTable.EDGE_TYPES.getTableName(), typeIndex);
-	delete(SchemaTable.EDGE_PROPERTIES.getTableName(), propertyIndices);
+	delete(HBaseTable.VERTICES.getTableName(), deleteOutEdge);
+	delete(HBaseTable.VERTICES.getTableName(), deleteInEdge);
+	delete(HBaseTable.EDGES.getTableName(), deleteEdges);
+	delete(HBaseTable.EDGE_TYPES.getTableName(), typeIndex);
+	delete(HBaseTable.EDGE_PROPERTIES.getTableName(), propertyIndices);
     }
 
 }

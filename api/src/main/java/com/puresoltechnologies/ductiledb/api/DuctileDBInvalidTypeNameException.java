@@ -13,7 +13,7 @@ public class DuctileDBInvalidTypeNameException extends DuctileDBSchemaException 
     private static final long serialVersionUID = 3591448580470653753L;
 
     public DuctileDBInvalidTypeNameException(String propertyKey, Pattern pattern) {
-	super("Type name '" + propertyKey + "' does not match pattern '" + pattern + "' .");
+	super("Type name '" + propertyKey + "' does not match pattern '" + pattern + "'.");
     }
 
 }

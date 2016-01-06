@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.DUCTILEDB_NAMESPACE;
+import static com.puresoltechnologies.ductiledb.core.schema.HBaseSchema.DUCTILEDB_NAMESPACE;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;

@@ -1,10 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGEID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.ID_ROW_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.INDEX_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.METADATA_COLUMN_FAMILIY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERTEXID_COLUMN_BYTES;
+import static com.puresoltechnologies.ductiledb.core.schema.HBaseSchema.ID_ROW_BYTES;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +15,6 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Get;
@@ -31,8 +26,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidPropertyKeyException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.GraphElementRemovedException;
@@ -42,7 +35,10 @@ import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumn;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.utils.Serializer;
@@ -62,8 +58,6 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
      * assignment.
      */
     static final long ID_CACHE_SIZE = 100;
-
-    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z0-9][-._a-zA-Z0-9]*");
 
     private long vertexIdCounter = ID_CACHE_SIZE;
     private long edgeIdCounter = ID_CACHE_SIZE;
@@ -220,38 +214,38 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     Table openMetaDataTable() throws IOException {
-	return connection.getTable(SchemaTable.METADATA.getTableName());
+	return connection.getTable(HBaseTable.METADATA.getTableName());
     }
 
     Table openVertexTable() throws IOException {
-	return connection.getTable(SchemaTable.VERTICES.getTableName());
+	return connection.getTable(HBaseTable.VERTICES.getTableName());
     }
 
     Table openEdgeTable() throws IOException {
-	return connection.getTable(SchemaTable.EDGES.getTableName());
+	return connection.getTable(HBaseTable.EDGES.getTableName());
     }
 
     Table openVertexPropertyTable() throws IOException {
-	return connection.getTable(SchemaTable.VERTEX_PROPERTIES.getTableName());
+	return connection.getTable(HBaseTable.VERTEX_PROPERTIES.getTableName());
     }
 
     Table openVertexTypesTable() throws IOException {
-	return connection.getTable(SchemaTable.VERTEX_TYPES.getTableName());
+	return connection.getTable(HBaseTable.VERTEX_TYPES.getTableName());
     }
 
     Table openEdgePropertyTable() throws IOException {
-	return connection.getTable(SchemaTable.EDGE_PROPERTIES.getTableName());
+	return connection.getTable(HBaseTable.EDGE_PROPERTIES.getTableName());
     }
 
     Table openEdgeTypesTable() throws IOException {
-	return connection.getTable(SchemaTable.EDGE_TYPES.getTableName());
+	return connection.getTable(HBaseTable.EDGE_TYPES.getTableName());
     }
 
     final long createVertexId() {
 	if (vertexIdCounter >= ID_CACHE_SIZE) {
 	    try (Table metaDataTable = openMetaDataTable()) {
-		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, METADATA_COLUMN_FAMILIY_BYTES,
-			VERTEXID_COLUMN_BYTES, ID_CACHE_SIZE);
+		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_BYTES,
+			HBaseColumnFamily.METADATA.getNameBytes(), HBaseColumn.VERTEX_ID.getNameBytes(), ID_CACHE_SIZE);
 		vertexIdCounter = 0;
 	    } catch (IOException e) {
 		throw new DuctileDBException("Could not create vertex id.", e);
@@ -266,8 +260,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     final long createEdgeId() {
 	if (edgeIdCounter >= ID_CACHE_SIZE) {
 	    try (Table metaDataTable = openMetaDataTable()) {
-		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, METADATA_COLUMN_FAMILIY_BYTES,
-			EDGEID_COLUMN_BYTES, ID_CACHE_SIZE);
+		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, HBaseColumnFamily.METADATA.getNameBytes(),
+			HBaseColumn.EDGE_ID.getNameBytes(), ID_CACHE_SIZE);
 		edgeIdCounter = 0;
 	    } catch (IOException e) {
 		throw new DuctileDBException("Could not create edge id.", e);
@@ -279,10 +273,14 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return id;
     }
 
+    private DuctileDBSchema getSchema() {
+	return graph.getSchema();
+    }
+
     @Override
     public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties) {
-	checkTypes(types);
-	checkProperties(properties);
+	getSchema().checkTypes(types);
+	getSchema().checkProperties(properties);
 	long vertexId = createVertexId();
 	addTxOperation(new AddVertexOperation(this, vertexId, types, properties));
 	return getVertex(vertexId);
@@ -291,8 +289,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String type,
 	    Map<String, Object> properties) {
-	checkType(type);
-	checkProperties(properties);
+	getSchema().checkType(type);
+	getSchema().checkProperties(properties);
 	long edgeId = createEdgeId();
 	addTxOperation(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), type, properties));
 	return getEdge(edgeId);
@@ -321,7 +319,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	}
 	try (Table table = openEdgePropertyTable()) {
 	    Result result = table.get(new Get(Bytes.toBytes(propertyKey)));
-	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
+	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes());
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    for (Entry<byte[], byte[]> entry : map.entrySet()) {
 		Object value = Serializer.deserializePropertyValue(entry.getValue());
@@ -354,7 +352,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	}
 	try (Table table = openEdgeTypesTable()) {
 	    Result result = table.get(new Get(Bytes.toBytes(type)));
-	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
+	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes());
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    for (byte[] edgeIdBytes : map.keySet()) {
 		long edgeId = IdEncoder.decodeRowId(edgeIdBytes);
@@ -400,9 +398,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try (Table table = openVertexPropertyTable()) {
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
 	    Get get = new Get(Bytes.toBytes(propertyKey));
-	    get.addFamily(INDEX_COLUMN_FAMILY_BYTES);
+	    get.addFamily(HBaseColumnFamily.INDEX.getNameBytes());
 	    Result result = table.get(get);
-	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
+	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes());
 	    if (propertyMap != null) {
 		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		    Object value = Serializer.deserializePropertyValue(entry.getValue());
@@ -438,9 +436,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try (Table table = openVertexTypesTable()) {
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
 	    Get get = new Get(Bytes.toBytes(type));
-	    get.addFamily(INDEX_COLUMN_FAMILY_BYTES);
+	    get.addFamily(HBaseColumnFamily.INDEX.getNameBytes());
 	    Result result = table.get(get);
-	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(INDEX_COLUMN_FAMILY_BYTES);
+	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes());
 	    if (propertyMap != null) {
 		for (byte[] vertexIdBytes : propertyMap.keySet()) {
 		    long vertexId = IdEncoder.decodeRowId(vertexIdBytes);
@@ -490,7 +488,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     public void addType(DuctileDBVertex vertex, String type) {
-	checkType(type);
+	getSchema().checkType(type);
 	addTxOperation(new AddVertexTypeOperation(this, vertex.getId(), type));
     }
 
@@ -499,7 +497,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
-	checkProperty(key, value);
+	getSchema().checkProperty(key, value);
 	addTxOperation(new SetVertexPropertyOperation(this, vertex, key, value));
     }
 
@@ -508,7 +506,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     public void setProperty(DuctileDBEdge edge, String key, Object value) {
-	checkProperty(key, value);
+	getSchema().checkProperty(key, value);
 	addTxOperation(new SetEdgePropertyOperation(this, edge, key, value));
     }
 
@@ -649,43 +647,5 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public <T> T getEdgeProperty(long edgeId, String key) {
 	DuctileDBCacheEdge cachedEdge = getCachedEdge(edgeId);
 	return cachedEdge.getProperty(key);
-    }
-
-    private void checkTypes(Set<String> types) {
-	types.forEach(type -> checkType(type));
-    }
-
-    /**
-     * This method checks the given type for DuctileDB and also schema
-     * conformance.
-     * 
-     * @param key
-     *            is the name of the property.
-     * @param value
-     *            is the value of the property.
-     */
-    private void checkType(String type) {
-	if (!IDENTIFIER_PATTERN.matcher(type).matches()) {
-	    throw new DuctileDBInvalidTypeNameException(type, IDENTIFIER_PATTERN);
-	}
-    }
-
-    private void checkProperties(Map<String, Object> properties) {
-	properties.forEach((key, value) -> checkProperty(key, value));
-    }
-
-    /**
-     * This method checks the given property for DuctileDB and also schema
-     * conformance.
-     * 
-     * @param key
-     *            is the name of the property.
-     * @param value
-     *            is the value of the property.
-     */
-    private void checkProperty(String key, Object value) {
-	if (!IDENTIFIER_PATTERN.matcher(key).matches()) {
-	    throw new DuctileDBInvalidPropertyKeyException(key, IDENTIFIER_PATTERN);
-	}
     }
 }

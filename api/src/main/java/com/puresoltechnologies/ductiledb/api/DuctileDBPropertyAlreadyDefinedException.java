@@ -13,7 +13,7 @@ public class DuctileDBPropertyAlreadyDefinedException extends DuctileDBSchemaExc
     private static final long serialVersionUID = -3085383298750217517L;
 
     public DuctileDBPropertyAlreadyDefinedException(PropertyDefinition<?> definition) {
-	super("Property with name '" + definition.getPropertyName() + "' is aldready defined.");
+	super("Property with name '" + definition.getPropertyKey() + "' is aldready defined.");
     }
 
 }

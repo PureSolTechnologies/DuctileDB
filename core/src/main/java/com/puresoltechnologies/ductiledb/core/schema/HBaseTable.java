@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.core.schema;
 
 import org.apache.hadoop.hbase.TableName;
 
-public enum SchemaTable {
+public enum HBaseTable {
 
     METADATA("metadata"), //
     PROPERTIES("properties"), //
@@ -17,8 +17,8 @@ public enum SchemaTable {
     private final String name;
     private final TableName tableName;
 
-    SchemaTable(String name) {
-	this.name = DuctileDBSchema.DUCTILEDB_NAMESPACE + ":" + name;
+    HBaseTable(String name) {
+	this.name = HBaseSchema.DUCTILEDB_NAMESPACE + ":" + name;
 	this.tableName = TableName.valueOf(this.name);
     }
 

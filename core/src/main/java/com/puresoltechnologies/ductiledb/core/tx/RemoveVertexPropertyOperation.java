@@ -1,14 +1,13 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-
 import java.io.IOException;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveVertexPropertyOperation extends AbstractTxOperation {
@@ -42,9 +41,9 @@ public class RemoveVertexPropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete.addColumn(PROPERTIES_COLUMN_FAMILY_BYTES, Bytes.toBytes(key));
+	delete.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
 	Delete index = OperationsHelper.createVertexPropertyIndexDelete(vertexId, key);
-	delete(SchemaTable.VERTICES.getTableName(), delete);
-	delete(SchemaTable.VERTEX_PROPERTIES.getTableName(), index);
+	delete(HBaseTable.VERTICES.getTableName(), delete);
+	delete(HBaseTable.VERTEX_PROPERTIES.getTableName(), index);
     }
 }

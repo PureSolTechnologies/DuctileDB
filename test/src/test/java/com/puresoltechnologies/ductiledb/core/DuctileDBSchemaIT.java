@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 
 public class DuctileDBSchemaIT {
 
@@ -22,7 +22,7 @@ public class DuctileDBSchemaIT {
     @Test
     public void testExplicitSchemaCreation() throws IOException {
 	try (Connection connection = DuctileDBGraphFactory.createConnection(new BaseConfiguration())) {
-	    DuctileDBSchema schema = new DuctileDBSchema(connection);
+	    HBaseSchema schema = new HBaseSchema(connection);
 	    schema.checkAndCreateEnvironment();
 	}
     }

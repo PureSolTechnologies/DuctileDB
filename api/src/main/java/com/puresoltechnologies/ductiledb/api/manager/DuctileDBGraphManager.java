@@ -81,11 +81,11 @@ public interface DuctileDBGraphManager {
     /**
      * This method returns the property definition for a defined property.
      * 
-     * @param propertyName
+     * @param propertyKey
      *            is the name of the property.
      * @return
      */
-    public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(String propertyName);
+    public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(String propertyKey);
 
     /**
      * This method removes a property definition.

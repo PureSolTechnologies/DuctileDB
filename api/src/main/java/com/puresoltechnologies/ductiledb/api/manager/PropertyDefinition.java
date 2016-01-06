@@ -37,7 +37,7 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
 	return elementType;
     }
 
-    public final String getPropertyName() {
+    public final String getPropertyKey() {
 	return propertyName;
     }
 

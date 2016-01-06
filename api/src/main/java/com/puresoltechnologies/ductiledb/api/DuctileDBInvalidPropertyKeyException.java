@@ -13,7 +13,7 @@ public class DuctileDBInvalidPropertyKeyException extends DuctileDBSchemaExcepti
     private static final long serialVersionUID = 3591448580470653753L;
 
     public DuctileDBInvalidPropertyKeyException(String propertyKey, Pattern pattern) {
-	super("Property key '" + propertyKey + "' does not match pattern '" + pattern + "' .");
+	super("Property key '" + propertyKey + "' does not match pattern '" + pattern + "'.");
     }
 
 }

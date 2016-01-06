@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.hbase.client.Delete;
 
-import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class RemoveVertexOperation extends AbstractTxOperation {
@@ -31,6 +31,6 @@ public class RemoveVertexOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete(SchemaTable.VERTICES.getTableName(), delete);
+	delete(HBaseTable.VERTICES.getTableName(), delete);
     }
 }

@@ -18,19 +18,21 @@ import com.puresoltechnologies.ductiledb.api.tx.DuctileDBRollbackException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     private final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
-
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
+    private final DuctileDBSchema schema;
 
     private final Connection connection;
 
     public DuctileDBGraphImpl(Connection connection) throws IOException {
 	this.connection = connection;
-	new DuctileDBSchema(connection).checkAndCreateEnvironment();
+	new HBaseSchema(connection).checkAndCreateEnvironment();
+	schema = new DuctileDBSchema(this);
     }
 
     public final Connection getConnection() {
@@ -59,6 +61,10 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     @Override
     public DuctileDBGraphManager getGraphManager() {
 	return new DuctileDBGraphManagerImpl(this);
+    }
+
+    public DuctileDBSchema getSchema() {
+	return schema;
     }
 
     @Override

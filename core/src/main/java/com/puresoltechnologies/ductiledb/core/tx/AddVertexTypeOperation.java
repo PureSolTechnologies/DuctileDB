@@ -1,13 +1,12 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
-
 import java.io.IOException;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.core.schema.SchemaTable;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AddVertexTypeOperation extends AbstractTxOperation {
@@ -41,9 +40,9 @@ public class AddVertexTypeOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
-	put.addColumn(TYPES_COLUMN_FAMILIY_BYTES, Bytes.toBytes(type), Bytes.toBytes(type));
+	put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), Bytes.toBytes(type));
 	Put index = OperationsHelper.createVertexTypeIndexPut(vertexId, type);
-	put(SchemaTable.VERTICES.getTableName(), put);
-	put(SchemaTable.VERTEX_TYPES.getTableName(), index);
+	put(HBaseTable.VERTICES.getTableName(), put);
+	put(HBaseTable.VERTEX_TYPES.getTableName(), index);
     }
 }

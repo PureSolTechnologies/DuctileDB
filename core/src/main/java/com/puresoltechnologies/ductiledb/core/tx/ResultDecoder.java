@@ -1,12 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tx;
 
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.EDGES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.PROPERTIES_COLUMN_FAMILY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.START_VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TARGET_VERTEXID_COLUMN_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.TYPES_COLUMN_FAMILIY_BYTES;
-import static com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema.VERICES_COLUMN_FAMILY_BYTES;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +17,8 @@ import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumn;
+import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.utils.Serializer;
 
@@ -40,7 +35,7 @@ public class ResultDecoder {
 	}
 	// Reading types...
 	Set<String> types = new HashSet<>();
-	NavigableMap<byte[], byte[]> typesMap = result.getFamilyMap(TYPES_COLUMN_FAMILIY_BYTES);
+	NavigableMap<byte[], byte[]> typesMap = result.getFamilyMap(HBaseColumnFamily.TYPES.getNameBytes());
 	if (typesMap != null) {
 	    for (byte[] type : typesMap.keySet()) {
 		types.add(Bytes.toString(type));
@@ -48,7 +43,7 @@ public class ResultDecoder {
 	}
 	// Reading properties...
 	Map<String, Object> properties = new HashMap<>();
-	NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
+	NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(HBaseColumnFamily.PROPERTIES.getNameBytes());
 	if (propertyMap != null) {
 	    for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
 		String key = Bytes.toString(entry.getKey());
@@ -60,7 +55,7 @@ public class ResultDecoder {
 	}
 	// Read edges...
 	List<DuctileDBCacheEdge> edges = new ArrayList<>();
-	NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(EDGES_COLUMN_FAMILY_BYTES);
+	NavigableMap<byte[], byte[]> edgesMap = result.getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
 	if (edgesMap != null) {
 	    for (Entry<byte[], byte[]> edge : edgesMap.entrySet()) {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
@@ -81,10 +76,13 @@ public class ResultDecoder {
 	if (result.isEmpty()) {
 	    return null;
 	}
-	NavigableMap<byte[], byte[]> verticesColumnFamily = result.getFamilyMap(VERICES_COLUMN_FAMILY_BYTES);
-	long startVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(START_VERTEXID_COLUMN_BYTES));
-	long targetVertexId = IdEncoder.decodeRowId(verticesColumnFamily.get(TARGET_VERTEXID_COLUMN_BYTES));
-	NavigableMap<byte[], byte[]> typesMap = result.getFamilyMap(TYPES_COLUMN_FAMILIY_BYTES);
+	NavigableMap<byte[], byte[]> verticesColumnFamily = result
+		.getFamilyMap(HBaseColumnFamily.VERICES.getNameBytes());
+	long startVertexId = IdEncoder
+		.decodeRowId(verticesColumnFamily.get(HBaseColumn.START_VERTEX_ID.getNameBytes()));
+	long targetVertexId = IdEncoder
+		.decodeRowId(verticesColumnFamily.get(HBaseColumn.TARGET_VERTEX_ID.getNameBytes()));
+	NavigableMap<byte[], byte[]> typesMap = result.getFamilyMap(HBaseColumnFamily.TYPES.getNameBytes());
 	Set<byte[]> typeBytes = typesMap.keySet();
 	if (typeBytes.size() == 0) {
 	    throw new DuctileDBException("Found edge without type (id='" + edgeId
@@ -96,7 +94,7 @@ public class ResultDecoder {
 	}
 	String type = Bytes.toString(typeBytes.iterator().next());
 	Map<String, Object> properties = new HashMap<>();
-	NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(PROPERTIES_COLUMN_FAMILY_BYTES);
+	NavigableMap<byte[], byte[]> propertiesMap = result.getFamilyMap(HBaseColumnFamily.PROPERTIES.getNameBytes());
 	for (Entry<byte[], byte[]> property : propertiesMap.entrySet()) {
 	    String key = Bytes.toString(property.getKey());
 	    if (!key.startsWith("~")) {
