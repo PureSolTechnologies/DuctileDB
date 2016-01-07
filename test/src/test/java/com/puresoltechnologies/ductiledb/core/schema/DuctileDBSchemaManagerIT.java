@@ -130,7 +130,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test(expected = DuctileDBUniqueConstraintViolationException.class)
-    public void testGlobalUniqueConstraint() {
+    public void testGlobalVertexUniqueConstraint() {
 	assertNull(schemaManager.getPropertyDefinition("property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.GLOBAL);
@@ -145,6 +145,109 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 	try {
 	    graph.addVertex(types1, properties);
 	    graph.addVertex(types2, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test
+    public void testVertexTypeUniqueConstraintValid() {
+	assertNull(schemaManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
+		UniqueConstraint.TYPE);
+	schemaManager.defineProperty(definition);
+
+	Set<String> types1 = new HashSet<>();
+	types1.add("type1");
+	Set<String> types2 = new HashSet<>();
+	types2.add("type2");
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property", "value");
+	try {
+	    graph.addVertex(types1, properties);
+	    graph.addVertex(types2, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBUniqueConstraintViolationException.class)
+    public void testVertexTypeUniqueConstraintViolation() {
+	assertNull(schemaManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
+		UniqueConstraint.TYPE);
+	schemaManager.defineProperty(definition);
+
+	Set<String> types1 = new HashSet<>();
+	types1.add("type1");
+	Set<String> types2 = new HashSet<>();
+	types2.add("type1");
+	types2.add("type2");
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property", "value");
+	try {
+	    graph.addVertex(types1, properties);
+	    graph.addVertex(types2, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBUniqueConstraintViolationException.class)
+    public void testGlobalEdgeUniqueConstraint() {
+	assertNull(schemaManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.EDGE, "property", String.class,
+		UniqueConstraint.GLOBAL);
+	schemaManager.defineProperty(definition);
+
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property", "value");
+	try {
+	    DuctileDBVertex vertex1 = graph.addVertex();
+	    DuctileDBVertex vertex2 = graph.addVertex();
+	    DuctileDBVertex vertex3 = graph.addVertex();
+	    vertex1.addEdge("type1", vertex2, properties);
+	    vertex2.addEdge("type2", vertex3, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test
+    public void testEdgeTypeUniqueConstraintValid() {
+	assertNull(schemaManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.EDGE, "property", String.class,
+		UniqueConstraint.TYPE);
+	schemaManager.defineProperty(definition);
+
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property", "value");
+	try {
+	    DuctileDBVertex vertex1 = graph.addVertex();
+	    DuctileDBVertex vertex2 = graph.addVertex();
+	    DuctileDBVertex vertex3 = graph.addVertex();
+	    vertex1.addEdge("type1", vertex2, properties);
+	    vertex2.addEdge("type2", vertex3, properties);
+	} finally {
+	    graph.rollback();
+	}
+    }
+
+    @Test(expected = DuctileDBUniqueConstraintViolationException.class)
+    public void testEdgeTypeUniqueConstraintViolation() {
+	assertNull(schemaManager.getPropertyDefinition("property"));
+	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.EDGE, "property", String.class,
+		UniqueConstraint.TYPE);
+	schemaManager.defineProperty(definition);
+
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property", "value");
+	try {
+	    DuctileDBVertex vertex1 = graph.addVertex();
+	    DuctileDBVertex vertex2 = graph.addVertex();
+	    DuctileDBVertex vertex3 = graph.addVertex();
+	    vertex1.addEdge("type1", vertex2, properties);
+	    vertex2.addEdge("type1", vertex3, properties);
 	} finally {
 	    graph.rollback();
 	}
