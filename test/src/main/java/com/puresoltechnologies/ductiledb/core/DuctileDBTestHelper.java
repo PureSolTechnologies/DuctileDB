@@ -113,6 +113,11 @@ public class DuctileDBTestHelper {
 		schemaManager.removePropertyDefinition(elementType, propertyName);
 	    }
 	}
+	for (String typeName : schemaManager.getDefinedTypes()) {
+	    for (ElementType elementType : ElementType.values()) {
+		schemaManager.removeTypeDefinition(elementType, typeName);
+	    }
+	}
 	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
 	new DuctileDBHealthCheck((DuctileDBGraphImpl) graph).runCheck();
 	logger.info("Ductile graph deleted.");

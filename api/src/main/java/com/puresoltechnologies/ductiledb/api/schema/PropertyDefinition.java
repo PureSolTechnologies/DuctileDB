@@ -9,7 +9,7 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
     private static final long serialVersionUID = 1L;
 
     private final ElementType elementType;
-    private final String propertyName;
+    private final String propertyKey;
     private final Class<T> propertyType;
     private final UniqueConstraint uniqueConstraint;
 
@@ -19,17 +19,29 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
     public PropertyDefinition() {
 	super();
 	this.elementType = null;
-	this.propertyName = null;
+	this.propertyKey = null;
 	this.propertyType = null;
 	this.uniqueConstraint = null;
     }
 
-    public PropertyDefinition(ElementType elementType, String propertyName, Class<T> propertyType,
+    public PropertyDefinition(ElementType elementType, String propertyKey, Class<T> propertyType,
 	    UniqueConstraint uniqueConstraint) {
 	super();
+	if (elementType == null) {
+	    throw new IllegalArgumentException("elementType must not be null.");
+	}
 	this.elementType = elementType;
-	this.propertyName = propertyName;
+	if ((propertyKey == null) || (propertyKey.isEmpty())) {
+	    throw new IllegalArgumentException("propertyKey must not be null or empty.");
+	}
+	this.propertyKey = propertyKey;
+	if (propertyType == null) {
+	    throw new IllegalArgumentException("propertyType must not be null.");
+	}
 	this.propertyType = propertyType;
+	if (uniqueConstraint == null) {
+	    throw new IllegalArgumentException("uniqueConstraint must not be null.");
+	}
 	this.uniqueConstraint = uniqueConstraint;
     }
 
@@ -38,7 +50,7 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
     }
 
     public final String getPropertyKey() {
-	return propertyName;
+	return propertyKey;
     }
 
     public final Class<T> getPropertyType() {
@@ -54,7 +66,7 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
 	final int prime = 31;
 	int result = 1;
 	result = prime * result + ((elementType == null) ? 0 : elementType.hashCode());
-	result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
+	result = prime * result + ((propertyKey == null) ? 0 : propertyKey.hashCode());
 	result = prime * result + ((propertyType == null) ? 0 : propertyType.hashCode());
 	result = prime * result + ((uniqueConstraint == null) ? 0 : uniqueConstraint.hashCode());
 	return result;
@@ -71,10 +83,10 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
 	PropertyDefinition<?> other = (PropertyDefinition<?>) obj;
 	if (elementType != other.elementType)
 	    return false;
-	if (propertyName == null) {
-	    if (other.propertyName != null)
+	if (propertyKey == null) {
+	    if (other.propertyKey != null)
 		return false;
-	} else if (!propertyName.equals(other.propertyName))
+	} else if (!propertyKey.equals(other.propertyKey))
 	    return false;
 	if (propertyType == null) {
 	    if (other.propertyType != null)
@@ -88,7 +100,7 @@ public class PropertyDefinition<T extends Serializable> implements Serializable 
 
     @Override
     public String toString() {
-	return "Property definition for '" + propertyName + "': type='" + propertyType.getName() + "', element='"
+	return "Property definition for '" + propertyKey + "': type='" + propertyType.getName() + "', element='"
 		+ elementType.name() + "', unique='" + uniqueConstraint.name() + "'";
     }
 }

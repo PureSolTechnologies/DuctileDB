@@ -20,6 +20,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyTypeException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBPropertyAlreadyDefinedException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
@@ -62,6 +63,11 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 	assertEquals(definition, readDefinition);
 	schemaManager.removePropertyDefinition(ElementType.VERTEX, "property");
 	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDefinePropertyWithNullThrowsIllegalArgumentException() {
+	schemaManager.defineProperty(null);
     }
 
     @Test(expected = DuctileDBPropertyAlreadyDefinedException.class)
@@ -253,4 +259,73 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 	}
     }
 
+    @Test
+    public void testInitialTypeDefinitions() {
+	Iterable<String> definedTypes = schemaManager.getDefinedTypes();
+	assertNotNull(definedTypes);
+	assertFalse(definedTypes.iterator().hasNext());
+    }
+
+    @Test
+    public void testAddGetAndRemoveTypeDefinitions() {
+	PropertyDefinition<String> propertyDefinition = new PropertyDefinition<>(ElementType.VERTEX, "property",
+		String.class, UniqueConstraint.GLOBAL);
+	schemaManager.defineProperty(propertyDefinition);
+	assertNull(schemaManager.getTypeDefinition(ElementType.VERTEX, "type"));
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property");
+	schemaManager.defineType(ElementType.VERTEX, "type", propertyKeys);
+	Set<String> readPropertyKeys = schemaManager.getTypeDefinition(ElementType.VERTEX, "type");
+	assertNotNull(readPropertyKeys);
+	assertEquals(propertyKeys, readPropertyKeys);
+	schemaManager.removeTypeDefinition(ElementType.VERTEX, "type");
+	assertNull(schemaManager.getTypeDefinition(ElementType.VERTEX, "type"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDefineTypeThrowsIllegalArgumentExceptionForNullElementType() {
+	PropertyDefinition<String> propertyDefinition = new PropertyDefinition<>(ElementType.VERTEX, "property",
+		String.class, UniqueConstraint.GLOBAL);
+	schemaManager.defineProperty(propertyDefinition);
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property");
+	schemaManager.defineType(null, "type", propertyKeys);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDefineTypeThrowsIllegalArgumentExceptionForNullTypeName() {
+	PropertyDefinition<String> propertyDefinition = new PropertyDefinition<>(ElementType.VERTEX, "property",
+		String.class, UniqueConstraint.GLOBAL);
+	schemaManager.defineProperty(propertyDefinition);
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property");
+	schemaManager.defineType(ElementType.VERTEX, null, propertyKeys);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDefineTypeThrowsIllegalArgumentExceptionForEmtpyTypeName() {
+	PropertyDefinition<String> propertyDefinition = new PropertyDefinition<>(ElementType.VERTEX, "property",
+		String.class, UniqueConstraint.GLOBAL);
+	schemaManager.defineProperty(propertyDefinition);
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property");
+	schemaManager.defineType(ElementType.VERTEX, "", propertyKeys);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDefineTypeThrowsIllegalArgumentExceptionForNullPropertyKeys() {
+	schemaManager.defineType(ElementType.VERTEX, "type", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDefineTypeThrowsIllegalArgumentExceptionForEmtpyPropertyKeys() {
+	schemaManager.defineType(ElementType.VERTEX, "type", new HashSet<>());
+    }
+
+    @Test(expected = DuctileDBSchemaException.class)
+    public void testDefineTypeThrowsDuctileDBSchemaExceptionForEmtpyUnknownPropertyKey() {
+	HashSet<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("unknownProperty");
+	schemaManager.defineType(ElementType.VERTEX, "type", propertyKeys);
+    }
 }

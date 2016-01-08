@@ -30,6 +30,7 @@ public class DuctileDBSchema {
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z0-9][-._a-zA-Z0-9]*");
 
     private final Map<ElementType, Map<String, PropertyDefinition<?>>> propertyDefinitions = new HashMap<>();
+    private final Map<ElementType, Map<String, Set<String>>> typeDefinitions = new HashMap<>();
 
     private final DuctileDBGraphImpl graph;
 
@@ -40,16 +41,34 @@ public class DuctileDBSchema {
     }
 
     private void readSchemaInformation() {
+	readPropertyDefinitions();
+	readTypeDefinitions();
+    }
+
+    private void readPropertyDefinitions() {
 	propertyDefinitions.put(ElementType.VERTEX, new HashMap<>());
 	propertyDefinitions.put(ElementType.EDGE, new HashMap<>());
 	DuctileDBSchemaManager graphManager = graph.createSchemaManager();
-	Iterable<String> definedProperties = graphManager.getDefinedProperties();
-	for (String propertyKey : definedProperties) {
+	for (String propertyKey : graphManager.getDefinedProperties()) {
 	    for (ElementType elementType : ElementType.values()) {
 		PropertyDefinition<Serializable> propertyDefinition = graphManager.getPropertyDefinition(elementType,
 			propertyKey);
 		if (propertyDefinition != null) {
 		    defineProperty(propertyDefinition);
+		}
+	    }
+	}
+    }
+
+    private void readTypeDefinitions() {
+	typeDefinitions.put(ElementType.VERTEX, new HashMap<>());
+	typeDefinitions.put(ElementType.EDGE, new HashMap<>());
+	DuctileDBSchemaManager graphManager = graph.createSchemaManager();
+	for (String typeName : graphManager.getDefinedTypes()) {
+	    for (ElementType elementType : ElementType.values()) {
+		Set<String> typeProperties = graphManager.getTypeDefinition(elementType, typeName);
+		if (typeProperties != null) {
+		    defineType(elementType, typeName, typeProperties);
 		}
 	    }
 	}
@@ -202,6 +221,14 @@ public class DuctileDBSchema {
 		}
 	    }
 	}
+    }
+
+    public void defineType(ElementType elementType, String typeName, Set<String> propertyKeys) {
+	typeDefinitions.get(elementType).put(typeName, propertyKeys);
+    }
+
+    public void removeType(ElementType elementType, String typeName) {
+	typeDefinitions.get(elementType).remove(typeName);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.schema;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.ElementType;
 
@@ -40,8 +41,54 @@ public interface DuctileDBSchemaManager {
     /**
      * This method removes a property definition.
      * 
-     * @param propertyName
+     * @param propertyKey
      */
-    public void removePropertyDefinition(ElementType elementType, String propertyName);
+    public void removePropertyDefinition(ElementType elementType, String propertyKey);
 
+    /**
+     * This method returns names of all defined types.
+     * 
+     * @return An {@link Iterable} of {@link String} is returned containing
+     *         names of all defined types.
+     */
+    public Iterable<String> getDefinedTypes();
+
+    /**
+     * This method defines a new type for an element type.
+     * 
+     * @param elementType
+     *            is the type of the graph element for which the type can be
+     *            applied.
+     * @param typeName
+     *            is the name of the new type.
+     * @param propertyKeys
+     *            is a {@link Set} of property names, which are applied to the
+     *            type.
+     */
+    public void defineType(ElementType elementType, String typeName, Set<String> propertyKeys);
+
+    /**
+     * This method reads a type definition and returns the names of all
+     * properties which are assigned to it.
+     * 
+     * @param elementType
+     *            is the type of the graph element for which the type can be
+     *            applied.
+     * @param typeName
+     *            is the name of the new type.
+     * @return A {@link Set} of {@link String} is returned containing the names
+     *         of the properties which are assigned to the type.
+     */
+    public Set<String> getTypeDefinition(ElementType elementType, String typeName);
+
+    /**
+     * This method removes a type.
+     * 
+     * @param elementType
+     *            is the type of the graph element for which the type can be
+     *            applied.
+     * @param typeName
+     *            is the name of the new type.
+     */
+    public void removeTypeDefinition(ElementType elementType, String typeName);
 }

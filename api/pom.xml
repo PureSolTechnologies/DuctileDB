@@ -16,5 +16,9 @@
 			<groupId>com.puresoltechnologies.versioning</groupId>
 			<artifactId>versioning</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 	</dependencies>
 </project>
