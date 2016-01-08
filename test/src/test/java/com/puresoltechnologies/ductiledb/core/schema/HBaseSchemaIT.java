@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core;
+package com.puresoltechnologies.ductiledb.core.schema;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -10,9 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 
-public class DuctileDBSchemaIT {
+public class HBaseSchemaIT {
 
     @Before
     public void removeTables() throws IOException {

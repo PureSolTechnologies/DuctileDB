@@ -100,8 +100,8 @@ public class HBaseSchema {
     private void assurePropertiesTablePresence(Admin admin) throws IOException {
 	if (!admin.isTableAvailable(HBaseTable.PROPERTIES.getTableName())) {
 	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.PROPERTIES.getTableName());
-	    HColumnDescriptor typeColumnFamily = new HColumnDescriptor(HBaseColumnFamily.DEFINITION.getNameBytes());
-	    descriptor.addFamily(typeColumnFamily);
+	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.VERTEX_PROPERTY_DEFINITION.getNameBytes()));
+	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.EDGE_PROPERTY_DEFINITION.getNameBytes()));
 	    admin.createTable(descriptor);
 	}
     }

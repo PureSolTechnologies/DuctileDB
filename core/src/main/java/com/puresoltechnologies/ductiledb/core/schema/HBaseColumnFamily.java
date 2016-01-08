@@ -5,7 +5,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 public enum HBaseColumnFamily {
 
     METADATA("metadata"), //
-    DEFINITION("definition"), //
+    VERTEX_PROPERTY_DEFINITION("vertex_property"), //
+    EDGE_PROPERTY_DEFINITION("edge_property"), //
     PROPERTIES("properties"), //
     VARIABLES("variables"), //
     TYPES("types"), //

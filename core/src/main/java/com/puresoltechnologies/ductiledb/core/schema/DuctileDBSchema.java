@@ -29,7 +29,7 @@ public class DuctileDBSchema {
 
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z0-9][-._a-zA-Z0-9]*");
 
-    private final Map<String, PropertyDefinition<?>> propertyDefinitions = new HashMap<>();
+    private final Map<ElementType, Map<String, PropertyDefinition<?>>> propertyDefinitions = new HashMap<>();
 
     private final DuctileDBGraphImpl graph;
 
@@ -40,20 +40,29 @@ public class DuctileDBSchema {
     }
 
     private void readSchemaInformation() {
+	propertyDefinitions.put(ElementType.VERTEX, new HashMap<>());
+	propertyDefinitions.put(ElementType.EDGE, new HashMap<>());
 	DuctileDBSchemaManager graphManager = graph.createSchemaManager();
 	Iterable<String> definedProperties = graphManager.getDefinedProperties();
 	for (String propertyKey : definedProperties) {
-	    PropertyDefinition<Serializable> propertyDefinition = graphManager.getPropertyDefinition(propertyKey);
-	    defineProperty(propertyDefinition);
+	    for (ElementType elementType : ElementType.values()) {
+		PropertyDefinition<Serializable> propertyDefinition = graphManager.getPropertyDefinition(elementType,
+			propertyKey);
+		if (propertyDefinition != null) {
+		    defineProperty(propertyDefinition);
+		}
+	    }
 	}
     }
 
     public void defineProperty(PropertyDefinition<?> definition) {
-	propertyDefinitions.put(definition.getPropertyKey(), definition);
+	Map<String, PropertyDefinition<?>> elementPropertyDefinitions = propertyDefinitions
+		.get(definition.getElementType());
+	elementPropertyDefinitions.put(definition.getPropertyKey(), definition);
     }
 
-    public void removeProperty(String propertyKey) {
-	propertyDefinitions.remove(propertyKey);
+    public void removeProperty(ElementType elementType, String propertyKey) {
+	propertyDefinitions.get(elementType).remove(propertyKey);
     }
 
     public void checkAddVertex(Set<String> types, Map<String, Object> properties) {
@@ -62,7 +71,7 @@ public class DuctileDBSchema {
 	});
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
-	    PropertyDefinition<?> definition = propertyDefinitions.get(key);
+	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.VERTEX).get(key);
 	    if (definition != null) {
 		checkPropertyType(value, definition);
 		checkGlobalConstraint(ElementType.VERTEX, key, value, definition);
@@ -87,7 +96,7 @@ public class DuctileDBSchema {
 	checkTypeIdentifier(type);
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
-	    PropertyDefinition<?> definition = propertyDefinitions.get(key);
+	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
 	    if (definition != null) {
 		checkPropertyType(value, definition);
 		checkGlobalConstraint(ElementType.EDGE, key, value, definition);
@@ -126,7 +135,7 @@ public class DuctileDBSchema {
      *            is the value of the property.
      */
     public void checkSetVertexProperty(Set<String> types, String key, Object value) {
-	PropertyDefinition<?> definition = propertyDefinitions.get(key);
+	PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.VERTEX).get(key);
 	checkPropertyIdentifier(key);
 	if (definition != null) {
 	    checkPropertyType(value, definition);
@@ -135,7 +144,7 @@ public class DuctileDBSchema {
     }
 
     public void checkSetEdgeProperty(String type, String key, Object value) {
-	PropertyDefinition<?> definition = propertyDefinitions.get(key);
+	PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
 	checkPropertyIdentifier(key);
 	if (definition != null) {
 	    checkPropertyType(value, definition);

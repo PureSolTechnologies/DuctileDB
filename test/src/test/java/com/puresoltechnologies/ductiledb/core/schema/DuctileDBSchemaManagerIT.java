@@ -53,24 +53,24 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testAddGetAndRemovePropertyDefinitions() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.GLOBAL);
 	schemaManager.defineProperty(definition);
-	PropertyDefinition<String> readDefinition = schemaManager.getPropertyDefinition("property");
+	PropertyDefinition<String> readDefinition = schemaManager.getPropertyDefinition(ElementType.VERTEX, "property");
 	assertNotNull(readDefinition);
 	assertEquals(definition, readDefinition);
-	schemaManager.removePropertyDefinition("property");
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	schemaManager.removePropertyDefinition(ElementType.VERTEX, "property");
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
     }
 
     @Test(expected = DuctileDBPropertyAlreadyDefinedException.class)
     public void testDoubleAddedPropertyLeadsToException() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.GLOBAL);
 	schemaManager.defineProperty(definition);
-	PropertyDefinition<String> readDefinition = schemaManager.getPropertyDefinition("property");
+	PropertyDefinition<String> readDefinition = schemaManager.getPropertyDefinition(ElementType.VERTEX, "property");
 	assertNotNull(readDefinition);
 	assertEquals(definition, readDefinition);
 	schemaManager.defineProperty(definition);
@@ -78,7 +78,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testCorrectPropertyType() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.NONE);
 	schemaManager.defineProperty(definition);
@@ -96,7 +96,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test(expected = DuctileDBInvalidPropertyTypeException.class)
     public void testIncorrectPropertyType() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.NONE);
 	schemaManager.defineProperty(definition);
@@ -114,7 +114,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test(expected = DuctileDBInvalidPropertyTypeException.class)
     public void testIncorrectPropertyType2() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.NONE);
 	schemaManager.defineProperty(definition);
@@ -131,7 +131,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test(expected = DuctileDBUniqueConstraintViolationException.class)
     public void testGlobalVertexUniqueConstraint() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.GLOBAL);
 	schemaManager.defineProperty(definition);
@@ -152,7 +152,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testVertexTypeUniqueConstraintValid() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.TYPE);
 	schemaManager.defineProperty(definition);
@@ -173,7 +173,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test(expected = DuctileDBUniqueConstraintViolationException.class)
     public void testVertexTypeUniqueConstraintViolation() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.VERTEX, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.VERTEX, "property", String.class,
 		UniqueConstraint.TYPE);
 	schemaManager.defineProperty(definition);
@@ -195,7 +195,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test(expected = DuctileDBUniqueConstraintViolationException.class)
     public void testGlobalEdgeUniqueConstraint() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.EDGE, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.EDGE, "property", String.class,
 		UniqueConstraint.GLOBAL);
 	schemaManager.defineProperty(definition);
@@ -215,7 +215,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testEdgeTypeUniqueConstraintValid() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.EDGE, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.EDGE, "property", String.class,
 		UniqueConstraint.TYPE);
 	schemaManager.defineProperty(definition);
@@ -235,7 +235,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test(expected = DuctileDBUniqueConstraintViolationException.class)
     public void testEdgeTypeUniqueConstraintViolation() {
-	assertNull(schemaManager.getPropertyDefinition("property"));
+	assertNull(schemaManager.getPropertyDefinition(ElementType.EDGE, "property"));
 	PropertyDefinition<String> definition = new PropertyDefinition<>(ElementType.EDGE, "property", String.class,
 		UniqueConstraint.TYPE);
 	schemaManager.defineProperty(definition);

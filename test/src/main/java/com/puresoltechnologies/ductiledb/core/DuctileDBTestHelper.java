@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
@@ -108,7 +109,9 @@ public class DuctileDBTestHelper {
 	}
 	DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
 	for (String propertyName : schemaManager.getDefinedProperties()) {
-	    schemaManager.removePropertyDefinition(propertyName);
+	    for (ElementType elementType : ElementType.values()) {
+		schemaManager.removePropertyDefinition(elementType, propertyName);
+	    }
 	}
 	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
 	new DuctileDBHealthCheck((DuctileDBGraphImpl) graph).runCheck();

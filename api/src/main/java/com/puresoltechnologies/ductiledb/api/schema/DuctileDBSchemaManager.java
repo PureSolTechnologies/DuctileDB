@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.api.schema;
 
 import java.io.Serializable;
 
+import com.puresoltechnologies.ductiledb.api.ElementType;
+
 /**
  * This interface contains the official API to handle DucileDB schema.
  * 
@@ -32,13 +34,14 @@ public interface DuctileDBSchemaManager {
      *            is the name of the property.
      * @return
      */
-    public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(String propertyKey);
+    public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(ElementType elementType,
+	    String propertyKey);
 
     /**
      * This method removes a property definition.
      * 
      * @param propertyName
      */
-    public void removePropertyDefinition(String propertyName);
+    public void removePropertyDefinition(ElementType elementType, String propertyName);
 
 }
