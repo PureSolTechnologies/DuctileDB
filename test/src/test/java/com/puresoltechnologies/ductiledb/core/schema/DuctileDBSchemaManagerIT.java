@@ -323,9 +323,70 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test(expected = DuctileDBSchemaException.class)
-    public void testDefineTypeThrowsDuctileDBSchemaExceptionForEmtpyUnknownPropertyKey() {
-	HashSet<String> propertyKeys = new HashSet<>();
+    public void testDefineTypeThrowsDuctileDBSchemaExceptionForUnknownPropertyKey() {
+	Set<String> propertyKeys = new HashSet<>();
 	propertyKeys.add("unknownProperty");
 	schemaManager.defineType(ElementType.VERTEX, "type", propertyKeys);
     }
+
+    @Test
+    public void testNormalCreationWithTypeSchema() {
+	schemaManager.defineProperty(
+		new PropertyDefinition<>(ElementType.VERTEX, "property1", String.class, UniqueConstraint.NONE));
+	schemaManager.defineProperty(
+		new PropertyDefinition<>(ElementType.VERTEX, "property2", Long.class, UniqueConstraint.NONE));
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property1");
+	propertyKeys.add("property2");
+	schemaManager.defineType(ElementType.VERTEX, "type", propertyKeys);
+
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property1", "stringValue");
+	properties.put("property2", 1234567890l);
+	graph.addVertex(types, properties);
+	graph.commit();
+    }
+
+    @Test(expected = DuctileDBSchemaException.class)
+    public void testCreationWithTypeSchemaWithMissingProperty() {
+	schemaManager.defineProperty(
+		new PropertyDefinition<>(ElementType.VERTEX, "property1", String.class, UniqueConstraint.NONE));
+	schemaManager.defineProperty(
+		new PropertyDefinition<>(ElementType.VERTEX, "property2", Long.class, UniqueConstraint.NONE));
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property1");
+	propertyKeys.add("property2");
+	schemaManager.defineType(ElementType.VERTEX, "type", propertyKeys);
+
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property1", "stringValue");
+	graph.addVertex(types, properties);
+    }
+
+    @Test(expected = DuctileDBSchemaException.class)
+    public void testDeletionOfPropertyNeededForSchema() {
+	schemaManager.defineProperty(
+		new PropertyDefinition<>(ElementType.VERTEX, "property1", String.class, UniqueConstraint.NONE));
+	schemaManager.defineProperty(
+		new PropertyDefinition<>(ElementType.VERTEX, "property2", Long.class, UniqueConstraint.NONE));
+	Set<String> propertyKeys = new HashSet<>();
+	propertyKeys.add("property1");
+	propertyKeys.add("property2");
+	schemaManager.defineType(ElementType.VERTEX, "type", propertyKeys);
+
+	Set<String> types = new HashSet<>();
+	types.add("type");
+	Map<String, Object> properties = new HashMap<>();
+	properties.put("property1", "stringValue");
+	properties.put("property2", 1234567890l);
+	DuctileDBVertex vertex = graph.addVertex(types, properties);
+	graph.commit();
+
+	vertex.removeProperty("property1");
+    }
+
 }

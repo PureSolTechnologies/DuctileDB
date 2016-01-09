@@ -550,6 +550,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     public void removeProperty(DuctileDBVertex vertex, String key) {
+	getSchema().checkRemoveVertexProperty(vertex.getTypes(), key);
 	addTxOperation(new RemoveVertexPropertyOperation(this, vertex, key));
     }
 
@@ -559,6 +560,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     public void removeProperty(DuctileDBEdge edge, String key) {
+	getSchema().checkRemoveEdgeProperty(edge.getType(), key);
 	addTxOperation(new RemoveEdgePropertyOperation(this, edge, key));
     }
 

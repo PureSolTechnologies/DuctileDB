@@ -13,6 +13,7 @@ import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyKeyException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyTypeException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidTypeNameException;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
@@ -87,6 +88,7 @@ public class DuctileDBSchema {
     public void checkAddVertex(Set<String> types, Map<String, Object> properties) {
 	types.forEach((type) -> {
 	    checkTypeIdentifier(type);
+	    checkTypeProperties(ElementType.VERTEX, type, properties);
 	});
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
@@ -113,6 +115,7 @@ public class DuctileDBSchema {
 
     public void checkAddEdge(String type, Map<String, Object> properties) {
 	checkTypeIdentifier(type);
+	checkTypeProperties(ElementType.EDGE, type, properties);
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
 	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
@@ -136,11 +139,26 @@ public class DuctileDBSchema {
 
     public void checkAddVertexType(String type, Map<String, Object> properties) {
 	checkTypeIdentifier(type);
+	checkTypeProperties(ElementType.VERTEX, type, properties);
     }
 
     private void checkTypeIdentifier(String type) {
 	if (!IDENTIFIER_PATTERN.matcher(type).matches()) {
 	    throw new DuctileDBInvalidTypeNameException(type, IDENTIFIER_PATTERN);
+	}
+    }
+
+    private void checkTypeProperties(ElementType elementType, String type, Map<String, Object> properties) {
+	Set<String> typeProperties = typeDefinitions.get(elementType).get(type);
+	if (typeProperties == null) {
+	    return;
+	}
+	Set<String> propertyKeys = properties.keySet();
+	for (String typePropertyKey : typeProperties) {
+	    if (!propertyKeys.contains(typePropertyKey)) {
+		throw new DuctileDBSchemaException(
+			"Property '" + typePropertyKey + "' is missing for type '" + type + "'.");
+	    }
 	}
     }
 
@@ -229,6 +247,21 @@ public class DuctileDBSchema {
 
     public void removeType(ElementType elementType, String typeName) {
 	typeDefinitions.get(elementType).remove(typeName);
+    }
+
+    public void checkRemoveVertexProperty(Iterable<String> types, String propertyKey) {
+	types.forEach(type -> checkRemoveProperty(ElementType.VERTEX, type, propertyKey));
+    }
+
+    public void checkRemoveEdgeProperty(String type, String propertyKey) {
+	checkRemoveProperty(ElementType.EDGE, type, propertyKey);
+    }
+
+    private void checkRemoveProperty(ElementType elementType, String type, String propertyKey) {
+	if (typeDefinitions.get(elementType).get(type).contains(propertyKey)) {
+	    throw new DuctileDBSchemaException(
+		    "Property '" + propertyKey + "' cannot be removed, because type '" + type + "' uses it.");
+	}
     }
 
 }
