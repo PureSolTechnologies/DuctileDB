@@ -122,7 +122,7 @@ public class DucileStoreVertexManager
 		.getPropertyMethodMetadata();
 	String name = propertyMethodMetadata.getDatastoreMetadata().getName();
 	Object value = values.values().iterator().next();
-	Iterator<Vertex> vertices = graph.traversal().V().addV(discriminator).property(name, value);
+	Iterator<Vertex> vertices = graph.traversal().V().hasLabel(discriminator).has(name, value);
 	List<DuctileVertex> result = new ArrayList<>();
 	while (vertices.hasNext()) {
 	    result.add((DuctileVertex) vertices.next());

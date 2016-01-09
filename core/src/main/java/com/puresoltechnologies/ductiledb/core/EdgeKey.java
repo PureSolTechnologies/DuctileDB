@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.core.utils.StringEncoder;
 
 public class EdgeKey implements Serializable {
 
@@ -21,7 +22,7 @@ public class EdgeKey implements Serializable {
 	}
 	long id = IdEncoder.decodeRowId(edgeKey, 1);
 	long vertexId = IdEncoder.decodeRowId(edgeKey, 9);
-	String type = new String(Arrays.copyOfRange(edgeKey, 17, edgeKey.length));
+	String type = StringEncoder.decode(Arrays.copyOfRange(edgeKey, 17, edgeKey.length));
 	return new EdgeKey(direction, id, vertexId, type);
     }
 
@@ -103,7 +104,7 @@ public class EdgeKey implements Serializable {
     }
 
     public byte[] encode() {
-	byte[] typeBytes = type.getBytes();
+	byte[] typeBytes = StringEncoder.encode(type);
 	byte[] encoded = new byte[17 + typeBytes.length];
 	switch (direction) {
 	case IN:
