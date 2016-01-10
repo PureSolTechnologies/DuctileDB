@@ -8,11 +8,11 @@ import com.buschmais.xo.spi.datastore.DatastoreRelationManager;
 import com.buschmais.xo.spi.datastore.DatastoreSession;
 import com.buschmais.xo.spi.datastore.DatastoreTransaction;
 import com.buschmais.xo.spi.session.XOSession;
-import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
+import com.puresoltechnologies.ductiledb.xo.api.annotation.Query;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
@@ -79,12 +79,18 @@ public class DuctileStoreSession implements
 
     @Override
     public Class<? extends Annotation> getDefaultQueryLanguage() {
-	throw new DuctileDBException("Queries are not supported, yet.");
+	return Query.class;
+
     }
 
     @Override
     public <QL extends Annotation> DatastoreQuery<QL> createQuery(Class<QL> queryLanguage) {
-	throw new DuctileDBException("Queries are not supported, yet.");
+	if (!queryLanguage.equals(Query.class)) {
+	    throw new IllegalArgumentException("Query language " + queryLanguage.getName() + " is not supported.");
+	}
+	@SuppressWarnings("unchecked")
+	DatastoreQuery<QL> query = (DatastoreQuery<QL>) new DuctileDatastoreQuery(graph);
+	return query;
     }
 
     @Override

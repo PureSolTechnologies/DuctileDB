@@ -22,6 +22,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
+import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_STANDARD)
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_INTEGRATE)
@@ -177,4 +178,9 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     public boolean inComputerMode() {
 	return graphComputerView != null;
     }
+
+    public GremlinQueryExecutor createGremlinQueryExecutor() {
+	return new GremlinQueryExecutor(this);
+    }
+
 }

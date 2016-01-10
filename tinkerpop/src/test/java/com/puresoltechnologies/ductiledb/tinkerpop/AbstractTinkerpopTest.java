@@ -18,14 +18,14 @@ import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 
 public abstract class AbstractTinkerpopTest {
 
-    private static Graph graph;
+    private static DuctileGraph graph;
 
     @BeforeClass
     public static void connect() throws IOException {
 	// DuctileDBTestHelper.removeTables();
 	Map<String, String> configuration = new HashMap<>();
 	configuration.put(Graph.GRAPH, DuctileGraph.class.getName());
-	graph = GraphFactory.open(configuration);
+	graph = (DuctileGraph) GraphFactory.open(configuration);
 	assertNotNull("Graph was not opened.", graph);
     }
 
@@ -36,11 +36,11 @@ public abstract class AbstractTinkerpopTest {
 
     @Before
     public void cleanup() throws IOException {
-	DuctileDBTestHelper.removeGraph(((DuctileGraph) graph).getBaseGraph());
-	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) ((DuctileGraph) graph).getBaseGraph());
+	DuctileDBTestHelper.removeGraph(graph.getBaseGraph());
+	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph.getBaseGraph());
     }
 
-    public static Graph getGraph() {
+    public static DuctileGraph getGraph() {
 	return graph;
     }
 }

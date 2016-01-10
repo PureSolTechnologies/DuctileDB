@@ -35,6 +35,7 @@ public class AbstractDuctileDBGraphTest {
 	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
 		DuctileDBGraphImpl.class, graphImplementation.getClass());
 	graph = (DuctileDBGraphImpl) graphImplementation;
+	// DuctileDBTestHelper.removeGraph(graph);
 	DuctileDBHealthCheck.runCheckForEmpty(graph);
 
 	String version = BuildInformation.getVersion();
