@@ -394,7 +394,6 @@
 				<groupId>org.apache.tinkerpop</groupId>
 				<artifactId>gremlin-groovy</artifactId>
 				<version>${gremlin.version}</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tinkerpop</groupId>

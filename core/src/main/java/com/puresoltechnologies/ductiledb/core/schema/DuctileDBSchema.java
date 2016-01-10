@@ -259,6 +259,9 @@ public class DuctileDBSchema {
 
     private void checkRemoveProperty(ElementType elementType, String type, String propertyKey) {
 	Set<String> typeDefinition = typeDefinitions.get(elementType).get(type);
+	if (typeDefinition == null) {
+	    return;
+	}
 	if (typeDefinition.contains(propertyKey)) {
 	    throw new DuctileDBSchemaException(
 		    "Property '" + propertyKey + "' cannot be removed, because type '" + type + "' uses it.");
