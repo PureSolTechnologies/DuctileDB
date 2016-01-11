@@ -14,7 +14,7 @@ import com.buschmais.xo.spi.annotation.RelationDefinition.ToDefinition;
 
 /**
  * <p>
- * Defines an edge in Titan.
+ * Defines an edge in DuctileDB.
  * </p>
  * <p>
  * This annotation can be used on the following java elements:

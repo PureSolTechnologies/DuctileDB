@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import com.buschmais.xo.spi.annotation.EntityDefinition;
 
 /**
- * This annotation marks entities as Titan vertex.
+ * This annotation marks entities as DuctileDB vertex.
  */
 @EntityDefinition
 @Target(ElementType.TYPE)

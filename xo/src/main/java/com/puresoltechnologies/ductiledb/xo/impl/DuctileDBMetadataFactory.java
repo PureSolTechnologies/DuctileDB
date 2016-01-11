@@ -23,14 +23,14 @@ import com.puresoltechnologies.ductiledb.xo.api.annotation.Indexed;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Property;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.VertexDefinition;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBCollectionPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBIndexedPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBReferencePropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
 /**
- * This class implements the XO DatastoreMetadataFactory for Titan database.
+ * This class implements the XO DatastoreMetadataFactory for DuctileDB database.
  * 
  * @author Rick-Rainer Ludwig
  */

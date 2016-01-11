@@ -37,7 +37,7 @@ public class DuctileDBXOProviderTest {
     @Test(expected = XOException.class)
     public void testIllegalProtocol() throws URISyntaxException {
 	XOUnit xoUnit = mock(XOUnit.class);
-	URI uri = new URI("illegal-ductiledb://titan");
+	URI uri = new URI("illegal-ductiledb://ductiledb");
 	when(xoUnit.getUri()).thenReturn(uri);
 	ductileDBXOProvider.createDatastore(xoUnit);
     }

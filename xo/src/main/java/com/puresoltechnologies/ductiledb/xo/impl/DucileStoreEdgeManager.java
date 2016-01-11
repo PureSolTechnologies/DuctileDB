@@ -20,7 +20,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
 
 /**
- * This class implements the XO DatastorePropertyManager for Titan database.
+ * This class implements the XO DatastorePropertyManager for DuctileDB database.
  * 
  * @author Rick-Rainer Ludwig
  */

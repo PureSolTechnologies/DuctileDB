@@ -29,7 +29,7 @@ public class DuctileDBStoreTransactionTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullTitanGraph() {
+    public void testNullDuctileGraph() {
 	new DuctileStoreTransaction(null);
     }
 

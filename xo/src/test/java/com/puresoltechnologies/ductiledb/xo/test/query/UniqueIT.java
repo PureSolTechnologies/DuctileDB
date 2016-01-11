@@ -32,8 +32,8 @@ public class UniqueIT extends AbstractXODuctileDBTest {
     }
 
     /**
-     * This test checks for the presence of a unique constraint. Titan provides
-     * now a dedicated unique constraint violation exception:
+     * This test checks for the presence of a unique constraint. DuctileDB
+     * provides now a dedicated unique constraint violation exception:
      * {@link SchemaViolationException}. For this exception it is checked here.
      */
     @Test(expected = SchemaViolationException.class)

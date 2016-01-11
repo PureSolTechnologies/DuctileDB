@@ -18,7 +18,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadat
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
 /**
- * This class implements a XO DatastoreSession for Titan database.
+ * This class implements a XO DatastoreSession for DuctileDB database.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -38,8 +38,8 @@ public class DuctileStoreSession implements
      * This is the initial value constructor.
      * 
      * @param graph
-     *            is the Titan graph as TitanGraph object on which this session
-     *            shall work on.
+     *            is the DuctileDB graph as {@link DuctileGraph} object on which
+     *            this session shall work on.
      */
     public DuctileStoreSession(DuctileGraph graph) {
 	this.graph = graph;
@@ -49,9 +49,9 @@ public class DuctileStoreSession implements
     }
 
     /**
-     * Returns the Titan graph which is currently opened.
+     * Returns the DuctileDB graph which is currently opened.
      * 
-     * @return A TitanGraph object is returned.
+     * @return A {@link DuctileGraph} object is returned.
      */
     public final DuctileGraph getGraph() {
 	return graph;

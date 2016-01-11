@@ -25,7 +25,8 @@ import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider;
 
 /**
- * This class contains static methods which are test helpers for XO-Titan tests.
+ * This class contains static methods which are test helpers for XO-DuctileDB
+ * tests.
  * 
  * @author Rick-Rainer Ludwig
  * 
@@ -94,8 +95,8 @@ public class DuctileDBTestUtils {
     }
 
     /**
-     * This method adds the Starwars characters data into the Titan database for
-     * testing purposes.
+     * This method adds the Starwars characters data into the DuctileDB database
+     * for testing purposes.
      * 
      * @param xoManager
      *            is the {@link XOManager} to be used.

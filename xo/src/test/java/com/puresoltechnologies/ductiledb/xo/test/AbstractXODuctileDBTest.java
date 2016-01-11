@@ -10,7 +10,7 @@ import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 
 /**
- * This is an abstract parent class for XO-Titan tests.
+ * This is an abstract parent class for XO-DuctileDB tests.
  * 
  * @author Rick-Rainer Ludwig
  */

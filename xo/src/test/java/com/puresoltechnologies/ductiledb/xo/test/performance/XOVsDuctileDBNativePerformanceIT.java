@@ -32,7 +32,7 @@ import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 import com.puresoltechnologies.ductiledb.xo.test.relation.typed.TreeNode;
 import com.puresoltechnologies.ductiledb.xo.test.relation.typed.TreeNodeRelation;
 
-public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
+public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest {
 
     private static XOManagerFactory xoManagerFactory;
 
@@ -230,7 +230,7 @@ public class XOVsTitanNativePerformanceIT extends AbstractDuctileDBGraphTest {
 	Thread.sleep(3000);
 	initialize();
 	try {
-	    new XOVsTitanNativePerformanceIT().test();
+	    new XOVsDuctileDBNativePerformanceIT().test();
 	} finally {
 	    destroy();
 	}

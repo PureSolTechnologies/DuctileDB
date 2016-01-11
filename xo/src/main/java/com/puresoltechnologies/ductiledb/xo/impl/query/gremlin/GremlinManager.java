@@ -11,10 +11,10 @@ import org.apache.tinkerpop.gremlin.util.Gremlin;
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.reflection.AnnotatedElement;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Query;
+import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStore;
 
 /**
- * This class manages the Gremlin expressions for the
- * {@link TitanCassandraStore}.
+ * This class manages the Gremlin expressions for the {@link DuctileDBStore}.
  * 
  * @author Rick-Rainer Ludwig
  */

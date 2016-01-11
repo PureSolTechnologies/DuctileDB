@@ -5,7 +5,7 @@ import com.buschmais.xo.spi.datastore.DatastoreTransaction;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 
 /**
- * This class implements an XO DatastoreTransaction for Titan databases.
+ * This class implements an XO DatastoreTransaction for DucileDB databases.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -17,8 +17,8 @@ public class DuctileStoreTransaction implements DatastoreTransaction {
     private boolean active = false;
 
     /**
-     * This method contains the Titan graph as {@link TitanGraph} to handle on
-     * it its transactions.
+     * This method contains the DuctileDB graph as {@link DuctileGraph} to
+     * handle on it its transactions.
      */
     private final DuctileGraph graph;
 
@@ -26,12 +26,12 @@ public class DuctileStoreTransaction implements DatastoreTransaction {
      * This is the initial value constructor.
      * 
      * @param graph
-     *            is the Titan graph as TitanGraph object on which this
-     *            transaction shall work on.
+     *            is the DuctileDB graph as {@link DuctileGraph} object on which
+     *            this transaction shall work on.
      */
     public DuctileStoreTransaction(DuctileGraph graph) {
 	if (graph == null) {
-	    throw new IllegalArgumentException("titanGraph must not be null");
+	    throw new IllegalArgumentException("Graph must not be null");
 	}
 	this.graph = graph;
     }
