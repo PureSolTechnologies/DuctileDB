@@ -63,10 +63,11 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 	    throw Vertex.Exceptions.userSuppliedIdsNotSupported();
 	tx().readWrite();
 	DuctileDBVertex vertex = baseGraph.addVertex();
-	String[] labels = ElementHelper.getLabelValue(keyValues).orElse(Vertex.DEFAULT_LABEL)
-		.split(DuctileVertex.LABEL_DELIMINATOR);
+	String[] labels = ElementHelper.getLabelValue(keyValues).orElse("").split(DuctileVertex.LABEL_DELIMINATOR);
 	for (String label : labels) {
-	    vertex.addType(label);
+	    if (!label.isEmpty()) {
+		vertex.addType(label);
+	    }
 	}
 	DuctileVertex ductileVertex = new DuctileVertex(vertex, this);
 	ElementHelper.attachProperties(ductileVertex, keyValues);

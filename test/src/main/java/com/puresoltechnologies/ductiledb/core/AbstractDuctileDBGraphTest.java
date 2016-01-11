@@ -29,13 +29,13 @@ public class AbstractDuctileDBGraphTest {
 
     @BeforeClass
     public static void connect() throws IOException {
-	DuctileDBTestHelper.removeTables();
+	// DuctileDBTestHelper.removeTables();
 	DuctileDBGraph graphImplementation = DuctileDBGraphFactory.createGraph(new BaseConfiguration());
 	assertNotNull("Graph was not created.", graphImplementation);
 	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
 		DuctileDBGraphImpl.class, graphImplementation.getClass());
 	graph = (DuctileDBGraphImpl) graphImplementation;
-	// DuctileDBTestHelper.removeGraph(graph);
+	DuctileDBTestHelper.removeGraph(graph);
 	DuctileDBHealthCheck.runCheckForEmpty(graph);
 
 	String version = BuildInformation.getVersion();
