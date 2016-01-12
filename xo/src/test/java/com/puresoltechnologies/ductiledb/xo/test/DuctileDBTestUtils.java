@@ -22,7 +22,7 @@ import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
-import com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider;
+import com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider;
 
 /**
  * This class contains static methods which are test helpers for XO-DuctileDB
@@ -86,7 +86,7 @@ public class DuctileDBTestUtils {
 	    ConcurrencyMode concurrencyMode, Transaction.TransactionAttribute transactionAttribute) {
 	List<XOUnit[]> xoUnits = new ArrayList<>(uris.size());
 	for (URI uri : uris) {
-	    XOUnit xoUnit = new XOUnit("default", "Default XO unit", uri, DuctileDBXOProvider.class,
+	    XOUnit xoUnit = new XOUnit("default", "Default XO unit", uri, DuctileXOProvider.class,
 		    new HashSet<>(types), instanceListenerTypes, valiationMode, concurrencyMode, transactionAttribute,
 		    new Properties());
 	    xoUnits.add(new XOUnit[] { xoUnit });

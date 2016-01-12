@@ -46,7 +46,8 @@ public class GremlinIT extends AbstractXODuctileDBTest {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
 
-	Query<Person> query = xoManager.createQuery("_().has('lastName', 'Skywalker')", Person.class);
+	Query<Person> query = xoManager
+		.createQuery("g.V().has('" + StarWarsGraph.LAST_NAME_PROPERTY + "', 'Skywalker')", Person.class);
 	assertNotNull(query);
 
 	Result<Person> results = query.execute();

@@ -31,7 +31,7 @@ public interface A {
     @ResultOf
     ByValue getByValue(@Parameter("value") String value);
 
-    @Query(value = "_().has('value', {value})", name = "a")
+    @Query(value = "g.V().has('value', {value})", name = "a")
     interface ByValue {
 	A getA();
     }

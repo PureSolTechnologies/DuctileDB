@@ -34,12 +34,12 @@ public interface E2F {
 
     @ResultOf
     // @Gremlin("match ()-[e2f:E2F]->(f:F) where e2f.value={value} return f")
-    @Query("_().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')")
+    @Query("g.V().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')")
     Result<F> getResultUsingGremlin(@Parameter("value") String value);
 
     @ResultOf
     // @Gremlin("match ()-[e2f:E2F]->(f:F) where e2f.value={value} return f")
-    @Query("_().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')")
+    @Query("g.V().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')")
     F getSingleResultUsingGremlin(@Parameter("value") String value);
 
     void setValue(String value);
@@ -48,14 +48,14 @@ public interface E2F {
 
     // @Gremlin("match ()-[e2f:E2F]->(f:F) where e2f={e2f} and e2f.value={value}
     // return f")
-    @Query(value = "_().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')", name = "f")
+    @Query(value = "g.V().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')", name = "f")
     public interface ByValue {
 	F getF();
     }
 
     // @Gremlin("match ()-[e2f:E2F]->(f:F) where e2f={this} and
     // e2f.value={value} return f")
-    @Query(value = "_().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')", name = "f")
+    @Query(value = "g.V().outE.has('label', 'E2F').has('value', {value}).inV.hasLabel('F')", name = "f")
     public interface ByValueUsingImplicitThis {
 	F getF();
     }

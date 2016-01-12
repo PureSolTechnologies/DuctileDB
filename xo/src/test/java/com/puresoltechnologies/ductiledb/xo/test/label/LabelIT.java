@@ -34,7 +34,7 @@ public class LabelIT extends AbstractXODuctileDBTest {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
 	xoManager.create(ImplicitLabel.class);
-	Query<CompositeRowObject> query = xoManager.createQuery("_().map");
+	Query<CompositeRowObject> query = xoManager.createQuery("g.V().map");
 	CompositeRowObject result = query.execute().getSingleResult();
 	assertThat(result.get("_xo_discriminator_ImplicitLabel", String.class), is("ImplicitLabel"));
 	xoManager.currentTransaction().commit();
@@ -45,7 +45,7 @@ public class LabelIT extends AbstractXODuctileDBTest {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
 	xoManager.create(ExplicitLabel.class);
-	Query<CompositeRowObject> query = xoManager.createQuery("_().map");
+	Query<CompositeRowObject> query = xoManager.createQuery("g.V().map");
 	CompositeRowObject result = query.execute().getSingleResult();
 	assertThat(result.get("_xo_discriminator_EXPLICIT_LABEL", String.class), is("EXPLICIT_LABEL"));
 	xoManager.currentTransaction().commit();

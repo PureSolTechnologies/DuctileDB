@@ -60,7 +60,7 @@ public class QueryIT extends AbstractXODuctileDBTest {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
 
-	Query<Person> query = xoManager.createQuery("_().has('lastName', 'Skywalker').has('firstName','Luke')",
+	Query<Person> query = xoManager.createQuery("g.V().has('lastName', 'Skywalker').has('firstName','Luke')",
 		Person.class);
 	Result<Person> result = query.execute();
 	Person lukeSkywalker = result.getSingleResult();

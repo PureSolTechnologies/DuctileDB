@@ -7,7 +7,7 @@ import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.spi.bootstrap.XODatastoreProvider;
 import com.buschmais.xo.spi.datastore.Datastore;
 import com.puresoltechnologies.ductiledb.xo.impl.DecodedURI;
-import com.puresoltechnologies.ductiledb.xo.impl.DuctileDBStore;
+import com.puresoltechnologies.ductiledb.xo.impl.DuctileStore;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreSession;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
@@ -17,7 +17,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBXOProvider
+public class DuctileXOProvider
 	implements XODatastoreProvider<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> {
 
     @Override
@@ -31,6 +31,6 @@ public class DuctileDBXOProvider
 	    throw new XOException("No URI is specified for the store.");
 	}
 	DecodedURI decodedURI = new DecodedURI(uri);
-	return new DuctileDBStore(decodedURI.getPath(), decodedURI.getNamespace());
+	return new DuctileStore(decodedURI.getPath(), decodedURI.getNamespace());
     }
 }

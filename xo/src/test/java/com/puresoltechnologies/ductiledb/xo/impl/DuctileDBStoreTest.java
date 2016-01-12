@@ -27,13 +27,13 @@ public class DuctileDBStoreTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNullHBaseSitePath() {
-	assertNotNull(new DuctileDBStore(null, "keyspace"));
+	assertNotNull(new DuctileStore(null, "keyspace"));
     }
 
     @Test
     public void testEmptyNamespace() throws MalformedURLException {
-	try (DuctileDBStore store = new DuctileDBStore(new File("/opt/hbase/conf/hbase-site.xml"), "")) {
-	    assertThat(store.getKeyspace(), is(DuctileDBStore.DEFAULT_DUCTILEDB_NAMESPACE));
+	try (DuctileStore store = new DuctileStore(new File("/opt/hbase/conf/hbase-site.xml"), "")) {
+	    assertThat(store.getKeyspace(), is(DuctileStore.DEFAULT_DUCTILEDB_NAMESPACE));
 	}
     }
 }

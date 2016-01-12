@@ -44,7 +44,7 @@ public class DelegateIT extends AbstractXODuctileDBTest {
 	// B b = xoManager.create(B.class);
 	// xoManager.create(a, A2B.class, b);
 	// Query<A2B> query = xoManager
-	// .createQuery("_().has('" +
+	// .createQuery("g.V().has('" +
 	// DuctileDBStoreSession.XO_DISCRIMINATORS_PROPERTY + "A').outE",
 	// A2B.class);
 	// Result<A2B> result = query.execute();
@@ -63,7 +63,7 @@ public class DelegateIT extends AbstractXODuctileDBTest {
 	// xoManager.currentTransaction().begin();
 	// xoManager.create(A.class);
 	// Query<CompositeRowObject> query = xoManager
-	// .createQuery("_().has('" +
+	// .createQuery("g.V().has('" +
 	// DuctileDBStoreSession.XO_DISCRIMINATORS_PROPERTY + "A').map");
 	// Result<CompositeRowObject> row = query.execute();
 	// Map<String, Object> delegate = row.getSingleResult().getDelegate();

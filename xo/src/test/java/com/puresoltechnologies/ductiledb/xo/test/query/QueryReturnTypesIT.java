@@ -44,7 +44,7 @@ public class QueryReturnTypesIT extends AbstractXODuctileDBTest {
     public void gremlinWithPrimitiveReturnType() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
-	Result<String> result = xoManager.createQuery("_().has('_xo_discriminator_A').value", String.class).execute();
+	Result<String> result = xoManager.createQuery("g.V().has('_xo_discriminator_A').value", String.class).execute();
 	assertThat(result.getSingleResult(), equalTo("A"));
 	xoManager.currentTransaction().commit();
     }
@@ -53,7 +53,7 @@ public class QueryReturnTypesIT extends AbstractXODuctileDBTest {
     public void gremlinWithEntityReturnType() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
-	Result<A> result = xoManager.createQuery("_().has('_xo_discriminator_A')", A.class).execute();
+	Result<A> result = xoManager.createQuery("g.V().has('_xo_discriminator_A')", A.class).execute();
 	assertThat(result.getSingleResult(), equalTo(a));
 	xoManager.currentTransaction().commit();
     }

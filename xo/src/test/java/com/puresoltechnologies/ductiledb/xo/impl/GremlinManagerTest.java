@@ -43,7 +43,7 @@ public class GremlinManagerTest {
     public void testParameterReplacement() {
 	HashMap<String, Object> parameters = new HashMap<String, Object>();
 	parameters.put("type", 42);
-	GremlinExpression expression = GremlinManager.getGremlinExpression("_().has('type', {type})", parameters);
+	GremlinExpression expression = GremlinManager.getGremlinExpression("g.V().has('type', {type})", parameters);
 	assertThat(expression.getExpression(), is("type=42\n_().has('type', type)"));
     }
 

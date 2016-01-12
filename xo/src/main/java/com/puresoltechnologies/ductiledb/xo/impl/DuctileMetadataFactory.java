@@ -22,9 +22,9 @@ import com.puresoltechnologies.ductiledb.xo.api.annotation.EdgeDefinition.Outgoi
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Indexed;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Property;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.VertexDefinition;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBCollectionPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBIndexedPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileDBReferencePropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileCollectionPropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileIndexedPropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileReferencePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
@@ -34,7 +34,7 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBMetadataFactory
+public class DuctileMetadataFactory
 	implements DatastoreMetadataFactory<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> {
 
     @Override
@@ -63,17 +63,17 @@ public class DuctileDBMetadataFactory
     }
 
     @Override
-    public DuctileDBCollectionPropertyMetadata createCollectionPropertyMetadata(PropertyMethod propertyMethod) {
+    public DuctileCollectionPropertyMetadata createCollectionPropertyMetadata(PropertyMethod propertyMethod) {
 	String name = determinePropertyName(propertyMethod);
 	EdgeDirection direction = determineEdgeDirection(propertyMethod);
-	return new DuctileDBCollectionPropertyMetadata(name, direction);
+	return new DuctileCollectionPropertyMetadata(name, direction);
     }
 
     @Override
-    public DuctileDBReferencePropertyMetadata createReferencePropertyMetadata(PropertyMethod propertyMethod) {
+    public DuctileReferencePropertyMetadata createReferencePropertyMetadata(PropertyMethod propertyMethod) {
 	String name = determinePropertyName(propertyMethod);
 	EdgeDirection direction = determineEdgeDirection(propertyMethod);
-	return new DuctileDBReferencePropertyMetadata(name, direction);
+	return new DuctileReferencePropertyMetadata(name, direction);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class DuctileDBMetadataFactory
     }
 
     @Override
-    public DuctileDBIndexedPropertyMetadata createIndexedPropertyMetadata(PropertyMethod propertyMethod) {
+    public DuctileIndexedPropertyMetadata createIndexedPropertyMetadata(PropertyMethod propertyMethod) {
 	Property property = propertyMethod.getAnnotationOfProperty(Property.class);
 	String name = property != null ? property.value() : propertyMethod.getName();
 	Class<?> declaringClass = propertyMethod.getAnnotatedElement().getDeclaringClass();
@@ -137,7 +137,7 @@ public class DuctileDBMetadataFactory
 	Indexed indexedAnnotation = propertyMethod.getAnnotation(Indexed.class);
 	boolean unique = indexedAnnotation.unique();
 	Class<?> dataType = propertyMethod.getType();
-	return new DuctileDBIndexedPropertyMetadata(name, unique, dataType, type);
+	return new DuctileIndexedPropertyMetadata(name, unique, dataType, type);
     }
 
     @Override

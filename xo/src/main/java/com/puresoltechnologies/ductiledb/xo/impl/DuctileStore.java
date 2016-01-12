@@ -24,10 +24,10 @@ import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBStore
+public class DuctileStore
 	implements Datastore<DuctileStoreSession, DuctileVertexMetadata, String, DuctileEdgeMetadata, String> {
 
-    private static final Logger logger = LoggerFactory.getLogger(DuctileDBStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(DuctileStore.class);
 
     /**
      * This constant contains the default name of the DuctileDB namespace which
@@ -60,7 +60,7 @@ public class DuctileDBStore
      * @param namespace
      *            is
      */
-    public DuctileDBStore(File hbaseSitePath, String namespace) {
+    public DuctileStore(File hbaseSitePath, String namespace) {
 	if (hbaseSitePath == null) {
 	    throw new IllegalArgumentException("The host must not be null or empty.");
 	}
@@ -101,7 +101,7 @@ public class DuctileDBStore
 
     @Override
     public DatastoreMetadataFactory<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> getMetadataFactory() {
-	return new DuctileDBMetadataFactory();
+	return new DuctileMetadataFactory();
     }
 
     @Override

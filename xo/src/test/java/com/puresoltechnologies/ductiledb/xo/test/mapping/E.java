@@ -31,23 +31,23 @@ public interface E {
     ByValueUsingImplicitThis getByValueUsingImplicitThis(@Parameter("value") String value);
 
     @ResultOf
-    @Query("_().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})")
+    @Query("g.V().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})")
     Result<F> getResultUsingGremlin(@Parameter("value") String value);
 
     @ResultOf
-    @Query("_().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})")
+    @Query("g.V().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})")
     F getSingleResultUsingGremlin(@Parameter("value") String value);
 
     List<E2F> getE2F();
 
     // where where e={e}
-    @Query(value = "_().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})", name = "f")
+    @Query(value = "g.V().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})", name = "f")
     interface ByValue {
 	F getF();
     }
 
     // where e={this}
-    @Query(value = "_().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})", name = "f")
+    @Query(value = "g.V().hasLabel('E').outE.has('label', 'RELATED_TO').inV.hasLabel('F').has('value', {value})", name = "f")
     interface ByValueUsingImplicitThis {
 	F getF();
     }

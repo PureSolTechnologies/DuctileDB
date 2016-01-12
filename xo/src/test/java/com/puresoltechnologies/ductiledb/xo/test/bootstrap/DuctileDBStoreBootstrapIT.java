@@ -39,7 +39,7 @@ public class DuctileDBStoreBootstrapIT extends AbstractXODuctileDBTest {
 	xoManager.currentTransaction().commit();
 
 	xoManager.currentTransaction().begin();
-	Query<TestEntity> query = xoManager.createQuery("_().has('name','Test')", TestEntity.class);
+	Query<TestEntity> query = xoManager.createQuery("g.V().has('name','Test')", TestEntity.class);
 	TestEntity readA = query.execute().getSingleResult();
 	assertEquals(a.getName(), readA.getName());
 	xoManager.currentTransaction().commit();

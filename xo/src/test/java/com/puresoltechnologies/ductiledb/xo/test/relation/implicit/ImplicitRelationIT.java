@@ -40,7 +40,7 @@ public class ImplicitRelationIT extends AbstractXODuctileDBTest {
 	// // Query<CompositeRowObject> query = xoManager
 	// // .createQuery("MATCH (a:A)-[:ImplicitOneToOne]->(b:B) RETURN b");
 	// Query<CompositeRowObject> query = xoManager
-	// .createQuery("_().has('"
+	// .createQuery("g.V().has('"
 	// + DuctileDBStoreSession.XO_DISCRIMINATORS_PROPERTY
 	// + "A').outE.inV");
 	// CompositeRowObject result = query.execute().getSingleResult();
@@ -58,7 +58,7 @@ public class ImplicitRelationIT extends AbstractXODuctileDBTest {
 	// // query = xoManager
 	// // .createQuery("MATCH (a:A)-[:ImplicitOneToOne]->(b:B) RETURN b");
 	// query = xoManager
-	// .createQuery("_().has('"
+	// .createQuery("g.V().has('"
 	// + DuctileDBStoreSession.XO_DISCRIMINATORS_PROPERTY
 	// + "A').outE.inV");
 	// result = query.execute().getSingleResult();

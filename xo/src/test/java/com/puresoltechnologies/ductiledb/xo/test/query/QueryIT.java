@@ -54,13 +54,12 @@ public class QueryIT extends AbstractXODuctileDBTest {
     public void gremlinStringQuery() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
-	Result<CompositeRowObject> result = xoManager
-		.createQuery("_().has('_xo_discriminator_A').has('value', {value})").withParameter("value", "A1")
-		.execute();
+	Result<CompositeRowObject> result = xoManager.createQuery("g.V().hasLabel('A').has('value', {value})")
+		.withParameter("value", "A1").execute();
 	A a = result.getSingleResult().get("unknown", A.class);
 	assertThat(a.getValue(), equalTo("A1"));
-	result = xoManager.createQuery("_().has('_xo_discriminator_A').has('value', {value})")
-		.withParameter("value", "A2").execute();
+	result = xoManager.createQuery("g.V().hasLabel('A').has('value', {value})").withParameter("value", "A2")
+		.execute();
 	try {
 	    result.getSingleResult().get("a", A.class);
 	    fail("Expecting a " + XOException.class.getName());
@@ -74,7 +73,7 @@ public class QueryIT extends AbstractXODuctileDBTest {
 	XOManager xoManager = getXOManager();
 
 	xoManager.currentTransaction().begin();
-	Result<CompositeRowObject> result = xoManager.createQuery("_().has('_xo_discriminator_A').value").execute();
+	Result<CompositeRowObject> result = xoManager.createQuery("g.V().hasLabel('A').value").execute();
 	for (CompositeRowObject row : result) {
 	    assertThat(row.get("unknown_type", String.class), isOneOf("A1", "A2"));
 	}

@@ -33,8 +33,7 @@ public class DuctileDatastoreQuery implements DatastoreQuery<Query> {
 		    parameters);
 	    return executeGremlin(gremlinExpression, parameters);
 	} else {
-	    final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query.substring(8),
-		    parameters);
+	    final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query, parameters);
 	    return executeGremlin(gremlinExpression, parameters);
 	}
     }

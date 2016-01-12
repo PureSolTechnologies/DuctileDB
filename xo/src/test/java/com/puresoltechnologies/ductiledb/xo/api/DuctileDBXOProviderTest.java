@@ -15,11 +15,11 @@ import com.buschmais.xo.api.bootstrap.XOUnit;
 
 public class DuctileDBXOProviderTest {
 
-    private static DuctileDBXOProvider ductileDBXOProvider = null;
+    private static DuctileXOProvider ductileDBXOProvider = null;
 
     @BeforeClass
     public static void initialize() {
-	ductileDBXOProvider = new DuctileDBXOProvider();
+	ductileDBXOProvider = new DuctileXOProvider();
     }
 
     @Test(expected = IllegalArgumentException.class)

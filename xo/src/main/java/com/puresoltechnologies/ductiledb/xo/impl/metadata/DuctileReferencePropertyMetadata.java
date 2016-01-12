@@ -2,12 +2,12 @@ package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 
-public class DuctileDBCollectionPropertyMetadata {
+public class DuctileReferencePropertyMetadata {
 
     private final String name;
     private final EdgeDirection direction;
 
-    public DuctileDBCollectionPropertyMetadata(String name, EdgeDirection direction) {
+    public DuctileReferencePropertyMetadata(String name, EdgeDirection direction) {
 	this.name = name;
 	this.direction = direction;
     }

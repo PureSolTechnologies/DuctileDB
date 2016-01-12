@@ -2,7 +2,7 @@
     <xo-unit name="DuctileDB">
         <description>This is a test unit for the DuctileDB file datastore.</description>
         <url>ductiledb:/opt/hbase/conf/hbase-site.xml</url>
-        <provider>com.puresoltechnologies.ductiledb.xo.api.DuctileDBXOProvider</provider>
+        <provider>com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider</provider>
         <types>
             <type>com.puresoltechnologies.ductiledb.xo.test.bootstrap.TestEntity</type>
             <type>com.puresoltechnologies.ductiledb.xo.test.data.Person</type>

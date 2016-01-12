@@ -2,14 +2,14 @@ package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
 
-public class DuctileDBIndexedPropertyMetadata {
+public class DuctileIndexedPropertyMetadata {
 
     private final String name;
     private final boolean unique;
     private final Class<? extends Element> type;
     private final Class<?> dataType;
 
-    public DuctileDBIndexedPropertyMetadata(String name, boolean unique, Class<?> dataType,
+    public DuctileIndexedPropertyMetadata(String name, boolean unique, Class<?> dataType,
 	    Class<? extends Element> type) {
 	this.name = name;
 	this.unique = unique;
