@@ -60,7 +60,7 @@ public class PrimitivePropertyMappingIT extends AbstractXODuctileDBTest {
 	xoManager.currentTransaction().commit();
 
 	xoManager.currentTransaction().begin();
-	Query<CompositeRowObject> query = xoManager.createQuery("g.V().has('_xo_discriminator_A').map");
+	Query<CompositeRowObject> query = xoManager.createQuery("g.V().hasLabel('A').map");
 	CompositeRowObject result = query.execute().getSingleResult();
 	// TestResult result =
 	// executeQuery("match (a:A) return a.MAPPED_STRING as v");

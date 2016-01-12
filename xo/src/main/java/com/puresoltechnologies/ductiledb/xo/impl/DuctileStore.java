@@ -41,6 +41,11 @@ public class DuctileStore
     private DuctileGraph graph = null;
 
     /**
+     * Contains the metadata factory for this XO implementation.
+     */
+    private final DuctileMetadataFactory ductileMetadataFactory = new DuctileMetadataFactory();
+
+    /**
      * This field contains the path to hbase-site.xml to connect to HBase client
      * for DuctileDB.
      */
@@ -101,7 +106,7 @@ public class DuctileStore
 
     @Override
     public DatastoreMetadataFactory<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> getMetadataFactory() {
-	return new DuctileMetadataFactory();
+	return ductileMetadataFactory;
     }
 
     @Override

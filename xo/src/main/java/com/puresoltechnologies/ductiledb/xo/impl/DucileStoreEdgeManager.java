@@ -1,8 +1,6 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.structure.Direction;
@@ -83,7 +81,7 @@ public class DucileStoreEdgeManager implements
     public Iterable<DuctileEdge> getRelations(DuctileVertex source, RelationTypeMetadata<DuctileEdgeMetadata> metadata,
 	    RelationTypeMetadata.Direction direction) {
 	String discriminator = metadata.getDatastoreMetadata().getDiscriminator();
-	Iterator<Edge> edges = null;
+	final Iterator<Edge> edges;
 	switch (direction) {
 	case TO:
 	    edges = source.edges(Direction.IN, discriminator);
@@ -94,14 +92,10 @@ public class DucileStoreEdgeManager implements
 	default:
 	    throw new XOException("Unknown direction '" + direction.name() + "'.");
 	}
-	List<DuctileEdge> result = new ArrayList<>();
-	while (edges.hasNext()) {
-	    result.add((DuctileEdge) edges.next());
-	}
 	return new Iterable<DuctileEdge>() {
 	    @Override
 	    public Iterator<DuctileEdge> iterator() {
-		return result.iterator();
+		return new CastIterator<Edge, DuctileEdge>(edges);
 	    }
 	};
     }
@@ -150,7 +144,6 @@ public class DucileStoreEdgeManager implements
     @Override
     public void removeProperty(DuctileEdge edge, PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> metadata) {
 	edge.property(metadata.getDatastoreMetadata().getName()).remove();
-	;
     }
 
     @Override

@@ -51,7 +51,7 @@ public class DuctileDatastoreQuery implements DatastoreQuery<Query> {
     private ResultIterator<Map<String, Object>> executeGremlin(GremlinExpression gremlinExpression,
 	    Map<String, Object> parameters) {
 	GremlinQueryExecutor gremlinQueryExecutor = ductileGraph.createGremlinQueryExecutor();
-	final List<Object> results = gremlinQueryExecutor.query(gremlinExpression.getExpression());
+	List<Object> results = gremlinQueryExecutor.query(gremlinExpression.getExpression());
 	Iterator<Object> resultIterator = results.iterator();
 	return new ResultIterator<Map<String, Object>>() {
 

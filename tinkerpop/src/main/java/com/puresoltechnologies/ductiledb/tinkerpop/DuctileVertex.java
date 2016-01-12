@@ -75,7 +75,11 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	    throw Vertex.Exceptions.userSuppliedIdsNotSupported();
 	graph().tx().readWrite();
 	try {
-	    baseVertex.setProperty(key, value);
+	    if (value == null) {
+		baseVertex.removeProperty(key);
+	    } else {
+		baseVertex.setProperty(key, value);
+	    }
 	    return new DuctileVertexProperty<V>(this, key, value);
 	} catch (final IllegalArgumentException iae) {
 	    throw Property.Exceptions.dataTypeOfPropertyValueNotSupported(value);

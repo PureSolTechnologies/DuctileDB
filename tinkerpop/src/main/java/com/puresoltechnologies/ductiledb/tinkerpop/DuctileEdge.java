@@ -88,7 +88,11 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 	ElementHelper.validateProperty(key, value);
 	graph().tx().readWrite();
 	try {
-	    baseEdge.setProperty(key, value);
+	    if (value == null) {
+		baseEdge.removeProperty(key);
+	    } else {
+		baseEdge.setProperty(key, value);
+	    }
 	    return new DuctileProperty<>(this, key, value);
 	} catch (final IllegalArgumentException e) {
 	    throw Property.Exceptions.dataTypeOfPropertyValueNotSupported(value);
