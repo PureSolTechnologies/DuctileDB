@@ -33,7 +33,7 @@ public class DuctileDBGraphFactory {
 	// TODO incorporate configuration...
 	logger.info("Creating connection to HBase with configuration '" + hbaseConfiguration + "'...");
 	Connection connection = ConnectionFactory.createConnection(hbaseConfiguration);
-	logger.info("Connection to HBase created.");
+	logger.info("Connection '" + connection + "' to HBase created.");
 	return connection;
     }
 

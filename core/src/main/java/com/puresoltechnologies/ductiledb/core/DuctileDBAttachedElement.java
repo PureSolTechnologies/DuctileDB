@@ -70,4 +70,5 @@ public abstract class DuctileDBAttachedElement extends AbstractDuctileDBElement 
 	ElementUtils.setFinalField(cloned, DuctileDBAttachedElement.class, "id", id);
 	return cloned;
     }
+
 }

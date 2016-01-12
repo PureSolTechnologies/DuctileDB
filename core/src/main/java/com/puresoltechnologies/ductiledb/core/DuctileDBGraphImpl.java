@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import org.apache.hadoop.hbase.client.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
@@ -24,6 +26,8 @@ import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
+
+    private static Logger logger = LoggerFactory.getLogger(DuctileDBGraphImpl.class);
 
     private final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
@@ -43,7 +47,12 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     @Override
     public void close() throws IOException {
+	if (connection.isClosed()) {
+	    throw new IllegalStateException("Connection was already closed.");
+	}
+	logger.info("Closes connection '" + connection.toString() + "'...");
 	connection.close();
+	logger.info("Connection '" + connection.toString() + "' closed.");
     }
 
     @Override

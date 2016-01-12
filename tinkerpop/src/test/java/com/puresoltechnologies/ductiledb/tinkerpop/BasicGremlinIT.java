@@ -22,23 +22,24 @@ public class BasicGremlinIT extends AbstractTinkerpopTest {
     public void test() throws IOException, ScriptException {
 	BaseConfiguration configuration = new BaseConfiguration();
 	configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
-	DuctileGraph graph = DuctileGraph.open(configuration);
-	assertNotNull(graph);
-	assertEquals(DuctileGraph.class.getName(), graph.configuration().getString(Graph.GRAPH));
-	Vertex vertex1 = graph.addVertex("label", "vertexLabel1");
-	Vertex vertex2 = graph.addVertex("label", "vertexLabel2");
-	vertex1.addEdge("edgeLabel", vertex2);
-	graph.tx().commit();
+	try (DuctileGraph graph = DuctileGraph.open(configuration)) {
+	    assertNotNull(graph);
+	    assertEquals(DuctileGraph.class.getName(), graph.configuration().getString(Graph.GRAPH));
+	    Vertex vertex1 = graph.addVertex("label", "vertexLabel1");
+	    Vertex vertex2 = graph.addVertex("label", "vertexLabel2");
+	    vertex1.addEdge("edgeLabel", vertex2);
+	    graph.tx().commit();
 
-	Iterator<Vertex> vertices = graph.vertices();
-	assertTrue(vertices.hasNext());
-	vertices.next();
-	assertTrue(vertices.hasNext());
-	vertices.next();
-	assertFalse(vertices.hasNext());
+	    Iterator<Vertex> vertices = graph.vertices();
+	    assertTrue(vertices.hasNext());
+	    vertices.next();
+	    assertTrue(vertices.hasNext());
+	    vertices.next();
+	    assertFalse(vertices.hasNext());
 
-	List<Vertex> vertices2 = graph.traversal().V().toList();
-	assertEquals(2, vertices2.size());
+	    List<Vertex> vertices2 = graph.traversal().V().toList();
+	    assertEquals(2, vertices2.size());
+	}
     }
 
 }

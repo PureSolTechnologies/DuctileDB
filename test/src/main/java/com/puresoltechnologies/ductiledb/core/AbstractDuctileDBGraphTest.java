@@ -19,7 +19,6 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
-import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
@@ -29,14 +28,14 @@ public class AbstractDuctileDBGraphTest {
 
     @BeforeClass
     public static void connect() throws IOException {
-	// DuctileDBTestHelper.removeTables();
+	DuctileDBTestHelper.removeTables();
 	DuctileDBGraph graphImplementation = DuctileDBGraphFactory.createGraph(new BaseConfiguration());
 	assertNotNull("Graph was not created.", graphImplementation);
 	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
 		DuctileDBGraphImpl.class, graphImplementation.getClass());
 	graph = (DuctileDBGraphImpl) graphImplementation;
-	DuctileDBTestHelper.removeGraph(graph);
-	DuctileDBHealthCheck.runCheckForEmpty(graph);
+	// DuctileDBTestHelper.removeGraph(graph);
+	// DuctileDBHealthCheck.runCheckForEmpty(graph);
 
 	String version = BuildInformation.getVersion();
 	if (!version.startsWith("${")) {

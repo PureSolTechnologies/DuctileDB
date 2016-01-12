@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.xo.test.mapping;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
@@ -37,7 +38,9 @@ public class IndexMappingIT extends AbstractXODuctileDBTest {
 	a2.setIndex("2");
 	xoManager.currentTransaction().commit();
 	xoManager.currentTransaction().begin();
-	assertThat(xoManager.find(A.class, "1").iterator().next(), equalTo(a1));
+	A a1_2 = xoManager.find(A.class, "1").iterator().next();
+	assertEquals(a1, a1_2);
+	assertThat(a1_2, equalTo(a1));
 	assertThat(xoManager.find(A.class, "2").iterator().next(), equalTo(a2));
 	assertThat(xoManager.find(A.class, "3").iterator().hasNext(), equalTo(false));
 	xoManager.currentTransaction().commit();
