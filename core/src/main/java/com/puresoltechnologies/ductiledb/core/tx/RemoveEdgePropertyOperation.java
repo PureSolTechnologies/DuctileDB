@@ -86,7 +86,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 		    targetVertexEdgeValue.encode());
 
 	    Delete edgeDelete = new Delete(IdEncoder.encodeRowId(edgeId));
-	    edgeDelete.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
+	    edgeDelete.addColumns(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
 
 	    Delete index = OperationsHelper.createEdgePropertyIndexDelete(edgeId, key);
 	    // Add to transaction

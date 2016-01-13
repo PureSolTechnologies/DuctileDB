@@ -112,6 +112,35 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
+    public void testPropertyCRUD() {
+	DuctileDBGraphImpl graph = getGraph();
+	assertEquals(0, DuctileDBTestHelper.count(graph.getVertices()));
+
+	DuctileDBVertex vertex = graph.addVertex();
+	graph.commit();
+	assertEquals(1, DuctileDBTestHelper.count(graph.getVertices()));
+	DuctileDBVertex readVertex = graph.getVertices().iterator().next();
+	assertEquals(vertex, readVertex);
+
+	vertex.setProperty("key", "value");
+	assertEquals("value", vertex.getProperty("key"));
+	graph.commit();
+	readVertex = graph.getVertices().iterator().next();
+	assertEquals("value", readVertex.getProperty("key"));
+
+	vertex.setProperty("key", "value2");
+	assertEquals("value2", vertex.getProperty("key"));
+	graph.commit();
+	readVertex = graph.getVertices().iterator().next();
+	assertEquals("value2", readVertex.getProperty("key"));
+
+	vertex.removeProperty("key");
+	graph.commit();
+	readVertex = graph.getVertices().iterator().next();
+	assertNull(readVertex.getProperty("key"));
+    }
+
+    @Test
     public void testVertexCreationPerformance() throws IOException {
 	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();

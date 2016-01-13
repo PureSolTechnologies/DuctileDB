@@ -9,12 +9,11 @@ import java.util.Iterator;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.structure.util.detached.DetachedFactory;
-import org.apache.tinkerpop.gremlin.structure.util.detached.DetachedVertex;
-import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 import org.junit.Test;
 
-public class BasicVertexIT extends AbstractTinkerpopTest {
+import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+
+public class DuctileVertexIT extends AbstractTinkerpopTest {
 
     @Test
     public void testCreateSingleVertex() {
@@ -76,14 +75,57 @@ public class BasicVertexIT extends AbstractTinkerpopTest {
     }
 
     @Test
-    public void shouldConstructDetachedVertex() {
+    public void testVertexCRUD() {
 	Graph graph = getGraph();
-	final Vertex v = graph.addVertex("test", "123");
-	final DetachedVertex detachedVertex = DetachedFactory.detach(v, true);
+	assertEquals(0, DuctileDBTestHelper.count(graph.vertices()));
 
-	assertEquals(v.id(), detachedVertex.id());
-	assertEquals(v.label(), detachedVertex.label());
-	assertEquals("123", detachedVertex.value("test"));
-	assertEquals(1, IteratorUtils.count(detachedVertex.properties()));
+	Vertex vertex = graph.addVertex("label", "vertex", "key", "value");
+	graph.tx().commit();
+
+	assertEquals(1, DuctileDBTestHelper.count(graph.vertices()));
+	Vertex readVertex = graph.vertices().next();
+	assertEquals(vertex, readVertex);
+
+	vertex.property("key2", "value2");
+	graph.tx().commit();
+
+	assertEquals("value2", vertex.property("key2").value());
+	assertEquals(1, DuctileDBTestHelper.count(graph.vertices()));
+	readVertex = graph.vertices().next();
+	assertEquals(vertex, readVertex);
+
+	vertex.remove();
+	graph.tx().commit();
+
+	assertEquals(0, DuctileDBTestHelper.count(graph.vertices()));
+    }
+
+    @Test
+    public void testPropertyCRUD() {
+	Graph graph = getGraph();
+	assertEquals(0, DuctileDBTestHelper.count(graph.vertices()));
+
+	Vertex vertex = graph.addVertex();
+	graph.tx().commit();
+	assertEquals(1, DuctileDBTestHelper.count(graph.vertices()));
+	Vertex readVertex = graph.vertices().next();
+	assertEquals(vertex, readVertex);
+
+	vertex.property("key", "value");
+	assertEquals("value", vertex.property("key").value());
+	graph.tx().commit();
+	readVertex = graph.vertices().next();
+	assertEquals("value", readVertex.property("key").value());
+
+	vertex.property("key", "value2");
+	assertEquals("value2", vertex.property("key").value());
+	graph.tx().commit();
+	readVertex = graph.vertices().next();
+	assertEquals("value2", readVertex.property("key").value());
+
+	vertex.property("key").remove();
+	graph.tx().commit();
+	readVertex = graph.vertices().next();
+	assertFalse(readVertex.property("key").isPresent());
     }
 }

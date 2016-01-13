@@ -41,7 +41,7 @@ public class RemoveVertexTypeOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type));
+	delete.addColumns(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type));
 	Delete index = OperationsHelper.createVertexTypeIndexDelete(vertexId, type);
 	delete(HBaseTable.VERTICES.getTableName(), delete);
 	delete(HBaseTable.VERTEX_TYPES.getTableName(), index);

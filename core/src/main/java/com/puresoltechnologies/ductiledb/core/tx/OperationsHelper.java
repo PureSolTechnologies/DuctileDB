@@ -26,9 +26,9 @@ public class OperationsHelper {
     }
 
     public static Delete createVertexTypeIndexDelete(long vertexId, String type) {
-	Delete typeIndexPut = new Delete(Bytes.toBytes(type));
-	typeIndexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId));
-	return typeIndexPut;
+	Delete typeIndexDelete = new Delete(Bytes.toBytes(type));
+	typeIndexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId));
+	return typeIndexDelete;
     }
 
     public static Put createVertexPropertyIndexPut(long vertexId, String key, Serializable value) throws IOException {
@@ -39,9 +39,9 @@ public class OperationsHelper {
     }
 
     public static Delete createVertexPropertyIndexDelete(long vertexId, String key) {
-	Delete indexPut = new Delete(Bytes.toBytes(key));
-	indexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId));
-	return indexPut;
+	Delete indexDelete = new Delete(Bytes.toBytes(key));
+	indexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId));
+	return indexDelete;
     }
 
     public static Put createEdgeTypeIndexPut(long edgeId, String type) {
@@ -58,15 +58,15 @@ public class OperationsHelper {
     }
 
     public static Delete createEdgeTypeIndexDelete(long edgeId, String type) {
-	Delete typeIndexPut = new Delete(Bytes.toBytes(type));
-	typeIndexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId));
-	return typeIndexPut;
+	Delete typeIndexDelete = new Delete(Bytes.toBytes(type));
+	typeIndexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId));
+	return typeIndexDelete;
     }
 
     public static Delete createEdgePropertyIndexDelete(long edgeId, String key) {
-	Delete indexPut = new Delete(Bytes.toBytes(key));
-	indexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId));
-	return indexPut;
+	Delete indexDelete = new Delete(Bytes.toBytes(key));
+	indexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId));
+	return indexDelete;
     }
 
 }

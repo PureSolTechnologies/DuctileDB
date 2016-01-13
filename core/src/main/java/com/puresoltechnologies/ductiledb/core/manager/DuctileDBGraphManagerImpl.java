@@ -108,7 +108,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	Connection connection = graph.getConnection();
 	try (Table table = connection.getTable(HBaseTable.METADATA.getTableName())) {
 	    Delete delete = new Delete(HBaseColumnFamily.VARIABLES.getNameBytes());
-	    delete.addColumn(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
+	    delete.addColumns(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
 	    table.delete(delete);
 	} catch (IOException e) {
 	    throw new DuctileDBGraphManagerException("Could not remove variable '" + variableName + "'.", e);
