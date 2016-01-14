@@ -625,6 +625,7 @@
 		<module>spark</module>
 		<module>xo</module>
 		<module>xo.bundle</module>
+		<module>jdbc</module>
 	</modules>
 
 </project>

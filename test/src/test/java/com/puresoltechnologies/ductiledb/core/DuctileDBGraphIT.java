@@ -100,4 +100,37 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 	}
 	assertEquals(3, count);
     }
+
+    @Test
+    public void testStreamDelete() throws IOException {
+	assertEquals(0, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(0, DuctileDBTestHelper.count(graph.getEdges()));
+
+	StandardGraphs.createGraph(graph, 5);
+	assertEquals(5, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(10, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.commit();
+
+	assertEquals(5, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(10, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.rollback();
+
+	graph.getEdges().forEach(DuctileDBEdge::remove);
+	assertEquals(5, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(0, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.commit();
+
+	assertEquals(5, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(0, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.rollback();
+
+	graph.getVertices().forEach(DuctileDBVertex::remove);
+	assertEquals(0, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(0, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.commit();
+
+	assertEquals(0, DuctileDBTestHelper.count(graph.getVertices()));
+	assertEquals(0, DuctileDBTestHelper.count(graph.getEdges()));
+	graph.rollback();
+    }
 }

@@ -63,9 +63,9 @@ public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {
-		    DuctileDBEdge vertex = addedIterator.next();
-		    if (!transaction.wasEdgeRemoved(vertex.getId())) {
-			next = vertex;
+		    DuctileDBEdge edge = addedIterator.next();
+		    if (!transaction.wasEdgeRemoved(edge.getId())) {
+			next = edge;
 		    }
 		}
 	    }
