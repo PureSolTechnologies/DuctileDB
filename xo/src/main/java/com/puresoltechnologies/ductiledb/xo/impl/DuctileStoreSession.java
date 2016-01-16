@@ -1,6 +1,10 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
+
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.hadoop.hbase.client.Connection;
 
 import com.buschmais.xo.spi.datastore.DatastoreEntityManager;
 import com.buschmais.xo.spi.datastore.DatastoreQuery;
@@ -11,6 +15,7 @@ import com.buschmais.xo.spi.session.XOSession;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphFactory;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Query;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
@@ -40,9 +45,10 @@ public class DuctileStoreSession implements
      * @param graph
      *            is the DuctileDB graph as {@link DuctileGraph} object on which
      *            this session shall work on.
+     * @throws IOException
      */
-    public DuctileStoreSession(DuctileGraph graph) {
-	this.graph = graph;
+    public DuctileStoreSession(Connection connection, BaseConfiguration configuration) throws IOException {
+	this.graph = DuctileGraphFactory.createGraph(connection, configuration);
 	this.transaction = new DuctileStoreTransaction(graph);
 	this.vertexManager = new DucileStoreVertexManager(graph);
 	this.edgeManager = new DucileStoreEdgeManager(graph);

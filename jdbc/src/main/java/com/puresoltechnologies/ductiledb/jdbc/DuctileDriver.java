@@ -22,11 +22,13 @@ import com.puresoltechnologies.versioning.Version;
  */
 public class DuctileDriver implements Driver {
 
+    private static final Logger logger = Logger.getLogger(DuctileDriver.class.getName());
+
     static {
 	try {
 	    // Register the Driver with DriverManager
-	    DuctileDriver driverInst = new DuctileDriver();
-	    DriverManager.registerDriver(driverInst);
+	    DuctileDriver driverInstance = new DuctileDriver();
+	    DriverManager.registerDriver(driverInstance);
 	} catch (SQLException e) {
 	    throw new RuntimeException("Could not register " + DuctileDriver.class.getName() + " to "
 		    + DriverManager.class.getName() + ".");
@@ -85,8 +87,7 @@ public class DuctileDriver implements Driver {
 
     @Override
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-	// TODO Auto-generated method stub
-	return null;
+	return logger;
     }
 
     URL convertToURL(String urlString) throws SQLException {

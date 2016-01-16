@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.hadoop.hbase.client.Connection;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,7 @@ import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.spi.datastore.Datastore;
 import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
@@ -36,9 +38,16 @@ public class DuctileStore
     public static final String DEFAULT_DUCTILEDB_NAMESPACE = "ductiledb";
 
     /**
-     * This field contains the whole graph after connection to the database.
+     * This field contains the connection to HBase. This {@link Connection}
+     * object is thread-safe an can be reused for multiple session, because
+     * opening a connection is quite expensive.
      */
-    private DuctileGraph graph = null;
+    private Connection connection = null;
+
+    /**
+     * This field contains the base configuration for the graph.
+     */
+    private final BaseConfiguration configuration;
 
     /**
      * Contains the metadata factory for this XO implementation.
@@ -70,6 +79,8 @@ public class DuctileStore
 	    throw new IllegalArgumentException("The host must not be null or empty.");
 	}
 	this.hbaseSitePath = hbaseSitePath;
+	this.configuration = new BaseConfiguration();
+	this.configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
 	if ((namespace == null) || (namespace.isEmpty())) {
 	    this.namespace = DEFAULT_DUCTILEDB_NAMESPACE;
 	} else {
@@ -95,15 +106,6 @@ public class DuctileStore
 	return namespace;
     }
 
-    /**
-     * This method returns the DuctileDBGraph object when database is connected.
-     * 
-     * @return A DuctileDBGraph is returned.
-     */
-    public final DuctileGraph getGraph() {
-	return graph;
-    }
-
     @Override
     public DatastoreMetadataFactory<DuctileVertexMetadata, String, DuctileEdgeMetadata, String> getMetadataFactory() {
 	return ductileMetadataFactory;
@@ -113,9 +115,7 @@ public class DuctileStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    BaseConfiguration configuration = new BaseConfiguration();
-	    configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
-	    graph = DuctileGraph.open(configuration);
+	    connection = DuctileDBGraphFactory.createConnection(configuration);
 	} catch (IOException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
 	}
@@ -123,19 +123,23 @@ public class DuctileStore
 
     @Override
     public DuctileStoreSession createSession() {
-	return new DuctileStoreSession(graph);
+	try {
+	    return new DuctileStoreSession(connection, configuration);
+	} catch (IOException e) {
+	    throw new XOException("Could not create graph.", e);
+	}
     }
 
     @Override
     public void close() {
 	logger.info("Shutting down eXtended Objects for DuctileDB...");
-	if (graph != null) {
+	if (connection != null) {
 	    try {
-		graph.close();
+		connection.close();
 	    } catch (Exception e) {
 		throw new XOException("Could not close graph.", e);
 	    }
-	    graph = null;
+	    connection = null;
 	}
     }
 }

@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.jdbc;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.sql.Array;
 import java.sql.Blob;
@@ -21,6 +22,12 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphFactory;
+
 public class DuctileConnection implements Connection, DuctileWrapper {
 
     private DuctileDatabaseMetaData metaData = null;
@@ -28,10 +35,12 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     private final URL url;
     private final File hbaseSiteFile;
+    private final Graph graph;
 
-    public DuctileConnection(URL url) {
+    public DuctileConnection(URL url) throws SQLException {
 	this.url = url;
 	hbaseSiteFile = new File(url.getPath());
+	this.graph = open();
     }
 
     public URL getUrl() {
@@ -40,6 +49,15 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     public File getHbaseSiteFile() {
 	return hbaseSiteFile;
+    }
+
+    private DuctileGraph open() throws SQLException {
+	try {
+	    BaseConfiguration baseConfiguration = new BaseConfiguration();
+	    return DuctileGraphFactory.createGraph(baseConfiguration);
+	} catch (IOException e) {
+	    throw new SQLException("Could not open graph.", e);
+	}
     }
 
     @Override
@@ -76,7 +94,6 @@ public class DuctileConnection implements Connection, DuctileWrapper {
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
 	// TODO Auto-generated method stub
-
     }
 
     @Override
@@ -99,7 +116,13 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public void close() throws SQLException {
-	closed = true;
+	try {
+	    graph.close();
+	} catch (Exception e) {
+	    throw new SQLException("Could not close graph.", e);
+	} finally {
+	    closed = true;
+	}
     }
 
     @Override

@@ -36,10 +36,6 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
 public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.DuctileDBGraph> {
 
-    public static DuctileGraph open(Configuration configuration) throws IOException {
-	return new DuctileGraph(configuration);
-    }
-
     private DuctileGraphComputerView graphComputerView = null;
     private final DuctileDBGraph baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();

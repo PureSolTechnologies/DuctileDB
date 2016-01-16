@@ -22,7 +22,7 @@ public class BasicGremlinIT extends AbstractTinkerpopTest {
     public void test() throws IOException, ScriptException {
 	BaseConfiguration configuration = new BaseConfiguration();
 	configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
-	try (DuctileGraph graph = DuctileGraph.open(configuration)) {
+	try (DuctileGraph graph = DuctileGraphFactory.createGraph(configuration)) {
 	    assertNotNull(graph);
 	    assertEquals(DuctileGraph.class.getName(), graph.configuration().getString(Graph.GRAPH));
 	    Vertex vertex1 = graph.addVertex("label", "vertexLabel1");
