@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.api;
 
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
+
 /**
  * This interface defines methods which are common for all elements (vertices
  * and edges) in DuctileDB.
@@ -15,7 +17,7 @@ public interface DuctileDBElement extends Cloneable {
      * 
      * @return A {@link DuctileDBGraph} is returned.
      */
-    public DuctileDBGraph getGraph();
+    public DuctileDBTransaction getTransaction();
 
     /**
      * This method returns the internal id of the element. This id is used to

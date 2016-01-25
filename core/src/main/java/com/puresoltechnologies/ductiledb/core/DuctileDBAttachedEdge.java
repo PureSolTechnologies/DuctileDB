@@ -4,51 +4,52 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBAttachedEdge extends DuctileDBAttachedElement implements DuctileDBEdge {
 
-    public DuctileDBAttachedEdge(DuctileDBGraphImpl graph, long id) {
-	super(graph, id);
+    public DuctileDBAttachedEdge(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id) {
+	super(graph, transaction, id);
     }
 
     @Override
     public DuctileDBVertex getStartVertex() {
-	return getCurrentTransaction().getEdgeStartVertex(getId());
+	return getTransaction().getEdgeStartVertex(getId());
     }
 
     @Override
     public DuctileDBVertex getTargetVertex() {
-	return getCurrentTransaction().getEdgeTargetVertex(getId());
+	return getTransaction().getEdgeTargetVertex(getId());
     }
 
     @Override
     public String getType() {
-	return getCurrentTransaction().getEdgeType(getId());
+	return getTransaction().getEdgeType(getId());
     }
 
     @Override
     public Set<String> getPropertyKeys() {
-	return getCurrentTransaction().getEdgePropertyKeys(getId());
+	return getTransaction().getEdgePropertyKeys(getId());
     }
 
     @Override
     public <T> T getProperty(String key) {
-	return getCurrentTransaction().getEdgeProperty(getId(), key);
+	return getTransaction().getEdgeProperty(getId(), key);
     }
 
     @Override
     public <T> void setProperty(String key, T value) {
-	getCurrentTransaction().setProperty(this, key, value);
+	getTransaction().setProperty(this, key, value);
     }
 
     @Override
     public void removeProperty(String key) {
-	getCurrentTransaction().removeProperty(this, key);
+	getTransaction().removeProperty(this, key);
     }
 
     @Override
     public void remove() {
-	getCurrentTransaction().removeEdge(this);
+	getTransaction().removeEdge(this);
     }
 
     @Override

@@ -72,26 +72,29 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    .withInitial(() -> new ArrayList<>());
 
     private final DuctileDBGraphImpl graph;
+    private final TransactionType type;
+    private final long threadId;
     private final Connection connection;
     private boolean closed = false;
 
-    public DuctileDBTransactionImpl(DuctileDBGraphImpl graph) {
+    public DuctileDBTransactionImpl(DuctileDBGraphImpl graph, TransactionType type) {
 	this.graph = graph;
 	this.connection = graph.getConnection();
-
+	this.threadId = Thread.currentThread().getId();
+	this.type = type;
     }
 
-    public Connection getConnection() {
+    public TransactionType getTransactionType() {
+	return type;
+    }
+
+    public final Connection getConnection() {
 	return connection;
-    }
-
-    public DuctileDBGraphImpl getGraph() {
-	return graph;
     }
 
     @Override
     public void commit() {
-	checkForClosed();
+	checkForClosedAndCorrectThread();
 	try {
 	    for (TxOperation operation : txOperations) {
 		operation.perform();
@@ -106,7 +109,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void rollback() {
-	checkForClosed();
+	checkForClosedAndCorrectThread();
 	try {
 	    txOperations.descendingIterator().forEachRemaining(operation -> operation.rollbackInternally());
 	    fireOnRollback();
@@ -126,9 +129,16 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	edgeCache.clear();
     }
 
-    private void checkForClosed() {
+    private void checkForClosedAndCorrectThread() {
 	if (closed) {
 	    throw new IllegalStateException("Transaction was already closed.");
+	}
+	if (type == TransactionType.THREAD_LOCAL) {
+	    long currentThreadId = Thread.currentThread().getId();
+	    if (currentThreadId != threadId) {
+		throw new IllegalStateException("Thread local transaction thread id " + threadId
+			+ " is trying to be used with thread with id " + currentThreadId);
+	    }
 	}
     }
 
@@ -156,7 +166,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    Get get = new Get(id);
 	    Result result = vertexTable.get(get);
 	    if (!result.isEmpty()) {
-		vertex = ResultDecoder.toVertex(graph, vertexId, result);
+		vertex = ResultDecoder.toVertex(graph, this, vertexId, result);
 	    }
 	    if (vertex == null) {
 		throw new NoSuchGraphElementException("vertex with id '" + vertexId + "' does not exist.");
@@ -193,7 +203,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    Get get = new Get(id);
 	    Result result = table.get(get);
 	    if (!result.isEmpty()) {
-		edge = ResultDecoder.toCacheEdge(graph, edgeId, result);
+		edge = ResultDecoder.toCacheEdge(this, edgeId, result);
 	    }
 	    if (edge == null) {
 		throw new NoSuchGraphElementException("Edge with id '" + edgeId + "' does not exist.");
@@ -279,15 +289,17 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkAddVertex(types, properties);
 	long vertexId = createVertexId();
-	addTxOperation(new AddVertexOperation(this, vertexId, types, properties));
+	addTxOperation(new AddVertexOperation(graph, this, vertexId, types, properties));
 	return getVertex(vertexId);
     }
 
     @Override
     public DuctileDBEdge addEdge(DuctileDBVertex startVertex, DuctileDBVertex targetVertex, String type,
 	    Map<String, Object> properties) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkAddEdge(type, properties);
 	long edgeId = createEdgeId();
 	addTxOperation(new AddEdgeOperation(this, edgeId, startVertex.getId(), targetVertex.getId(), type, properties));
@@ -297,7 +309,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBEdge getEdge(long edgeId) {
 	getCachedEdge(edgeId);
-	return new DuctileDBAttachedEdge(graph, edgeId);
+	return new DuctileDBAttachedEdge(graph, this, edgeId);
     }
 
     @Override
@@ -402,7 +414,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public DuctileDBVertex getVertex(long vertexId) {
 	getCachedVertex(vertexId);
-	return new DuctileDBAttachedVertex(graph, vertexId);
+	return new DuctileDBAttachedVertex(graph, this, vertexId);
     }
 
     @Override
@@ -511,6 +523,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void removeEdge(DuctileDBEdge edge) {
+	checkForClosedAndCorrectThread();
 	if (wasEdgeRemoved(edge.getId())) {
 	    return;
 	}
@@ -519,6 +532,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public void removeVertex(DuctileDBVertex vertex) {
+	checkForClosedAndCorrectThread();
 	if (wasVertexRemoved(vertex.getId())) {
 	    return;
 	}
@@ -536,30 +550,36 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     public void addType(DuctileDBVertex vertex, String type) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkAddVertexType(type, ElementUtils.getProperties(vertex));
 	addTxOperation(new AddVertexTypeOperation(this, vertex.getId(), type));
     }
 
     public void removeType(DuctileDBVertex vertex, String type) {
+	checkForClosedAndCorrectThread();
 	addTxOperation(new RemoveVertexTypeOperation(this, vertex, type));
     }
 
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkSetVertexProperty(ElementUtils.getTypes(vertex), key, value);
 	addTxOperation(new SetVertexPropertyOperation(this, vertex, key, value));
     }
 
     public void removeProperty(DuctileDBVertex vertex, String key) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkRemoveVertexProperty(vertex.getTypes(), key);
 	addTxOperation(new RemoveVertexPropertyOperation(this, vertex, key));
     }
 
     public void setProperty(DuctileDBEdge edge, String key, Object value) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkSetEdgeProperty(edge.getType(), key, value);
 	addTxOperation(new SetEdgePropertyOperation(this, edge, key, value));
     }
 
     public void removeProperty(DuctileDBEdge edge, String key) {
+	checkForClosedAndCorrectThread();
 	getSchema().checkRemoveEdgeProperty(edge.getType(), key);
 	addTxOperation(new RemoveEdgePropertyOperation(this, edge, key));
     }
@@ -620,20 +640,20 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	List<String> typeList = Arrays.asList(edgeTypes);
 	for (DuctileDBEdge cachedEdge : cachedVertex.getEdges(direction, edgeTypes)) {
 	    if ((edgeTypes.length == 0) || (typeList.contains(cachedEdge.getType()))) {
-		DuctileDBAttachedEdge edge = ElementUtils.toAttached(cachedEdge);
+		DuctileDBAttachedEdge edge = ElementUtils.toAttached(graph, cachedEdge);
 		switch (direction) {
 		case IN:
 		    if (edge.getTargetVertex().getId() == vertexId) {
-			edges.add(ElementUtils.toAttached(edge));
+			edges.add(ElementUtils.toAttached(graph, edge));
 		    }
 		    break;
 		case OUT:
 		    if (edge.getStartVertex().getId() == vertexId) {
-			edges.add(ElementUtils.toAttached(edge));
+			edges.add(ElementUtils.toAttached(graph, edge));
 		    }
 		    break;
 		case BOTH:
-		    edges.add(ElementUtils.toAttached(edge));
+		    edges.add(ElementUtils.toAttached(graph, edge));
 		    break;
 		default:
 		    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");

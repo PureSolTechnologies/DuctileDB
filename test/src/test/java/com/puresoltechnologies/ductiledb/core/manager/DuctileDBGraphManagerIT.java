@@ -6,10 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.Iterator;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,11 +26,6 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 	graph = getGraph();
 	graphManager = graph.createGraphManager();
 	assertNotNull("Graph manager was not provided.", graphManager);
-    }
-
-    @Before
-    public void cleanup() throws IOException {
-	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @Test

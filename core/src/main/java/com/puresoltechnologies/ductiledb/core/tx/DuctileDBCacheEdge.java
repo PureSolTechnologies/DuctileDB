@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 class DuctileDBCacheEdge extends DuctileDBCacheElement implements DuctileDBEdge {
@@ -13,9 +12,9 @@ class DuctileDBCacheEdge extends DuctileDBCacheElement implements DuctileDBEdge 
     private final long startVertexId;
     private final long targetVertexId;
 
-    public DuctileDBCacheEdge(DuctileDBGraphImpl graph, long id, String type, long startVertexId, long targetVertexId,
-	    Map<String, Object> properties) {
-	super(graph, id, properties);
+    public DuctileDBCacheEdge(DuctileDBTransactionImpl transaction, long id, String type, long startVertexId,
+	    long targetVertexId, Map<String, Object> properties) {
+	super(transaction, id, properties);
 	if (type == null) {
 	    throw new IllegalArgumentException("Type must not be null.");
 	}
@@ -80,7 +79,7 @@ class DuctileDBCacheEdge extends DuctileDBCacheElement implements DuctileDBEdge 
 
     @Override
     public void remove() {
-	getGraph().removeEdge(this);
+	getTransaction().removeEdge(this);
     }
 
     @Override

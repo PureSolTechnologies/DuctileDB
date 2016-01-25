@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,11 +21,6 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
     public static void initializeHealthCheck() throws IOException {
 	graph = getGraph();
 	healthChecker = new DuctileDBHealthCheck(graph);
-    }
-
-    @Before
-    public void cleanup() throws IOException {
-	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @After
@@ -49,10 +43,12 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 	vertex2.addEdge("edge23", vertex3, Collections.emptyMap());
 	vertex3.addEdge("edge31", vertex1, Collections.emptyMap());
 	graph.commit();
+	assertEquals(3, DuctileDBTestHelper.count(graph.getVertices()));
 	assertEquals(3, DuctileDBTestHelper.count(graph.getEdges()));
 
 	vertex2.remove();
 	graph.commit();
+	assertEquals(2, DuctileDBTestHelper.count(graph.getVertices()));
 	assertEquals(1, DuctileDBTestHelper.count(graph.getEdges()));
     }
 

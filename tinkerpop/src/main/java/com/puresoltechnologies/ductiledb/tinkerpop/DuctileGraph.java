@@ -39,17 +39,19 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     private DuctileGraphComputerView graphComputerView = null;
     private final DuctileDBGraph baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();
-    private final DuctileTransaction ductileTransaction = new DuctileTransaction(this);
+    private final DuctileTransaction ductileTransaction;
     private final DuctileFeatures features = new DuctileFeatures();
 
     protected DuctileGraph(DuctileDBGraph baseGraph, Configuration configuration) {
 	this.configuration.copy(configuration);
 	this.baseGraph = baseGraph;
+	this.ductileTransaction = new DuctileTransaction(this);
     }
 
     protected DuctileGraph(Configuration configuration) throws IOException {
 	this.configuration.copy(configuration);
 	this.baseGraph = DuctileDBGraphFactory.createGraph(configuration);
+	this.ductileTransaction = new DuctileTransaction(this);
     }
 
     @Override

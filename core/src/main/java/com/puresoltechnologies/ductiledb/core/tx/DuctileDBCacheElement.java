@@ -6,39 +6,18 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBElement;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 abstract class DuctileDBCacheElement extends AbstractDuctileDBElement {
 
-    private final DuctileDBGraphImpl graph;
-    private final long id;
     private final Map<String, Object> properties = new HashMap<>();
 
-    public DuctileDBCacheElement(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
-	super();
-	if (graph == null) {
-	    throw new IllegalArgumentException("Graph must not be null.");
-	}
-	if (id <= 0) {
-	    throw new IllegalArgumentException("Id must be a positive number.");
-	}
+    public DuctileDBCacheElement(DuctileDBTransactionImpl transaction, long id, Map<String, Object> properties) {
+	super(transaction, id);
 	if (properties == null) {
 	    throw new IllegalArgumentException("Properties must not be null.");
 	}
-	this.graph = graph;
-	this.id = id;
 	this.properties.putAll(properties);
-    }
-
-    @Override
-    public DuctileDBGraphImpl getGraph() {
-	return graph;
-    }
-
-    @Override
-    public final long getId() {
-	return id;
     }
 
     @Override
@@ -69,8 +48,7 @@ abstract class DuctileDBCacheElement extends AbstractDuctileDBElement {
     @Override
     public int hashCode() {
 	final int prime = 31;
-	int result = 1;
-	result = prime * result + (int) (id ^ (id >>> 32));
+	int result = super.hashCode();
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 	return result;
     }
@@ -79,13 +57,11 @@ abstract class DuctileDBCacheElement extends AbstractDuctileDBElement {
     public boolean equals(Object obj) {
 	if (this == obj)
 	    return true;
-	if (obj == null)
+	if (!super.equals(obj))
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
 	DuctileDBCacheElement other = (DuctileDBCacheElement) obj;
-	if (id != other.id)
-	    return false;
 	if (properties == null) {
 	    if (other.properties != null)
 		return false;
@@ -97,8 +73,6 @@ abstract class DuctileDBCacheElement extends AbstractDuctileDBElement {
     @Override
     public DuctileDBCacheElement clone() {
 	DuctileDBCacheElement cloned = (DuctileDBCacheElement) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBCacheElement.class, "id", id);
-	ElementUtils.setFinalField(cloned, DuctileDBCacheElement.class, "graph", graph);
 	ElementUtils.setFinalField(cloned, DuctileDBCacheElement.class, "properties", new HashMap<>(properties));
 	return cloned;
     }

@@ -39,8 +39,7 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	this.targetVertexId = targetVertexId;
 	this.type = type;
 	this.properties = Collections.unmodifiableMap(properties);
-	this.edge = new DuctileDBCacheEdge(transaction.getGraph(), edgeId, type, startVertexId, targetVertexId,
-		properties);
+	this.edge = new DuctileDBCacheEdge(transaction, edgeId, type, startVertexId, targetVertexId, properties);
     }
 
     public long getEdgeId() {

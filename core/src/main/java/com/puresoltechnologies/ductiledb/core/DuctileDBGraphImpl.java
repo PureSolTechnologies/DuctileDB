@@ -24,6 +24,7 @@ import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchemaManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
+import com.puresoltechnologies.ductiledb.core.tx.TransactionType;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
 
@@ -57,13 +58,13 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     @Override
     public DuctileDBTransaction createTransaction() {
-	return new DuctileDBTransactionImpl(this);
+	return new DuctileDBTransactionImpl(this, TransactionType.THREAD_SHARED);
     }
 
     public DuctileDBTransaction getCurrentTransaction() {
 	DuctileDBTransaction transaction = transactions.get();
 	if (transaction == null) {
-	    transaction = new DuctileDBTransactionImpl(this);
+	    transaction = new DuctileDBTransactionImpl(this, TransactionType.THREAD_LOCAL);
 	    transactions.set(transaction);
 	}
 	return transaction;

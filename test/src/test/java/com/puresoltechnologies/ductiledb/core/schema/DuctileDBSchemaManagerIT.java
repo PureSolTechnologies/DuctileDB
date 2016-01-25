@@ -5,13 +5,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -26,7 +24,6 @@ import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintVio
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 
 public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
@@ -38,11 +35,6 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 	graph = getGraph();
 	schemaManager = graph.createSchemaManager();
 	assertNotNull("Schema manager was not provided.", schemaManager);
-    }
-
-    @Before
-    public void cleanup() throws IOException {
-	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @Test

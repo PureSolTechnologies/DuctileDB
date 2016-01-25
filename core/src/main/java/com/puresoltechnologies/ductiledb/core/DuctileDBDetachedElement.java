@@ -7,46 +7,27 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement {
 
     private final Map<String, Object> properties;
-    private final DuctileDBGraphImpl graph;
-    private final long id;
 
-    public DuctileDBDetachedElement(DuctileDBGraphImpl graph, long id) {
-	this(graph, id, new HashMap<>());
+    public DuctileDBDetachedElement(DuctileDBTransactionImpl transaction, long id) {
+	this(transaction, id, new HashMap<>());
     }
 
-    public DuctileDBDetachedElement(DuctileDBGraphImpl graph, long id, Map<String, Object> properties) {
-	super();
-	if (graph == null) {
-	    throw new IllegalArgumentException("Graph must not be null.");
-	}
-	if (id <= 0) {
-	    throw new IllegalArgumentException("Id must be a positive number.");
-	}
+    public DuctileDBDetachedElement(DuctileDBTransactionImpl transaction, long id, Map<String, Object> properties) {
+	super(transaction, id);
 	if (properties == null) {
 	    throw new IllegalArgumentException("Properties must not be null.");
 	}
-	this.graph = graph;
-	this.id = id;
 	this.properties = Collections.unmodifiableMap(properties);
     }
 
     private void throwDetachedException() {
 	throw new DuctileDBException("This element is detached from graph and cannot be altered.");
-    }
-
-    @Override
-    public DuctileDBGraphImpl getGraph() {
-	return graph;
-    }
-
-    @Override
-    public final long getId() {
-	return id;
     }
 
     @Override
@@ -78,8 +59,7 @@ public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement 
     @Override
     public int hashCode() {
 	final int prime = 31;
-	int result = 1;
-	result = prime * result + (int) (id ^ (id >>> 32));
+	int result = super.hashCode();
 	result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 	return result;
     }
@@ -88,13 +68,11 @@ public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement 
     public boolean equals(Object obj) {
 	if (this == obj)
 	    return true;
-	if (obj == null)
+	if (!super.equals(obj))
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
 	DuctileDBDetachedElement other = (DuctileDBDetachedElement) obj;
-	if (id != other.id)
-	    return false;
 	if (properties == null) {
 	    if (other.properties != null)
 		return false;
@@ -106,8 +84,6 @@ public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement 
     @Override
     public DuctileDBDetachedElement clone() {
 	DuctileDBDetachedElement cloned = (DuctileDBDetachedElement) super.clone();
-	ElementUtils.setFinalField(cloned, DuctileDBDetachedElement.class, "id", id);
-	ElementUtils.setFinalField(cloned, DuctileDBDetachedElement.class, "graph", graph);
 	ElementUtils.setFinalField(cloned, DuctileDBDetachedElement.class, "properties", new HashMap<>(properties));
 	return cloned;
     }

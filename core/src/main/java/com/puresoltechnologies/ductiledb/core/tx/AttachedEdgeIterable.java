@@ -47,19 +47,19 @@ public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 		if (next != null) {
 		    DuctileDBEdge result = next;
 		    next = null;
-		    return ElementUtils.toAttached(result);
+		    return ElementUtils.toAttached(graph, result);
 		}
 		findNext();
-		return ElementUtils.toAttached(next);
+		return ElementUtils.toAttached(graph, next);
 	    }
 
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBEdge edge = ResultDecoder.toCacheEdge(graph, IdEncoder.decodeRowId(result.getRow()),
+		    DuctileDBEdge edge = ResultDecoder.toCacheEdge(transaction, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasEdgeRemoved(edge.getId())) {
-			next = new DuctileDBAttachedEdge(graph, edge.getId());
+			next = new DuctileDBAttachedEdge(graph, transaction, edge.getId());
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

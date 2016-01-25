@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1452891447478
+Bnd-LastModified: 1453654185222
 Build-Jdk: 1.8.0_20
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
@@ -35,12 +35,13 @@ Export-Package: com.puresoltechnologies.ductiledb.xo;version="0.1.0.SNAP
  etadata.type,com.buschmais.xo.spi.reflection,com.buschmais.xo.spi.sessi
  on,com.puresoltechnologies.ductiledb.tinkerpop,com.puresoltechnologies.
  ductiledb.xo.api.annotation,com.puresoltechnologies.ductiledb.xo.impl.m
- etadata",com.puresoltechnologies.ductiledb.xo.impl.metadata;version="0.
- 1.0.SNAPSHOT";uses:="com.buschmais.xo.spi.datastore,com.buschmais.xo.sp
- i.metadata.method,com.puresoltechnologies.ductiledb.api,org.apache.tink
- erpop.gremlin.structure",com.puresoltechnologies.ductiledb.xo.impl.quer
- y.gremlin;version="0.1.0.SNAPSHOT";uses:="com.puresoltechnologies.ducti
- ledb.xo.api.annotation"
+ etadata,org.apache.commons.configuration,org.apache.hadoop.hbase.client
+ ",com.puresoltechnologies.ductiledb.xo.impl.metadata;version="0.1.0.SNA
+ PSHOT";uses:="com.buschmais.xo.spi.datastore,com.buschmais.xo.spi.metad
+ ata.method,com.puresoltechnologies.ductiledb.api,org.apache.tinkerpop.g
+ remlin.structure",com.puresoltechnologies.ductiledb.xo.impl.query.greml
+ in;version="0.1.0.SNAPSHOT";uses:="com.puresoltechnologies.ductiledb.xo
+ .api.annotation"
 Implementation-Title: com.puresoltechnologies.ductiledb:xo.bundle
 Implementation-Vendor: PureSol Technologies
 Implementation-Version: 0.1.0-SNAPSHOT
@@ -51,12 +52,13 @@ Import-Package: com.buschmais.xo.api;version="[0.6,1)",com.buschmais.xo.
  hod;version="[0.6,1)",com.buschmais.xo.spi.metadata.type;version="[0.6,
  1)",com.buschmais.xo.spi.reflection;version="[0.6,1)",com.buschmais.xo.
  spi.session;version="[0.6,1)",com.puresoltechnologies.ductiledb.api,com
- .puresoltechnologies.ductiledb.tinkerpop,com.puresoltechnologies.ductil
- edb.tinkerpop.gremlin,org.apache.commons.configuration;version="[1.10,2
- )",org.apache.commons.lang;version="[2.6,3)",org.apache.tinkerpop.greml
- in.process.traversal.dsl.graph,org.apache.tinkerpop.gremlin.structure,o
- rg.apache.tinkerpop.gremlin.util,org.osgi.framework;version="[1.7,2)",o
- rg.slf4j
+ .puresoltechnologies.ductiledb.core,com.puresoltechnologies.ductiledb.t
+ inkerpop,com.puresoltechnologies.ductiledb.tinkerpop.gremlin,org.apache
+ .commons.configuration;version="[1.10,2)",org.apache.commons.lang;versi
+ on="[2.6,3)",org.apache.hadoop.hbase.client,org.apache.tinkerpop.gremli
+ n.process.traversal.dsl.graph,org.apache.tinkerpop.gremlin.structure,or
+ g.apache.tinkerpop.gremlin.util,org.osgi.framework;version="[1.7,2)",or
+ g.slf4j
 Project-URL: http://puresol-technologies.com/xo.bundle
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Specification-Title: eXtended Objects for DuctileDB: xo.bundle

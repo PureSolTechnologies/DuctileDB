@@ -18,6 +18,7 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 /**
  * This class contains helper methods to handle Ductile DB elements.
@@ -77,21 +78,21 @@ public class ElementUtils {
 	}
     }
 
-    public static DuctileDBAttachedVertex toAttached(DuctileDBVertex vertex) {
-	return new DuctileDBAttachedVertex((DuctileDBGraphImpl) vertex.getGraph(), vertex.getId());
+    public static DuctileDBAttachedVertex toAttached(DuctileDBGraphImpl graph, DuctileDBVertex vertex) {
+	return new DuctileDBAttachedVertex(graph, (DuctileDBTransactionImpl) vertex.getTransaction(), vertex.getId());
     }
 
     public static DuctileDBDetachedVertex toDetached(DuctileDBVertex vertex) {
-	return new DuctileDBDetachedVertex((DuctileDBGraphImpl) vertex.getGraph(), vertex.getId(),
+	return new DuctileDBDetachedVertex((DuctileDBTransactionImpl) vertex.getTransaction(), vertex.getId(),
 		ElementUtils.getTypes(vertex), ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
     }
 
-    public static DuctileDBAttachedEdge toAttached(DuctileDBEdge edge) {
-	return new DuctileDBAttachedEdge((DuctileDBGraphImpl) edge.getGraph(), edge.getId());
+    public static DuctileDBAttachedEdge toAttached(DuctileDBGraphImpl graph, DuctileDBEdge edge) {
+	return new DuctileDBAttachedEdge(graph, (DuctileDBTransactionImpl) edge.getTransaction(), edge.getId());
     }
 
     public static DuctileDBDetachedEdge toDetached(DuctileDBEdge edge) {
-	return new DuctileDBDetachedEdge((DuctileDBGraphImpl) edge.getGraph(), edge.getId(), edge.getType(),
+	return new DuctileDBDetachedEdge((DuctileDBTransactionImpl) edge.getTransaction(), edge.getId(), edge.getType(),
 		edge.getStartVertex(), edge.getTargetVertex(), ElementUtils.getProperties(edge));
     }
 }

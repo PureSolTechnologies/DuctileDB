@@ -18,12 +18,14 @@ import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVertex {
 
+    private final DuctileDBGraphImpl graph;
     private final Set<String> types = new HashSet<>();
     private final List<DuctileDBCacheEdge> edges = new ArrayList<>();
 
-    public DuctileDBCacheVertex(DuctileDBGraphImpl graph, long id, Set<String> types, Map<String, Object> properties,
-	    List<DuctileDBCacheEdge> edges) {
-	super(graph, id, properties);
+    public DuctileDBCacheVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id,
+	    Set<String> types, Map<String, Object> properties, List<DuctileDBCacheEdge> edges) {
+	super(transaction, id, properties);
+	this.graph = graph;
 	if (types == null) {
 	    throw new IllegalArgumentException("Types must not be null.");
 	}
@@ -71,7 +73,7 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
 	List<String> typeList = Arrays.asList(edgeTypes);
 	for (DuctileDBEdge cachedEdge : this.edges) {
 	    if ((edgeTypes.length == 0) || (typeList.contains(cachedEdge.getType()))) {
-		DuctileDBAttachedEdge edge = ElementUtils.toAttached(cachedEdge);
+		DuctileDBAttachedEdge edge = ElementUtils.toAttached(graph, cachedEdge);
 		switch (direction) {
 		case IN:
 		    if (edge.getTargetVertex().getId() == getId()) {
@@ -142,7 +144,7 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
 
     @Override
     public void remove() {
-	getGraph().removeVertex(this);
+	getTransaction().removeVertex(this);
     }
 
     @Override

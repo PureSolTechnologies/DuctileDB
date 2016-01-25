@@ -29,7 +29,8 @@ import com.puresoltechnologies.ductiledb.core.utils.Serializer;
  */
 public class ResultDecoder {
 
-    public static DuctileDBCacheVertex toVertex(DuctileDBGraphImpl graph, long vertexId, Result result) {
+    public static DuctileDBCacheVertex toVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction,
+	    long vertexId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -61,18 +62,18 @@ public class ResultDecoder {
 		EdgeKey edgeKey = EdgeKey.decode(edge.getKey());
 		EdgeValue edgeValue = EdgeValue.decode(edge.getValue());
 		if (EdgeDirection.IN == edgeKey.getDirection()) {
-		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getType(), edgeKey.getVertexId(),
-			    vertexId, edgeValue.getProperties()));
+		    edges.add(new DuctileDBCacheEdge(transaction, edgeKey.getId(), edgeKey.getType(),
+			    edgeKey.getVertexId(), vertexId, edgeValue.getProperties()));
 		} else {
-		    edges.add(new DuctileDBCacheEdge(graph, edgeKey.getId(), edgeKey.getType(), vertexId,
+		    edges.add(new DuctileDBCacheEdge(transaction, edgeKey.getId(), edgeKey.getType(), vertexId,
 			    edgeKey.getVertexId(), edgeValue.getProperties()));
 		}
 	    }
 	}
-	return new DuctileDBCacheVertex(graph, vertexId, types, properties, edges);
+	return new DuctileDBCacheVertex(graph, transaction, vertexId, types, properties, edges);
     }
 
-    public static DuctileDBCacheEdge toCacheEdge(DuctileDBGraphImpl graph, long edgeId, Result result) {
+    public static DuctileDBCacheEdge toCacheEdge(DuctileDBTransactionImpl transaction, long edgeId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -102,6 +103,6 @@ public class ResultDecoder {
 		properties.put(key, value);
 	    }
 	}
-	return new DuctileDBCacheEdge(graph, edgeId, type, startVertexId, targetVertexId, properties);
+	return new DuctileDBCacheEdge(transaction, edgeId, type, startVertexId, targetVertexId, properties);
     }
 }

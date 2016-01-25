@@ -9,24 +9,25 @@ import java.util.Set;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements DuctileDBVertex {
 
-    public DuctileDBAttachedVertex(DuctileDBGraphImpl graph, long id) {
-	super(graph, id);
+    public DuctileDBAttachedVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id) {
+	super(graph, transaction, id);
     }
 
     @Override
     public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeTypes) {
-	return getCurrentTransaction().getEdges(getId(), direction, edgeTypes);
+	return getTransaction().getEdges(getId(), direction, edgeTypes);
     }
 
     @Override
     public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeTypes) {
 	List<DuctileDBVertex> vertices = new ArrayList<>();
 	List<String> typeList = Arrays.asList(edgeTypes);
-	for (DuctileDBEdge edge : getCurrentTransaction().getVertexEdges(getId())) {
+	for (DuctileDBEdge edge : getTransaction().getVertexEdges(getId())) {
 	    if (typeList.contains(edge.getType())) {
 		switch (direction) {
 		case IN:
@@ -56,57 +57,57 @@ public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements
     }
 
     public void removeEdge(DuctileDBEdge edge) {
-	getCurrentTransaction().removeEdge(edge);
+	getTransaction().removeEdge(edge);
     }
 
     @Override
     public DuctileDBEdge addEdge(String type, DuctileDBVertex targetVertex, Map<String, Object> properties) {
-	return getCurrentTransaction().addEdge(this, targetVertex, type, properties);
+	return getTransaction().addEdge(this, targetVertex, type, properties);
     }
 
     @Override
     public void remove() {
-	getCurrentTransaction().removeVertex(this);
+	getTransaction().removeVertex(this);
     }
 
     @Override
     public Iterable<String> getTypes() {
-	return getCurrentTransaction().getVertexTypes(getId());
+	return getTransaction().getVertexTypes(getId());
     }
 
     @Override
     public void addType(String type) {
-	getCurrentTransaction().addType(this, type);
+	getTransaction().addType(this, type);
     }
 
     @Override
     public void removeType(String type) {
-	getCurrentTransaction().removeType(this, type);
+	getTransaction().removeType(this, type);
     }
 
     @Override
     public boolean hasType(String type) {
-	return getCurrentTransaction().hasType(getId(), type);
+	return getTransaction().hasType(getId(), type);
     }
 
     @Override
     public Set<String> getPropertyKeys() {
-	return getCurrentTransaction().getVertexPropertyKeys(getId());
+	return getTransaction().getVertexPropertyKeys(getId());
     }
 
     @Override
     public <T> void setProperty(String key, T value) {
-	getCurrentTransaction().setProperty(this, key, value);
+	getTransaction().setProperty(this, key, value);
     }
 
     @Override
     public <T> T getProperty(String key) {
-	return getCurrentTransaction().getVertexProperty(getId(), key);
+	return getTransaction().getVertexProperty(getId(), key);
     }
 
     @Override
     public void removeProperty(String key) {
-	getCurrentTransaction().removeProperty(this, key);
+	getTransaction().removeProperty(this, key);
     }
 
     @Override

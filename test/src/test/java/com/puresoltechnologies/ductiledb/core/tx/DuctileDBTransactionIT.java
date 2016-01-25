@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -46,11 +45,6 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     @BeforeClass
     public static void initializeGraph() {
 	graph = getGraph();
-    }
-
-    @Before
-    public void cleanupGraph() throws IOException {
-	DuctileDBTestHelper.removeGraph(graph);
     }
 
     @After

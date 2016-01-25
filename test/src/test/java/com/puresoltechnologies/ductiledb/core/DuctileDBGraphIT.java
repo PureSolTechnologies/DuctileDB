@@ -20,13 +20,10 @@ import com.puresoltechnologies.ductiledb.core.manager.DuctileDBGraphManagerImpl;
 public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     private static DuctileDBGraphImpl graph;
-    private static DuctileDBGraphImpl graphImpl;
 
     @BeforeClass
     public static void initialize() throws IOException {
 	graph = getGraph();
-	graphImpl = (graph);
-	StarWarsGraph.addStarWarsFiguresData(graphImpl);
     }
 
     @Test
@@ -39,6 +36,7 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testPropertySearch() throws IOException {
+	StarWarsGraph.addStarWarsFiguresData(graph);
 	Iterable<DuctileDBVertex> vertices = graph.getVertices(StarWarsGraph.FIRST_NAME_PROPERTY, "Luke");
 	Iterator<DuctileDBVertex> iterator = vertices.iterator();
 	assertTrue(iterator.hasNext());
@@ -51,6 +49,7 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testTypeSearch() throws IOException {
+	StarWarsGraph.addStarWarsFiguresData(graph);
 	Iterable<DuctileDBVertex> vertices = graph.getVertices("Yeti");
 	Iterator<DuctileDBVertex> iterator = vertices.iterator();
 	assertTrue(iterator.hasNext());
@@ -63,7 +62,8 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testEdge() {
+    public void testEdge() throws IOException {
+	StarWarsGraph.addStarWarsFiguresData(graph);
 	Iterator<DuctileDBVertex> lukes = graph.getVertices(StarWarsGraph.FIRST_NAME_PROPERTY, "Luke").iterator();
 	assertTrue(lukes.hasNext());
 	DuctileDBVertex lukeSkywalker = lukes.next();
@@ -80,7 +80,8 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testGetVertices() {
+    public void testGetVertices() throws IOException {
+	StarWarsGraph.addStarWarsFiguresData(graph);
 	Iterable<DuctileDBVertex> vertices = graph.getVertices();
 	int count = 0;
 	for (@SuppressWarnings("unused")
@@ -91,7 +92,8 @@ public class DuctileDBGraphIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testGetEdges() {
+    public void testGetEdges() throws IOException {
+	StarWarsGraph.addStarWarsFiguresData(graph);
 	Iterable<DuctileDBEdge> edges = graph.getEdges();
 	int count = 0;
 	for (@SuppressWarnings("unused")

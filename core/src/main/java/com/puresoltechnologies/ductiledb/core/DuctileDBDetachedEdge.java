@@ -6,6 +6,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements DuctileDBEdge {
@@ -16,35 +17,35 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
     private DuctileDBVertex startVertex = null;
     private DuctileDBVertex targetVertex = null;
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, long startVertexId,
+    public DuctileDBDetachedEdge(DuctileDBTransactionImpl transaction, long id, String type, long startVertexId,
 	    long targetVertexId, Map<String, Object> properties) {
-	super(graph, id, properties);
+	super(transaction, id, properties);
 	this.type = type;
 	this.startVertexId = startVertexId;
 	this.targetVertexId = targetVertexId;
     }
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, DuctileDBVertex startVertex,
-	    long targetVertexId, Map<String, Object> properties) {
-	super(graph, id, properties);
+    public DuctileDBDetachedEdge(DuctileDBTransactionImpl transaction, long id, String type,
+	    DuctileDBVertex startVertex, long targetVertexId, Map<String, Object> properties) {
+	super(transaction, id, properties);
 	this.type = type;
 	this.startVertex = startVertex;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertexId;
     }
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, long startVertexId,
+    public DuctileDBDetachedEdge(DuctileDBTransactionImpl transaction, long id, String type, long startVertexId,
 	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
-	super(graph, id, properties);
+	super(transaction, id, properties);
 	this.type = type;
 	this.startVertexId = startVertexId;
 	this.targetVertex = targetVertex;
 	this.targetVertexId = targetVertex.getId();
     }
 
-    public DuctileDBDetachedEdge(DuctileDBGraphImpl graph, long id, String type, DuctileDBVertex startVertex,
-	    DuctileDBVertex targetVertex, Map<String, Object> properties) {
-	super(graph, id, properties);
+    public DuctileDBDetachedEdge(DuctileDBTransactionImpl transaction, long id, String type,
+	    DuctileDBVertex startVertex, DuctileDBVertex targetVertex, Map<String, Object> properties) {
+	super(transaction, id, properties);
 	this.type = type;
 	this.startVertexId = startVertex.getId();
 	this.targetVertexId = targetVertex.getId();
@@ -90,7 +91,7 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
     @Override
     public DuctileDBVertex getStartVertex() {
 	if (startVertex == null) {
-	    startVertex = getGraph().getVertex(startVertexId);
+	    startVertex = getTransaction().getVertex(startVertexId);
 	}
 	return startVertex;
     }
@@ -102,7 +103,7 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
     @Override
     public DuctileDBVertex getTargetVertex() {
 	if (targetVertex == null) {
-	    targetVertex = getGraph().getVertex(targetVertexId);
+	    targetVertex = getTransaction().getVertex(targetVertexId);
 	}
 	return targetVertex;
     }

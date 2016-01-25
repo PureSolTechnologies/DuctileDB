@@ -47,19 +47,19 @@ public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 		if (next != null) {
 		    DuctileDBVertex result = next;
 		    next = null;
-		    return ElementUtils.toAttached(result);
+		    return ElementUtils.toAttached(graph, result);
 		}
 		findNext();
-		return ElementUtils.toAttached(next);
+		return ElementUtils.toAttached(graph, next);
 	    }
 
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBVertex vertex = ResultDecoder.toVertex(graph, IdEncoder.decodeRowId(result.getRow()),
-			    result);
+		    DuctileDBVertex vertex = ResultDecoder.toVertex(graph, transaction,
+			    IdEncoder.decodeRowId(result.getRow()), result);
 		    if (!transaction.wasVertexRemoved(vertex.getId())) {
-			next = new DuctileDBAttachedVertex(graph, vertex.getId());
+			next = new DuctileDBAttachedVertex(graph, transaction, vertex.getId());
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

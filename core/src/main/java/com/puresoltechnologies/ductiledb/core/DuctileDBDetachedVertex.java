@@ -14,6 +14,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements DuctileDBVertex {
@@ -21,9 +22,9 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
     private final Set<String> types;
     private final List<DuctileDBEdge> edges;
 
-    public DuctileDBDetachedVertex(DuctileDBGraphImpl graph, long id, Set<String> types, Map<String, Object> properties,
-	    List<DuctileDBEdge> edges) {
-	super(graph, id, properties);
+    public DuctileDBDetachedVertex(DuctileDBTransactionImpl transaction, long id, Set<String> types,
+	    Map<String, Object> properties, List<DuctileDBEdge> edges) {
+	super(transaction, id, properties);
 	if (types == null) {
 	    throw new IllegalArgumentException("Types must not be null.");
 	}

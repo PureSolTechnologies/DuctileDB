@@ -35,7 +35,7 @@ public abstract class AbstractTinkerpopTest {
     }
 
     @Before
-    public void cleanup() throws IOException {
+    public final void cleanup() throws IOException {
 	DuctileDBTestHelper.removeGraph(graph.getBaseGraph());
 	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph.getBaseGraph());
     }

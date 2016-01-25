@@ -1,8 +1,35 @@
 package com.puresoltechnologies.ductiledb.core;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
+import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public abstract class AbstractDuctileDBElement implements DuctileDBElement {
+
+    private final DuctileDBTransactionImpl transaction;
+    private final long id;
+
+    protected AbstractDuctileDBElement(DuctileDBTransactionImpl transaction, long id) {
+	super();
+	if (transaction == null) {
+	    throw new IllegalArgumentException("Transaction must not be null.");
+	}
+	if (id <= 0) {
+	    throw new IllegalArgumentException("Id must be a positive number.");
+	}
+	this.transaction = transaction;
+	this.id = id;
+    }
+
+    @Override
+    public DuctileDBTransactionImpl getTransaction() {
+	return transaction;
+    }
+
+    @Override
+    public final long getId() {
+	return id;
+    }
 
     protected final String getPropertiesString() {
 	StringBuilder builder = new StringBuilder("{");
@@ -23,12 +50,37 @@ public abstract class AbstractDuctileDBElement implements DuctileDBElement {
     }
 
     @Override
-    public DuctileDBElement clone() {
+    public AbstractDuctileDBElement clone() {
 	try {
-	    return (DuctileDBElement) super.clone();
+	    AbstractDuctileDBElement cloned = (AbstractDuctileDBElement) super.clone();
+	    ElementUtils.setFinalField(cloned, AbstractDuctileDBElement.class, "id", id);
+	    ElementUtils.setFinalField(cloned, AbstractDuctileDBElement.class, "transaction", transaction);
+	    return cloned;
 	} catch (CloneNotSupportedException e) {
 	    throw new RuntimeException(e);
 	}
+    }
+
+    @Override
+    public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + (int) (id ^ (id >>> 32));
+	return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (getClass() != obj.getClass())
+	    return false;
+	AbstractDuctileDBElement other = (AbstractDuctileDBElement) obj;
+	if (id != other.id)
+	    return false;
+	return true;
     }
 
 }
