@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,10 +24,10 @@ import com.puresoltechnologies.ductiledb.xo.api.annotation.Indexed;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Property;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.VertexDefinition;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileCollectionPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileIndexedPropertyMetadata;
-import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileReferencePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileIndexedPropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
+import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileReferencePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
 /**
@@ -137,7 +138,13 @@ public class DuctileMetadataFactory
 	Indexed indexedAnnotation = propertyMethod.getAnnotation(Indexed.class);
 	boolean unique = indexedAnnotation.unique();
 	Class<?> dataType = propertyMethod.getType();
-	return new DuctileIndexedPropertyMetadata(name, unique, dataType, type);
+	if (Serializable.class.isAssignableFrom(dataType)) {
+	    @SuppressWarnings("unchecked")
+	    Class<? extends Serializable> serializableDataType = (Class<? extends Serializable>) dataType;
+	    return new DuctileIndexedPropertyMetadata(name, unique, serializableDataType, type);
+	} else {
+	    throw new XOException("Illegal data type '" + dataType.getName() + "' found. Type is not serializable.");
+	}
     }
 
     @Override

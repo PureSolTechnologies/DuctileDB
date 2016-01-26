@@ -177,6 +177,9 @@ public class DuctileDBSchema {
 	if (definition != null) {
 	    checkPropertyType(value, definition);
 	    checkGlobalConstraint(ElementType.VERTEX, key, value, definition);
+	    types.forEach((type) -> {
+		checkTypeConstraint(ElementType.VERTEX, type, key, value, definition);
+	    });
 	}
     }
 
@@ -186,6 +189,7 @@ public class DuctileDBSchema {
 	if (definition != null) {
 	    checkPropertyType(value, definition);
 	    checkGlobalConstraint(ElementType.EDGE, key, value, definition);
+	    checkTypeConstraint(ElementType.EDGE, type, key, value, definition);
 	}
     }
 

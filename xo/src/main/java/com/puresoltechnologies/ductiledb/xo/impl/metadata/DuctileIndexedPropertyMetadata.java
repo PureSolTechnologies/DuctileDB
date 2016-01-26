@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
+import java.io.Serializable;
+
 import org.apache.tinkerpop.gremlin.structure.Element;
 
 public class DuctileIndexedPropertyMetadata {
@@ -7,9 +9,9 @@ public class DuctileIndexedPropertyMetadata {
     private final String name;
     private final boolean unique;
     private final Class<? extends Element> type;
-    private final Class<?> dataType;
+    private final Class<? extends Serializable> dataType;
 
-    public DuctileIndexedPropertyMetadata(String name, boolean unique, Class<?> dataType,
+    public DuctileIndexedPropertyMetadata(String name, boolean unique, Class<? extends Serializable> dataType,
 	    Class<? extends Element> type) {
 	this.name = name;
 	this.unique = unique;
@@ -29,7 +31,7 @@ public class DuctileIndexedPropertyMetadata {
 	return type;
     }
 
-    public Class<?> getDataType() {
+    public Class<? extends Serializable> getDataType() {
 	return dataType;
     }
 

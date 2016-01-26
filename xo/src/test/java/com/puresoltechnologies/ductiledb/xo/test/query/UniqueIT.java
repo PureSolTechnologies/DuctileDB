@@ -16,6 +16,7 @@ import org.junit.runners.Parameterized;
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
+import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 
@@ -36,7 +37,7 @@ public class UniqueIT extends AbstractXODuctileDBTest {
      * provides now a dedicated unique constraint violation exception:
      * {@link SchemaViolationException}. For this exception it is checked here.
      */
-    @Test(expected = SchemaViolationException.class)
+    @Test(expected = DuctileDBUniqueConstraintViolationException.class)
     public void denyDuplicates() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();

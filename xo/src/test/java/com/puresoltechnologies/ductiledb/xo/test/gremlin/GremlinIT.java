@@ -38,6 +38,7 @@ public class GremlinIT extends AbstractXODuctileDBTest {
     public void setupData() throws IOException {
 	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(DuctileDBGraphFactory.createConfiguration())) {
 	    StarWarsGraph.addStarWarsFiguresData(graph);
+	    graph.commit();
 	}
     }
 
@@ -58,7 +59,7 @@ public class GremlinIT extends AbstractXODuctileDBTest {
 	    count++;
 	    assertEquals("Skywalker", person.getLastName());
 	}
-	assertEquals(4, count);
+	assertEquals(1, count);
 
 	xoManager.currentTransaction().commit();
     }

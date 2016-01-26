@@ -39,17 +39,21 @@ public class DuctileDBGraphFactory {
 
     public static DuctileDBGraph createGraph(Configuration hbaseConfiguration) throws IOException {
 	Connection connection = createConnection(hbaseConfiguration);
-	return createGraph(connection);
+	return createGraph(connection, true);
     }
 
     public static DuctileDBGraph createGraph(org.apache.commons.configuration.Configuration configuration)
 	    throws IOException {
 	Connection connection = createConnection(configuration);
-	return createGraph(connection);
+	return createGraph(connection, true);
     }
 
     public static DuctileDBGraph createGraph(Connection connection) throws IOException {
-	return new DuctileDBGraphImpl(connection);
+	return createGraph(connection, false);
+    }
+
+    public static DuctileDBGraph createGraph(Connection connection, boolean closeConnetion) throws IOException {
+	return new DuctileDBGraphImpl(connection, closeConnetion);
     }
 
 }

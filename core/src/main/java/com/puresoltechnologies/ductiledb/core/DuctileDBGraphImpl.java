@@ -35,9 +35,11 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private final DuctileDBSchema schema;
 
     private final Connection connection;
+    private final boolean autoCloseConnection;
 
-    public DuctileDBGraphImpl(Connection connection) throws IOException {
+    public DuctileDBGraphImpl(Connection connection, boolean autoCloseConnection) throws IOException {
 	this.connection = connection;
+	this.autoCloseConnection = autoCloseConnection;
 	new HBaseSchema(connection).checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
     }
@@ -48,12 +50,14 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     @Override
     public void close() throws IOException {
-	if (connection.isClosed()) {
-	    throw new IllegalStateException("Connection was already closed.");
+	if (autoCloseConnection) {
+	    if (connection.isClosed()) {
+		throw new IllegalStateException("Connection was already closed.");
+	    }
+	    logger.info("Closes connection '" + connection.toString() + "'...");
+	    connection.close();
+	    logger.info("Connection '" + connection.toString() + "' closed.");
 	}
-	logger.info("Closes connection '" + connection.toString() + "'...");
-	connection.close();
-	logger.info("Connection '" + connection.toString() + "' closed.");
     }
 
     @Override

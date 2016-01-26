@@ -37,9 +37,9 @@ public class GremlinQueryExecutor {
 
     public List<Object> query(String queryScript) {
 	List<Object> results = new LinkedList<>();
-	final ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
+	ExecutorService executor = Executors.newSingleThreadExecutor(threadFactory);
 	gremlinExecutor.eval(queryScript, bindings).thenAcceptAsync(i -> {
-	    final Iterator<?> itty = (Iterator<?>) i;
+	    Iterator<?> itty = (Iterator<?>) i;
 	    itty.forEachRemaining(e -> results.add(e));
 	} , executor).join();
 	return results;
