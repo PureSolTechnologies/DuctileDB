@@ -64,7 +64,7 @@ public class CollectionPropertyMappingIT extends AbstractXODuctileDBTest {
 
 	xoManager.currentTransaction().begin();
 	Query<CompositeRowObject> query = xoManager
-		.createQuery("g.V().hasLabel('A').outE.has('label', 'MAPPED_SET_OF_B').inV.map");
+		.createQuery("g.V().hasLabel('A').outE().hasLabel('MAPPED_SET_OF_B').inV().map");
 	CompositeRowObject result = query.execute().getSingleResult();
 	// TestResult result =
 	// executeQuery("match (a:A)-[:MAPPED_SET_OF_B]->(b) return b");
@@ -102,7 +102,7 @@ public class CollectionPropertyMappingIT extends AbstractXODuctileDBTest {
 
 	xoManager.currentTransaction().begin();
 	Query<CompositeRowObject> query = xoManager
-		.createQuery("g.V().hasLabel('A').outE.has('label', 'MAPPED_LIST_OF_B').inV.map");
+		.createQuery("g.V().hasLabel('A').outE().hasLabel('MAPPED_LIST_OF_B').inV().map");
 	ResultIterator<CompositeRowObject> result = query.execute().iterator();
 	assertTrue(result.hasNext());
 	CompositeRowObject result1 = result.next();

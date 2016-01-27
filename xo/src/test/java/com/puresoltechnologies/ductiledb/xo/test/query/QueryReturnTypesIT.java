@@ -44,7 +44,7 @@ public class QueryReturnTypesIT extends AbstractXODuctileDBTest {
     public void gremlinWithPrimitiveReturnType() {
 	XOManager xoManager = getXOManager();
 	xoManager.currentTransaction().begin();
-	Result<String> result = xoManager.createQuery("g.V().hasLabel('A').value", String.class).execute();
+	Result<String> result = xoManager.createQuery("g.V().hasLabel('A').values('value')", String.class).execute();
 	assertThat(result.getSingleResult(), equalTo("A"));
 	xoManager.currentTransaction().commit();
     }

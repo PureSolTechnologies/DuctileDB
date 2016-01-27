@@ -105,12 +105,15 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     private long convertId(Object vertexId) {
 	if (Long.class.isAssignableFrom(vertexId.getClass())) {
 	    return (long) vertexId;
+	} else if (Integer.class.equals(vertexId.getClass())) {
+	    return ((Integer) vertexId).longValue();
 	} else if (Double.class.equals(vertexId.getClass())) {
 	    return Math.round((Double) vertexId);
 	} else if (String.class.equals(vertexId.getClass())) {
 	    return Long.valueOf((String) vertexId);
 	} else {
-	    throw new IllegalArgumentException("Edge id '" + vertexId + "' is not supported.");
+	    throw new IllegalArgumentException(
+		    "Edge id '" + vertexId + "' (class='" + vertexId.getClass() + "') is not supported.");
 	}
     }
 

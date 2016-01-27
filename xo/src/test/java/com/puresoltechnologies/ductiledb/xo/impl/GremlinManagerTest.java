@@ -44,7 +44,7 @@ public class GremlinManagerTest {
 	parameters.put("type", 42);
 	GremlinExpression expression = GremlinExpression.createGremlinExpression("g.V().has('type', {type})",
 		parameters);
-	assertThat(expression.getExpression(), is("type=42\ng.V().has('type', type)"));
+	assertThat(expression.getExpression(), is("g.V().has('type', 42)"));
     }
 
     @Test(expected = XOException.class)
