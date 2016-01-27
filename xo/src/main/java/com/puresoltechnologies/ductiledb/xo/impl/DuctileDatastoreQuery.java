@@ -16,7 +16,6 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Query;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.QueryLanguage;
 import com.puresoltechnologies.ductiledb.xo.impl.query.gremlin.GremlinExpression;
-import com.puresoltechnologies.ductiledb.xo.impl.query.gremlin.GremlinManager;
 
 public class DuctileDatastoreQuery implements DatastoreQuery<Query> {
 
@@ -29,27 +28,26 @@ public class DuctileDatastoreQuery implements DatastoreQuery<Query> {
     @Override
     public ResultIterator<Map<String, Object>> execute(String query, Map<String, Object> parameters) {
 	if (query.startsWith("gremlin:")) {
-	    final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query.substring(8),
+	    GremlinExpression gremlinExpression = GremlinExpression.createGremlinExpression(query.substring(8),
 		    parameters);
-	    return executeGremlin(gremlinExpression, parameters);
+	    return executeGremlin(gremlinExpression);
 	} else {
-	    final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query, parameters);
-	    return executeGremlin(gremlinExpression, parameters);
+	    GremlinExpression gremlinExpression = GremlinExpression.createGremlinExpression(query, parameters);
+	    return executeGremlin(gremlinExpression);
 	}
     }
 
     @Override
     public ResultIterator<Map<String, Object>> execute(Query query, Map<String, Object> parameters) {
 	if (query.language() == QueryLanguage.GREMLIN) {
-	    final GremlinExpression gremlinExpression = GremlinManager.getGremlinExpression(query, parameters);
-	    return executeGremlin(gremlinExpression, parameters);
+	    GremlinExpression gremlinExpression = GremlinExpression.createGremlinExpression(query, parameters);
+	    return executeGremlin(gremlinExpression);
 	} else {
 	    throw new XOException("Query language '" + query.language().name() + "' is not supported.");
 	}
     }
 
-    private ResultIterator<Map<String, Object>> executeGremlin(GremlinExpression gremlinExpression,
-	    Map<String, Object> parameters) {
+    private ResultIterator<Map<String, Object>> executeGremlin(GremlinExpression gremlinExpression) {
 	GremlinQueryExecutor gremlinQueryExecutor = ductileGraph.createGremlinQueryExecutor();
 	List<Object> results = gremlinQueryExecutor.query(gremlinExpression.getExpression());
 	Iterator<Object> resultIterator = results.iterator();

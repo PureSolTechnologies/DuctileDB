@@ -49,7 +49,7 @@ public class EnumPropertyMappingIT extends AbstractXODuctileDBTest {
 
 	xoManager.currentTransaction().begin();
 	assertThat(a.getEnumeration(), equalTo(Enumeration.SECOND));
-	query = xoManager.createQuery("g.V().has('_xo_discriminator_A').has('enumeration','SECOND').map");
+	query = xoManager.createQuery("g.V().hasLabel('A').has('enumeration','SECOND').map");
 	result = query.execute().getSingleResult();
 	assertThat(result.get("_xo_discriminator_A", String.class), is("A"));
 	a.setEnumeration(null);

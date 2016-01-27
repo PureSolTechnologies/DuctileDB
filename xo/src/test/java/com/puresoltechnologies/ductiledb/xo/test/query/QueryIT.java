@@ -73,7 +73,7 @@ public class QueryIT extends AbstractXODuctileDBTest {
 	XOManager xoManager = getXOManager();
 
 	xoManager.currentTransaction().begin();
-	Result<CompositeRowObject> result = xoManager.createQuery("g.V().hasLabel('A').value").execute();
+	Result<CompositeRowObject> result = xoManager.createQuery("g.V().hasLabel('A').values('value')").execute();
 	for (CompositeRowObject row : result) {
 	    assertThat(row.get("unknown_type", String.class), isOneOf("A1", "A2"));
 	}

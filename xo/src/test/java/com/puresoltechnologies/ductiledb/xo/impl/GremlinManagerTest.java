@@ -14,13 +14,12 @@ import com.buschmais.xo.spi.reflection.AnnotatedType;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Query;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.QueryLanguage;
 import com.puresoltechnologies.ductiledb.xo.impl.query.gremlin.GremlinExpression;
-import com.puresoltechnologies.ductiledb.xo.impl.query.gremlin.GremlinManager;
 
 public class GremlinManagerTest {
 
     @Test
     public void testStringExpression() {
-	GremlinExpression expression = GremlinManager.getGremlinExpression("This is a string expression.",
+	GremlinExpression expression = GremlinExpression.createGremlinExpression("This is a string expression.",
 		new HashMap<String, Object>());
 	assertThat(expression.getExpression(), is("This is a string expression."));
     }
@@ -33,7 +32,7 @@ public class GremlinManagerTest {
 	when(gremlin.language()).thenReturn(QueryLanguage.GREMLIN);
 	AnnotatedType annotatedElement = mock(AnnotatedType.class);
 	when(annotatedElement.getAnnotation(Query.class)).thenReturn(gremlin);
-	GremlinExpression expression = GremlinManager.getGremlinExpression(annotatedElement,
+	GremlinExpression expression = GremlinExpression.createGremlinExpression(annotatedElement,
 		new HashMap<String, Object>());
 	assertThat(expression.getExpression(), is("This is a Gremlin expression."));
 	assertThat(expression.getResultName(), is("result"));
@@ -43,12 +42,13 @@ public class GremlinManagerTest {
     public void testParameterReplacement() {
 	HashMap<String, Object> parameters = new HashMap<String, Object>();
 	parameters.put("type", 42);
-	GremlinExpression expression = GremlinManager.getGremlinExpression("g.V().has('type', {type})", parameters);
+	GremlinExpression expression = GremlinExpression.createGremlinExpression("g.V().has('type', {type})",
+		parameters);
 	assertThat(expression.getExpression(), is("type=42\ng.V().has('type', type)"));
     }
 
     @Test(expected = XOException.class)
     public void testIllegalQuery() {
-	GremlinManager.getGremlinExpression(new Object(), new HashMap<String, Object>());
+	GremlinExpression.createGremlinExpression(new Object(), new HashMap<String, Object>());
     }
 }

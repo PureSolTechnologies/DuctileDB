@@ -48,8 +48,8 @@ public class AbstractDuctileDBGraphTest {
     public static void disconnect() throws IOException {
 	if (graph != null) {
 	    graph.close();
+	    graph = null;
 	}
-	graph = null;
     }
 
     @Before

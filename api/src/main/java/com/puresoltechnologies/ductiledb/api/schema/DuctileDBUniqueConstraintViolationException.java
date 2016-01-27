@@ -11,7 +11,7 @@ public class DuctileDBUniqueConstraintViolationException extends DuctileDBConstr
     private static final long serialVersionUID = -2387352754144564612L;
 
     public DuctileDBUniqueConstraintViolationException(UniqueConstraint constraint, String key, Object value) {
-	super("A '" + constraint.name() + "' for property '" + key + "' was defined, but a value '" + value
+	super("A '" + constraint.name() + "' constraint for property '" + key + "' was defined, but a value '" + value
 		+ "' was already assigned before.");
     }
 
