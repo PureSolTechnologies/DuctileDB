@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
@@ -31,7 +32,7 @@ public class DuctileDBSchema {
     private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z0-9][-._a-zA-Z0-9]*");
 
     private final Map<ElementType, Map<String, PropertyDefinition<?>>> propertyDefinitions = new HashMap<>();
-    private final Map<ElementType, Map<String, Set<String>>> typeDefinitions = new HashMap<>();
+    private final Map<ElementType, Map<String, Set<String>>> typeDefinitions = new ConcurrentHashMap<>();
 
     private final DuctileDBGraphImpl graph;
 
@@ -47,8 +48,8 @@ public class DuctileDBSchema {
     }
 
     private void readPropertyDefinitions() {
-	propertyDefinitions.put(ElementType.VERTEX, new HashMap<>());
-	propertyDefinitions.put(ElementType.EDGE, new HashMap<>());
+	propertyDefinitions.put(ElementType.VERTEX, new ConcurrentHashMap<>());
+	propertyDefinitions.put(ElementType.EDGE, new ConcurrentHashMap<>());
 	DuctileDBSchemaManager graphManager = graph.createSchemaManager();
 	for (String propertyKey : graphManager.getDefinedProperties()) {
 	    for (ElementType elementType : ElementType.values()) {

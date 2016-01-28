@@ -16,7 +16,7 @@ public class DuctileDBGraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBGraphFactory.class);
 
-    public static Configuration createConfiguration() {
+    public static Configuration createDefaultConfiguration() {
 	Configuration hbaseConfiguration = HBaseConfiguration.create();
 	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
 	return hbaseConfiguration;
@@ -25,7 +25,7 @@ public class DuctileDBGraphFactory {
     public static Connection createConnection(org.apache.commons.configuration.Configuration configuration)
 	    throws IOException {
 	// TODO incorporate configuration...
-	Configuration hbaseConfiguration = createConfiguration();
+	Configuration hbaseConfiguration = createDefaultConfiguration();
 	return createConnection(hbaseConfiguration);
     }
 

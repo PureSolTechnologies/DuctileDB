@@ -32,6 +32,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     private final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
+    private final HBaseSchema hbaseSchema;
     private final DuctileDBSchema schema;
 
     private final Connection connection;
@@ -40,7 +41,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     public DuctileDBGraphImpl(Connection connection, boolean autoCloseConnection) throws IOException {
 	this.connection = connection;
 	this.autoCloseConnection = autoCloseConnection;
-	new HBaseSchema(connection).checkAndCreateEnvironment();
+	hbaseSchema = new HBaseSchema(connection);
+	hbaseSchema.checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
     }
 
@@ -84,7 +86,11 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	return new DuctileDBSchemaManagerImpl(this);
     }
 
-    public DuctileDBSchema getSchema() {
+    public final HBaseSchema getHBaseSchema() {
+	return hbaseSchema;
+    }
+
+    public final DuctileDBSchema getSchema() {
 	return schema;
     }
 

@@ -34,11 +34,10 @@ public abstract class AbstractXODuctileDBTest extends AbstractDuctileDBGraphTest
 
     @After
     public final void destroy() {
-	if (xoManager != null) {
-	    xoManager.close();
-	}
+	closeXOManager();
 	if (xoManagerFactory != null) {
 	    xoManagerFactory.close();
+	    xoManagerFactory = null;
 	}
     }
 
@@ -54,7 +53,9 @@ public abstract class AbstractXODuctileDBTest extends AbstractDuctileDBGraphTest
     }
 
     public void closeXOManager() {
-	xoManager.close();
-	xoManager = null;
+	if (xoManager != null) {
+	    xoManager.close();
+	    xoManager = null;
+	}
     }
 }

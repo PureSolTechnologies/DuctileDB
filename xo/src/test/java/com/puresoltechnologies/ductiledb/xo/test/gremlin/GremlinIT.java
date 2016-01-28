@@ -36,7 +36,7 @@ public class GremlinIT extends AbstractXODuctileDBTest {
 
     @Before
     public void setupData() throws IOException {
-	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(DuctileDBGraphFactory.createConfiguration())) {
+	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(DuctileDBGraphFactory.createDefaultConfiguration())) {
 	    StarWarsGraph.addStarWarsFiguresData(graph);
 	    graph.commit();
 	}

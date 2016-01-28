@@ -64,7 +64,7 @@ public class DuctileDBTestHelper {
 	}
     }
 
-    public static void removeTables(Connection connection) throws IOException {
+    private static void removeTables(Connection connection) throws IOException {
 	logger.info("Remove all DuctileDB tables...");
 	Admin admin = connection.getAdmin();
 	HTableDescriptor[] listTables = admin.listTables();
@@ -108,14 +108,14 @@ public class DuctileDBTestHelper {
 	    graphManager.removeVariable(variableName);
 	}
 	DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
-	for (String propertyName : schemaManager.getDefinedProperties()) {
-	    for (ElementType elementType : ElementType.values()) {
-		schemaManager.removePropertyDefinition(elementType, propertyName);
-	    }
-	}
 	for (String typeName : schemaManager.getDefinedTypes()) {
 	    for (ElementType elementType : ElementType.values()) {
 		schemaManager.removeTypeDefinition(elementType, typeName);
+	    }
+	}
+	for (String propertyName : schemaManager.getDefinedProperties()) {
+	    for (ElementType elementType : ElementType.values()) {
+		schemaManager.removePropertyDefinition(elementType, propertyName);
 	    }
 	}
 	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
