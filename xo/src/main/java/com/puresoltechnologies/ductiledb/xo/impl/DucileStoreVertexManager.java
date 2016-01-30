@@ -19,6 +19,7 @@ import com.buschmais.xo.spi.metadata.method.PrimitivePropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.EntityTypeMetadata;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
+import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertexProperty;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctilePropertyMetadata;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileVertexMetadata;
 
@@ -39,7 +40,11 @@ public class DucileStoreVertexManager
     @Override
     public void setProperty(DuctileVertex vertex, PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> metadata,
 	    Object value) {
-	vertex.property(metadata.getDatastoreMetadata().getName(), value);
+	if (DuctileVertexProperty.class.isAssignableFrom(value.getClass())) {
+	    vertex.property(metadata.getDatastoreMetadata().getName(), ((DuctileVertexProperty<?>) value).value());
+	} else {
+	    vertex.property(metadata.getDatastoreMetadata().getName(), value);
+	}
     }
 
     @Override

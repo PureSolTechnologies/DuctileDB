@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1453836085589
+Bnd-LastModified: 1454180456134
 Build-Jdk: 1.8.0_20
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
@@ -52,13 +52,13 @@ Import-Package: com.buschmais.xo.api;version="[0.6,1)",com.buschmais.xo.
  hod;version="[0.6,1)",com.buschmais.xo.spi.metadata.type;version="[0.6,
  1)",com.buschmais.xo.spi.reflection;version="[0.6,1)",com.buschmais.xo.
  spi.session;version="[0.6,1)",com.puresoltechnologies.ductiledb.api,com
- .puresoltechnologies.ductiledb.core,com.puresoltechnologies.ductiledb.t
- inkerpop,com.puresoltechnologies.ductiledb.tinkerpop.gremlin,org.apache
- .commons.configuration;version="[1.10,2)",org.apache.commons.lang;versi
- on="[2.6,3)",org.apache.hadoop.hbase.client,org.apache.tinkerpop.gremli
- n.process.traversal.dsl.graph,org.apache.tinkerpop.gremlin.structure,or
- g.apache.tinkerpop.gremlin.util,org.osgi.framework;version="[1.7,2)",or
- g.slf4j
+ .puresoltechnologies.ductiledb.api.schema,com.puresoltechnologies.ducti
+ ledb.core,com.puresoltechnologies.ductiledb.tinkerpop,com.puresoltechno
+ logies.ductiledb.tinkerpop.gremlin,org.apache.commons.configuration;ver
+ sion="[1.10,2)",org.apache.commons.lang;version="[2.6,3)",org.apache.ha
+ doop.hbase.client,org.apache.tinkerpop.gremlin.process.traversal.dsl.gr
+ aph,org.apache.tinkerpop.gremlin.structure,org.apache.tinkerpop.gremlin
+ .util,org.osgi.framework;version="[1.7,2)",org.slf4j
 Project-URL: http://puresol-technologies.com/xo.bundle
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Specification-Title: eXtended Objects for DuctileDB: xo.bundle
