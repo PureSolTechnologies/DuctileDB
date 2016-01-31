@@ -28,8 +28,6 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.GraphElementRemovedException;
-import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
@@ -152,10 +150,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	vertexCache.put(vertex.getId(), vertex);
     }
 
-    DuctileDBCacheVertex getCachedVertex(long vertexId)
-	    throws GraphElementRemovedException, NoSuchGraphElementException {
+    DuctileDBCacheVertex getCachedVertex(long vertexId) {
 	if (wasVertexRemoved(vertexId)) {
-	    throw new GraphElementRemovedException("Vertex with id '" + vertexId + "' was already removed.");
+	    return null;
 	}
 	DuctileDBCacheVertex vertex = vertexCache.get(vertexId);
 	if (vertex != null) {
@@ -168,10 +165,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    if (!result.isEmpty()) {
 		vertex = ResultDecoder.toVertex(graph, this, vertexId, result);
 	    }
-	    if (vertex == null) {
-		throw new NoSuchGraphElementException("vertex with id '" + vertexId + "' does not exist.");
+	    if (vertex != null) {
+		setCachedVertex(vertex);
 	    }
-	    setCachedVertex(vertex);
 	    return vertex;
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get vertex.", e);
@@ -190,9 +186,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	edgeCache.put(edge.getId(), edge);
     }
 
-    DuctileDBCacheEdge getCachedEdge(long edgeId) throws GraphElementRemovedException, NoSuchGraphElementException {
+    DuctileDBCacheEdge getCachedEdge(long edgeId) {
 	if (wasEdgeRemoved(edgeId)) {
-	    throw new GraphElementRemovedException("Edge with id '" + edgeId + "' was already removed.");
+	    return null;
 	}
 	DuctileDBCacheEdge edge = edgeCache.get(edgeId);
 	if (edge != null) {
@@ -205,10 +201,9 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    if (!result.isEmpty()) {
 		edge = ResultDecoder.toCacheEdge(this, edgeId, result);
 	    }
-	    if (edge == null) {
-		throw new NoSuchGraphElementException("Edge with id '" + edgeId + "' does not exist.");
+	    if (edge != null) {
+		setCachedEdge(edge);
 	    }
-	    setCachedEdge(edge);
 	    return edge;
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get edge.", e);

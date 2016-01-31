@@ -20,7 +20,7 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
 
     private final DuctileDBGraphImpl graph;
     private final Set<String> types = new HashSet<>();
-    private final List<DuctileDBCacheEdge> edges = new ArrayList<>();
+    private final List<Long> edges = new ArrayList<>();
 
     public DuctileDBCacheVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id,
 	    Set<String> types, Map<String, Object> properties, List<DuctileDBCacheEdge> edges) {
@@ -33,7 +33,7 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
 	    throw new IllegalArgumentException("Edges must not be null.");
 	}
 	this.types.addAll(types);
-	this.edges.addAll(edges);
+	edges.forEach(edge -> this.edges.add(edge.getId()));
     }
 
     @Override
@@ -71,7 +71,8 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
     public Iterable<DuctileDBEdge> getEdges(EdgeDirection direction, String... edgeTypes) {
 	List<DuctileDBEdge> edges = new ArrayList<>();
 	List<String> typeList = Arrays.asList(edgeTypes);
-	for (DuctileDBEdge cachedEdge : this.edges) {
+	for (long edgeId : this.edges) {
+	    DuctileDBEdge cachedEdge = getTransaction().getEdge(edgeId);
 	    if ((edgeTypes.length == 0) || (typeList.contains(cachedEdge.getType()))) {
 		DuctileDBAttachedEdge edge = ElementUtils.toAttached(graph, cachedEdge);
 		switch (direction) {
@@ -100,7 +101,8 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
     public Iterable<DuctileDBVertex> getVertices(EdgeDirection direction, String... edgeTypes) {
 	List<DuctileDBVertex> vertices = new ArrayList<>();
 	List<String> typeList = Arrays.asList(edgeTypes);
-	for (DuctileDBEdge edge : this.edges) {
+	for (long edgeId : this.edges) {
+	    DuctileDBEdge edge = getTransaction().getEdge(edgeId);
 	    if (typeList.contains(edge.getType())) {
 		switch (direction) {
 		case IN:
@@ -139,7 +141,7 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
     }
 
     public void addEdge(DuctileDBCacheEdge edge) {
-	edges.add(edge);
+	edges.add(edge.getId());
     }
 
     @Override
@@ -182,9 +184,9 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
     public DuctileDBCacheVertex clone() {
 	DuctileDBCacheVertex cloned = (DuctileDBCacheVertex) super.clone();
 	ElementUtils.setFinalField(cloned, DuctileDBCacheVertex.class, "types", new HashSet<>(types));
-	List<DuctileDBEdge> clonedEdges = new ArrayList<>();
-	for (DuctileDBEdge edge : edges) {
-	    clonedEdges.add(edge.clone());
+	List<Long> clonedEdges = new ArrayList<>();
+	for (long edgeId : edges) {
+	    clonedEdges.add(edgeId);
 	}
 	ElementUtils.setFinalField(cloned, DuctileDBCacheVertex.class, "edges", clonedEdges);
 	return cloned;

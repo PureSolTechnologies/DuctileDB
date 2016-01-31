@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -19,7 +20,6 @@ import org.junit.BeforeClass;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
@@ -102,7 +102,7 @@ public class AbstractDuctileDBGraphTest {
     }
 
     protected void assertNotInGraph(DuctileDBVertex vertex) {
-	assertException(NoSuchGraphElementException.class, () -> graph.createTransaction().getVertex(vertex.getId()));
+	assertNull(graph.createTransaction().getVertex(vertex.getId()));
     }
 
     protected void assertInTransaction(DuctileDBEdge edge) {
@@ -115,11 +115,11 @@ public class AbstractDuctileDBGraphTest {
     }
 
     protected void assertNotInTransaction(DuctileDBVertex vertex) {
-	assertException(NoSuchGraphElementException.class, () -> graph.getVertex(vertex.getId()));
+	assertNull(graph.getVertex(vertex.getId()));
     }
 
     protected void assertNotInTransaction(DuctileDBEdge edge) {
-	assertException(NoSuchGraphElementException.class, () -> graph.getEdge(edge.getId()));
+	assertNull(graph.getEdge(edge.getId()));
     }
 
     protected void assertInGraph(DuctileDBEdge edge) {
@@ -135,7 +135,7 @@ public class AbstractDuctileDBGraphTest {
     }
 
     protected void assertNotInGraph(DuctileDBEdge edge) {
-	assertException(NoSuchGraphElementException.class, () -> graph.createTransaction().getEdge(edge.getId()));
+	assertNull(graph.createTransaction().getEdge(edge.getId()));
     }
 
     public static Consumer<DuctileDBGraph> assertVertexEdgeCounts(final int expectedVertexCount,
