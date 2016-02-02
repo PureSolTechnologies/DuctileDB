@@ -14,10 +14,11 @@ import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedEdge;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.tx.TransactionType;
 
 public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<DuctileDBEdge> {
 
-    private final DuctileDBEdge baseEdge;
+    private DuctileDBEdge baseEdge;
 
     public DuctileEdge(DuctileDBEdge baseEdge, DuctileGraph graph) {
 	super(baseEdge, graph);
@@ -26,12 +27,12 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 
     @Override
     public DuctileVertex outVertex() {
-	return new DuctileVertex(baseEdge.getStartVertex(), graph());
+	return new DuctileVertex(getBaseEdge().getStartVertex(), graph());
     }
 
     @Override
     public DuctileVertex inVertex() {
-	return new DuctileVertex(baseEdge.getTargetVertex(), graph());
+	return new DuctileVertex(getBaseEdge().getTargetVertex(), graph());
     }
 
     @Override
@@ -55,15 +56,15 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 	if (propertyKeys.length > 0) {
 	    for (String key : propertyKeys) {
 		@SuppressWarnings("unchecked")
-		V value = (V) baseEdge.getProperty(key);
+		V value = (V) getBaseEdge().getProperty(key);
 		if (value != null) {
 		    properties.add(new DuctileProperty<V>(this, key, value));
 		}
 	    }
 	} else {
-	    for (String key : baseEdge.getPropertyKeys()) {
+	    for (String key : getBaseEdge().getPropertyKeys()) {
 		@SuppressWarnings("unchecked")
-		V value = (V) baseEdge.getProperty(key);
+		V value = (V) getBaseEdge().getProperty(key);
 		if (value != null) {
 		    properties.add(new DuctileProperty<V>(this, key, value));
 		}
@@ -75,7 +76,7 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
     @Override
     public <V> Property<V> property(final String key) {
 	graph().tx().readWrite();
-	V value = baseEdge.getProperty(key);
+	V value = getBaseEdge().getProperty(key);
 	if (value == null) {
 	    return Property.empty();
 
@@ -89,9 +90,9 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 	graph().tx().readWrite();
 	try {
 	    if (value == null) {
-		baseEdge.removeProperty(key);
+		getBaseEdge().removeProperty(key);
 	    } else {
-		baseEdge.setProperty(key, value);
+		getBaseEdge().setProperty(key, value);
 	    }
 	    return new DuctileProperty<>(this, key, value);
 	} catch (final IllegalArgumentException e) {
@@ -101,18 +102,26 @@ public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<Duc
 
     @Override
     public DuctileDBEdge getBaseEdge() {
+	if ((!baseEdge.getTransaction().isOpen())
+		&& (baseEdge.getTransaction().getTransactionType() == TransactionType.THREAD_LOCAL)) {
+	    /*
+	     * The transaction is closed already, so we reconnect this edge to a
+	     * new base edge. This is requested by Tinkerpop tests.
+	     */
+	    baseEdge = graph().getBaseGraph().getEdge(baseEdge.getId());
+	}
 	return baseEdge;
     }
 
     @Override
     public String label() {
-	return baseEdge.getType();
+	return getBaseEdge().getType();
     }
 
     @Override
     public void remove() {
 	graph().tx().readWrite();
-	baseEdge.remove();
+	getBaseEdge().remove();
     }
 
     @Override

@@ -17,7 +17,6 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBDetachedVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 /**
@@ -78,8 +77,8 @@ public class ElementUtils {
 	}
     }
 
-    public static DuctileDBAttachedVertex toAttached(DuctileDBGraphImpl graph, DuctileDBVertex vertex) {
-	return new DuctileDBAttachedVertex(graph, (DuctileDBTransactionImpl) vertex.getTransaction(), vertex.getId());
+    public static DuctileDBAttachedVertex toAttached(DuctileDBVertex vertex) {
+	return new DuctileDBAttachedVertex((DuctileDBTransactionImpl) vertex.getTransaction(), vertex.getId());
     }
 
     public static DuctileDBDetachedVertex toDetached(DuctileDBVertex vertex) {
@@ -87,8 +86,8 @@ public class ElementUtils {
 		ElementUtils.getTypes(vertex), ElementUtils.getProperties(vertex), ElementUtils.getEdges(vertex));
     }
 
-    public static DuctileDBAttachedEdge toAttached(DuctileDBGraphImpl graph, DuctileDBEdge edge) {
-	return new DuctileDBAttachedEdge(graph, (DuctileDBTransactionImpl) edge.getTransaction(), edge.getId());
+    public static DuctileDBAttachedEdge toAttached(DuctileDBEdge edge) {
+	return new DuctileDBAttachedEdge((DuctileDBTransactionImpl) edge.getTransaction(), edge.getId());
     }
 
     public static DuctileDBDetachedEdge toDetached(DuctileDBEdge edge) {

@@ -55,7 +55,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	graph.removeVertex(vertex);
 	graph.commit();
 
-	assertNull(graph.getVertex(vertex.getId()));
+	assertNotInTransaction(vertex);
     }
 
     @Test

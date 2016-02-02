@@ -8,8 +8,8 @@ import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBAttachedEdge extends DuctileDBAttachedElement implements DuctileDBEdge {
 
-    public DuctileDBAttachedEdge(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id) {
-	super(graph, transaction, id);
+    public DuctileDBAttachedEdge(DuctileDBTransactionImpl transaction, long id) {
+	super(transaction, id);
     }
 
     @Override

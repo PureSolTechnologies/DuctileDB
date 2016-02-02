@@ -19,18 +19,19 @@ import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBRollbackException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
+import com.puresoltechnologies.ductiledb.api.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.core.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchemaManagerImpl;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseSchema;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
-import com.puresoltechnologies.ductiledb.core.tx.TransactionType;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     private static Logger logger = LoggerFactory.getLogger(DuctileDBGraphImpl.class);
 
-    private final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
+    private static final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
+
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
     private final HBaseSchema hbaseSchema;
     private final DuctileDBSchema schema;
@@ -190,6 +191,14 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	 * is created instantaneously.
 	 */
 	return true;
+    }
+
+    @Override
+    public TransactionType getTransactionType() {
+	/*
+	 * On graph level the transactions are thread local by default.
+	 */
+	return TransactionType.THREAD_LOCAL;
     }
 
     @Override

@@ -1,12 +1,13 @@
 package com.puresoltechnologies.ductiledb.core;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
+import com.puresoltechnologies.ductiledb.api.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.core.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public abstract class AbstractDuctileDBElement implements DuctileDBElement {
 
-    private final DuctileDBTransactionImpl transaction;
+    private DuctileDBTransactionImpl transaction;
     private final long id;
 
     protected AbstractDuctileDBElement(DuctileDBTransactionImpl transaction, long id) {
@@ -23,6 +24,9 @@ public abstract class AbstractDuctileDBElement implements DuctileDBElement {
 
     @Override
     public DuctileDBTransactionImpl getTransaction() {
+	if ((!transaction.isOpen()) && (transaction.getTransactionType() == TransactionType.THREAD_LOCAL)) {
+	    transaction = (DuctileDBTransactionImpl) transaction.getGraph().getCurrentTransaction();
+	}
 	return transaction;
     }
 

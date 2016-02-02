@@ -14,8 +14,8 @@ import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class DuctileDBAttachedVertex extends DuctileDBAttachedElement implements DuctileDBVertex {
 
-    public DuctileDBAttachedVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id) {
-	super(graph, transaction, id);
+    public DuctileDBAttachedVertex(DuctileDBTransactionImpl transaction, long id) {
+	super(transaction, id);
     }
 
     @Override

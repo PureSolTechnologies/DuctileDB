@@ -20,6 +20,7 @@ import org.junit.BeforeClass;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
@@ -115,11 +116,11 @@ public class AbstractDuctileDBGraphTest {
     }
 
     protected void assertNotInTransaction(DuctileDBVertex vertex) {
-	assertNull(graph.getVertex(vertex.getId()));
+	assertException(NoSuchGraphElementException.class, () -> graph.getVertex(vertex.getId()));
     }
 
     protected void assertNotInTransaction(DuctileDBEdge edge) {
-	assertNull(graph.getEdge(edge.getId()));
+	assertException(NoSuchGraphElementException.class, () -> graph.getEdge(edge.getId()));
     }
 
     protected void assertInGraph(DuctileDBEdge edge) {

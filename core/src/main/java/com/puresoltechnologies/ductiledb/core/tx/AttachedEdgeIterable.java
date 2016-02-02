@@ -7,21 +7,17 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 
-    private final DuctileDBGraphImpl graph;
     private final DuctileDBTransactionImpl transaction;
     private final Iterator<Result> resultIterator;
     private final Iterator<DuctileDBCacheEdge> addedIterator;
 
-    public AttachedEdgeIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction,
-	    ResultScanner resultScanner) {
+    public AttachedEdgeIterable(DuctileDBTransactionImpl transaction, ResultScanner resultScanner) {
 	super();
-	this.graph = graph;
 	this.transaction = transaction;
 	resultIterator = resultScanner.iterator();
 	addedIterator = transaction.addedEdges().iterator();
@@ -47,10 +43,10 @@ public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 		if (next != null) {
 		    DuctileDBEdge result = next;
 		    next = null;
-		    return ElementUtils.toAttached(graph, result);
+		    return ElementUtils.toAttached(result);
 		}
 		findNext();
-		return ElementUtils.toAttached(graph, next);
+		return ElementUtils.toAttached(next);
 	    }
 
 	    private void findNext() {
@@ -59,7 +55,7 @@ public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 		    DuctileDBEdge edge = ResultDecoder.toCacheEdge(transaction, IdEncoder.decodeRowId(result.getRow()),
 			    result);
 		    if (!transaction.wasEdgeRemoved(edge.getId())) {
-			next = new DuctileDBAttachedEdge(graph, transaction, edge.getId());
+			next = new DuctileDBAttachedEdge(transaction, edge.getId());
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

@@ -13,19 +13,16 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVertex {
 
-    private final DuctileDBGraphImpl graph;
     private final Set<String> types = new HashSet<>();
     private final List<Long> edges = new ArrayList<>();
 
-    public DuctileDBCacheVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long id,
-	    Set<String> types, Map<String, Object> properties, List<DuctileDBCacheEdge> edges) {
+    public DuctileDBCacheVertex(DuctileDBTransactionImpl transaction, long id, Set<String> types,
+	    Map<String, Object> properties, List<DuctileDBCacheEdge> edges) {
 	super(transaction, id, properties);
-	this.graph = graph;
 	if (types == null) {
 	    throw new IllegalArgumentException("Types must not be null.");
 	}
@@ -72,9 +69,12 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
 	List<DuctileDBEdge> edges = new ArrayList<>();
 	List<String> typeList = Arrays.asList(edgeTypes);
 	for (long edgeId : this.edges) {
+	    if (getTransaction().wasEdgeRemoved(edgeId)) {
+		continue;
+	    }
 	    DuctileDBEdge cachedEdge = getTransaction().getEdge(edgeId);
 	    if ((edgeTypes.length == 0) || (typeList.contains(cachedEdge.getType()))) {
-		DuctileDBAttachedEdge edge = ElementUtils.toAttached(graph, cachedEdge);
+		DuctileDBAttachedEdge edge = ElementUtils.toAttached(cachedEdge);
 		switch (direction) {
 		case IN:
 		    if (edge.getTargetVertex().getId() == getId()) {

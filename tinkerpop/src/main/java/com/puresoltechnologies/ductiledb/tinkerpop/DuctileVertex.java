@@ -21,12 +21,13 @@ import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedVertex;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.tx.TransactionType;
 
 public class DuctileVertex extends DuctileElement implements Vertex, WrappedVertex<DuctileDBVertex> {
 
     public static final String LABEL_DELIMINATOR = "::";
 
-    private final DuctileDBVertex baseVertex;
+    private DuctileDBVertex baseVertex;
 
     public DuctileVertex(DuctileDBVertex baseVertex, DuctileGraph graph) {
 	super(baseVertex, graph);
@@ -44,7 +45,7 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	    throw Edge.Exceptions.userSuppliedIdsNotSupported();
 	}
 	graph().tx().readWrite();
-	DuctileDBEdge baseEdge = baseVertex.addEdge(label, ((DuctileVertex) inVertex).getBaseVertex(),
+	DuctileDBEdge baseEdge = getBaseVertex().addEdge(label, ((DuctileVertex) inVertex).getBaseVertex(),
 		Collections.emptyMap());
 	DuctileEdge edge = new DuctileEdge(baseEdge, graph());
 	ElementHelper.attachProperties(edge, keyValues);
@@ -76,9 +77,9 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	graph().tx().readWrite();
 	try {
 	    if (value == null) {
-		baseVertex.removeProperty(key);
+		getBaseVertex().removeProperty(key);
 	    } else {
-		baseVertex.setProperty(key, value);
+		getBaseVertex().setProperty(key, value);
 	    }
 	    return new DuctileVertexProperty<V>(this, key, value);
 	} catch (final IllegalArgumentException iae) {
@@ -88,7 +89,7 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 
     @Override
     public <V> VertexProperty<V> property(String key) {
-	V value = baseVertex.getProperty(key);
+	V value = getBaseVertex().getProperty(key);
 	if (value == null) {
 	    return VertexProperty.empty();
 	}
@@ -100,13 +101,13 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	Iterable<DuctileDBEdge> edges;
 	switch (direction) {
 	case IN:
-	    edges = baseVertex.getEdges(EdgeDirection.IN, edgeLabels);
+	    edges = getBaseVertex().getEdges(EdgeDirection.IN, edgeLabels);
 	    break;
 	case OUT:
-	    edges = baseVertex.getEdges(EdgeDirection.OUT, edgeLabels);
+	    edges = getBaseVertex().getEdges(EdgeDirection.OUT, edgeLabels);
 	    break;
 	case BOTH:
-	    edges = baseVertex.getEdges(EdgeDirection.BOTH, edgeLabels);
+	    edges = getBaseVertex().getEdges(EdgeDirection.BOTH, edgeLabels);
 	    break;
 	default:
 	    throw new IllegalArgumentException("Direction '" + direction + "' not supported.");
@@ -123,13 +124,13 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	Iterable<DuctileDBVertex> vertices;
 	switch (direction) {
 	case IN:
-	    vertices = baseVertex.getVertices(EdgeDirection.IN, edgeLabels);
+	    vertices = getBaseVertex().getVertices(EdgeDirection.IN, edgeLabels);
 	    break;
 	case OUT:
-	    vertices = baseVertex.getVertices(EdgeDirection.OUT, edgeLabels);
+	    vertices = getBaseVertex().getVertices(EdgeDirection.OUT, edgeLabels);
 	    break;
 	case BOTH:
-	    vertices = baseVertex.getVertices(EdgeDirection.BOTH, edgeLabels);
+	    vertices = getBaseVertex().getVertices(EdgeDirection.BOTH, edgeLabels);
 	    break;
 	default:
 	    throw new IllegalArgumentException("Direction '" + direction + "' not supported.");
@@ -147,15 +148,15 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 	if (propertyKeys.length > 0) {
 	    for (String key : propertyKeys) {
 		@SuppressWarnings("unchecked")
-		V value = (V) baseVertex.getProperty(key);
+		V value = (V) getBaseVertex().getProperty(key);
 		if (value != null) {
 		    properties.add(new DuctileVertexProperty<V>(this, key, value));
 		}
 	    }
 	} else {
-	    for (String key : baseVertex.getPropertyKeys()) {
+	    for (String key : getBaseVertex().getPropertyKeys()) {
 		@SuppressWarnings("unchecked")
-		V value = (V) baseVertex.getProperty(key);
+		V value = (V) getBaseVertex().getProperty(key);
 		if (value != null) {
 		    properties.add(new DuctileVertexProperty<V>(this, key, value));
 		}
@@ -166,6 +167,14 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 
     @Override
     public DuctileDBVertex getBaseVertex() {
+	if ((!baseVertex.getTransaction().isOpen())
+		&& (baseVertex.getTransaction().getTransactionType() == TransactionType.THREAD_LOCAL)) {
+	    /*
+	     * The transaction is closed already, so we reconnect this vertex to
+	     * a new base vertex. This is requested by Tinkerpop tests.
+	     */
+	    baseVertex = graph().getBaseGraph().getVertex(baseVertex.getId());
+	}
 	return baseVertex;
     }
 
@@ -177,7 +186,7 @@ public class DuctileVertex extends DuctileElement implements Vertex, WrappedVert
 
     public Set<String> labels() {
 	final Set<String> labels = new TreeSet<>();
-	for (String label : baseVertex.getTypes()) {
+	for (String label : getBaseVertex().getTypes()) {
 	    labels.add(label);
 	}
 	return Collections.unmodifiableSet(labels);

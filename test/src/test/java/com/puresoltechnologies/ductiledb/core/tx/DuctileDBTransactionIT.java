@@ -2,8 +2,8 @@ package com.puresoltechnologies.ductiledb.core.tx;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidPropertyKeyException;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
@@ -262,7 +263,12 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	assertNotNull(graph.getVertex(vid.get().getId()));
 
 	// this was not
-	assertNull("Vertex should not be found as close behavior was set to rollback", graph.getVertex(oid.get()));
+	try {
+	    graph.getVertex(oid.get());
+	    fail("Vertex should not be found as close behavior was set to rollback");
+	} catch (NoSuchGraphElementException e) {
+	    // intentionally left empty
+	}
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tx;
+package com.puresoltechnologies.ductiledb.api.tx;
 
 public enum TransactionType {
 

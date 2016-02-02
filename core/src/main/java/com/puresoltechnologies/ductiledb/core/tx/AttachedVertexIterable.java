@@ -7,21 +7,17 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
 
 public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 
-    private final DuctileDBGraphImpl graph;
     private final DuctileDBTransactionImpl transaction;
     private final Iterator<Result> resultIterator;
     private final Iterator<DuctileDBCacheVertex> addedIterator;
 
-    public AttachedVertexIterable(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction,
-	    ResultScanner resultScanner) {
+    public AttachedVertexIterable(DuctileDBTransactionImpl transaction, ResultScanner resultScanner) {
 	super();
-	this.graph = graph;
 	this.transaction = transaction;
 	resultIterator = resultScanner.iterator();
 	addedIterator = transaction.addedVertices().iterator();
@@ -47,19 +43,19 @@ public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 		if (next != null) {
 		    DuctileDBVertex result = next;
 		    next = null;
-		    return ElementUtils.toAttached(graph, result);
+		    return ElementUtils.toAttached(result);
 		}
 		findNext();
-		return ElementUtils.toAttached(graph, next);
+		return ElementUtils.toAttached(next);
 	    }
 
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBVertex vertex = ResultDecoder.toVertex(graph, transaction,
-			    IdEncoder.decodeRowId(result.getRow()), result);
+		    DuctileDBVertex vertex = ResultDecoder.toVertex(transaction, IdEncoder.decodeRowId(result.getRow()),
+			    result);
 		    if (!transaction.wasVertexRemoved(vertex.getId())) {
-			next = new DuctileDBAttachedVertex(graph, transaction, vertex.getId());
+			next = new DuctileDBAttachedVertex(transaction, vertex.getId());
 		    }
 		}
 		while ((next == null) && (addedIterator.hasNext())) {

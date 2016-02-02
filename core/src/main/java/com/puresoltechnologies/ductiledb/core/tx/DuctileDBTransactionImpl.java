@@ -28,10 +28,11 @@ import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.tx.DuctileDBTransaction;
+import com.puresoltechnologies.ductiledb.api.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedEdge;
-import com.puresoltechnologies.ductiledb.core.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseColumn;
@@ -82,6 +83,11 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	this.type = type;
     }
 
+    public DuctileDBGraphImpl getGraph() {
+	return graph;
+    }
+
+    @Override
     public TransactionType getTransactionType() {
 	return type;
     }
@@ -163,7 +169,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    Get get = new Get(id);
 	    Result result = vertexTable.get(get);
 	    if (!result.isEmpty()) {
-		vertex = ResultDecoder.toVertex(graph, this, vertexId, result);
+		vertex = ResultDecoder.toVertex(this, vertexId, result);
 	    }
 	    if (vertex != null) {
 		setCachedVertex(vertex);
@@ -287,7 +293,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	checkForClosedAndCorrectThread();
 	getSchema().checkAddVertex(types, properties);
 	long vertexId = createVertexId();
-	addTxOperation(new AddVertexOperation(graph, this, vertexId, types, properties));
+	addTxOperation(new AddVertexOperation(this, vertexId, types, properties));
 	return getVertex(vertexId);
     }
 
@@ -303,15 +309,18 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public DuctileDBEdge getEdge(long edgeId) {
-	getCachedEdge(edgeId);
-	return new DuctileDBAttachedEdge(graph, this, edgeId);
+	DuctileDBEdge edge = getCachedEdge(edgeId);
+	if (edge == null) {
+	    throw new NoSuchGraphElementException("Edge with id " + edgeId + " is not available.");
+	}
+	return ElementUtils.toAttached(edge);
     }
 
     @Override
     public Iterable<DuctileDBEdge> getEdges() {
 	try (Table table = openEdgeTable()) {
 	    ResultScanner result = table.getScanner(new Scan());
-	    return new AttachedEdgeIterable(graph, this, result);
+	    return new AttachedEdgeIterable(this, result);
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get edge.", e);
 	}
@@ -408,15 +417,18 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public DuctileDBVertex getVertex(long vertexId) {
-	getCachedVertex(vertexId);
-	return new DuctileDBAttachedVertex(graph, this, vertexId);
+	DuctileDBVertex vertex = getCachedVertex(vertexId);
+	if (vertex == null) {
+	    throw new NoSuchGraphElementException("Vertex with id " + vertexId + " is not available.");
+	}
+	return ElementUtils.toAttached(vertex);
     }
 
     @Override
     public Iterable<DuctileDBVertex> getVertices() {
 	try (Table table = openVertexTable()) {
 	    ResultScanner result = table.getScanner(new Scan());
-	    return new AttachedVertexIterable(graph, this, result);
+	    return new AttachedVertexIterable(this, result);
 	} catch (IOException e) {
 	    throw new DuctileDBException("Could not get vertices.", e);
 	}
@@ -635,20 +647,20 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	List<String> typeList = Arrays.asList(edgeTypes);
 	for (DuctileDBEdge cachedEdge : cachedVertex.getEdges(direction, edgeTypes)) {
 	    if ((edgeTypes.length == 0) || (typeList.contains(cachedEdge.getType()))) {
-		DuctileDBAttachedEdge edge = ElementUtils.toAttached(graph, cachedEdge);
+		DuctileDBAttachedEdge edge = ElementUtils.toAttached(cachedEdge);
 		switch (direction) {
 		case IN:
 		    if (edge.getTargetVertex().getId() == vertexId) {
-			edges.add(ElementUtils.toAttached(graph, edge));
+			edges.add(ElementUtils.toAttached(edge));
 		    }
 		    break;
 		case OUT:
 		    if (edge.getStartVertex().getId() == vertexId) {
-			edges.add(ElementUtils.toAttached(graph, edge));
+			edges.add(ElementUtils.toAttached(edge));
 		    }
 		    break;
 		case BOTH:
-		    edges.add(ElementUtils.toAttached(graph, edge));
+		    edges.add(ElementUtils.toAttached(edge));
 		    break;
 		default:
 		    throw new IllegalArgumentException("Direction '" + direction + "' is not supported.");
@@ -713,4 +725,10 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	DuctileDBCacheEdge cachedEdge = getCachedEdge(edgeId);
 	return cachedEdge.getProperty(key);
     }
+
+    @Override
+    public String toString() {
+	return "transaction: type=" + type.name() + "; closed=" + closed;
+    }
+
 }

@@ -14,7 +14,6 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.EdgeDirection;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseColumn;
@@ -29,8 +28,7 @@ import com.puresoltechnologies.ductiledb.core.utils.Serializer;
  */
 public class ResultDecoder {
 
-    public static DuctileDBCacheVertex toVertex(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction,
-	    long vertexId, Result result) {
+    public static DuctileDBCacheVertex toVertex(DuctileDBTransactionImpl transaction, long vertexId, Result result) {
 	if (result.isEmpty()) {
 	    return null;
 	}
@@ -70,7 +68,7 @@ public class ResultDecoder {
 		}
 	    }
 	}
-	return new DuctileDBCacheVertex(graph, transaction, vertexId, types, properties, edges);
+	return new DuctileDBCacheVertex(transaction, vertexId, types, properties, edges);
     }
 
     public static DuctileDBCacheEdge toCacheEdge(DuctileDBTransactionImpl transaction, long edgeId, Result result) {

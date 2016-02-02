@@ -51,6 +51,14 @@ public interface DuctileDBTransaction extends GraphOperations, Closeable {
     public boolean isOpen();
 
     /**
+     * This method returns the current type of the transaction.
+     * 
+     * @return A {@link TransactionType} is returned describing the current type
+     *         of transaction.
+     */
+    public TransactionType getTransactionType();
+
+    /**
      * This method adds a transaction Listener for commit and rollback actions.
      * 
      * @param listener

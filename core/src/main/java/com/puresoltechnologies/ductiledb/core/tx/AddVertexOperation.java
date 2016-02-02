@@ -16,7 +16,6 @@ import java.util.Set;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.utils.IdEncoder;
@@ -28,12 +27,12 @@ public class AddVertexOperation extends AbstractTxOperation {
     private final Map<String, Object> properties;
     private final DuctileDBCacheVertex vertex;
 
-    public AddVertexOperation(DuctileDBGraphImpl graph, DuctileDBTransactionImpl transaction, long vertexId,
-	    Set<String> types, Map<String, Object> properties) {
+    public AddVertexOperation(DuctileDBTransactionImpl transaction, long vertexId, Set<String> types,
+	    Map<String, Object> properties) {
 	super(transaction);
 	this.types = Collections.unmodifiableSet(types);
 	this.properties = Collections.unmodifiableMap(properties);
-	this.vertex = new DuctileDBCacheVertex(graph, transaction, vertexId, types, properties, new ArrayList<>());
+	this.vertex = new DuctileDBCacheVertex(transaction, vertexId, types, properties, new ArrayList<>());
     }
 
     public long getVertexId() {
