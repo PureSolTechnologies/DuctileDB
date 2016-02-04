@@ -18,3 +18,5 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .cache-main
+css/
+node_modules/

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1454344353980
-Build-Jdk: 1.8.0_20
+Bnd-LastModified: 1454526899055
+Build-Jdk: 1.8.0_71
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.puresoltechnologies.ductiledb.xo.Activator
