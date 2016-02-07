@@ -9,11 +9,17 @@ import {TwitterDuctileDBTimelineComponent} from './twitter-ductiledb-timeline.co
 	  TwitterDuctileDBTimelineComponent
 	],
 	template: `
-<h1>DuctileDB Overview</h1>
-<twitter-timeline></twitter-timeline>
-<div>
-  <h1>News</h1>
-  <twitter-ductiledb-timeline></twitter-ductiledb-timeline>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h1>News</h1>
+      <twitter-ductiledb-timeline></twitter-ductiledb-timeline>
+    </div>
+    <div class="col-md-6">
+      <h1>PureSol Technologies News</h1>
+      <twitter-timeline></twitter-timeline>
+    </div>
+  </div>
 </div>
 `
 })
