@@ -8,15 +8,21 @@ import {TwitterDuctileDBTimelineComponent} from './twitter-ductiledb-timeline.co
 	  TwitterTimelineComponent,
 	  TwitterDuctileDBTimelineComponent
 	],
-	template: `
-<div class="container">
+	template:
+`<div class="container">
+  <div class="row">
+    <h1>Introduction</h1>
+    <p>
+      DuctileDB is a graph database inspired by Titan and Neo4j. Combining Titan's large graph storage idea based on HBase and the rich features by Neo4j, DuctileDB goes to be an alternative graph database for very large graphs.
+    </p>
+  </div>
   <div class="row">
     <div class="col-md-6">
-      <h1>News</h1>
+      <h2>News</h2>
       <twitter-ductiledb-timeline></twitter-ductiledb-timeline>
     </div>
     <div class="col-md-6">
-      <h1>PureSol Technologies News</h1>
+      <h2>PureSol Technologies News</h2>
       <twitter-timeline></twitter-timeline>
     </div>
   </div>

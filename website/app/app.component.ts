@@ -5,7 +5,6 @@ import {
   RouteConfig
 } from 'angular2/router';
 
-import {HeaderComponent} from './header.component';
 import {FooterComponent} from './footer.component';
 import {MenuComponent} from './menu.component';
 import {HomeComponent} from './home.component';
@@ -13,12 +12,15 @@ import {ImprintComponent} from './imprint.component';
 
 @Component({
     selector: 'app',
-    directives: [MenuComponent, HeaderComponent, FooterComponent, ROUTER_DIRECTIVES],
-    template: `
-      <header></header>
-      <menu></menu>
-      <router-outlet></router-outlet>
-      <footer></footer>`
+    directives: [
+      MenuComponent,
+      FooterComponent,
+      ROUTER_DIRECTIVES
+    ],
+    template:
+`<menu></menu>
+<router-outlet></router-outlet>
+<footer></footer>`
 })
 @RouteConfig([
 { path: '/', name: 'root', redirectTo: ['/Home'] },
