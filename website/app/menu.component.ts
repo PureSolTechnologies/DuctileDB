@@ -6,10 +6,18 @@ import {ROUTER_DIRECTIVES} from 'angular2/router';
     directives: [ROUTER_DIRECTIVES],
     template:
 `<div class="navbar navbar-light bg-faded">
-  <a class="navbar-brand" href="http://ductiledb.com">DuctileDB</a>
   <ul class="nav navbar-nav">
     <li class="nav-item">
-      <a class="nav-link" [routerLink]="['/Home']">Home</a>
+      <a class="nav-link" [routerLink]="['/Features']">Features</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [routerLink]="['/Documentation']">Documentation</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [routerLink]="['/About']">About</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [routerLink]="['/Contribute']">Contribute</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" [routerLink]="['/Imprint']">Imprint</a>

@@ -15,6 +15,7 @@
   "dependencies": {
     "angular2": "2.0.0-beta.3",
     "awesome-angular2": "0.0.0",
+    "bootstrap": "^4.0.0-alpha.2",
     "es6-promise": "^3.0.2",
     "es6-shim": "^0.33.3",
     "reflect-metadata": "0.1.2",
@@ -24,18 +25,8 @@
   },
   "devDependencies": {
     "concurrently": "^1.0.0",
-    "grunt": "~0.4.5",
-    "grunt-contrib-copy": "~0.8.0",
-    "grunt-contrib-cssmin": "~0.12.3",
-    "grunt-contrib-htmlmin": "~0.4.0",
-    "grunt-contrib-less": "~1.0.1",
-    "grunt-contrib-uglify": "~0.9.1",
-    "grunt-contrib-watch": "~0.6.1",
-    "grunt-ts-1.5": "~4.0.1",
-    "grunt-tslint": "~2.2.0-beta",
     "less": "^2.6.0",
     "lite-server": "^2.0.1",
-    "semantic-ui": "^2.1.8",
     "tslint": "~2.2.0-beta",
     "typescript": "^1.7.5"
   }
