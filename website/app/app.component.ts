@@ -24,10 +24,12 @@ import {ImprintComponent} from './imprint.component';
       ROUTER_DIRECTIVES
     ],
     template:
-`<header></header>
-<menu></menu>
-<router-outlet></router-outlet>
-<footer></footer>`
+`<div class="container">
+  <header></header>
+  <menu></menu>
+  <router-outlet></router-outlet>
+  <footer></footer>
+</div>`
 })
 @RouteConfig([
 { path: '/', name: 'root', redirectTo: ['/Home'] },

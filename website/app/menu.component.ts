@@ -8,6 +8,9 @@ import {ROUTER_DIRECTIVES} from 'angular2/router';
 `<div class="navbar navbar-light bg-faded">
   <ul class="nav navbar-nav">
     <li class="nav-item">
+      <a class="nav-link" [routerLink]="['/Home']"><span class="octicon octicon-home"></span></a>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" [routerLink]="['/Features']">Features</a>
     </li>
     <li class="nav-item">

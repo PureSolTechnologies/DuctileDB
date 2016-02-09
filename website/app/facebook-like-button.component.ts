@@ -2,12 +2,16 @@ import {Component} from 'angular2/core';
 
 @Component({
   selector: 'facebook-like-button',
-  template: `
-    <!-- Your like button code -->
-    <div class="fb-like" data-href="https://developers.facebook.com/docs/plugins/" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>
-    `  
+  template: `<div class="fb-like" [attr.data-href]="url" data-layout="standard" data-action="like" data-show-faces="false" data-share="true"></div>`
 })
 export class FacebookLikeButtonComponent {
+
+  url: String;
+
+  constructor() {
+    this.url = window.location.href;
+  }
+
   ngAfterContentInit() {
 //    FB.XFBML.parse();
   }
