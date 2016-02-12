@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphFactory;
 
@@ -37,7 +38,7 @@ public class DuctileConnection implements Connection, DuctileWrapper {
     private final File hbaseSiteFile;
     private final Graph graph;
 
-    public DuctileConnection(URL url) throws SQLException {
+    public DuctileConnection(URL url) throws SQLException, ServiceException {
 	this.url = url;
 	hbaseSiteFile = new File(url.getPath());
 	this.graph = open();
@@ -51,10 +52,10 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 	return hbaseSiteFile;
     }
 
-    private DuctileGraph open() throws SQLException {
+    private DuctileGraph open() throws SQLException, ServiceException {
 	try {
 	    BaseConfiguration baseConfiguration = new BaseConfiguration();
-	    return DuctileGraphFactory.createGraph(baseConfiguration);
+	    return DuctileGraphFactory.createGraph(hbaseSiteFile, baseConfiguration);
 	} catch (IOException e) {
 	    throw new SQLException("Could not open graph.", e);
 	}

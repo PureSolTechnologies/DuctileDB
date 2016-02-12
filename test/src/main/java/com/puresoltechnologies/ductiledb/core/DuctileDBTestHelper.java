@@ -6,7 +6,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
@@ -15,6 +14,7 @@ import org.apache.hadoop.hbase.client.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
@@ -58,8 +58,10 @@ public class DuctileDBTestHelper {
 	return count[0];
     }
 
-    public static void removeTables() throws IOException {
-	try (Connection connection = DuctileDBGraphFactory.createConnection(new BaseConfiguration())) {
+    public static void removeTables() throws IOException, ServiceException {
+	try (Connection connection = DuctileDBGraphFactory.createConnection(
+		AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_HOST, AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_PORT,
+		AbstractDuctileDBGraphTest.DEFAULT_MASTER_HOST, AbstractDuctileDBGraphTest.DEFAULT_MASTER_PORT)) {
 	    removeTables(connection);
 	}
     }

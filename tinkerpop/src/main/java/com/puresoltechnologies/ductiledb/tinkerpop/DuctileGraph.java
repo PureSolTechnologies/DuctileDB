@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,6 +17,7 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedGraph;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
@@ -48,9 +50,9 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 	this.ductileTransaction = new DuctileTransaction(this);
     }
 
-    protected DuctileGraph(Configuration configuration) throws IOException {
+    protected DuctileGraph(File hbaseSiteFile, Configuration configuration) throws IOException, ServiceException {
 	this.configuration.copy(configuration);
-	this.baseGraph = DuctileDBGraphFactory.createGraph(configuration);
+	this.baseGraph = DuctileDBGraphFactory.createGraph(hbaseSiteFile);
 	this.ductileTransaction = new DuctileTransaction(this);
     }
 

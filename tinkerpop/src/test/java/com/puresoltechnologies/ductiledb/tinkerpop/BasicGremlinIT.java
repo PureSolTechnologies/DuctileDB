@@ -11,18 +11,17 @@ import java.util.List;
 
 import javax.script.ScriptException;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.Test;
 
+import com.google.protobuf.ServiceException;
+
 public class BasicGremlinIT extends AbstractTinkerpopTest {
 
     @Test
-    public void test() throws IOException, ScriptException {
-	BaseConfiguration configuration = new BaseConfiguration();
-	configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
-	try (DuctileGraph graph = DuctileGraphFactory.createGraph(configuration)) {
+    public void test() throws IOException, ScriptException, ServiceException {
+	try (DuctileGraph graph = createGraph()) {
 	    assertNotNull(graph);
 	    assertEquals(DuctileGraph.class.getName(), graph.configuration().getString(Graph.GRAPH));
 	    Vertex vertex1 = graph.addVertex("label", "vertexLabel1");

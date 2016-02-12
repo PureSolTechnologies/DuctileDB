@@ -16,6 +16,10 @@
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
 			<artifactId>ductiledb-tinkerpop</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-client</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

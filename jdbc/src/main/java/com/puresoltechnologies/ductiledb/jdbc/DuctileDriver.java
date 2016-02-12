@@ -12,6 +12,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.versioning.Version;
 
@@ -41,11 +42,15 @@ public class DuctileDriver implements Driver {
 
     @Override
     public Connection connect(String urlString, Properties info) throws SQLException {
-	if (!urlString.startsWith(JDBC_DUCTILE_URL_PREFIX)) {
-	    return null;
+	try {
+	    if (!urlString.startsWith(JDBC_DUCTILE_URL_PREFIX)) {
+		return null;
+	    }
+	    URL url = convertToURL(urlString);
+	    return new DuctileConnection(url);
+	} catch (ServiceException e) {
+	    throw new SQLException("Could not connect to DuctileDB.", e);
 	}
-	URL url = convertToURL(urlString);
-	return new DuctileConnection(url);
     }
 
     @Override

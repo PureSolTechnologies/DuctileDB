@@ -23,6 +23,7 @@ import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.XOManagerFactory;
 import com.buschmais.xo.api.bootstrap.XO;
 import com.buschmais.xo.api.bootstrap.XOUnit;
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
@@ -95,7 +96,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
     private final List<Measurement> nativeMeasurements = new ArrayList<>();
 
     @Test
-    public void test() throws IOException {
+    public void test() throws IOException, ServiceException {
 	for (int i = 0; i < NUMBER_OF_RUNS; i++) {
 	    runWithXO();
 	}
@@ -105,7 +106,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
 	printResults();
     }
 
-    public void runWithXO() throws IOException {
+    public void runWithXO() throws IOException, ServiceException {
 	DuctileDBTestHelper.removeTables();
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 
@@ -149,7 +150,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
 	return counter;
     }
 
-    public void runNative() throws IOException {
+    public void runNative() throws IOException, ServiceException {
 	DuctileDBTestHelper.removeTables();
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 	    DuctileStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileStoreSession.class);
@@ -226,7 +227,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
 	System.out.println(MessageFormat.format("average speed={0,number,#.##} vertices/s", speedAvg));
     }
 
-    public static void main(String[] args) throws InterruptedException, IOException {
+    public static void main(String[] args) throws InterruptedException, IOException, ServiceException {
 	Thread.sleep(3000);
 	initialize();
 	try {

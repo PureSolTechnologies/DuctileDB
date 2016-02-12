@@ -1,32 +1,56 @@
 package com.puresoltechnologies.ductiledb.core;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 
 public class DuctileDBGraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBGraphFactory.class);
 
-    public static Configuration createDefaultConfiguration() {
+    public static Configuration createConfiguration(File hbaseSiteFile)
+	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
 	Configuration hbaseConfiguration = HBaseConfiguration.create();
-	hbaseConfiguration.addResource(new Path("/opt/hbase/conf/hbase-site.xml"));
+	hbaseConfiguration.addResource(new Path(hbaseSiteFile.getPath()));
+	HBaseAdmin.checkHBaseAvailable(hbaseConfiguration);
 	return hbaseConfiguration;
     }
 
-    public static Connection createConnection(org.apache.commons.configuration.Configuration configuration)
-	    throws IOException {
-	// TODO incorporate configuration...
-	Configuration hbaseConfiguration = createDefaultConfiguration();
+    public static Configuration createConfiguration(String zooKeeperHost, int zookeeperPort, String masterHost,
+	    int masterPort)
+		    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	Configuration config = HBaseConfiguration.create();
+	config.clear();
+	config.set("hbase.zookeeper.quorum", zooKeeperHost);
+	config.set("hbase.zookeeper.property.clientPort", String.valueOf(zookeeperPort));
+	config.set("hbase.master", masterHost + ":" + masterPort);
+	HBaseAdmin.checkHBaseAvailable(config);
+	return config;
+    }
+
+    public static Connection createConnection(File hbaseSiteFile) throws IOException, ServiceException {
+	Configuration hbaseConfiguration = createConfiguration(hbaseSiteFile);
 	return createConnection(hbaseConfiguration);
+    }
+
+    public static Connection createConnection(String zooKeeperHost, int zookeeperPort, String masterHost,
+	    int masterPort)
+		    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	Configuration configuration = createConfiguration(zooKeeperHost, zookeeperPort, masterHost, masterPort);
+	return createConnection(configuration);
     }
 
     public static Connection createConnection(Configuration hbaseConfiguration) throws IOException {
@@ -42,10 +66,15 @@ public class DuctileDBGraphFactory {
 	return createGraph(connection, true);
     }
 
-    public static DuctileDBGraph createGraph(org.apache.commons.configuration.Configuration configuration)
-	    throws IOException {
-	Connection connection = createConnection(configuration);
+    public static DuctileDBGraph createGraph(File hbaseSiteFile) throws IOException, ServiceException {
+	Connection connection = createConnection(hbaseSiteFile);
 	return createGraph(connection, true);
+    }
+
+    public static DuctileDBGraph createGraph(String zookeeperHost, int zookeeperPort, String masterHost, int masterPort)
+	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	Configuration configuration = createConfiguration(zookeeperHost, zookeeperPort, masterHost, masterPort);
+	return createGraph(configuration);
     }
 
     public static DuctileDBGraph createGraph(Connection connection) throws IOException {

@@ -1,10 +1,14 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.Connection;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 
@@ -37,9 +41,18 @@ public class DuctileGraphFactory {
      * @param configuration
      * @return
      * @throws IOException
+     * @throws ServiceException
      */
-    public static DuctileGraph createGraph(BaseConfiguration configuration) throws IOException {
-	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(configuration);
+    public static DuctileGraph createGraph(File hbaseSiteFile, BaseConfiguration configuration)
+	    throws IOException, ServiceException {
+	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(hbaseSiteFile);
+	return new DuctileGraph(graph, configuration);
+    }
+
+    public static DuctileGraph createGraph(String zookeeperHost, int zookeeperPort, String masterHost, int masterPort,
+	    BaseConfiguration configuration)
+		    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(zookeeperHost, zookeeperPort, masterHost, masterPort);
 	return new DuctileGraph(graph, configuration);
     }
 

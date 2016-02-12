@@ -17,6 +17,7 @@ import com.buschmais.xo.spi.datastore.Datastore;
 import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.method.IndexedPropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
@@ -56,11 +57,6 @@ public class DuctileStore
     private Connection connection = null;
 
     /**
-     * This field contains the base configuration for the graph.
-     */
-    private final BaseConfiguration configuration;
-
-    /**
      * Contains the metadata factory for this XO implementation.
      */
     private final DuctileMetadataFactory ductileMetadataFactory = new DuctileMetadataFactory();
@@ -90,8 +86,6 @@ public class DuctileStore
 	    throw new IllegalArgumentException("The host must not be null or empty.");
 	}
 	this.hbaseSitePath = hbaseSitePath;
-	this.configuration = new BaseConfiguration();
-	this.configuration.addProperty(Graph.GRAPH, DuctileGraph.class.getName());
 	if ((namespace == null) || (namespace.isEmpty())) {
 	    this.namespace = DEFAULT_DUCTILEDB_NAMESPACE;
 	} else {
@@ -126,9 +120,9 @@ public class DuctileStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    connection = DuctileDBGraphFactory.createConnection(configuration);
+	    connection = DuctileDBGraphFactory.createConnection(hbaseSitePath);
 	    checkAndInitializePropertyIndizes(registeredMetadata);
-	} catch (IOException e) {
+	} catch (IOException | ServiceException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
 	}
     }
@@ -177,6 +171,8 @@ public class DuctileStore
     @Override
     public DuctileStoreSession createSession() {
 	try {
+	    BaseConfiguration configuration = new BaseConfiguration();
+	    configuration.setProperty(Graph.GRAPH, DuctileGraph.class.getName());
 	    return new DuctileStoreSession(connection, configuration);
 	} catch (IOException e) {
 	    throw new XOException("Could not create graph.", e);

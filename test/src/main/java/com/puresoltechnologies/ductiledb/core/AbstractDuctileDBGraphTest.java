@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
@@ -26,12 +26,18 @@ import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 public class AbstractDuctileDBGraphTest {
 
+    public static final String DEFAULT_MASTER_HOST = "localhost";
+    public static final int DEFAULT_MASTER_PORT = 60000;
+    public static final String DEFAULT_ZOOKEEPER_HOST = "localhost";
+    public static final int DEFAULT_ZOOKEEPER_PORT = 2181;
+
     private static DuctileDBGraphImpl graph;
 
     @BeforeClass
-    public static void connect() throws IOException {
+    public static void connect() throws IOException, ServiceException {
 	DuctileDBTestHelper.removeTables();
-	DuctileDBGraph graphImplementation = DuctileDBGraphFactory.createGraph(new BaseConfiguration());
+	DuctileDBGraph graphImplementation = DuctileDBGraphFactory.createGraph(DEFAULT_ZOOKEEPER_HOST,
+		DEFAULT_ZOOKEEPER_PORT, DEFAULT_MASTER_HOST, DEFAULT_MASTER_PORT);
 	assertNotNull("Graph was not created.", graphImplementation);
 	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
 		DuctileDBGraphImpl.class, graphImplementation.getClass());

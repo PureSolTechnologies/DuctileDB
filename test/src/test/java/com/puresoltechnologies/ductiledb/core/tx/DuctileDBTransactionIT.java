@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -329,7 +328,8 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	// are being mutated by multiple threads. originally replicated a bug
 	// that was part of OrientDB.
 
-	final DuctileDBGraph g1 = DuctileDBGraphFactory.createGraph(new BaseConfiguration());
+	final DuctileDBGraph g1 = DuctileDBGraphFactory.createGraph(DEFAULT_ZOOKEEPER_HOST, DEFAULT_ZOOKEEPER_PORT,
+		DEFAULT_MASTER_HOST, DEFAULT_MASTER_PORT);
 
 	final Thread threadModFirstGraph = new Thread() {
 	    @Override

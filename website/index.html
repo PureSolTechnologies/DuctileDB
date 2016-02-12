@@ -46,7 +46,7 @@
     <script src="node_modules/angular2/bundles/angular2.dev.js"></script>
     <script src="node_modules/angular2/bundles/router.dev.js"></script>
     <script src="node_modules/tether/dist/js/tether.min.js"></script>
-    
+
     <link rel="stylesheet" type="text/css" href="node_modules/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="css/ductiledb.css">
     
@@ -63,6 +63,14 @@
       System.import('app/main')
             .then(null, console.error.bind(console));
     </script>
+
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="node_modules/highlight.js/styles/default.css">
+    <script src="node_modules/highlight.js/lib/highlight.js"></script>
+    <!-- script src="node_modules/highlight.js/lib/languages/java.js"></script>
+    <script src="node_modules/highlight.js/lib/index.js"></script -->
+    <script>hljs.initHighlightingOnLoad();</script>
+    
   </head>
 
   <body>

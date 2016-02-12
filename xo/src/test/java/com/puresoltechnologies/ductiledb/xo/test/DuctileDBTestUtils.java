@@ -11,15 +11,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.commons.configuration.BaseConfiguration;
-
 import com.buschmais.xo.api.ConcurrencyMode;
 import com.buschmais.xo.api.Transaction;
 import com.buschmais.xo.api.ValidationMode;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
+import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider;
@@ -86,9 +86,8 @@ public class DuctileDBTestUtils {
 	    ConcurrencyMode concurrencyMode, Transaction.TransactionAttribute transactionAttribute) {
 	List<XOUnit[]> xoUnits = new ArrayList<>(uris.size());
 	for (URI uri : uris) {
-	    XOUnit xoUnit = new XOUnit("default", "Default XO unit", uri, DuctileXOProvider.class,
-		    new HashSet<>(types), instanceListenerTypes, valiationMode, concurrencyMode, transactionAttribute,
-		    new Properties());
+	    XOUnit xoUnit = new XOUnit("default", "Default XO unit", uri, DuctileXOProvider.class, new HashSet<>(types),
+		    instanceListenerTypes, valiationMode, concurrencyMode, transactionAttribute, new Properties());
 	    xoUnits.add(new XOUnit[] { xoUnit });
 	}
 	return xoUnits;
@@ -101,9 +100,12 @@ public class DuctileDBTestUtils {
      * @param xoManager
      *            is the {@link XOManager} to be used.
      * @throws IOException
+     * @throws ServiceException
      */
-    public static void addStarwarsData(XOManager xoManager) throws IOException {
-	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(new BaseConfiguration())) {
+    public static void addStarwarsData(XOManager xoManager) throws IOException, ServiceException {
+	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_HOST,
+		AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_PORT, AbstractDuctileDBGraphTest.DEFAULT_MASTER_HOST,
+		AbstractDuctileDBGraphTest.DEFAULT_MASTER_PORT)) {
 	    StarWarsGraph.addStarWarsFiguresData(graph);
 	}
     }
