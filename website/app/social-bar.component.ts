@@ -23,7 +23,7 @@ import {FacebookFollowButtonComponent} from './facebook-follow-button.component'
 	],
 	template:
 `<twitter-follow-button></twitter-follow-button>
-<tweet-button></tweet-button>
+<tweet-button></tweet-button><br/>
 <google-plus-addone-button></google-plus-addone-button>
 <google-plus-follow-button></google-plus-follow-button>
 <google-plus-share-button></google-plus-share-button>

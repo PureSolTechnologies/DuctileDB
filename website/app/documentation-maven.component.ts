@@ -4,13 +4,13 @@ import {HighlighterComponent} from './highlighter.component';
 import {DocumentationSelectorComponent} from './documentation-selector.component';
 
 @Component({
-	selector: 'documentation',
+	selector: 'documentation-compile',
 	directives: [
 	  HighlighterComponent,
 	  DocumentationSelectorComponent,
 	],
-	templateUrl: '../html/documentation.html'
+	templateUrl: '../html/documentation-maven.html'
 })
-export class DocumentationComponent {
+export class DocumentationMavenComponent {
 }
 

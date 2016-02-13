@@ -12,18 +12,18 @@ import {SocialBarComponent} from './social-bar.component';
 	  SocialBarComponent
 	],
 	template:
-`<div class="row">
-  <hr />
-</div>
-<div class="row">
-  <div class="col-md-4">
-    <puresol-technologies></puresol-technologies>
-  </div>
-  <div class="col-md-4">
-    <social-bar></social-bar>
-  </div>
-  <div class="col-md-4">
-    <a [routerLink]="['Imprint']">Imprint</a>
+`<hr />
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <puresol-technologies></puresol-technologies>
+    </div>
+    <div class="col-md-4">
+      <social-bar></social-bar>
+    </div>
+    <div class="col-md-4">
+      <a [routerLink]="['Imprint']">Imprint</a>
+    </div>
   </div>
 </div>`
 })

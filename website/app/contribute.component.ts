@@ -3,7 +3,7 @@ import {Component} from 'angular2/core';
 @Component({
 	selector: 'contribute',
 	template:
-`<div class="row">
+`<div class="container"><div class="row">
   <div class="col-md-12">
     <h1>Contribute</h1>
     <p>
@@ -28,7 +28,7 @@ import {Component} from 'angular2/core';
       This website is also hosted in GitHub together with the DuctileDB source code. Documentation writers can work on the same repository as well.
     </p>
   </div>
-</div>`
+</div></div>`
 })
 export class ContributeComponent {
 }
