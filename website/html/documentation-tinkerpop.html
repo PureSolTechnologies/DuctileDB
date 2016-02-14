@@ -5,6 +5,19 @@
     </div>
     <div class="col-md-8">
       <h1>Use Tinkerpop Stack</h1>
+      <p>
+	To create a DuctileGraph object and to connect to DuctileDB storage, use the DuctileGraphFactory: 
+      </p>
+      <highlighter lang="java">
+DuctileGraph graph = DuctileGraphFactory.createGraph(
+    ZOOKEEPER_HOST,
+    ZOOKEEPER_PORT,
+    MASTER_HOST,
+    MASTER_PORT);
+      </highlighter>
+      <p>
+	As parameters the host and port for Zookeeper and HBase Master are needed. If you have a look into the JavaDoc, you find that DuctileDBGraphFactory has more factory method which can be used to connect.
+      </p>
     </div>
   </div>
 </div>

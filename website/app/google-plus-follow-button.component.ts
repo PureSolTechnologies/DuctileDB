@@ -6,6 +6,8 @@ import {Component} from 'angular2/core';
 })
 export class GooglePlusFollowButtonComponent {
   ngAfterContentInit() {
-    gapi.follow.go();
+    if (typeof gapi !== 'undefined' && gapi != null) {
+      gapi.follow.go();
+    }
   }
 }

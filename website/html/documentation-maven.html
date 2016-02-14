@@ -6,14 +6,35 @@
     <div class="col-md-8">
       <h1>Use DuctileDB from Maven</h1>
       <p>
-	The maven artifacts to be used are:
+	<b>Attention:</b> DuctileDB is not released, yet. So there is not artifact to be found in <a href="http://search.maven.org/#search|ga|1|com.puresoltechnologies.ductiledb" target="_blank">Maven Central</a>. As soon as the first release is out, the artifacts are put into Maven Central.
+      </p>
+      <p>
+	The maven artifacts to be used within simple Java SE application are
       </p>
       <highlighter lang="xml">
-&lt;dependency&gt;
-    &lt;groupId&gt;com.puresoltechnologies.ductiledb&lt;/groupId&gt;
-    &lt;artifactId&gt;ductiledb-api&lt;/artifactId&gt;
-    &lt;version&gt;${ductiledb.version}&lt;/version&gt;
-&lt;/dependency&gt;	
+<![CDATA[<dependency>
+  <groupId>com.puresoltechnologies.ductiledb</groupId>
+  <artifactId>ductiledb-core</artifactId>
+  <version>${ductiledb.version}</version>
+</dependency>]]>
+      </highlighter>
+      <p>
+	if DuctileDB graph is used without any processing framework. To use Tinkerpop (and DuctileDB graph directly), use dependency
+      </p>
+      <highlighter lang="xml">
+<![CDATA[<dependency>
+  <groupId>com.puresoltechnologies.ductiledb</groupId>
+  <artifactId>ductiledb-tinkerpop</artifactId>
+  <version>${ductiledb.version}</version>
+</dependency>]]>
+      </highlighter>
+      and if also the integration with eXtended Objects is needed, choose:
+      <highlighter lang="xml">
+<![CDATA[<dependency>
+  <groupId>com.puresoltechnologies.ductiledb</groupId>
+  <artifactId>ductiledb-xo</artifactId>
+  <version>${ductiledb.version}</version>
+</dependency>]]>
       </highlighter>
     </div>
   </div>

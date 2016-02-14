@@ -6,6 +6,8 @@ import {Component} from 'angular2/core';
 })
 export class GooglePlusShareButtonComponent {
   ngAfterContentInit() {
-    gapi.plus.go();
+    if (typeof gapi !== 'undefined' && gapi != null) {
+      gapi.plus.go();
+    }
   }
 }

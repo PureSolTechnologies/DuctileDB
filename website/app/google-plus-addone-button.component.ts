@@ -6,6 +6,8 @@ import {Component} from 'angular2/core';
 })
 export class GooglePlusAddoneButtonComponent {
   ngAfterContentInit() {
-    gapi.plusone.go();
+    if (typeof gapi !== 'undefined' && gapi != null) {
+      gapi.plusone.go();
+    }
   }
 }

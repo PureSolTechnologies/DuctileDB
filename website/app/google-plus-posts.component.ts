@@ -9,6 +9,8 @@ import {Component} from 'angular2/core';
 })
 export class GooglePlusPostsComponent {
   ngAfterContentInit() {
-    gapi.post.go("google-plus-content");
+    if (typeof gapi !== 'undefined' && gapi != null) {
+      gapi.post.go("google-plus-content");
+    }
   }
 }

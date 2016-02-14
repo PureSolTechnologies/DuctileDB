@@ -5,14 +5,19 @@
     </div>
     <div class="col-md-8">
       <h1>Use DuctileDB Graph</h1>
-      <highlighter lang="java" title="test.java">
-package a.b.c;
-	
-public class Test {
-  public Test() {
-  }
-}
+      <p>
+	To create a DuctileDBGraph object and to connect to DuctileDB storage, use the DuctileDBGraphFactory: 
+      </p>
+      <highlighter lang="java">
+DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(
+    ZOOKEEPER_HOST,
+    ZOOKEEPER_PORT,
+    MASTER_HOST,
+    MASTER_PORT);
       </highlighter>
+      <p>
+	As parameters the host and port for Zookeeper and HBase Master are needed. If you have a look into the JavaDoc, you find that DuctileDBGraphFactory has more factory method which can be used to connect.
+      </p>
     </div>
   </div>
 </div>
