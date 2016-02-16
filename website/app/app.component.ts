@@ -18,7 +18,7 @@ import {DocumentationTinkerpopComponent} from './documentation-tinkerpop.compone
 import {DocumentationXOComponent} from './documentation-xo.component';
 import {AboutComponent} from './about.component';
 import {ContributeComponent} from './contribute.component';
-import {ImprintComponent} from './imprint.component';
+import {ImprintComponent} from './commons/imprint.component';
 
 @Component({
     selector: 'app',

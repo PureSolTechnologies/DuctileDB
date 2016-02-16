@@ -7,7 +7,7 @@ import {ROUTER_DIRECTIVES} from 'angular2/router';
     template:
 `<div class="navbar navbar-light bg-faded">
   <button class="navbar-toggler hidden-sm-up" type="button" data-toggle="collapse" data-target="#exCollapsingNavbar2">
-    &#9776;
+    <span class="octicon octicon-three-bars"></span>
   </button>
   <div class="collapse navbar-toggleable-xs" id="exCollapsingNavbar2">
     <ul class="nav navbar-nav">

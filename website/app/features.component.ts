@@ -1,7 +1,7 @@
 import {Component} from 'angular2/core';
 
-import {PureSolTechnologiesComponent} from './puresol-technologies.component';
-import {PurifinityComponent} from './purifinity.component';
+import {PureSolTechnologiesComponent} from './commons/puresol-technologies.component';
+import {PurifinityComponent} from './commons/purifinity.component';
 
 @Component({
 	selector: 'features',

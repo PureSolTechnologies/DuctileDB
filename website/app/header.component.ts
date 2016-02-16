@@ -1,6 +1,6 @@
 import {Component} from 'angular2/core';
 
-import {PureSolTechnologiesComponent} from './puresol-technologies.component';
+import {PureSolTechnologiesComponent} from './commons/puresol-technologies.component';
 
 @Component({
 	selector: 'header',
