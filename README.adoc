@@ -6,12 +6,13 @@ Ductile DB is a graph database based on Hadoop/HBase which provides a vast set o
 - Support of multiple labels on nodes
 - link:https://github.com/tinkerpop/blueprints/wiki[Blue Print] interface implementation (not supporting labels)
 - Implementation of link:https://github.com/buschmais/extended-objects[eXtended Objects]
+- Support for large graphs due to usage of link:http://hbase.apache.org[HBase] on link:http://hadoop.apache.org[Hadoop Distributed File System]
 
 The project was started, because for the link:http://purifinity.com[Purifinity] (not published, yet) project a database was needed to support the large, but fine grained amount of data in a propery graph.
 
 General information about the project can be found at:
 
-http://opensource.puresol-technologies.com/DuctileDB
+http://ductiledb.com
 
 Please, use the issue tracker at:
 
