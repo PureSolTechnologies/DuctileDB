@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/DECORATION/1.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/DECORATION/1.4.0 http://maven.apache.org/xsd/decoration-1.4.0.xsd">
+    <skin>
+        <groupId>com.puresoltechnologies.maven.skins</groupId>
+        <artifactId>puresol-technologies-skin</artifactId>
+        <version>0.3.0</version>
+    </skin>
+  	<bannerLeft>
+		<name>${project.name}</name>
+	</bannerLeft>
+    <body> 	
+ 		<menu name="Overview">
+      			<item name="Introduction" href="introduction.html" />
+      			<item name="Usage" href="usage.html" />
+ 		</menu>
+		<menu ref="modules" />
+ 		<menu name="Project Information">
+	 		<!-- item name="Project Information" href="project-info.html" / -->
+   			<item name="About" href="index.html" />
+   			<item name="Plugin Management" href="plugin-management.html" />
+   			<!-- item name="Distribution Management" href="distribution-management.html"/ -->
+   			<item name="Dependency Information" href="dependency-info.html" />
+   			<item name="Source Repository" href="source-repository.html" />
+   			<item name="Mailing Lists" href="mail-lists.html" />
+   			<item name="Issue Tracking" href="issue-tracking.html" />
+   			<item name="Continuous Integration" href="integration.html" />
+   			<item name="Project Plugins" href="plugins.html" />
+   			<item name="Project License" href="license.html" />
+   			<item name="Project Team" href="team-list.html" />
+   			<item name="Project Summary" href="project-summary.html" />
+   			<item name="Dependencies" href="dependencies.html" />
+ 		</menu>
+ 		<menu name="Project Reports">
+	 		<!-- item name="Project Reports" href="project-reports.html" / -->
+   			<item name="Licenses Report" href="dependency-licenses-report.html" />
+   			<item name="JavaDocs" href="apidocs/index.html" target="_blank" />
+   			<!-- item name="Cobertura Test Coverage" href="cobertura/index.html" target="_blank" / -->
+   			<item name="Surefire Report" href="surefire-report.html" />
+   			<item name="Failsafe Report" href="failsafe-report.html" />
+   			<item name="FindBugs Report" href="findbugs.html" />
+    	</menu>
+ 		<menu name="Recommended Links">
+	 		<item name="PureSol Technologies" href="http://puresol-technologies.com" target="_blank" />
+	 		<item name="PureSol Technologies' Open Source Contributions" href="http://opensource.puresol-technologies.com" target="_blank" />
+    	</menu>
+    </body>
+</project>
