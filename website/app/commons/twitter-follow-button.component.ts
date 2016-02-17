@@ -1,5 +1,7 @@
 import {Component} from 'angular2/core';
 
+declare var twttr:any;
+
 @Component({
 	selector: 'twitter-follow-button',
 	template: `

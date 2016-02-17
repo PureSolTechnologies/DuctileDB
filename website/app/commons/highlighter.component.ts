@@ -1,5 +1,8 @@
 import {Component, Input} from 'angular2/core';
 
+declare var $: any;
+declare var hljs: any;
+
 @Component({
   selector: 'highlighter',
   template: `

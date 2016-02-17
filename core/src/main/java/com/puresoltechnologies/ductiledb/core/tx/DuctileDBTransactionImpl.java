@@ -355,7 +355,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    for (DuctileDBCacheEdge edge : addedEdges()) {
 		long edgeId = edge.getId();
 		Object value = edge.getProperty(propertyKey);
-		if ((propertyValue == null) || (value.equals(propertyValue))) {
+		if ((value == null) || (value.equals(propertyValue))) {
 		    if (!wasEdgeRemoved(edgeId)) {
 			if ((edge != null) && //
 				((propertyValue == null) || (propertyValue.equals(edge.getProperty(propertyKey))))) {
