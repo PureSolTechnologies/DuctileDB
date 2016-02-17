@@ -35,6 +35,11 @@ public class ElementUtils {
 
     /**
      * This method creates a {@link Map} of properties.
+     * 
+     * @param element
+     *            is the {@link DuctileDBElement} for which the properties are
+     *            to be returned.
+     * @return A {@link Map} is returned containing the properties.
      */
     public static Map<String, Object> getProperties(DuctileDBElement element) {
 	Map<String, Object> properties = new HashMap<>();
@@ -46,7 +51,8 @@ public class ElementUtils {
      * This method returns a {@link List} of {@link DuctileDBEdge}.
      * 
      * @param vertex
-     * @return
+     *            is the vertex for which the edges are to be returned.
+     * @return A {@link List} of {@link DuctileDBEdge} is returned.
      */
     public static List<DuctileDBEdge> getEdges(DuctileDBVertex vertex) {
 	List<DuctileDBEdge> edges = new ArrayList<>();
@@ -58,7 +64,8 @@ public class ElementUtils {
      * This method returns the types of a vertex as {@link Set}.
      * 
      * @param vertex
-     * @return
+     *            is the vertex for which the types are to be returned.
+     * @return A {@link Set} of type names is returned.
      */
     public static Set<String> getTypes(DuctileDBVertex vertex) {
 	Set<String> types = new HashSet<>();

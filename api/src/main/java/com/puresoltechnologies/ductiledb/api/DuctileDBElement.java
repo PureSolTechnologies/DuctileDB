@@ -43,6 +43,8 @@ public interface DuctileDBElement extends Cloneable {
      *            is the key of the property to be set.
      * @param value
      *            is the value to be set for the property.
+     * @param <T>
+     *            is the type of the property value.
      */
     public <T> void setProperty(String key, T value);
 
@@ -51,6 +53,8 @@ public interface DuctileDBElement extends Cloneable {
      * 
      * @param key
      *            is the key of the property to be read.
+     * @param <T>
+     *            is the actual type of the property value.
      * @return The value is returned. <code>null</code> is returned in case the
      *         property is not set on the element.
      */
@@ -61,7 +65,6 @@ public interface DuctileDBElement extends Cloneable {
      * 
      * @param key
      *            is the key of the property to be removed.
-     * @return
      */
     public void removeProperty(String key);
 

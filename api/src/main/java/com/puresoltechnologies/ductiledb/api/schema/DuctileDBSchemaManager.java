@@ -25,15 +25,21 @@ public interface DuctileDBSchemaManager {
      * @param definition
      *            is a {@link PropertyDefinition} object defining the new
      *            property.
+     * @param <T>
+     *            is the actual type of the property.
      */
     public <T extends Serializable> void defineProperty(PropertyDefinition<T> definition);
 
     /**
      * This method returns the property definition for a defined property.
      * 
+     * @param elementType
+     *            is the type of the element defined via {@link ElementType}.
      * @param propertyKey
      *            is the name of the property.
-     * @return
+     * @param <T>
+     *            is the actual type of the property.
+     * @return A {@link PropertyDefinition} is returned.
      */
     public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(ElementType elementType,
 	    String propertyKey);
@@ -41,7 +47,12 @@ public interface DuctileDBSchemaManager {
     /**
      * This method removes a property definition.
      * 
+     * @param elementType
+     *            is the type of the element provided via enumeration
+     *            {@link ElementType}.
      * @param propertyKey
+     *            is the name of property for which the definition is to be
+     *            removed.
      */
     public void removePropertyDefinition(ElementType elementType, String propertyKey);
 

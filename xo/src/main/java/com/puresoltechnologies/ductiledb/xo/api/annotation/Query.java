@@ -36,7 +36,7 @@ public @interface Query {
      * This method defines which query language is to be used. Enum
      * {@link QueryLanguage} contains all supported languages.
      * 
-     * @return
+     * @return The {@link QueryLanguage} is returned.
      */
     QueryLanguage language() default QueryLanguage.GREMLIN;
 }

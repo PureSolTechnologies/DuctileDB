@@ -33,6 +33,7 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
      * edges and their indizes.
      * 
      * @throws IOException
+     *             is thrown in case of IO issues.
      */
     @Test
     public void testRemoveVertexWithEdges() throws IOException {

@@ -108,10 +108,11 @@ public class DuctileDBSchema {
      * This method checks the given type for DuctileDB and also schema
      * conformance.
      * 
-     * @param key
-     *            is the name of the property.
-     * @param value
-     *            is the value of the property.
+     * @param type
+     *            is the type of the edge.
+     * @param properties
+     *            are the properties to be added as defined with the {@link Map}
+     *            .
      */
 
     public void checkAddEdge(String type, Map<String, Object> properties) {
@@ -132,12 +133,11 @@ public class DuctileDBSchema {
      * This method checks the given type for DuctileDB and also schema
      * conformance.
      * 
-     * @param key
-     *            is the name of the property.
-     * @param value
-     *            is the value of the property.
+     * @param type
+     *            is the type of the vertex.
+     * @param properties
+     *            are the properties to be checked.
      */
-
     public void checkAddVertexType(String type, Map<String, Object> properties) {
 	checkTypeIdentifier(type);
 	checkTypeProperties(ElementType.VERTEX, type, properties);
@@ -167,6 +167,9 @@ public class DuctileDBSchema {
      * This method checks the given property for DuctileDB and also schema
      * conformance.
      * 
+     * @param types
+     *            is a {@link Set} of type names of a vertex to be taken into
+     *            account for the check.
      * @param key
      *            is the name of the property.
      * @param value

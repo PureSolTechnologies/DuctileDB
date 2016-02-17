@@ -42,6 +42,8 @@ public interface DuctileDBGraphManager {
      *            is the name of the variable.
      * @param value
      *            is the value to be set.
+     * @param <T>
+     *            is the actual type of the variable.
      */
     public <T extends Serializable> void setVariable(String variableName, T value);
 
@@ -50,6 +52,8 @@ public interface DuctileDBGraphManager {
      * 
      * @param variableName
      *            is the name of the variable.
+     * @param <T>
+     *            is the actual type of the variable.
      * @return A value is returned currently assigned to this variable.
      *         <code>null</code> is returned in case the variable is not set.
      */
@@ -59,6 +63,7 @@ public interface DuctileDBGraphManager {
      * This method is used to remove a variable from the graph.
      * 
      * @param variableName
+     *            is the name of the variable to be removed.
      */
     public void removeVariable(String variableName);
 }

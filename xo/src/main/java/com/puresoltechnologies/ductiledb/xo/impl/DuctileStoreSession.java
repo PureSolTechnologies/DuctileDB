@@ -42,10 +42,12 @@ public class DuctileStoreSession implements
     /**
      * This is the initial value constructor.
      * 
-     * @param graph
-     *            is the DuctileDB graph as {@link DuctileGraph} object on which
-     *            this session shall work on.
+     * @param connection
+     *            is the {@link Connection} for HBase.
+     * @param configuration
+     *            is the HBase {@link BaseConfiguration}.
      * @throws IOException
+     *             is thrown in case of IO issues.
      */
     public DuctileStoreSession(Connection connection, BaseConfiguration configuration) throws IOException {
 	this.graph = DuctileGraphFactory.createGraph(connection, configuration);

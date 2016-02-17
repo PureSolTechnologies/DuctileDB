@@ -16,10 +16,12 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 
+@Ignore
 public class DuctileDriverTest {
 
     @BeforeClass

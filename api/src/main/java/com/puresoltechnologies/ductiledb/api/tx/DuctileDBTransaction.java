@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.api.tx;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.function.Consumer;
 
 import com.puresoltechnologies.ductiledb.api.GraphOperations;
@@ -25,18 +24,12 @@ public interface DuctileDBTransaction extends GraphOperations, Closeable {
     /**
      * Commits this transaction and performs all changes to graph as defined
      * before.
-     * 
-     * @throws IOException
-     *             is thrown in case of an database issue.
      */
     public void commit();
 
     /**
      * Rolls this transaction back by dropping all requested changes without
      * performing any change on the graph.
-     * 
-     * @throws IOException
-     *             is thrown in case of an database issue.
      */
     public void rollback();
 

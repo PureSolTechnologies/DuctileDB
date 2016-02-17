@@ -25,9 +25,14 @@ public class DuctileGraphFactory {
      * {@link Connection}.
      * 
      * @param connection
+     *            is the HBase {@link Connection} to be used to connect to
+     *            HBase.
      * @param configuration
-     * @return
+     *            is the HBase {@link BaseConfiguration} to be added to the
+     *            graph.
+     * @return A newly created {@link DuctileGraph} is returned.
      * @throws IOException
+     *             is thrown in cases of IO issues.
      */
     public static DuctileGraph createGraph(Connection connection, BaseConfiguration configuration) throws IOException {
 	DuctileDBGraph ductileDBGraph = DuctileDBGraphFactory.createGraph(connection);
@@ -38,10 +43,15 @@ public class DuctileGraphFactory {
      * This method create a new {@link DuctileGraph} only based on its
      * configuration. A connection to HBase is opened during the process.
      * 
+     * @param hbaseSiteFile
+     *            is the path to HBase site file.
      * @param configuration
-     * @return
+     *            is the HBase {@link BaseConfiguration}.
+     * @return A new created {@link DuctileGraph} is returned.
      * @throws IOException
+     *             is thrown in case of IO issues.
      * @throws ServiceException
+     *             is thrown in case HBase is not available.
      */
     public static DuctileGraph createGraph(File hbaseSiteFile, BaseConfiguration configuration)
 	    throws IOException, ServiceException {

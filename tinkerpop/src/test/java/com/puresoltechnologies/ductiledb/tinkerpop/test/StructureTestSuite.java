@@ -9,13 +9,15 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 
 /**
+ * <p>
  * The {@code StructureStandardSuite} is a JUnit test runner that executes the
  * Gremlin Test Suite over a {@link Graph} implementation. This specialized test
  * suite and runner is for use by vendors to test their {@link Graph}
  * implementations. The {@code StructureStandardSuite} ensures consistency and
  * validity of the implementations that they test. Successful execution of this
  * test suite is critical to proper operations of a vendor implementation.
- * <p/>
+ * </p>
+ * <p>
  * To use the {@code StructureStandardSuite} define a class in a test module.
  * Simple naming would expect the name of the implementation followed by
  * "StructureStandardSuite". This class should be annotated as follows (note
@@ -32,10 +34,12 @@ import org.junit.runners.model.RunnerBuilder;
  * determine which tests will be executed. Note that while the above example
  * demonstrates configuration of this suite, this approach generally applies to
  * all other test suites.
- * <p/>
+ * </p>
+ * <p>
  * Set the {@code GREMLIN_TESTS} environment variable to a comma separated list
  * of test classes to execute. This setting can be helpful to restrict execution
  * of tests to specific ones being focused on during development.
+ * </p>
  * 
  * @author Stephen Mallette (http://stephen.genoprime.com)
  */

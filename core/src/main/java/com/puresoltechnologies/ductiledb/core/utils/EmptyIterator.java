@@ -8,6 +8,7 @@ import java.util.Iterator;
  * @author Rick-Rainer Ludwig
  *
  * @param <T>
+ *            is the type of the variables in iterator.
  */
 public class EmptyIterator<T> implements Iterator<T> {
 

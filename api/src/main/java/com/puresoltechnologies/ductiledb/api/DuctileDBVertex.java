@@ -37,11 +37,12 @@ public interface DuctileDBVertex extends DuctileDBElement, Cloneable {
     public void removeType(String type);
 
     /**
-     * Checkes whether this vertex has a certain type.
+     * Checks whether this vertex has a certain type.
      * 
      * @param type
      *            is a {@link String} containing the name of the type.
-     * @return
+     * @return <code>true</code> is returned in case the type is available.
+     *         <code>false</code> is returned otherwise.
      */
     public boolean hasType(String type);
 

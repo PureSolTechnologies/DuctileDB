@@ -100,7 +100,9 @@ public class DuctileDBTestUtils {
      * @param xoManager
      *            is the {@link XOManager} to be used.
      * @throws IOException
+     *             is thrown in case of IO issues.
      * @throws ServiceException
+     *             is thrown in case HBase is not ready.
      */
     public static void addStarwarsData(XOManager xoManager) throws IOException, ServiceException {
 	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_HOST,

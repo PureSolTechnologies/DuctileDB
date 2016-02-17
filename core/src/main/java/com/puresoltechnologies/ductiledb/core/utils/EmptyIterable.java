@@ -7,7 +7,9 @@ import java.util.Iterator;
  * 
  * @author Rick-Rainer Ludwig
  *
+ *
  * @param <T>
+ *            is the type of the variables in iterable.
  */
 public class EmptyIterable<T> implements Iterable<T> {
 

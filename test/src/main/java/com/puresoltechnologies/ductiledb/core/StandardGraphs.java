@@ -25,8 +25,11 @@ public class StandardGraphs {
      * </p>
      * 
      * @param graph
+     *            is the graph to add vertices to.
      * @param numberOfVertices
+     *            is the number of vertices to be created.
      * @throws IOException
+     *             is thrown in case of IO issues.
      */
     public static void createGraph(DuctileDBGraph graph, int numberOfVertices) throws IOException {
 	DuctileDBVertex[] vertices = new DuctileDBVertex[numberOfVertices];

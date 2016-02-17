@@ -75,11 +75,9 @@ public class DuctileStore
      * This is the initial value constructor.
      * 
      * @param hbaseSitePath
-     *            is the host for Cassandra for DuctileDB to connect to.
-     * @param port
-     *            is the port for Cassandra for DuctileDB to connect to.
+     *            is the path to the HBase site file.
      * @param namespace
-     *            is
+     *            is the name of the namespace to connect to.
      */
     public DuctileStore(File hbaseSitePath, String namespace) {
 	if (hbaseSitePath == null) {
