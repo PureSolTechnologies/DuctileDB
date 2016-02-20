@@ -3,8 +3,14 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<prerequisites>
-		<maven>3.0</maven>
+		<maven>3.2</maven>
 	</prerequisites>
+
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>9</version>
+	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -43,9 +49,9 @@
 	</licenses>
 
 	<scm>
-		<developerConnection>scm:git:git@git:ductiledb</developerConnection>
-		<connection>scm:git:git@git:ductiledb</connection>
-		<url>http://git/gitweb/</url>
+		<developerConnection>scm:git:https://github.com/PureSolTechnologies/DuctileDB</developerConnection>
+		<connection>scm:git:https://github.com/PureSolTechnologies/DuctileDB</connection>
+		<url>https://github.com/PureSolTechnologies/DuctileDB.git</url>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -636,16 +642,8 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.2</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.scm</groupId>
-						<artifactId>maven-scm-provider-gitexe</artifactId>
-						<version>1.9.4</version>
-					</dependency>
-				</dependencies>
 				<configuration>
-					<tagNameFormat>server-v@{project.version}</tagNameFormat>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<useReleaseProfile>false</useReleaseProfile>
 					<arguments> -Prelease</arguments>

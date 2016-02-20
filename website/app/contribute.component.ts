@@ -19,7 +19,7 @@ import {Component} from 'angular2/core';
     </p>
     <h2>File Bug Reports or Feature Requests</h2>
     <p>
-      If bugs and issues are found, bug reports can be filed in the offical <a href="https://bugs.puresol-technologies.net/projects/ductiledb">DuctileDB Bug Tracker</a>. Ideas for features can be filed there as well.
+      If bugs and issues are found, bug reports can be filed in the offical <a href="https://bugs.puresol-technologies.net/projects/ductiledb" target="_blank">DuctileDB Bug Tracker</a>. Ideas for features can be filed there as well.
     </p>
   </div>
   <div class="col-md-6">
