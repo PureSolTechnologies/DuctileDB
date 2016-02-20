@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<prerequisites>
@@ -25,7 +26,7 @@
 
 	<groupId>com.puresoltechnologies.ductiledb</groupId>
 	<artifactId>ductiledb-parent</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>DuctileDB: ${project.artifactId}</name>
@@ -80,51 +81,10 @@
 			<name>FTPPureSolTechnologiesCom</name>
 			<url>ftp://puresol-technologies.com/opensource.puresol-technologies.com/projects/ductiledb/${project.version}</url>
 		</site>
-		<repository>
-			<id>libs-release-local</id>
-			<name>Repository libs-release-local</name>
-			<url>http://repo.puresol-technologies.net/libs-release-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>libs-snapshot-local</id>
-			<name>Repository libs-snapshot-local</name>
-			<url>http://repo.puresol-technologies.net/libs-snapshot-local</url>
-		</snapshotRepository>
 	</distributionManagement>
 
-	<repositories>
-		<repository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>central</id>
-			<name>libs-release</name>
-			<url>http://repo/libs-release</url>
-		</repository>
-		<repository>
-			<snapshots />
-			<id>snapshots</id>
-			<name>libs-snapshot</name>
-			<url>http://repo/libs-snapshot</url>
-		</repository>
-	</repositories>
-
-	<pluginRepositories>
-		<pluginRepository>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>central</id>
-			<name>plugins-release</name>
-			<url>http://repo/plugins-release</url>
-		</pluginRepository>
-		<pluginRepository>
-			<snapshots />
-			<id>snapshots</id>
-			<name>plugins-snapshot</name>
-			<url>http://repo/plugins-snapshot</url>
-		</pluginRepository>
-	</pluginRepositories>
+	<repositories/>
+	<pluginRepositories/>
 
 	<profiles>
 		<profile>
@@ -628,7 +588,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore />
+										<ignore></ignore>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
