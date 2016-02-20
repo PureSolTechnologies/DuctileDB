@@ -25,7 +25,7 @@
 
 	<groupId>com.puresoltechnologies.ductiledb</groupId>
 	<artifactId>ductiledb-parent</artifactId>
-	<version>0.1.1</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>DuctileDB: ${project.artifactId}</name>
