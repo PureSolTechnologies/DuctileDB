@@ -59,9 +59,8 @@ public class DuctileDBTestHelper {
     }
 
     public static void removeTables() throws IOException, ServiceException {
-	try (Connection connection = DuctileDBGraphFactory.createConnection(
-		AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_HOST, AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_PORT,
-		AbstractDuctileDBGraphTest.DEFAULT_MASTER_HOST, AbstractDuctileDBGraphTest.DEFAULT_MASTER_PORT)) {
+	try (Connection connection = DuctileDBGraphFactory.createConnection("localhost",
+		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT)) {
 	    removeTables(connection);
 	}
     }

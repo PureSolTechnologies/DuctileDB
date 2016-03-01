@@ -328,8 +328,8 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	// are being mutated by multiple threads. originally replicated a bug
 	// that was part of OrientDB.
 
-	final DuctileDBGraph g1 = DuctileDBGraphFactory.createGraph(DEFAULT_ZOOKEEPER_HOST, DEFAULT_ZOOKEEPER_PORT,
-		DEFAULT_MASTER_HOST, DEFAULT_MASTER_PORT);
+	final DuctileDBGraph g1 = DuctileDBGraphFactory.createGraph("localhost",
+		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT);
 
 	final Thread threadModFirstGraph = new Thread() {
 	    @Override

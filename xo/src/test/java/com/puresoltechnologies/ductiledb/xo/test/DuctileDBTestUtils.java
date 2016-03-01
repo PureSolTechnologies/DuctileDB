@@ -19,7 +19,6 @@ import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
 import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider;
@@ -105,9 +104,8 @@ public class DuctileDBTestUtils {
      *             is thrown in case HBase is not ready.
      */
     public static void addStarwarsData(XOManager xoManager) throws IOException, ServiceException {
-	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_HOST,
-		AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_PORT, AbstractDuctileDBGraphTest.DEFAULT_MASTER_HOST,
-		AbstractDuctileDBGraphTest.DEFAULT_MASTER_PORT)) {
+	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph("localhost",
+		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT)) {
 	    StarWarsGraph.addStarWarsFiguresData(graph);
 	}
     }

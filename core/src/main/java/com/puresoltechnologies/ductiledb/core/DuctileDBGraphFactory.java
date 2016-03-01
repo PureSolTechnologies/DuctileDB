@@ -21,6 +21,9 @@ public class DuctileDBGraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBGraphFactory.class);
 
+    public static final int DEFAULT_MASTER_PORT = 60000;
+    public static final int DEFAULT_ZOOKEEPER_PORT = 2181;
+
     public static Configuration createConfiguration(File hbaseSiteFile)
 	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
 	Configuration hbaseConfiguration = HBaseConfiguration.create();

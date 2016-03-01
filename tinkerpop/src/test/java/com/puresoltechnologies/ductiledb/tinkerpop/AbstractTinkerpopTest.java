@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.google.protobuf.ServiceException;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
@@ -47,9 +47,8 @@ public abstract class AbstractTinkerpopTest {
 
     public static DuctileGraph createGraph()
 	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
-	return DuctileGraphFactory.createGraph(AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_HOST,
-		AbstractDuctileDBGraphTest.DEFAULT_ZOOKEEPER_PORT, AbstractDuctileDBGraphTest.DEFAULT_MASTER_HOST,
-		AbstractDuctileDBGraphTest.DEFAULT_MASTER_PORT, new BaseConfiguration());
+	return DuctileGraphFactory.createGraph("localhost", DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost",
+		DuctileDBGraphFactory.DEFAULT_MASTER_PORT, new BaseConfiguration());
     }
 
     public static DuctileGraph getGraph() {
