@@ -100,6 +100,16 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public void commit() {
 	checkForClosedAndCorrectThread();
 	try {
+	    for (DuctileDBVertex vertex : vertexCache.values()) {
+		if (vertex != null) {
+		    getSchema().checkVertex(vertex);
+		}
+	    }
+	    for (DuctileDBEdge edge : edgeCache.values()) {
+		if (edge != null) {
+		    getSchema().checkEdge(edge);
+		}
+	    }
 	    for (TxOperation operation : txOperations) {
 		operation.perform();
 	    }

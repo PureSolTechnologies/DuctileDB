@@ -20,6 +20,7 @@ import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintVio
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 /**
  * This method reads all schema information from {@link DuctileDBGraphManager},
@@ -89,6 +90,23 @@ public class DuctileDBSchema {
     public void checkAddVertex(Set<String> types, Map<String, Object> properties) {
 	types.forEach((type) -> {
 	    checkTypeIdentifier(type);
+	});
+	properties.forEach((key, value) -> {
+	    checkPropertyIdentifier(key);
+	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.VERTEX).get(key);
+	    if (definition != null) {
+		checkPropertyType(value, definition);
+		checkGlobalConstraint(ElementType.VERTEX, key, value, definition);
+		types.forEach((type) -> {
+		    checkTypeConstraint(ElementType.VERTEX, type, key, value, definition);
+		});
+	    }
+	});
+    }
+
+    public void checkVertex(Set<String> types, Map<String, Object> properties) {
+	types.forEach((type) -> {
+	    checkTypeIdentifier(type);
 	    checkTypeProperties(ElementType.VERTEX, type, properties);
 	});
 	properties.forEach((key, value) -> {
@@ -117,6 +135,30 @@ public class DuctileDBSchema {
 
     public void checkAddEdge(String type, Map<String, Object> properties) {
 	checkTypeIdentifier(type);
+	properties.forEach((key, value) -> {
+	    checkPropertyIdentifier(key);
+	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
+	    if (definition != null) {
+		checkPropertyType(value, definition);
+		checkGlobalConstraint(ElementType.EDGE, key, value, definition);
+		checkTypeConstraint(ElementType.EDGE, type, key, value, definition);
+	    }
+	});
+    }
+
+    /**
+     * This method checks the given type for DuctileDB and also schema
+     * conformance.
+     * 
+     * @param type
+     *            is the type of the edge.
+     * @param properties
+     *            are the properties to be added as defined with the {@link Map}
+     *            .
+     */
+
+    public void checkEdge(String type, Map<String, Object> properties) {
+	checkTypeIdentifier(type);
 	checkTypeProperties(ElementType.EDGE, type, properties);
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
@@ -140,7 +182,7 @@ public class DuctileDBSchema {
      */
     public void checkAddVertexType(String type, Map<String, Object> properties) {
 	checkTypeIdentifier(type);
-	checkTypeProperties(ElementType.VERTEX, type, properties);
+	// checkTypeProperties(ElementType.VERTEX, type, properties);
     }
 
     private void checkTypeIdentifier(String type) {
@@ -274,6 +316,17 @@ public class DuctileDBSchema {
 	    throw new DuctileDBSchemaException(
 		    "Property '" + propertyKey + "' cannot be removed, because type '" + type + "' uses it.");
 	}
+    }
+
+    public void checkVertex(DuctileDBVertex vertex) {
+	Set<String> types = ElementUtils.getTypes(vertex);
+	Map<String, Object> properties = ElementUtils.getProperties(vertex);
+	checkVertex(types, properties);
+    }
+
+    public void checkEdge(DuctileDBEdge edge) {
+	Map<String, Object> properties = ElementUtils.getProperties(edge);
+	checkEdge(edge.getType(), properties);
     }
 
 }
