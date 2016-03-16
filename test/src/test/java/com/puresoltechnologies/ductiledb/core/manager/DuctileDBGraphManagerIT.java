@@ -30,7 +30,7 @@ public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testVersion() {
-	assertEquals("0.1.0", graphManager.getVersion().toString());
+	assertEquals("0.1.2", graphManager.getVersion().toString());
     }
 
     @Test

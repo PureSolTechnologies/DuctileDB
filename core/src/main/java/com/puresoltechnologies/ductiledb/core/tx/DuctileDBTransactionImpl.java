@@ -100,6 +100,16 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public void commit() {
 	checkForClosedAndCorrectThread();
 	try {
+	    for (DuctileDBVertex vertex : vertexCache.values()) {
+		if (vertex != null) {
+		    getSchema().checkVertex(vertex);
+		}
+	    }
+	    for (DuctileDBEdge edge : edgeCache.values()) {
+		if (edge != null) {
+		    getSchema().checkEdge(edge);
+		}
+	    }
 	    for (TxOperation operation : txOperations) {
 		operation.perform();
 	    }
@@ -558,7 +568,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     public void addType(DuctileDBVertex vertex, String type) {
 	checkForClosedAndCorrectThread();
-	getSchema().checkAddVertexType(type, ElementUtils.getProperties(vertex));
+	getSchema().checkAddVertexType(vertex, type);
 	addTxOperation(new AddVertexTypeOperation(this, vertex.getId(), type));
     }
 
@@ -569,25 +579,25 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     public void setProperty(DuctileDBVertex vertex, String key, Object value) {
 	checkForClosedAndCorrectThread();
-	getSchema().checkSetVertexProperty(ElementUtils.getTypes(vertex), key, value);
+	getSchema().checkSetVertexProperty(vertex, key, value);
 	addTxOperation(new SetVertexPropertyOperation(this, vertex, key, value));
     }
 
     public void removeProperty(DuctileDBVertex vertex, String key) {
 	checkForClosedAndCorrectThread();
-	getSchema().checkRemoveVertexProperty(vertex.getTypes(), key);
+	getSchema().checkRemoveVertexProperty(vertex, key);
 	addTxOperation(new RemoveVertexPropertyOperation(this, vertex, key));
     }
 
     public void setProperty(DuctileDBEdge edge, String key, Object value) {
 	checkForClosedAndCorrectThread();
-	getSchema().checkSetEdgeProperty(edge.getType(), key, value);
+	getSchema().checkSetEdgeProperty(edge, key, value);
 	addTxOperation(new SetEdgePropertyOperation(this, edge, key, value));
     }
 
     public void removeProperty(DuctileDBEdge edge, String key) {
 	checkForClosedAndCorrectThread();
-	getSchema().checkRemoveEdgeProperty(edge.getType(), key);
+	getSchema().checkRemoveEdgeProperty(edge, key);
 	addTxOperation(new RemoveEdgePropertyOperation(this, edge, key));
     }
 

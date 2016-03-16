@@ -3,7 +3,7 @@
     <skin>
         <groupId>com.puresoltechnologies.maven.skins</groupId>
         <artifactId>puresol-technologies-skin</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
     </skin>
   	<bannerLeft>
 		<name>${project.name}</name>

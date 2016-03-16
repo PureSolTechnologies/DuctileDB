@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -96,6 +97,13 @@ public class DucileStoreVertexManager
 	    Set<String> discriminators,
 	    Map<PrimitivePropertyMethodMetadata<DuctilePropertyMetadata>, Object> exampleEntity) {
 	DuctileVertex vertex = graph.addVertex();
+	for (Entry<PrimitivePropertyMethodMetadata<DuctilePropertyMetadata>, Object> propertyEntry : exampleEntity
+		.entrySet()) {
+	    Object value = propertyEntry.getValue();
+	    if (value == null) {
+		setProperty(vertex, propertyEntry.getKey(), value);
+	    }
+	}
 	for (String discriminator : discriminators) {
 	    vertex.getBaseVertex().addType(discriminator);
 	}

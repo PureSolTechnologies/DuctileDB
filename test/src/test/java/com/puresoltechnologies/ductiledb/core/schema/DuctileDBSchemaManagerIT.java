@@ -481,6 +481,7 @@ public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 	Map<String, Object> properties = new HashMap<>();
 	properties.put("property1", "stringValue");
 	graph.addVertex(types, properties);
+	graph.commit();
     }
 
     @Test(expected = DuctileDBSchemaException.class)

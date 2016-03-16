@@ -2,12 +2,14 @@ package com.puresoltechnologies.ductiledb.core.schema;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.ElementType;
 import com.puresoltechnologies.ductiledb.api.manager.DuctileDBGraphManager;
@@ -20,6 +22,7 @@ import com.puresoltechnologies.ductiledb.api.schema.DuctileDBUniqueConstraintVio
 import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.utils.ElementUtils;
 
 /**
  * This method reads all schema information from {@link DuctileDBGraphManager},
@@ -89,16 +92,15 @@ public class DuctileDBSchema {
     public void checkAddVertex(Set<String> types, Map<String, Object> properties) {
 	types.forEach((type) -> {
 	    checkTypeIdentifier(type);
-	    checkTypeProperties(ElementType.VERTEX, type, properties);
 	});
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
 	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.VERTEX).get(key);
 	    if (definition != null) {
 		checkPropertyType(value, definition);
-		checkGlobalConstraint(ElementType.VERTEX, key, value, definition);
+		checkGlobalConstraint(null, ElementType.VERTEX, key, value, definition);
 		types.forEach((type) -> {
-		    checkTypeConstraint(ElementType.VERTEX, type, key, value, definition);
+		    checkTypeConstraint(null, ElementType.VERTEX, type, key, value, definition);
 		});
 	    }
 	});
@@ -117,14 +119,13 @@ public class DuctileDBSchema {
 
     public void checkAddEdge(String type, Map<String, Object> properties) {
 	checkTypeIdentifier(type);
-	checkTypeProperties(ElementType.EDGE, type, properties);
 	properties.forEach((key, value) -> {
 	    checkPropertyIdentifier(key);
 	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
 	    if (definition != null) {
 		checkPropertyType(value, definition);
-		checkGlobalConstraint(ElementType.EDGE, key, value, definition);
-		checkTypeConstraint(ElementType.EDGE, type, key, value, definition);
+		checkGlobalConstraint(null, ElementType.EDGE, key, value, definition);
+		checkTypeConstraint(null, ElementType.EDGE, type, key, value, definition);
 	    }
 	});
     }
@@ -133,14 +134,14 @@ public class DuctileDBSchema {
      * This method checks the given type for DuctileDB and also schema
      * conformance.
      * 
+     * @param vertex
+     *            is the vertex to add the new type to.
      * @param type
      *            is the type of the vertex.
-     * @param properties
-     *            are the properties to be checked.
      */
-    public void checkAddVertexType(String type, Map<String, Object> properties) {
+    public void checkAddVertexType(DuctileDBVertex vertex, String type) {
 	checkTypeIdentifier(type);
-	checkTypeProperties(ElementType.VERTEX, type, properties);
+	// checkTypeProperties(ElementType.VERTEX, type, properties);
     }
 
     private void checkTypeIdentifier(String type) {
@@ -167,33 +168,32 @@ public class DuctileDBSchema {
      * This method checks the given property for DuctileDB and also schema
      * conformance.
      * 
-     * @param types
-     *            is a {@link Set} of type names of a vertex to be taken into
-     *            account for the check.
+     * @param vertex
+     *            is the {@link DuctileDBVertex} to check the property for.
      * @param key
      *            is the name of the property.
      * @param value
      *            is the value of the property.
      */
-    public void checkSetVertexProperty(Set<String> types, String key, Object value) {
+    public void checkSetVertexProperty(DuctileDBVertex vertex, String key, Object value) {
 	PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.VERTEX).get(key);
 	checkPropertyIdentifier(key);
 	if (definition != null) {
 	    checkPropertyType(value, definition);
-	    checkGlobalConstraint(ElementType.VERTEX, key, value, definition);
-	    types.forEach((type) -> {
-		checkTypeConstraint(ElementType.VERTEX, type, key, value, definition);
+	    checkGlobalConstraint(vertex, ElementType.VERTEX, key, value, definition);
+	    vertex.getTypes().forEach((type) -> {
+		checkTypeConstraint(vertex, ElementType.VERTEX, type, key, value, definition);
 	    });
 	}
     }
 
-    public void checkSetEdgeProperty(String type, String key, Object value) {
+    public void checkSetEdgeProperty(DuctileDBEdge edge, String key, Object value) {
 	PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
 	checkPropertyIdentifier(key);
 	if (definition != null) {
 	    checkPropertyType(value, definition);
-	    checkGlobalConstraint(ElementType.EDGE, key, value, definition);
-	    checkTypeConstraint(ElementType.EDGE, type, key, value, definition);
+	    checkGlobalConstraint(edge, ElementType.EDGE, key, value, definition);
+	    checkTypeConstraint(edge, ElementType.EDGE, edge.getType(), key, value, definition);
 	}
     }
 
@@ -209,39 +209,50 @@ public class DuctileDBSchema {
 	}
     }
 
-    private void checkGlobalConstraint(ElementType elementType, String key, Object value,
+    private void checkGlobalConstraint(DuctileDBElement element, ElementType elementType, String key, Object value,
 	    PropertyDefinition<?> definition) {
 	if (definition.getUniqueConstraint() == UniqueConstraint.GLOBAL) {
+	    long id = element != null ? element.getId() : -1;
 	    if (elementType == ElementType.VERTEX) {
 		Iterable<DuctileDBVertex> vertices = graph.getVertices(key, value);
-		if (vertices.iterator().hasNext()) {
-		    throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.GLOBAL, key, value);
+		Iterator<DuctileDBVertex> iterator = vertices.iterator();
+		while (iterator.hasNext()) {
+		    if (id != iterator.next().getId()) {
+			throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.GLOBAL, key, value);
+		    }
 		}
 	    } else if (elementType == ElementType.EDGE) {
 		Iterable<DuctileDBEdge> edges = graph.getEdges(key, value);
-		if (edges.iterator().hasNext()) {
-		    throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.GLOBAL, key, value);
+		Iterator<DuctileDBEdge> iterator = edges.iterator();
+		while (iterator.hasNext()) {
+		    if (id != iterator.next().getId()) {
+			throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.GLOBAL, key, value);
+		    }
 		}
 	    }
 	}
     }
 
-    private void checkTypeConstraint(ElementType elementType, String type, String key, Object value,
-	    PropertyDefinition<?> definition) {
+    private void checkTypeConstraint(DuctileDBElement element, ElementType elementType, String type, String key,
+	    Object value, PropertyDefinition<?> definition) {
 	if (definition.getUniqueConstraint() == UniqueConstraint.TYPE) {
+	    long id = element != null ? element.getId() : -1;
 	    if (elementType == ElementType.VERTEX) {
 		Iterable<DuctileDBVertex> vertices = graph.getVertices(key, value);
 		for (DuctileDBVertex vertex : vertices) {
-		    for (String vertexType : vertex.getTypes()) {
-			if (vertexType.equals(type)) {
-			    throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.TYPE, key, value);
+		    if (id != vertex.getId()) {
+			for (String vertexType : vertex.getTypes()) {
+			    if (vertexType.equals(type)) {
+				throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.TYPE, key,
+					value);
+			    }
 			}
 		    }
 		}
 	    } else if (elementType == ElementType.EDGE) {
 		Iterable<DuctileDBEdge> edges = graph.getEdges(key, value);
 		for (DuctileDBEdge edge : edges) {
-		    if (edge.getType().equals(type)) {
+		    if ((id != edge.getId()) && (edge.getType().equals(type))) {
 			throw new DuctileDBUniqueConstraintViolationException(UniqueConstraint.TYPE, key, value);
 		    }
 		}
@@ -257,12 +268,12 @@ public class DuctileDBSchema {
 	typeDefinitions.get(elementType).remove(typeName);
     }
 
-    public void checkRemoveVertexProperty(Iterable<String> types, String propertyKey) {
-	types.forEach(type -> checkRemoveProperty(ElementType.VERTEX, type, propertyKey));
+    public void checkRemoveVertexProperty(DuctileDBVertex vertex, String propertyKey) {
+	vertex.getTypes().forEach(type -> checkRemoveProperty(ElementType.VERTEX, type, propertyKey));
     }
 
-    public void checkRemoveEdgeProperty(String type, String propertyKey) {
-	checkRemoveProperty(ElementType.EDGE, type, propertyKey);
+    public void checkRemoveEdgeProperty(DuctileDBEdge edge, String propertyKey) {
+	checkRemoveProperty(ElementType.EDGE, edge.getType(), propertyKey);
     }
 
     private void checkRemoveProperty(ElementType elementType, String type, String propertyKey) {
@@ -274,6 +285,40 @@ public class DuctileDBSchema {
 	    throw new DuctileDBSchemaException(
 		    "Property '" + propertyKey + "' cannot be removed, because type '" + type + "' uses it.");
 	}
+    }
+
+    public void checkVertex(DuctileDBVertex vertex) {
+	Map<String, Object> properties = ElementUtils.getProperties(vertex);
+	vertex.getTypes().forEach((type) -> {
+	    checkTypeIdentifier(type);
+	    checkTypeProperties(ElementType.VERTEX, type, properties);
+	});
+	properties.forEach((key, value) -> {
+	    checkPropertyIdentifier(key);
+	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.VERTEX).get(key);
+	    if (definition != null) {
+		checkPropertyType(value, definition);
+		checkGlobalConstraint(vertex, ElementType.VERTEX, key, value, definition);
+		vertex.getTypes().forEach((type) -> {
+		    checkTypeConstraint(vertex, ElementType.VERTEX, type, key, value, definition);
+		});
+	    }
+	});
+    }
+
+    public void checkEdge(DuctileDBEdge edge) {
+	Map<String, Object> properties = ElementUtils.getProperties(edge);
+	checkTypeIdentifier(edge.getType());
+	checkTypeProperties(ElementType.EDGE, edge.getType(), properties);
+	properties.forEach((key, value) -> {
+	    checkPropertyIdentifier(key);
+	    PropertyDefinition<?> definition = propertyDefinitions.get(ElementType.EDGE).get(key);
+	    if (definition != null) {
+		checkPropertyType(value, definition);
+		checkGlobalConstraint(edge, ElementType.EDGE, key, value, definition);
+		checkTypeConstraint(edge, ElementType.EDGE, edge.getType(), key, value, definition);
+	    }
+	});
     }
 
 }

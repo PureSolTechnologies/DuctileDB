@@ -105,6 +105,16 @@ public class DucileStoreEdgeManager implements
 	    RelationTypeMetadata.Direction direction, DuctileVertex target,
 	    Map<PrimitivePropertyMethodMetadata<DuctilePropertyMetadata>, Object> exampleEntity) {
 	String name = metadata.getDatastoreMetadata().getDiscriminator();
+	Object[] keyValues = new Object[exampleEntity.size() * 2];
+	@SuppressWarnings("unchecked")
+	PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> keys[] = exampleEntity.keySet()
+		.toArray(new PrimitivePropertyMethodMetadata[exampleEntity.size()]);
+	for (int i = 0; i < exampleEntity.size(); ++i) {
+	    PrimitivePropertyMethodMetadata<DuctilePropertyMetadata> key = keys[i];
+	    String propertyName = key.getDatastoreMetadata().getName();
+	    keyValues[2 * i] = propertyName;
+	    keyValues[2 * i + 1] = exampleEntity.get(key);
+	}
 	switch (direction) {
 	case FROM:
 	    return source.addEdge(name, target);
