@@ -168,9 +168,8 @@ public class DuctileDBSchema {
      * This method checks the given property for DuctileDB and also schema
      * conformance.
      * 
-     * @param types
-     *            is a {@link Set} of type names of a vertex to be taken into
-     *            account for the check.
+     * @param vertex
+     *            is the {@link DuctileDBVertex} to check the property for.
      * @param key
      *            is the name of the property.
      * @param value

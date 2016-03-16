@@ -37,7 +37,7 @@ public class DuctileDBTestHelper {
      * 
      * @param iterable
      *            is the {@link Iterable} to count the elements in.
-     * @return
+     * @return A long value with the number of elements is returned.
      */
     public static long count(Iterable<?> iterable) {
 	long[] count = { 0 };
