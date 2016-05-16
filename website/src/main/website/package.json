@@ -1,0 +1,35 @@
+{
+  "name": "DuctileDB",
+  "version": "0.2.0",
+  "description": "Official Website for DuctileDB",
+  "main": "index.html",
+  "scripts": {
+    "tsc": "tsc",
+    "tsc:w": "tsc -w",
+    "lite": "lite-server",
+    "start": "concurrent \"npm run less\" \"npm run tsc:w\" \"npm run lite\" ",
+    "less": "lessc less/ductiledb.less css/ductiledb.css"
+  },
+  "author": "Rick-Rainer Ludwig",
+  "license": "PureSol Technologies Commercial License",
+  "dependencies": {
+    "angular2": "2.0.0-beta.7",
+    "bootstrap": "^4.0.0-alpha.2",
+    "es6-promise": "^3.0.2",
+    "es6-shim": "^0.33.3",
+    "jquery": "^2.2.0",
+    "reflect-metadata": "0.1.2",
+    "rxjs": "5.0.0-beta.2",
+    "systemjs": "0.19.6",
+    "tether": "^1.1.1",
+    "zone.js": "0.5.15"
+  },
+  "devDependencies": {
+    "concurrently": "^1.0.0",
+    "less": "^2.6.0",
+    "lite-server": "^2.0.1",
+    "tsd": "^0.6.5",
+    "tslint": "^3.3.0",
+    "typescript": "^1.8.0"
+  }
+}

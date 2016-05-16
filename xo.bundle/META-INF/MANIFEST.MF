@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1456862010950
+Bnd-LastModified: 1463430217401
 Build-Jdk: 1.8.0_71
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.puresoltechnologies.ductiledb.xo.Activator
-Bundle-ClassPath: .,dependencies/osgi-0.6.0.jar,dependencies/ductiledb-x
- o-0.2.0-SNAPSHOT.jar
+Bundle-ClassPath: .,dependencies/osgi-0.7.0-SNAPSHOT.jar,dependencies/du
+ ctiledb-xo-0.2.0-SNAPSHOT.jar
 Bundle-Description: DuctileDB is PureSol Technologies' graph database fo
  r HBase and Hadoop.
 Bundle-DocURL: http://puresol-technologies.com
@@ -19,10 +19,10 @@ Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: *;scope=compile|runtime;inline=false
 Embed-Directory: dependencies
 Embed-StripGroup: true
-Embedded-Artifacts: dependencies/osgi-0.6.0.jar;g="com.puresoltechnologi
- es.commons";a="osgi";v="0.6.0",dependencies/ductiledb-xo-0.2.0-SNAPSHOT
- .jar;g="com.puresoltechnologies.ductiledb";a="ductiledb-xo";v="0.2.0-SN
- APSHOT"
+Embedded-Artifacts: dependencies/osgi-0.7.0-SNAPSHOT.jar;g="com.puresolt
+ echnologies.commons";a="osgi";v="0.7.0-SNAPSHOT",dependencies/ductiledb
+ -xo-0.2.0-SNAPSHOT.jar;g="com.puresoltechnologies.ductiledb";a="ductile
+ db-xo";v="0.2.0-SNAPSHOT"
 Export-Package: com.puresoltechnologies.ductiledb.xo;version="0.2.0.SNAP
  SHOT",com.puresoltechnologies.ductiledb.xo.api;version="0.2.0.SNAPSHOT"
  ;uses:="com.buschmais.xo.api.bootstrap,com.buschmais.xo.spi.bootstrap,c

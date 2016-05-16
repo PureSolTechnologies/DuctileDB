@@ -13,7 +13,7 @@
 		<hbase.version>1.1.2</hbase.version>
 		<slf4j.version>1.6.6</slf4j.version>
 		<xo.version>0.6.0</xo.version>
-		<commons.version>0.6.0</commons.version>
+		<commons.version>0.7.0-SNAPSHOT</commons.version>
 		<versioning.version>1.1.0</versioning.version>
 		<kryo.version>3.0.3</kryo.version>
 	</properties>
@@ -411,6 +411,13 @@
 				<version>${commons.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>com.puresoltechnologies.commons</groupId>
+				<artifactId>website</artifactId>
+				<version>${commons.version}</version>
+				<classifier>elements</classifier>
+				<type>zip</type>
+			</dependency>
+			<dependency>
 				<groupId>com.puresoltechnologies.versioning</groupId>
 				<artifactId>versioning</artifactId>
 				<version>${versioning.version}</version>
@@ -688,6 +695,7 @@
 		<module>xo</module>
 		<module>xo.bundle</module>
 		<module>jdbc</module>
+		<module>website</module>
 	</modules>
 
 </project>
