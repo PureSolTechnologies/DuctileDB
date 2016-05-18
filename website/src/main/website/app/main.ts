@@ -8,12 +8,12 @@ import {SiteConstants} from './site-constants'
 
 import {
     ROUTER_PROVIDERS,
-    HashLocationStrategy,
+    PathLocationStrategy,
     LocationStrategy
 } from 'angular2/router';
 
 bootstrap(AppComponent, [
     ROUTER_PROVIDERS,
-    provide(LocationStrategy, {useClass: HashLocationStrategy}),
+    provide(LocationStrategy, {useClass: PathLocationStrategy}),
     provide(SiteConstants, {useClass: SiteConstants})
 ]);
