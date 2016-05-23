@@ -90,18 +90,38 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 
     @Override
     public Iterator<Vertex> vertices(Object... vertexIds) {
-	List<Vertex> vertices = new ArrayList<>();
 	if (vertexIds.length > 0) {
+	    List<Vertex> vertices = new ArrayList<>();
 	    for (Object vertexId : vertexIds) {
 		DuctileDBVertex baseVertex = baseGraph.getVertex(convertId(vertexId));
 		if (baseVertex != null) {
 		    vertices.add(new DuctileVertex(baseVertex, this));
 		}
 	    }
+	    return vertices.iterator();
 	} else {
-	    baseGraph.getVertices().forEach(vertex -> vertices.add(new DuctileVertex(vertex, this)));
+	    return new VertexIterator(baseGraph.getVertices());
 	}
-	return vertices.iterator();
+    }
+
+    private class VertexIterator implements Iterator<Vertex> {
+
+	private final Iterator<DuctileDBVertex> iterator;
+
+	public VertexIterator(Iterable<DuctileDBVertex> iterable) {
+	    super();
+	    this.iterator = iterable.iterator();
+	}
+
+	@Override
+	public boolean hasNext() {
+	    return iterator.hasNext();
+	}
+
+	@Override
+	public Vertex next() {
+	    return new DuctileVertex(iterator.next(), DuctileGraph.this);
+	}
     }
 
     private long convertId(Object vertexId) {
@@ -121,16 +141,36 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 
     @Override
     public Iterator<Edge> edges(Object... edgeIds) {
-	List<Edge> edges = new ArrayList<>();
 	if (edgeIds.length > 0) {
+	    List<Edge> edges = new ArrayList<>();
 	    for (Object edgeId : edgeIds) {
 		DuctileDBEdge baseEdge = baseGraph.getEdge(convertId(edgeId));
 		edges.add(new DuctileEdge(baseEdge, this));
 	    }
+	    return edges.iterator();
 	} else {
-	    baseGraph.getEdges().forEach(edge -> edges.add(new DuctileEdge(edge, this)));
+	    return new EdgeIterator(baseGraph.getEdges());
 	}
-	return edges.iterator();
+    }
+
+    private class EdgeIterator implements Iterator<Edge> {
+
+	private final Iterator<DuctileDBEdge> iterator;
+
+	public EdgeIterator(Iterable<DuctileDBEdge> iterable) {
+	    super();
+	    this.iterator = iterable.iterator();
+	}
+
+	@Override
+	public boolean hasNext() {
+	    return iterator.hasNext();
+	}
+
+	@Override
+	public Edge next() {
+	    return new DuctileEdge(iterator.next(), DuctileGraph.this);
+	}
     }
 
     @Override
@@ -186,5 +226,4 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     public GremlinQueryExecutor createGremlinQueryExecutor() {
 	return new GremlinQueryExecutor(this);
     }
-
 }

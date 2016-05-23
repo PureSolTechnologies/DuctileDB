@@ -18,6 +18,7 @@ import com.buschmais.xo.spi.datastore.TypeMetadataSet;
 import com.buschmais.xo.spi.metadata.method.IndexedPropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.method.PrimitivePropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.EntityTypeMetadata;
+import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertexProperty;
@@ -134,12 +135,11 @@ public class DucileStoreVertexManager
 		.getPropertyMethodMetadata();
 	String name = propertyMethodMetadata.getDatastoreMetadata().getName();
 	Object value = values.values().iterator().next();
-	Iterator<Vertex> vertices = graph.traversal().V().has(name, value);
+	Iterable<DuctileDBVertex> vertices = graph.getBaseGraph().getVertices(name, value);
 	List<DuctileVertex> result = new ArrayList<>();
-	while (vertices.hasNext()) {
-	    DuctileVertex vertex = (DuctileVertex) vertices.next();
-	    if (vertex.getBaseVertex().hasType(discriminator)) {
-		result.add(vertex);
+	for (DuctileDBVertex vertex : vertices) {
+	    if (vertex.hasType(discriminator)) {
+		result.add(new DuctileVertex(vertex, graph));
 	    }
 	}
 	final Iterator<DuctileVertex> iterator = result.iterator();
