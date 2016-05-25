@@ -72,7 +72,19 @@ public class DuctileDBTestHelper {
 	for (HTableDescriptor tableDescriptor : listTables) {
 	    TableName tableName = tableDescriptor.getTableName();
 	    if (DUCTILEDB_NAMESPACE.equals(tableName.getNamespaceAsString())) {
-		removeTable(admin, tableName);
+		if (admin.isTableEnabled(tableName)) {
+		    logger.info("Disable table '" + tableName + "'...");
+		    admin.disableTableAsync(tableName);
+		    logger.info("Table '" + tableName + "' disabled.");
+		}
+	    }
+	}
+	for (HTableDescriptor tableDescriptor : listTables) {
+	    TableName tableName = tableDescriptor.getTableName();
+	    if (DUCTILEDB_NAMESPACE.equals(tableName.getNamespaceAsString())) {
+		logger.info("Delete table '" + tableName + "'...");
+		admin.deleteTable(tableName);
+		logger.info("Table '" + tableName + "' deleted.");
 	    }
 	}
 	NamespaceDescriptor[] namespaceDescriptors = admin.listNamespaceDescriptors();
@@ -82,17 +94,6 @@ public class DuctileDBTestHelper {
 	    }
 	}
 	logger.info("All DuctileDB tables removed.");
-    }
-
-    private static void removeTable(Admin admin, TableName tableName) throws IOException {
-	if (admin.isTableEnabled(tableName)) {
-	    logger.info("Disable table '" + tableName + "'...");
-	    admin.disableTable(tableName);
-	    logger.info("Table '" + tableName + "' disabled.");
-	}
-	logger.info("Delete table '" + tableName + "'...");
-	admin.deleteTable(tableName);
-	logger.info("Table '" + tableName + "' deleted.");
     }
 
     public static void removeGraph(DuctileDBGraph graph) throws IOException {
