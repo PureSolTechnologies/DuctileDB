@@ -98,8 +98,8 @@ public class HBaseSchema {
     }
 
     private void assurePropertiesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.PROPERTIES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.PROPERTIES.getTableName());
+	if (!admin.isTableAvailable(HBaseTable.PROPERTY_DEFINITIONS.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.PROPERTY_DEFINITIONS.getTableName());
 	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes()));
 	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes()));
 	    admin.createTable(descriptor);
@@ -107,8 +107,8 @@ public class HBaseSchema {
     }
 
     private void assureTypesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.TYPES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.TYPES.getTableName());
+	if (!admin.isTableAvailable(HBaseTable.TYPE_DEFINITIONS.getTableName())) {
+	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.TYPE_DEFINITIONS.getTableName());
 	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes()));
 	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes()));
 	    admin.createTable(descriptor);

@@ -5,8 +5,8 @@ import org.apache.hadoop.hbase.TableName;
 public enum HBaseTable {
 
     METADATA("metadata"), //
-    PROPERTIES("properties"), //
-    TYPES("types"), //
+    PROPERTY_DEFINITIONS("property_definitions"), //
+    TYPE_DEFINITIONS("type_definitions"), //
     VERTICES("vertices"), //
     EDGES("edges"), //
     VERTEX_PROPERTIES("vertex_properties"), //
