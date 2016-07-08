@@ -92,7 +92,7 @@ public class DuctileStore
     }
 
     /**
-     * Returns the host name of the Cassandra server.
+     * Returns the host name of the HBase site file.
      * 
      * @return A {@link String} with the host name is returned.
      */
