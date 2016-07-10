@@ -23,10 +23,8 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 
     @Override
     public void clear(Graph graph, Configuration configuration) throws Exception {
-	if (graph == null) {
-	    return; // FIXME
-	}
-	try (DuctileDBGraph ductileGraph = ((DuctileGraph) graph).getBaseGraph()) {
+	if (graph != null) {
+	    DuctileDBGraph ductileGraph = ((DuctileGraph) graph).getBaseGraph();
 	    logger.info("Delete ductile graph...");
 	    for (DuctileDBEdge edge : ductileGraph.getEdges()) {
 		edge.remove();
