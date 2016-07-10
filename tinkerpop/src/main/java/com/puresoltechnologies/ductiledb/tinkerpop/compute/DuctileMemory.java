@@ -10,13 +10,14 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.computer.MapReduce;
 import org.apache.tinkerpop.gremlin.process.computer.Memory;
+import org.apache.tinkerpop.gremlin.process.computer.MemoryComputeKey;
 import org.apache.tinkerpop.gremlin.process.computer.VertexProgram;
 import org.apache.tinkerpop.gremlin.process.computer.util.MemoryHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 public class DuctileMemory<R, M> implements Memory.Admin {
 
-    public final Set<String> memoryKeys = new HashSet<>();
+    public final Set<MemoryComputeKey> memoryKeys = new HashSet<>();
     public Map<String, Object> previousMap = new ConcurrentHashMap<>();
     public final Map<String, Object> currentMap = new ConcurrentHashMap<>();
     private final AtomicInteger iteration = new AtomicInteger(0);
@@ -24,13 +25,13 @@ public class DuctileMemory<R, M> implements Memory.Admin {
 
     public DuctileMemory(VertexProgram<M> vertexProgram, Set<MapReduce<?, ?, ?, ?, R>> mapReducers) {
 	if (null != vertexProgram) {
-	    for (String key : vertexProgram.getMemoryComputeKeys()) {
-		MemoryHelper.validateKey(key);
+	    for (MemoryComputeKey key : vertexProgram.getMemoryComputeKeys()) {
+		// FIXME MemoryHelper.validateKey(key);
 		memoryKeys.add(key);
 	    }
 	}
 	for (MapReduce<?, ?, ?, ?, R> mapReduce : mapReducers) {
-	    memoryKeys.add(mapReduce.getMemoryKey());
+	    // FIXME memoryKeys.add(mapReduce.getMemoryKey());
 	}
     }
 
@@ -90,21 +91,10 @@ public class DuctileMemory<R, M> implements Memory.Admin {
     }
 
     @Override
-    public void incr(String key, long delta) {
-	checkKeyValue(key, delta);
-	currentMap.compute(key, (k, v) -> null == v ? delta : delta + (Long) v);
-    }
-
-    @Override
-    public void and(String key, boolean bool) {
-	checkKeyValue(key, bool);
-	currentMap.compute(key, (k, v) -> null == v ? bool : bool && (Boolean) v);
-    }
-
-    @Override
-    public void or(String key, boolean bool) {
-	checkKeyValue(key, bool);
-	currentMap.compute(key, (k, v) -> null == v ? bool : bool || (Boolean) v);
+    public void add(String key, Object value) throws IllegalArgumentException, IllegalStateException {
+	checkKeyValue(key, value);
+	// currentMap.compute(key, (k, v) -> null == v ? value : value + (Long)
+	// v);
     }
 
     @Override

@@ -6,16 +6,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.util.GraphFactory;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
@@ -28,10 +24,27 @@ public abstract class AbstractTinkerpopTest {
     @BeforeClass
     public static void connect() throws IOException {
 	// DuctileDBTestHelper.removeTables();
-	Map<String, String> configuration = new HashMap<>();
-	configuration.put(Graph.GRAPH, DuctileGraph.class.getName());
+	Map<String, String> configuration = createDefaultConfiguration();
 	graph = (DuctileGraph) GraphFactory.open(configuration);
 	assertNotNull("Graph was not opened.", graph);
+    }
+
+    /**
+     * This method creates the default configuration for localhost and default
+     * ports.
+     * 
+     * @return A {@link Map} with the configuration is returned.
+     */
+    public static Map<String, String> createDefaultConfiguration() {
+	Map<String, String> configuration = new HashMap<>();
+	configuration.put(Graph.GRAPH, DuctileGraph.class.getName());
+	configuration.put(DuctileGraph.ZOOKEEPER_HOST_PROPERTY, "localhost");
+	configuration.put(DuctileGraph.ZOOKEEPER_PORT_PROPERTY,
+		String.valueOf(DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT));
+	configuration.put(DuctileGraph.HBASE_MASTER_HOST_PROPERTY, "localhost");
+	configuration.put(DuctileGraph.HBASE_MASTER_PORT_PROPERTY,
+		String.valueOf(DuctileDBGraphFactory.DEFAULT_MASTER_PORT));
+	return configuration;
     }
 
     @AfterClass
@@ -43,12 +56,6 @@ public abstract class AbstractTinkerpopTest {
     public final void cleanup() throws IOException {
 	DuctileDBTestHelper.removeGraph(graph.getBaseGraph());
 	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph.getBaseGraph());
-    }
-
-    public static DuctileGraph createGraph()
-	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
-	return DuctileGraphFactory.createGraph("localhost", DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost",
-		DuctileDBGraphFactory.DEFAULT_MASTER_PORT, new BaseConfiguration());
     }
 
     public static DuctileGraph getGraph() {

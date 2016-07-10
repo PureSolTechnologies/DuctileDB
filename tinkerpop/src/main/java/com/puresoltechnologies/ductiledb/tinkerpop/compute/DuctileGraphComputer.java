@@ -9,6 +9,9 @@ import org.apache.tinkerpop.gremlin.process.computer.ComputerResult;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.process.computer.MapReduce;
 import org.apache.tinkerpop.gremlin.process.computer.VertexProgram;
+import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
@@ -281,5 +284,19 @@ public class DuctileGraphComputer implements GraphComputer {
 		return false;
 	    }
 	};
+    }
+
+    @Override
+    public GraphComputer vertices(Traversal<Vertex, Vertex> vertexFilter) throws IllegalArgumentException {
+	// TODO Auto-generated method stub
+	// FIXME
+	return null;
+    }
+
+    @Override
+    public GraphComputer edges(Traversal<Vertex, Edge> edgeFilter) throws IllegalArgumentException {
+	// TODO Auto-generated method stub
+	// FIXME
+	return null;
     }
 }

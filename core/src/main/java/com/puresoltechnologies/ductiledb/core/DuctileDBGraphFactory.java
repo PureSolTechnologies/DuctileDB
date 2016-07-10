@@ -21,6 +21,11 @@ public class DuctileDBGraphFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBGraphFactory.class);
 
+    public static final String ZOOKEEPER_HOST_PROPERTY = "zookeeper.host";
+    public static final String ZOOKEEPER_PORT_PROPERTY = "zookeeper.port";
+    public static final String HBASE_MASTER_HOST_PROPERTY = "hbase.master.host";
+    public static final String HBASE_MASTER_PORT_PROPERTY = "hbase.master.port";
+
     public static final int DEFAULT_MASTER_PORT = 60000;
     public static final int DEFAULT_ZOOKEEPER_PORT = 2181;
 
@@ -34,7 +39,7 @@ public class DuctileDBGraphFactory {
 
     public static Configuration createConfiguration(String zooKeeperHost, int zookeeperPort, String masterHost,
 	    int masterPort)
-		    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
 	Configuration config = HBaseConfiguration.create();
 	config.clear();
 	config.set("hbase.zookeeper.quorum", zooKeeperHost);
@@ -51,7 +56,7 @@ public class DuctileDBGraphFactory {
 
     public static Connection createConnection(String zooKeeperHost, int zookeeperPort, String masterHost,
 	    int masterPort)
-		    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
 	Configuration configuration = createConfiguration(zooKeeperHost, zookeeperPort, masterHost, masterPort);
 	return createConnection(configuration);
     }

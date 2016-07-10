@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.tinkerpop.gremlin.AbstractGraphProvider;
-import org.apache.tinkerpop.gremlin.LoadGraphWith.GraphData;
+import org.apache.tinkerpop.gremlin.LoadGraphWith;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
@@ -22,6 +23,9 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 
     @Override
     public void clear(Graph graph, Configuration configuration) throws Exception {
+	if (graph == null) {
+	    return; // FIXME
+	}
 	try (DuctileDBGraph ductileGraph = ((DuctileGraph) graph).getBaseGraph()) {
 	    logger.info("Delete ductile graph...");
 	    for (DuctileDBEdge edge : ductileGraph.getEdges()) {
@@ -50,13 +54,20 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
     }
 
     @Override
-    public Map<String, Object> getBaseConfiguration(String arg0, Class<?> arg1, String arg2, GraphData graphData) {
+    public Map<String, Object> getBaseConfiguration(final String graphName, final Class<?> test,
+	    final String testMethodName, final LoadGraphWith.GraphData loadGraphWith) {
 	return getBaseConfiguration();
     }
 
     public Map<String, Object> getBaseConfiguration() {
 	HashMap<String, Object> baseConfiguration = new HashMap<>();
 	baseConfiguration.put(Graph.GRAPH, DuctileGraph.class.getName());
+	baseConfiguration.put(DuctileGraph.ZOOKEEPER_HOST_PROPERTY, "localhost");
+	baseConfiguration.put(DuctileGraph.ZOOKEEPER_PORT_PROPERTY,
+		String.valueOf(DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT));
+	baseConfiguration.put(DuctileGraph.HBASE_MASTER_HOST_PROPERTY, "localhost");
+	baseConfiguration.put(DuctileGraph.HBASE_MASTER_PORT_PROPERTY,
+		String.valueOf(DuctileDBGraphFactory.DEFAULT_MASTER_PORT));
 	return baseConfiguration;
     }
 

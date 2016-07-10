@@ -132,7 +132,7 @@ class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVer
     }
 
     public void removeEdge(DuctileDBEdge edge) {
-	edges.remove(edge);
+	edges.remove(edge.getId());
     }
 
     @Override

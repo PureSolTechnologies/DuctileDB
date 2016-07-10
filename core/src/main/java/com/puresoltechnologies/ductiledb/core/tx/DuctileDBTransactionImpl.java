@@ -367,8 +367,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		Object value = edge.getProperty(propertyKey);
 		if ((value == null) || (value.equals(propertyValue))) {
 		    if (!wasEdgeRemoved(edgeId)) {
-			if ((edge != null) && //
-				((propertyValue == null) || (propertyValue.equals(edge.getProperty(propertyKey))))) {
+			if ((propertyValue == null) || (propertyValue.equals(edge.getProperty(propertyKey)))) {
 			    edges.add(edge);
 			}
 		    }
@@ -408,7 +407,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    for (DuctileDBCacheEdge edge : addedEdges()) {
 		long edgeId = edge.getId();
 		if (!wasEdgeRemoved(edgeId)) {
-		    if ((edge != null) && (type.equals(edge.getType()))) {
+		    if (type.equals(edge.getType())) {
 			edges.add(edge);
 		    }
 		}
@@ -476,8 +475,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		Object value = vertex.getProperty(propertyKey);
 		if ((propertyValue == null) || (propertyValue.equals(value))) {
 		    if (!wasVertexRemoved(vertex.getId())) {
-			if ((vertex != null) && //
-				((propertyValue == null) || (vertex.getProperty(propertyKey).equals(propertyValue)))) {
+			if ((propertyValue == null) || (vertex.getProperty(propertyKey).equals(propertyValue))) {
 			    vertices.add(vertex);
 			}
 		    }
@@ -521,7 +519,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    for (DuctileDBCacheVertex vertex : addedVertices()) {
 		long vertexId = vertex.getId();
 		if (!wasVertexRemoved(vertexId)) {
-		    if ((vertex != null) && (ElementUtils.getTypes(vertex).contains(type))) {
+		    if (ElementUtils.getTypes(vertex).contains(type)) {
 			vertices.add(vertex);
 		    }
 		}

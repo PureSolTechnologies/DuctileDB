@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
+import org.apache.hadoop.hbase.MasterNotRunningException;
+import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -37,6 +39,23 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_PERFORMANCE)
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
 public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.DuctileDBGraph> {
+
+    public static final String ZOOKEEPER_HOST_PROPERTY = DuctileDBGraphFactory.ZOOKEEPER_HOST_PROPERTY;
+    public static final String ZOOKEEPER_PORT_PROPERTY = DuctileDBGraphFactory.ZOOKEEPER_PORT_PROPERTY;
+    public static final String HBASE_MASTER_HOST_PROPERTY = DuctileDBGraphFactory.HBASE_MASTER_HOST_PROPERTY;
+    public static final String HBASE_MASTER_PORT_PROPERTY = DuctileDBGraphFactory.HBASE_MASTER_PORT_PROPERTY;
+
+    public static DuctileGraph open(Configuration configuration)
+	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
+	String zookeeperHost = configuration.getString("zookeeper.host");
+	int zookeeperPort = configuration.getInt("zookeeper.port");
+	String masterHost = configuration.getString("hbase.master.host");
+	int masterPort = configuration.getInt("hbase.master.port");
+	new DuctileDBGraphFactory();
+	DuctileDBGraph baseGraph = DuctileDBGraphFactory.createGraph(zookeeperHost, zookeeperPort, masterHost,
+		masterPort);
+	return new DuctileGraph(baseGraph, configuration);
+    }
 
     private DuctileGraphComputerView graphComputerView = null;
     private final DuctileDBGraph baseGraph;
@@ -132,7 +151,7 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 	} else if (Double.class.equals(vertexId.getClass())) {
 	    return Math.round((Double) vertexId);
 	} else if (String.class.equals(vertexId.getClass())) {
-	    return Long.valueOf((String) vertexId);
+	    return Long.parseLong((String) vertexId);
 	} else {
 	    throw new IllegalArgumentException(
 		    "Edge id '" + vertexId + "' (class='" + vertexId.getClass() + "') is not supported.");

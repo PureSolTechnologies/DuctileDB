@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1467832223498
+Bnd-LastModified: 1468144651899
 Build-Jdk: 1.8.0_71
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
@@ -64,7 +64,7 @@ Import-Package: com.buschmais.xo.api;version="[0.6,1)",com.buschmais.xo.
  apache.hadoop.hbase.client,org.apache.tinkerpop.gremlin.process.travers
  al.dsl.graph,org.apache.tinkerpop.gremlin.structure,org.apache.tinkerpo
  p.gremlin.util,org.osgi.framework;version="[1.7,2)",org.slf4j;version="
- [1.6,2)"
+ [1.7,2)"
 Project-URL: http://ductiledb.com/ductiledb-xo.bundle
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Specification-Title: eXtended Objects for DuctileDB: ductiledb-xo.bundle
