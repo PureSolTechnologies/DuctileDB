@@ -18,9 +18,9 @@ import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
 import com.google.protobuf.ServiceException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
-import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.graph.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider;
 
 /**

@@ -7,7 +7,7 @@ import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.XOManagerFactory;
 import com.buschmais.xo.api.bootstrap.XO;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBGraphTest;
+import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
 
 /**
  * This is an abstract parent class for XO-DuctileDB tests.

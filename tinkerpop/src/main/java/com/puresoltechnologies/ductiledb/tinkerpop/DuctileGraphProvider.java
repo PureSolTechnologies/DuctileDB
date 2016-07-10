@@ -12,10 +12,10 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 

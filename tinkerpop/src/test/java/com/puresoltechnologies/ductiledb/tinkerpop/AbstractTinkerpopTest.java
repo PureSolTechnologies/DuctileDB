@@ -12,10 +12,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphImpl;
-import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
-import com.puresoltechnologies.ductiledb.core.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 
 public abstract class AbstractTinkerpopTest {
 

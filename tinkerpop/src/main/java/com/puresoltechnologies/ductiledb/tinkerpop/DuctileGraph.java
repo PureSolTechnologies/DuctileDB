@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -20,10 +19,10 @@ import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedGraph;
 
 import com.google.protobuf.ServiceException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
@@ -38,7 +37,7 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_INTEGRATE)
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_PERFORMANCE)
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
-public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.DuctileDBGraph> {
+public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph> {
 
     public static final String ZOOKEEPER_HOST_PROPERTY = DuctileDBGraphFactory.ZOOKEEPER_HOST_PROPERTY;
     public static final String ZOOKEEPER_PORT_PROPERTY = DuctileDBGraphFactory.ZOOKEEPER_PORT_PROPERTY;
@@ -66,12 +65,6 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     protected DuctileGraph(DuctileDBGraph baseGraph, Configuration configuration) {
 	this.configuration.copy(configuration);
 	this.baseGraph = baseGraph;
-	this.ductileTransaction = new DuctileTransaction(this);
-    }
-
-    protected DuctileGraph(File hbaseSiteFile, Configuration configuration) throws IOException, ServiceException {
-	this.configuration.copy(configuration);
-	this.baseGraph = DuctileDBGraphFactory.createGraph(hbaseSiteFile);
 	this.ductileTransaction = new DuctileTransaction(this);
     }
 

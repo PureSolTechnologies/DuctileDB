@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.xo.test.data;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.xo.api.annotation.EdgeDefinition.Outgoing;
-import com.puresoltechnologies.ductiledb.core.StarWarsGraph;
+import com.puresoltechnologies.ductiledb.core.graph.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Indexed;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.Property;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.VertexDefinition;

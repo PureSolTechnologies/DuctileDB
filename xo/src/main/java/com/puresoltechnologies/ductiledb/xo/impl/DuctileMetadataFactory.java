@@ -14,7 +14,7 @@ import com.buschmais.xo.spi.reflection.AnnotatedElement;
 import com.buschmais.xo.spi.reflection.AnnotatedMethod;
 import com.buschmais.xo.spi.reflection.AnnotatedType;
 import com.buschmais.xo.spi.reflection.PropertyMethod;
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 import com.puresoltechnologies.ductiledb.xo.api.annotation.EdgeDefinition;

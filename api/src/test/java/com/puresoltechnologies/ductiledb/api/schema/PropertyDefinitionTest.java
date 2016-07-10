@@ -2,7 +2,9 @@ package com.puresoltechnologies.ductiledb.api.schema;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.ElementType;
+import com.puresoltechnologies.ductiledb.api.graph.ElementType;
+import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
 
 public class PropertyDefinitionTest {
 

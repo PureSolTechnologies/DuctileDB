@@ -18,12 +18,13 @@ import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.method.IndexedPropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
 import com.google.protobuf.ServiceException;
-import com.puresoltechnologies.ductiledb.api.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.ElementType;
-import com.puresoltechnologies.ductiledb.api.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.schema.PropertyDefinition;
-import com.puresoltechnologies.ductiledb.api.schema.UniqueConstraint;
-import com.puresoltechnologies.ductiledb.core.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.ElementType;
+import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
@@ -152,12 +153,12 @@ public class DuctileStore
 
     private <T extends Serializable> void checkAndCreatePropertyIndex(String name, Class<T> dataType, ElementType type,
 	    boolean unique) {
-	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(connection)) {
+	try (DuctileDBGraph graph = new DuctileDBGraphImpl(connection)) {
 	    DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
 	    PropertyDefinition<T> propertyDefinition = schemaManager.getPropertyDefinition(type, name);
 	    if (propertyDefinition == null) {
 		logger.info("Create index for property '" + name + "'.");
-		propertyDefinition = new PropertyDefinition<T>(type, name, dataType,
+		propertyDefinition = new PropertyDefinition<>(type, name, dataType,
 			unique ? UniqueConstraint.TYPE : UniqueConstraint.NONE);
 		schemaManager.defineProperty(propertyDefinition);
 	    }

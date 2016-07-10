@@ -10,6 +10,8 @@ import java.util.SortedMap;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.core.graph.utils.StringEncoder;
+
 public class StringEncoderTest {
 
     @Test

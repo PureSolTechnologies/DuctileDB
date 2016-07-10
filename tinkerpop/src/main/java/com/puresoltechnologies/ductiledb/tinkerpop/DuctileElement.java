@@ -9,7 +9,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedElement;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBElement;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBElement;
 
 public abstract class DuctileElement implements Element, WrappedElement<DuctileDBElement> {
 

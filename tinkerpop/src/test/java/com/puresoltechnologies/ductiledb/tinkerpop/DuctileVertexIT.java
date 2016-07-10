@@ -11,7 +11,7 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 
 public class DuctileVertexIT extends AbstractTinkerpopTest {
 

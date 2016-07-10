@@ -4,7 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 
 public class EdgeKeyTest {
 

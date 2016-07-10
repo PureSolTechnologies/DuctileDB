@@ -13,8 +13,8 @@ import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedEdge;
 import org.apache.tinkerpop.gremlin.util.iterator.IteratorUtils;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.tx.TransactionType;
+import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.api.graph.tx.TransactionType;
 
 public class DuctileEdge extends DuctileElement implements Edge, WrappedEdge<DuctileDBEdge> {
 

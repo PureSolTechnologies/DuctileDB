@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.xo.impl.metadata;
 
-import com.puresoltechnologies.ductiledb.api.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 
 public class DuctileReferencePropertyMetadata {
 

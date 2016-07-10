@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.core.StandardGraphs;
+import com.puresoltechnologies.ductiledb.core.graph.StandardGraphs;
 import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 
 public class GremlinQueryExecutorIT extends AbstractTinkerpopTest {
