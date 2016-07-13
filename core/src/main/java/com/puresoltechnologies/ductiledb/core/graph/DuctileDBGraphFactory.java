@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 
 public class DuctileDBGraphFactory {
 
@@ -68,15 +69,17 @@ public class DuctileDBGraphFactory {
 	return connection;
     }
 
-    public static DuctileDBGraph createGraph(Configuration hbaseConfiguration) throws IOException, ServiceException {
+    public static DuctileDBGraph createGraph(BlobStoreImpl blobStore, Configuration hbaseConfiguration)
+	    throws IOException, ServiceException {
 	Connection connection = createConnection(hbaseConfiguration);
-	return new DuctileDBGraphImpl(connection, true);
+	return new DuctileDBGraphImpl(blobStore, connection, true);
     }
 
-    public static DuctileDBGraph createGraph(String zookeeperHost, int zookeeperPort, String masterHost, int masterPort)
+    public static DuctileDBGraph createGraph(BlobStoreImpl blobStore, String zookeeperHost, int zookeeperPort,
+	    String masterHost, int masterPort)
 	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
 	Configuration configuration = createConfiguration(zookeeperHost, zookeeperPort, masterHost, masterPort);
-	return createGraph(configuration);
+	return createGraph(blobStore, configuration);
     }
 
 }

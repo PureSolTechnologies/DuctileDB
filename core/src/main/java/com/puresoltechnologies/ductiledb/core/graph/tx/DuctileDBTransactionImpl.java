@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.ID_ROW_BYTES;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.api.graph.tx.TransactionType;
+import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchema;
@@ -70,13 +72,15 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private final ThreadLocal<List<Consumer<Status>>> transactionListeners = ThreadLocal
 	    .withInitial(() -> new ArrayList<>());
 
+    private final BlobStoreImpl blobStore;
     private final DuctileDBGraphImpl graph;
     private final TransactionType type;
     private final long threadId;
     private final Connection connection;
     private boolean closed = false;
 
-    public DuctileDBTransactionImpl(DuctileDBGraphImpl graph, TransactionType type) {
+    public DuctileDBTransactionImpl(BlobStoreImpl blobStore, DuctileDBGraphImpl graph, TransactionType type) {
+	this.blobStore = blobStore;
 	this.graph = graph;
 	this.connection = graph.getConnection();
 	this.threadId = Thread.currentThread().getId();
@@ -304,6 +308,15 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	getSchema().checkAddVertex(types, properties);
 	long vertexId = createVertexId();
 	addTxOperation(new AddVertexOperation(this, vertexId, types, properties));
+	return getVertex(vertexId);
+    }
+
+    @Override
+    public DuctileDBVertex addBlobVertex(InputStream blobContent, Set<String> types, Map<String, Object> properties) {
+	checkForClosedAndCorrectThread();
+	getSchema().checkAddVertex(types, properties);
+	long vertexId = createVertexId();
+	addTxOperation(new AddBlobVertexOperation(this, vertexId, blobContent, types, properties));
 	return getVertex(vertexId);
     }
 
@@ -737,6 +750,10 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public String toString() {
 	return "transaction: type=" + type.name() + "; closed=" + closed;
+    }
+
+    public BlobStoreImpl getBlobStore() {
+	return blobStore;
     }
 
 }

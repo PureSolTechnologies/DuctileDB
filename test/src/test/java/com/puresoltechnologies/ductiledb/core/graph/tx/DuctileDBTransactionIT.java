@@ -27,8 +27,8 @@ import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidPropertyKeyException;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidTypeNameException;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
@@ -170,32 +170,32 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	assertEquals(e1.getId(), graph.getEdge(e1.getId()).getId());
 
 	v1.setProperty("name", "marko");
-	assertEquals("marko", v1.<String> getProperty("name"));
-	assertEquals("marko", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("marko", v1.<String>getProperty("name"));
+	assertEquals("marko", graph.getVertex(v1.getId()).<String>getProperty("name"));
 	graph.getCurrentTransaction().commit();
 
-	assertEquals("marko", v1.<String> getProperty("name"));
-	assertEquals("marko", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("marko", v1.<String>getProperty("name"));
+	assertEquals("marko", graph.getVertex(v1.getId()).<String>getProperty("name"));
 
 	v1.setProperty("name", "stephen");
 
-	assertEquals("stephen", v1.<String> getProperty("name"));
-	assertEquals("stephen", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("stephen", v1.<String>getProperty("name"));
+	assertEquals("stephen", graph.getVertex(v1.getId()).<String>getProperty("name"));
 
 	graph.getCurrentTransaction().commit();
 
-	assertEquals("stephen", v1.<String> getProperty("name"));
-	assertEquals("stephen", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("stephen", v1.<String>getProperty("name"));
+	assertEquals("stephen", graph.getVertex(v1.getId()).<String>getProperty("name"));
 
 	e1.setProperty("name", "xxx");
 
-	assertEquals("xxx", e1.<String> getProperty("name"));
-	assertEquals("xxx", graph.getEdge(e1.getId()).<String> getProperty("name"));
+	assertEquals("xxx", e1.<String>getProperty("name"));
+	assertEquals("xxx", graph.getEdge(e1.getId()).<String>getProperty("name"));
 
 	graph.getCurrentTransaction().commit();
 
-	assertEquals("xxx", e1.<String> getProperty("name"));
-	assertEquals("xxx", graph.getEdge(e1.getId()).<String> getProperty("name"));
+	assertEquals("xxx", e1.<String>getProperty("name"));
+	assertEquals("xxx", graph.getEdge(e1.getId()).<String>getProperty("name"));
 
 	assertVertexEdgeCounts(1, 1);
 	assertEquals(v1.getId(), graph.getVertex(v1.getId()).getId());
@@ -209,32 +209,32 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	assertVertexEdgeCounts(1, 1);
 	assertEquals(v1.getId(), graph.getVertex(v1.getId()).getId());
 	assertEquals(e1.getId(), graph.getEdge(e1.getId()).getId());
-	assertEquals("marko", v1.<String> getProperty("name"));
-	assertEquals("xxx", e1.<String> getProperty("name"));
+	assertEquals("marko", v1.<String>getProperty("name"));
+	assertEquals("xxx", e1.<String>getProperty("name"));
 	graph.commit();
 
-	assertEquals("marko", v1.<String> getProperty("name"));
-	assertEquals("marko", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("marko", v1.<String>getProperty("name"));
+	assertEquals("marko", graph.getVertex(v1.getId()).<String>getProperty("name"));
 
 	v1.setProperty("name", "stephen");
 
-	assertEquals("stephen", v1.<String> getProperty("name"));
-	assertEquals("stephen", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("stephen", v1.<String>getProperty("name"));
+	assertEquals("stephen", graph.getVertex(v1.getId()).<String>getProperty("name"));
 
 	graph.getCurrentTransaction().rollback();
 
-	assertEquals("marko", v1.<String> getProperty("name"));
-	assertEquals("marko", graph.getVertex(v1.getId()).<String> getProperty("name"));
+	assertEquals("marko", v1.<String>getProperty("name"));
+	assertEquals("marko", graph.getVertex(v1.getId()).<String>getProperty("name"));
 
 	e1.setProperty("name", "yyy");
 
-	assertEquals("yyy", e1.<String> getProperty("name"));
-	assertEquals("yyy", graph.getEdge(e1.getId()).<String> getProperty("name"));
+	assertEquals("yyy", e1.<String>getProperty("name"));
+	assertEquals("yyy", graph.getEdge(e1.getId()).<String>getProperty("name"));
 
 	graph.getCurrentTransaction().rollback();
 
-	assertEquals("xxx", e1.<String> getProperty("name"));
-	assertEquals("xxx", graph.getEdge(e1.getId()).<String> getProperty("name"));
+	assertEquals("xxx", e1.<String>getProperty("name"));
+	assertEquals("xxx", graph.getEdge(e1.getId()).<String>getProperty("name"));
 
 	assertVertexEdgeCounts(1, 1);
     }
@@ -328,8 +328,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	// are being mutated by multiple threads. originally replicated a bug
 	// that was part of OrientDB.
 
-	final DuctileDBGraph g1 = DuctileDBGraphFactory.createGraph("localhost",
-		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT);
+	final DuctileDBGraph g1 = AbstractDuctileDBTest.createDuctileDB().getGraph();
 
 	final Thread threadModFirstGraph = new Thread() {
 	    @Override

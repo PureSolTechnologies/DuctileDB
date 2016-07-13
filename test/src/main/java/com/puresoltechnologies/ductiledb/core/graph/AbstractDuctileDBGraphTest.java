@@ -21,24 +21,18 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 
-public class AbstractDuctileDBGraphTest {
+public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 
     private static DuctileDBGraphImpl graph;
 
     @BeforeClass
     public static void connect() throws IOException, ServiceException {
 	DuctileDBTestHelper.removeTables();
-	DuctileDBGraph graphImplementation = DuctileDBGraphFactory.createGraph("localhost",
-		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT);
-	assertNotNull("Graph was not created.", graphImplementation);
-	assertEquals("The graph implementation was expected to be '" + DuctileDBGraphImpl.class + "'.",
-		DuctileDBGraphImpl.class, graphImplementation.getClass());
-	graph = (DuctileDBGraphImpl) graphImplementation;
+	graph = getGraph();
 	// DuctileDBTestHelper.removeGraph(graph);
 	// DuctileDBHealthCheck.runCheckForEmpty(graph);
 

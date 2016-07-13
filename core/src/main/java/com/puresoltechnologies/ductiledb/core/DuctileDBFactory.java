@@ -10,7 +10,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 
 import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
@@ -96,8 +95,8 @@ public class DuctileDBFactory {
     }
 
     public static DuctileDB connect(Configuration configuration) throws IOException, ServiceException {
-	BlobStore blobStore = new BlobStoreImpl(configuration);
-	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(configuration);
+	BlobStoreImpl blobStore = new BlobStoreImpl(configuration);
+	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(blobStore, configuration);
 	return new DuctileDBImpl(blobStore, graph);
     }
 

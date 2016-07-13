@@ -14,6 +14,13 @@ import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 public interface DuctileDBGraph extends DuctileDBTransaction, GraphOperations, Closeable {
 
     /**
+     * This is the type of BLOB vertices.
+     */
+    public static final String BLOB_TYPE_NAME = "BLOB";
+    public static final String BLOB_HASHID_PROPERTY_NAME = "blob.hashid";
+    public static final String BLOB_SIZE_PROPERTY_NAME = "blob.size";
+
+    /**
      * This method creates a {@link DuctileDBTransaction} to be used
      * independently of the thread.
      * 

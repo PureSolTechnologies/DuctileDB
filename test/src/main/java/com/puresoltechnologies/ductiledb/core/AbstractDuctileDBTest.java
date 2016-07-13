@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.hadoop.hbase.MasterNotRunningException;
@@ -16,8 +17,8 @@ import com.puresoltechnologies.ductiledb.api.DuctileDB;
 
 public class AbstractDuctileDBTest {
 
-    private static File hadoopHome = new File("/opt/hadoop");
-    private static File hbaseHome = new File("/opt/hbase");
+    public static File hadoopHome = new File("/opt/hadoop");
+    public static File hbaseHome = new File("/opt/hbase");
     private static DuctileDB ductileDB = null;
 
     /**
@@ -33,8 +34,12 @@ public class AbstractDuctileDBTest {
 	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
 	assertThat("HBase home must exist.", hbaseHome.exists());
 	assertThat("Hadoop home must exist.", hadoopHome.exists());
-	ductileDB = DuctileDBFactory.connect(hadoopHome, hbaseHome);
-	assertNotNull("DuctilDB is not null.", ductileDB);
+	ductileDB = createDuctileDB();
+	assertNotNull("DuctileDB is null.", ductileDB);
+    }
+
+    public static DuctileDB createDuctileDB() throws FileNotFoundException, IOException, ServiceException {
+	return DuctileDBFactory.connect(hadoopHome, hbaseHome);
     }
 
     /**

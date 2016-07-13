@@ -9,10 +9,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.google.protobuf.ServiceException;
+import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
+import com.puresoltechnologies.ductiledb.core.DuctileDBFactory;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema;
 
 public class HBaseSchemaIT {
 
@@ -23,8 +25,8 @@ public class HBaseSchemaIT {
 
     @Test
     public void testExplicitSchemaCreation() throws IOException, ServiceException {
-	try (Connection connection = DuctileDBGraphFactory.createConnection("localhost",
-		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT)) {
+	try (DuctileDB ductileDB = AbstractDuctileDBTest.createDuctileDB();
+		Connection connection = ((DuctileDBGraphImpl) ductileDB.getGraph()).getConnection()) {
 	    HBaseSchema schema = new HBaseSchema(connection);
 	    schema.checkAndCreateEnvironment();
 	}
@@ -32,8 +34,9 @@ public class HBaseSchemaIT {
 
     @Test
     public void testImplicitSchemaCreation() throws IOException, ServiceException {
-	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph("localhost",
-		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT)) {
+	try (DuctileDB ductileDB = DuctileDBFactory.connect(AbstractDuctileDBTest.hadoopHome,
+		AbstractDuctileDBTest.hbaseHome)) {
+	    DuctileDBGraph graph = ductileDB.getGraph();
 	    assertNotNull(graph.addVertex());
 	}
     }

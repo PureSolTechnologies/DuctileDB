@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBCommitException;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBRollbackException;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.api.graph.tx.TransactionType;
+import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManagerImpl;
@@ -36,14 +38,17 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private final HBaseSchema hbaseSchema;
     private final DuctileDBSchema schema;
 
+    private final BlobStoreImpl blobStore;
     private final Connection connection;
     private final boolean autoCloseConnection;
 
-    public DuctileDBGraphImpl(Connection connection) throws IOException {
-	this(connection, false);
+    public DuctileDBGraphImpl(BlobStoreImpl blobStore, Connection connection) throws IOException {
+	this(blobStore, connection, false);
     }
 
-    public DuctileDBGraphImpl(Connection connection, boolean autoCloseConnection) throws IOException {
+    public DuctileDBGraphImpl(BlobStoreImpl blobStore, Connection connection, boolean autoCloseConnection)
+	    throws IOException {
+	this.blobStore = blobStore;
 	this.connection = connection;
 	this.autoCloseConnection = autoCloseConnection;
 	hbaseSchema = new HBaseSchema(connection);
@@ -69,13 +74,13 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     @Override
     public DuctileDBTransaction createTransaction() {
-	return new DuctileDBTransactionImpl(this, TransactionType.THREAD_SHARED);
+	return new DuctileDBTransactionImpl(blobStore, this, TransactionType.THREAD_SHARED);
     }
 
     public DuctileDBTransaction getCurrentTransaction() {
 	DuctileDBTransaction transaction = transactions.get();
 	if (transaction == null) {
-	    transaction = new DuctileDBTransactionImpl(this, TransactionType.THREAD_LOCAL);
+	    transaction = new DuctileDBTransactionImpl(blobStore, this, TransactionType.THREAD_LOCAL);
 	    transactions.set(transaction);
 	}
 	return transaction;
@@ -108,6 +113,11 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     @Override
     public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties) {
 	return getCurrentTransaction().addVertex(types, properties);
+    }
+
+    @Override
+    public DuctileDBVertex addBlobVertex(InputStream blobContent, Set<String> types, Map<String, Object> properties) {
+	return getCurrentTransaction().addBlobVertex(blobContent, types, properties);
     }
 
     @Override

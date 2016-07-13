@@ -1,10 +1,12 @@
 package com.puresoltechnologies.ductiledb.api.graph;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 
 /**
@@ -43,6 +45,41 @@ public interface GraphOperations {
      *         content.
      */
     public DuctileDBVertex addVertex(Set<String> types, Map<String, Object> properties);
+
+    /**
+     * This method adds a new BLOB vertex with a new internal id. There are
+     * neither types nor properties set, yet. Only the content of the BLOB is
+     * provided to be stored in {@link BlobStore}.
+     * 
+     * @param blobContent
+     *            is an {@link InputStream} which is used to provide the BLOB
+     *            content to be stored.
+     * @return A {@link DuctileDBVertex} is returned containing the vertex
+     *         content.
+     */
+    public default DuctileDBVertex addBlobVertex(InputStream blobContent) {
+	return addBlobVertex(blobContent, new HashSet<>(), new HashMap<>());
+    }
+
+    /**
+     * This method adds a new BLOB vertex with a new internal id. The types and
+     * properties can be predefined, so that the newly created vertex contains
+     * all information already. This method is to be used in favor over
+     * {@link #addBlobVertex(InputStream)} for performance.
+     * 
+     * @param blobContent
+     *            is an {@link InputStream} which is used to provide the BLOB
+     *            content to be stored.
+     * @param types
+     *            is a {@link Set} of {@link String} containing the types to be
+     *            set for initial creation.
+     * @param properties
+     *            is a {@link Map} of {@link String} and {@link Object} to
+     *            define the properties which are to be set initially.
+     * @return A {@link DuctileDBVertex} is returned containing the vertex
+     *         content.
+     */
+    public DuctileDBVertex addBlobVertex(InputStream blobContent, Set<String> types, Map<String, Object> properties);
 
     /**
      * This method returns the vertex defined via its id.
