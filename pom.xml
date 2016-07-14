@@ -11,7 +11,6 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<gremlin.version>3.2.0-incubating</gremlin.version>
 		<hadoop.version>2.7.2</hadoop.version>
-		<hbase.version>1.1.2</hbase.version>
 		<slf4j.version>1.7.21</slf4j.version>
 		<xo.version>0.6.0</xo.version>
 		<commons.version>0.7.0-SNAPSHOT</commons.version>
@@ -25,7 +24,7 @@
 	<packaging>pom</packaging>
 
 	<name>DuctileDB: ${project.artifactId}</name>
-	<description>DuctileDB is PureSol Technologies' graph database for HBase and Hadoop.</description>
+	<description>DuctileDB is PureSol Technologies' graph database.</description>
 
 	<inceptionYear>2015</inceptionYear>
 	<url>http://ductiledb.com</url>
@@ -388,28 +387,53 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>ductiledb-api</artifactId>
+				<artifactId>api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>ductiledb-core</artifactId>
+				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>ductiledb-test</artifactId>
+				<artifactId>storage.api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>storage.engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>storage.hadoop</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>storage.os</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>storage.spi</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>test</artifactId>
 				<version>${project.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>ductiledb-tinkerpop</artifactId>
+				<artifactId>tinkerpop</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>ductiledb-xo</artifactId>
+				<artifactId>xo</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -458,18 +482,6 @@
 				<groupId>org.apache.hadoop</groupId>
 				<artifactId>hadoop-hdfs</artifactId>
 				<version>${hadoop.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.hbase</groupId>
-				<artifactId>hbase-client</artifactId>
-				<version>${hbase.version}</version>
-				<scope>provided</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-log4j12</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tinkerpop</groupId>
@@ -730,6 +742,8 @@
 	</reporting>
 
 	<modules>
+		<module>spi</module>
+		<module>storage</module>
 		<module>api</module>
 		<module>core</module>
 		<module>tinkerpop</module>

@@ -8,21 +8,22 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>api</artifactId>
+	<artifactId>storage.hadoop</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.puresoltechnologies.commons</groupId>
-			<artifactId>misc</artifactId>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>storage.spi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.versioning</groupId>
-			<artifactId>versioning</artifactId>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
 		</dependency>
 	</dependencies>
+
 </project>

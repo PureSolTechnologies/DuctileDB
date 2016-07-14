@@ -4,25 +4,17 @@
 
 	<parent>
 		<groupId>com.puresoltechnologies.ductiledb</groupId>
-		<artifactId>ductiledb-parent</artifactId>
+		<artifactId>storage</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>api</artifactId>
+	<artifactId>storage.api</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>com.puresoltechnologies.commons</groupId>
-			<artifactId>misc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.puresoltechnologies.versioning</groupId>
-			<artifactId>versioning</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>storage.spi</artifactId>
 		</dependency>
 	</dependencies>
 </project>
