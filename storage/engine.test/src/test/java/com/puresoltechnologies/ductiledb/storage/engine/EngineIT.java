@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class EngineIT {
     @AfterClass
     public static void cleanup() throws FileNotFoundException, IOException {
 	Storage storage = engine.getStorage();
-	storage.removeDirectory("test", true);
+	storage.removeDirectory(new File("test"), true);
     }
 
     @Test

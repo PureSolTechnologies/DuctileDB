@@ -27,25 +27,24 @@ public class OSStorage implements Storage {
 
     @Override
     public void initialize() throws IOException {
-	createDirectory(rootDirectory);
+	if (!rootDirectory.mkdirs()) {
+	    throw new IOException("Could not create directory '" + rootDirectory.getPath() + "'.");
+	}
     }
 
-    private void createDirectory(File directory) throws IOException {
-	if (!directory.exists()) {
-	    if (!directory.mkdirs()) {
-		throw new IOException("Could not create directory '" + directory + "'.");
+    @Override
+    public void createDirectory(File directory) throws IOException {
+	File dir = new File(rootDirectory, directory.getPath());
+	if (!dir.exists()) {
+	    if (!dir.mkdirs()) {
+		throw new IOException("Could not create directory '" + dir + "'.");
 	    }
 	}
     }
 
     @Override
-    public void createDirectory(String storageName) throws IOException {
-	createDirectory(new File(rootDirectory, storageName));
-    }
-
-    @Override
-    public void removeDirectory(String directory, boolean recursive) throws FileNotFoundException, IOException {
-	File dir = new File(rootDirectory, directory);
+    public void removeDirectory(File directory, boolean recursive) throws FileNotFoundException, IOException {
+	File dir = new File(rootDirectory, directory.getPath());
 	if (!dir.exists()) {
 	    throw new FileNotFoundException("Directory '" + directory + "' does not exist.");
 	}

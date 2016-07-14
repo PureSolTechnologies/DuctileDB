@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.stores.hadoop;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
@@ -34,13 +35,13 @@ public class HadoopStorage implements Storage {
     }
 
     @Override
-    public void createDirectory(String storageName) throws IOException {
+    public void createDirectory(File storageName) throws IOException {
 	// TODO Auto-generated method stub
 
     }
 
     @Override
-    public void removeDirectory(String directory, boolean recursive) throws FileNotFoundException, IOException {
+    public void removeDirectory(File directory, boolean recursive) throws FileNotFoundException, IOException {
 	// TODO Auto-generated method stub
 
     }

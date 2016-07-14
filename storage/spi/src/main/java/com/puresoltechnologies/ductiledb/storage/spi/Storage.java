@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.spi;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -28,7 +29,7 @@ public interface Storage {
      *            is the name of the directory.
      * @throws IOException
      */
-    public void createDirectory(String storageName) throws IOException;
+    public void createDirectory(File storageName) throws IOException;
 
     /**
      * This method removes the directory
@@ -40,6 +41,6 @@ public interface Storage {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public void removeDirectory(String directory, boolean recursive) throws FileNotFoundException, IOException;
+    public void removeDirectory(File directory, boolean recursive) throws FileNotFoundException, IOException;
 
 }
