@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.stores.hadoop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.hadoop.fs.FileSystem;
@@ -37,13 +38,20 @@ public class HadoopStorage implements Storage {
     @Override
     public void createDirectory(File storageName) throws IOException {
 	// TODO Auto-generated method stub
-
+	// fileSystem.create(new PathUI)
     }
 
     @Override
     public void removeDirectory(File directory, boolean recursive) throws FileNotFoundException, IOException {
 	// TODO Auto-generated method stub
+	// fileSystem.delete(f, recursive)
+	// fileSystem.list()
+    }
 
+    @Override
+    public Iterator<File> list(File storageDirectory) {
+	// TODO Auto-generated method stub
+	return null;
     }
 
 }

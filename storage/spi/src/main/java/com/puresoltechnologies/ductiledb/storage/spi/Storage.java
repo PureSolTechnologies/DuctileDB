@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.spi;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 
 /**
  * This is the central interface for the storage system to be used for
@@ -42,5 +43,13 @@ public interface Storage {
      * @throws FileNotFoundException
      */
     public void removeDirectory(File directory, boolean recursive) throws FileNotFoundException, IOException;
+
+    /**
+     * This method lists the content of a folder.
+     * 
+     * @param directory
+     * @return
+     */
+    public Iterator<File> list(File storageDirectory);
 
 }

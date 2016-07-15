@@ -3,6 +3,9 @@ package com.puresoltechnologies.ductiledb.stores.os;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -30,6 +33,20 @@ public class OSStorage implements Storage {
 	if (!rootDirectory.mkdirs()) {
 	    throw new IOException("Could not create directory '" + rootDirectory.getPath() + "'.");
 	}
+    }
+
+    @Override
+    public Iterator<File> list(File directory) {
+	File[] files = new File(rootDirectory, directory.getPath()).listFiles();
+	List<File> list = new ArrayList<>();
+	for (File file : files) {
+	    String directoryString = file.getPath().replace(rootDirectory.getPath(), "");
+	    if (directoryString.startsWith(File.separator)) {
+		directoryString = directoryString.substring(1);
+	    }
+	    list.add(new File(directoryString));
+	}
+	return list.iterator();
     }
 
     @Override
