@@ -15,13 +15,14 @@ import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 public abstract class AbstractStorageEngineTest {
 
     private static final UUID randomUUID = UUID.randomUUID();
-    private static final String directory = "/tmp/storage/" + randomUUID.toString();
+    private static final File baseDirectory = new File("/tmp/storage");
+    private static final File storageDirectory = new File(baseDirectory, randomUUID.toString());
     private static StorageEngine storageEngine;
 
     @BeforeClass
     public static void initialize() throws IOException {
 	HashMap<String, String> configuration = new HashMap<>();
-	configuration.put(OSStorage.DIRECTORY_PROPERTY, directory);
+	configuration.put(OSStorage.DIRECTORY_PROPERTY, storageDirectory.getPath());
 	storageEngine = EngineFactory.create(configuration, "test");
 
     }
@@ -30,6 +31,8 @@ public abstract class AbstractStorageEngineTest {
     public static void cleanup() throws FileNotFoundException, IOException {
 	Storage storage = storageEngine.getStorage();
 	storage.removeDirectory(new File("test"), true);
+	storageDirectory.delete();
+	baseDirectory.delete();
     }
 
     protected StorageEngine getEngine() {

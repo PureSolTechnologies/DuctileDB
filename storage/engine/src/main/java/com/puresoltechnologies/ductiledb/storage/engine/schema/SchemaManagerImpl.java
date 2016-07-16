@@ -43,6 +43,15 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
+    public NamespaceDescriptor getNamespace(String namespaceName) {
+	File directory = new File(storageDirectory, namespaceName);
+	if ((!storage.exists(directory)) || (!storage.isDirectory(directory))) {
+	    return null;
+	}
+	return new NamespaceDescriptor(namespaceName, storage, directory);
+    }
+
+    @Override
     public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException {
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
@@ -91,6 +100,15 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
+    public TableDescriptor getTable(NamespaceDescriptor namespace, String tableName) {
+	File directory = new File(namespace.getDirectory(), tableName);
+	if ((!storage.exists(directory)) || (!storage.isDirectory(directory))) {
+	    return null;
+	}
+	return new TableDescriptor(tableName, namespace, directory);
+    }
+
+    @Override
     public TableDescriptor createTable(NamespaceDescriptor namespace, String tableName) throws SchemaException {
 	try {
 	    File tableDirectory = new File(namespace.getDirectory(), tableName);
@@ -136,6 +154,15 @@ public class SchemaManagerImpl implements SchemaManager {
 	    return new ColumnFamilyDescriptor(directory.getName(), table, directory);
 	}
 
+    }
+
+    @Override
+    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor table, String columnFamilyName) {
+	File directory = new File(table.getDirectory(), columnFamilyName);
+	if ((!storage.exists(directory)) || (!storage.isDirectory(directory))) {
+	    return null;
+	}
+	return new ColumnFamilyDescriptor(columnFamilyName, table, directory);
     }
 
     @Override

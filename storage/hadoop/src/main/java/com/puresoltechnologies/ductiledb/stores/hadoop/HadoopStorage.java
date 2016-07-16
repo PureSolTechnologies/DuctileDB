@@ -54,4 +54,15 @@ public class HadoopStorage implements Storage {
 	return null;
     }
 
+    @Override
+    public boolean exists(File file) {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public boolean isDirectory(File directory) {
+	// TODO Auto-generated method stub
+	return false;
+    }
 }

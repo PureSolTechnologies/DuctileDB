@@ -52,4 +52,8 @@ public interface Storage {
      */
     public Iterator<File> list(File storageDirectory);
 
+    public boolean exists(File file);
+
+    public boolean isDirectory(File directory);
+
 }

@@ -90,4 +90,13 @@ public class OSStorage implements Storage {
 	}
     }
 
+    @Override
+    public boolean exists(File file) {
+	return new File(rootDirectory, file.getPath()).exists();
+    }
+
+    @Override
+    public boolean isDirectory(File directory) {
+	return new File(rootDirectory, directory.getPath()).isDirectory();
+    }
 }
