@@ -17,11 +17,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.input.CountingInputStream;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashIdCreatorInputStream;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
@@ -30,6 +25,9 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.IOUtils;
 
 public class AddBlobVertexOperation extends AbstractTxOperation {
 
@@ -111,9 +109,9 @@ public class AddBlobVertexOperation extends AbstractTxOperation {
 		propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 			(Serializable) property.getValue()));
 	    }
-	    put(HBaseTable.VERTICES.getTableName(), put);
-	    put(HBaseTable.VERTEX_TYPES.getTableName(), typeIndex);
-	    put(HBaseTable.VERTEX_PROPERTIES.getTableName(), propertyIndex);
+	    put(HBaseTable.VERTICES.getName(), put);
+	    put(HBaseTable.VERTEX_TYPES.getName(), typeIndex);
+	    put(HBaseTable.VERTEX_PROPERTIES.getName(), propertyIndex);
 	} finally {
 	    blobFile.delete();
 	}

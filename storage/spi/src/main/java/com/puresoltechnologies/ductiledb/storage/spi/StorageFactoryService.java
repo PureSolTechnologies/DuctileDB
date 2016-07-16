@@ -7,7 +7,7 @@ import java.util.Map;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface StorageFactory {
+public interface StorageFactoryService {
 
     /**
      * Creates the actual Storage object base on the configuration provided.

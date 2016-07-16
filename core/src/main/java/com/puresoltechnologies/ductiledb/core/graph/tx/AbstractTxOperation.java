@@ -3,57 +3,56 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.Delete;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.Table;
 
 public abstract class AbstractTxOperation implements TxOperation {
 
     private final DuctileDBTransactionImpl transaction;
-    private final Connection connection;
+    private final StorageEngine storageEngine;
 
     public AbstractTxOperation(DuctileDBTransactionImpl transaction) {
 	super();
 	this.transaction = transaction;
-	this.connection = transaction.getConnection();
+	this.storageEngine = transaction.getStorageEngine();
     }
 
     public final DuctileDBTransactionImpl getTransaction() {
 	return transaction;
     }
 
-    public final Connection getConnection() {
-	return connection;
+    public final StorageEngine getStorageEngine() {
+	return storageEngine;
     }
 
-    protected void put(TableName tableName, Put put) throws IOException {
-	try (Table table = connection.getTable(tableName)) {
+    protected void put(String tableName, Put put) throws IOException {
+	try (Table table = storageEngine.getTable(tableName)) {
 	    table.put(put);
 	}
     }
 
-    protected void put(TableName tableName, List<Put> puts) throws IOException {
+    protected void put(String tableName, List<Put> puts) throws IOException {
 	if (puts.isEmpty()) {
 	    return;
 	}
-	try (Table table = connection.getTable(tableName)) {
+	try (Table table = storageEngine.getTable(tableName)) {
 	    table.put(puts);
 	}
     }
 
-    protected void delete(TableName tableName, Delete delete) throws IOException {
-	try (Table table = connection.getTable(tableName)) {
+    protected void delete(String tableName, Delete delete) throws IOException {
+	try (Table table = storageEngine.getTable(tableName)) {
 	    table.delete(delete);
 	}
     }
 
-    protected void delete(TableName tableName, List<Delete> deletes) throws IOException {
+    protected void delete(String tableName, List<Delete> deletes) throws IOException {
 	if (deletes.isEmpty()) {
 	    return;
 	}
-	try (Table table = connection.getTable(tableName)) {
+	try (Table table = storageEngine.getTable(tableName)) {
 	    table.delete(deletes);
 	}
     }

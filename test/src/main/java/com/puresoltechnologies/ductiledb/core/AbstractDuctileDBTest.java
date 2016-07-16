@@ -1,24 +1,21 @@
 package com.puresoltechnologies.ductiledb.core;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public class AbstractDuctileDBTest {
 
-    public static File hadoopHome = new File("/opt/hadoop");
-    public static File hbaseHome = new File("/opt/hbase");
     private static DuctileDB ductileDB = null;
 
     /**
@@ -28,18 +25,19 @@ public class AbstractDuctileDBTest {
      * @throws ZooKeeperConnectionException
      * @throws ServiceException
      * @throws IOException
+     * @throws SchemaException
+     * @throws StorageException
      */
     @BeforeClass
-    public static void initializeDuctileDB()
-	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
-	assertThat("HBase home must exist.", hbaseHome.exists());
-	assertThat("Hadoop home must exist.", hadoopHome.exists());
+    public static void initializeDuctileDB() throws StorageException, SchemaException {
 	ductileDB = createDuctileDB();
 	assertNotNull("DuctileDB is null.", ductileDB);
     }
 
-    public static DuctileDB createDuctileDB() throws FileNotFoundException, IOException, ServiceException {
-	return DuctileDBFactory.connect(hadoopHome, hbaseHome);
+    public static DuctileDB createDuctileDB() throws StorageException, SchemaException {
+	Map<String, String> configuration = new HashMap<>();
+	configuration.put(OSStorage.DIRECTORY_PROPERTY, "/tmp/ductiledb_test");
+	return DuctileDBFactory.connect(configuration);
     }
 
     /**
@@ -51,7 +49,9 @@ public class AbstractDuctileDBTest {
     @AfterClass
     public static void shutdownDuctileDB() throws IOException {
 	try {
-	    ductileDB.close();
+	    if (ductileDB != null) {
+		ductileDB.close();
+	    }
 	} finally {
 	    ductileDB = null;
 	}

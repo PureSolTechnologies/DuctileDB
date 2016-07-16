@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-import org.apache.hadoop.hbase.util.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public enum HBaseColumnFamily {
 

@@ -17,8 +17,8 @@
 			<artifactId>api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>storage.engine</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.findbugs</groupId>
@@ -31,6 +31,10 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

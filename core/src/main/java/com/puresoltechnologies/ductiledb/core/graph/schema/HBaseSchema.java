@@ -1,18 +1,11 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-import java.io.IOException;
-import java.util.Arrays;
-
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.NamespaceDescriptor;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
-import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class HBaseSchema {
 
@@ -33,149 +26,137 @@ public class HBaseSchema {
     public static final String DUCTILEDB_ID_PROPERTY = "~ductiledb.id";
     public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
 
-    private final Connection connection;
+    private final StorageEngine storageEngine;
 
-    public HBaseSchema(Connection connection) {
+    public HBaseSchema(StorageEngine storageEngine) {
 	super();
-	this.connection = connection;
+	this.storageEngine = storageEngine;
     }
 
-    public void checkAndCreateEnvironment() throws IOException {
-	try (Admin admin = connection.getAdmin()) {
-	    assureNamespacePresence(admin);
-	    assureMetaDataTablePresence(admin);
-	    assurePropertiesTablePresence(admin);
-	    assureTypesTablePresence(admin);
-	    assureVerticesTablePresence(admin);
-	    assureEdgesTablePresence(admin);
-	    assureVertexTypesIndexTablePresence(admin);
-	    assureVertexPropertiesIndexTablePresence(admin);
-	    assureEdgeTypesIndexTablePresence(admin);
-	    assureEdgePropertiesIndexTablePresence(admin);
+    public void checkAndCreateEnvironment() throws SchemaException {
+	SchemaManager schemaManager = storageEngine.getSchemaManager();
+	NamespaceDescriptor namespace = assureNamespacePresence(schemaManager);
+	assureMetaDataTablePresence(schemaManager, namespace);
+	assurePropertiesTablePresence(schemaManager, namespace);
+	assureTypesTablePresence(schemaManager, namespace);
+	assureVerticesTablePresence(schemaManager, namespace);
+	assureEdgesTablePresence(schemaManager, namespace);
+	assureVertexTypesIndexTablePresence(schemaManager, namespace);
+	assureVertexPropertiesIndexTablePresence(schemaManager, namespace);
+	assureEdgeTypesIndexTablePresence(schemaManager, namespace);
+	assureEdgePropertiesIndexTablePresence(schemaManager, namespace);
+
+    }
+
+    private NamespaceDescriptor assureNamespacePresence(SchemaManager schemaManager) throws SchemaException {
+	NamespaceDescriptor namespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);
+	if (namespace == null) {
+	    namespace = schemaManager.createNamespace(DUCTILEDB_NAMESPACE);
+	}
+	return namespace;
+    }
+
+    private void assureMetaDataTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.METADATA.getName()) == null) {
+	    TableDescriptor tableDescription = schemaManager.createTable(namespace, HBaseTable.METADATA.getName());
+	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.METADATA.getName());
+	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.VARIABLES.getName());
+
+	    // FIXME!!!
+	    // Table table =
+	    // storageEngine.getTable(HBaseTable.METADATA.getName());
+	    // Put vertexIdPut = new Put(HBaseColumn.VERTEX_ID.getNameBytes());
+	    // vertexIdPut.addColumn(HBaseColumnFamily.METADATA.getName(),
+	    // HBaseColumn.VERTEX_ID.getNameBytes(),
+	    // Bytes.empty());
+	    // Put edgeIdPut = new Put(HBaseColumn.EDGE_ID.getNameBytes());
+	    // edgeIdPut.addColumn(HBaseColumnFamily.METADATA.getName(),
+	    // HBaseColumn.EDGE_ID.getNameBytes(),
+	    // Bytes.empty());
+	    // Put schemaVersionPut = new
+	    // Put(HBaseColumn.SCHEMA_VERSION.getNameBytes());
+	    // String version = BuildInformation.getVersion();
+	    // if (version.startsWith("${")) {
+	    // // fallback for test environments, but backed up by test.
+	    // version = "0.1.0";
+	    // }
+	    // schemaVersionPut.addColumn(HBaseColumnFamily.METADATA.getName(),
+	    // HBaseColumn.SCHEMA_VERSION.getNameBytes(),
+	    // Bytes.toBytes(version));
+	    // table.put(Arrays.asList(vertexIdPut, edgeIdPut,
+	    // schemaVersionPut));
+
 	}
     }
 
-    private void assureNamespacePresence(Admin admin) throws IOException {
-	boolean foundNamespace = false;
-	for (NamespaceDescriptor namespaceDescriptor : admin.listNamespaceDescriptors()) {
-	    if (DUCTILEDB_NAMESPACE.equals(namespaceDescriptor.getName())) {
-		foundNamespace = true;
-	    }
-	}
-	if (!foundNamespace) {
-	    NamespaceDescriptor descriptor = NamespaceDescriptor.create(DUCTILEDB_NAMESPACE).build();
-	    admin.createNamespace(descriptor);
+    private void assurePropertiesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.PROPERTY_DEFINITIONS.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.PROPERTY_DEFINITIONS.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGE_DEFINITION.getName());
 	}
     }
 
-    private void assureMetaDataTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.METADATA.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.METADATA.getTableName());
-	    HColumnDescriptor metaDataColumnFamily = new HColumnDescriptor(HBaseColumnFamily.METADATA.getNameBytes());
-	    descriptor.addFamily(metaDataColumnFamily);
-	    HColumnDescriptor graphVariableColumnFamily = new HColumnDescriptor(
-		    HBaseColumnFamily.VARIABLES.getNameBytes());
-	    descriptor.addFamily(graphVariableColumnFamily);
-	    admin.createTable(descriptor);
-	    try (Table table = connection.getTable(HBaseTable.METADATA.getTableName());) {
-		Put vertexIdPut = new Put(HBaseColumn.VERTEX_ID.getNameBytes());
-		vertexIdPut.addColumn(HBaseColumnFamily.METADATA.getNameBytes(), HBaseColumn.VERTEX_ID.getNameBytes(),
-			Bytes.toBytes(0l));
-		Put edgeIdPut = new Put(HBaseColumn.EDGE_ID.getNameBytes());
-		edgeIdPut.addColumn(HBaseColumnFamily.METADATA.getNameBytes(), HBaseColumn.EDGE_ID.getNameBytes(),
-			Bytes.toBytes(0l));
-		Put schemaVersionPut = new Put(HBaseColumn.SCHEMA_VERSION.getNameBytes());
-		String version = BuildInformation.getVersion();
-		if (version.startsWith("${")) {
-		    // fallback for test environments, but backed up by test.
-		    version = "0.1.0";
-		}
-		schemaVersionPut.addColumn(HBaseColumnFamily.METADATA.getNameBytes(),
-			HBaseColumn.SCHEMA_VERSION.getNameBytes(), Bytes.toBytes(version));
-		table.put(Arrays.asList(vertexIdPut, edgeIdPut, schemaVersionPut));
-	    }
+    private void assureTypesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.TYPE_DEFINITIONS.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.TYPE_DEFINITIONS.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGE_DEFINITION.getName());
 	}
     }
 
-    private void assurePropertiesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.PROPERTY_DEFINITIONS.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.PROPERTY_DEFINITIONS.getTableName());
-	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes()));
-	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes()));
-	    admin.createTable(descriptor);
+    private void assureVerticesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.VERTICES.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTICES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.PROPERTIES.getName());
 	}
     }
 
-    private void assureTypesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.TYPE_DEFINITIONS.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.TYPE_DEFINITIONS.getTableName());
-	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes()));
-	    descriptor.addFamily(new HColumnDescriptor(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes()));
-	    admin.createTable(descriptor);
+    private void assureEdgesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.EDGES.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.PROPERTIES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERICES.getName());
 	}
     }
 
-    private void assureVerticesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.VERTICES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.VERTICES.getTableName());
-	    HColumnDescriptor typeColumnFamily = new HColumnDescriptor(HBaseColumnFamily.TYPES.getNameBytes());
-	    descriptor.addFamily(typeColumnFamily);
-	    HColumnDescriptor edgesColumnFamily = new HColumnDescriptor(HBaseColumnFamily.EDGES.getNameBytes());
-	    descriptor.addFamily(edgesColumnFamily);
-	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(
-		    HBaseColumnFamily.PROPERTIES.getNameBytes());
-	    descriptor.addFamily(propertiesColumnFamily);
-	    admin.createTable(descriptor);
+    private void assureVertexTypesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.VERTEX_TYPES.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTEX_TYPES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
 	}
     }
 
-    private void assureEdgesTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.EDGES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.EDGES.getTableName());
-	    HColumnDescriptor typesColumnFamily = new HColumnDescriptor(HBaseColumnFamily.TYPES.getNameBytes());
-	    descriptor.addFamily(typesColumnFamily);
-	    HColumnDescriptor propertiesColumnFamily = new HColumnDescriptor(
-		    HBaseColumnFamily.PROPERTIES.getNameBytes());
-	    descriptor.addFamily(propertiesColumnFamily);
-	    HColumnDescriptor verticesColumnFamily = new HColumnDescriptor(HBaseColumnFamily.VERICES.getNameBytes());
-	    descriptor.addFamily(verticesColumnFamily);
-	    admin.createTable(descriptor);
+    private void assureVertexPropertiesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.VERTEX_PROPERTIES.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTEX_PROPERTIES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
 	}
     }
 
-    private void assureVertexTypesIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.VERTEX_TYPES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.VERTEX_TYPES.getTableName());
-	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(HBaseColumnFamily.INDEX.getNameBytes());
-	    descriptor.addFamily(indexColumnFamily);
-	    admin.createTable(descriptor);
+    private void assureEdgeTypesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.EDGE_TYPES.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGE_TYPES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
 	}
     }
 
-    private void assureVertexPropertiesIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.VERTEX_PROPERTIES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.VERTEX_PROPERTIES.getTableName());
-	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(HBaseColumnFamily.INDEX.getNameBytes());
-	    descriptor.addFamily(indexColumnFamily);
-	    admin.createTable(descriptor);
-	}
-    }
-
-    private void assureEdgeTypesIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.EDGE_TYPES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.EDGE_TYPES.getTableName());
-	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(HBaseColumnFamily.INDEX.getNameBytes());
-	    descriptor.addFamily(indexColumnFamily);
-	    admin.createTable(descriptor);
-	}
-    }
-
-    private void assureEdgePropertiesIndexTablePresence(Admin admin) throws IOException {
-	if (!admin.isTableAvailable(HBaseTable.EDGE_PROPERTIES.getTableName())) {
-	    HTableDescriptor descriptor = new HTableDescriptor(HBaseTable.EDGE_PROPERTIES.getTableName());
-	    HColumnDescriptor indexColumnFamily = new HColumnDescriptor(HBaseColumnFamily.INDEX.getNameBytes());
-	    descriptor.addFamily(indexColumnFamily);
-	    admin.createTable(descriptor);
+    private void assureEdgePropertiesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+	    throws SchemaException {
+	if (schemaManager.getTable(namespace, HBaseTable.EDGE_PROPERTIES.getName()) == null) {
+	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGE_PROPERTIES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
 	}
     }
 

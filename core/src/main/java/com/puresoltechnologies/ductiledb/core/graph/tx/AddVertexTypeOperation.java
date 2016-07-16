@@ -2,12 +2,11 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.io.IOException;
 
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class AddVertexTypeOperation extends AbstractTxOperation {
 
@@ -42,7 +41,7 @@ public class AddVertexTypeOperation extends AbstractTxOperation {
 	Put put = new Put(id);
 	put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), Bytes.toBytes(type));
 	Put index = OperationsHelper.createVertexTypeIndexPut(vertexId, type);
-	put(HBaseTable.VERTICES.getTableName(), put);
-	put(HBaseTable.VERTEX_TYPES.getTableName(), index);
+	put(HBaseTable.VERTICES.getName(), put);
+	put(HBaseTable.VERTEX_TYPES.getName(), index);
     }
 }

@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-import org.apache.hadoop.hbase.TableName;
-
 public enum HBaseTable {
 
     METADATA("metadata"), //
@@ -15,18 +13,12 @@ public enum HBaseTable {
     EDGE_TYPES("edge_types");
 
     private final String name;
-    private final TableName tableName;
 
     HBaseTable(String name) {
-	this.name = HBaseSchema.DUCTILEDB_NAMESPACE + ":" + name;
-	this.tableName = TableName.valueOf(this.name);
+	this.name = name;
     }
 
     public String getName() {
 	return name;
-    }
-
-    public TableName getTableName() {
-	return tableName;
     }
 }

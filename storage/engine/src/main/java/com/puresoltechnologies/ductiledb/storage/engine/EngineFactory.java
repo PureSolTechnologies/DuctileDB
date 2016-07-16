@@ -5,8 +5,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
-import com.puresoltechnologies.ductiledb.storage.spi.StorageFactory;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageFactoryService;
 
 /**
  * This is the central factory to create a storage factory.
@@ -21,20 +22,25 @@ public class EngineFactory {
      * @param string
      * @param string2
      * @return
+     * @throws StorageException
      * @throws IOException
      */
-    public static StorageEngine create(Map<String, String> configuration, String storageName) throws IOException {
-	ServiceLoader<StorageFactory> storages = ServiceLoader.load(StorageFactory.class);
-	Iterator<StorageFactory> storagesIterator = storages.iterator();
+    public static StorageEngine create(Map<String, String> configuration, String storageName) throws StorageException {
+	ServiceLoader<StorageFactoryService> storages = ServiceLoader.load(StorageFactoryService.class);
+	Iterator<StorageFactoryService> storagesIterator = storages.iterator();
 	if (!storagesIterator.hasNext()) {
 	    throw new IllegalStateException("Could not find any storage service.");
 	}
-	StorageFactory storageFactory = storagesIterator.next();
+	StorageFactoryService storageFactory = storagesIterator.next();
 	if (storagesIterator.hasNext()) {
 	    throw new IllegalStateException("Find multiple storage services.");
 	}
 	Storage storage = storageFactory.create(configuration);
-	storage.initialize();
+	try {
+	    storage.initialize();
+	} catch (IOException e) {
+	    throw new StorageException("Could not initialize storage.", e);
+	}
 	return new StorageEngine(storage, storageName);
     }
 

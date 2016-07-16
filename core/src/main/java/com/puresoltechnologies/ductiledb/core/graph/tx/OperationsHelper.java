@@ -3,13 +3,12 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Delete;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class OperationsHelper {
 

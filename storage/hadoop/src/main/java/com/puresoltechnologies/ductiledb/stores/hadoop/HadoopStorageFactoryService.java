@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.stores.hadoop;
 import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
-import com.puresoltechnologies.ductiledb.storage.spi.StorageFactory;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageFactoryService;
 
-public class HadoopStorageFactory implements StorageFactory {
+public class HadoopStorageFactoryService implements StorageFactoryService {
 
     @Override
     public Storage create(Map<String, String> configuration) {

@@ -7,6 +7,7 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 
 public class DuctileDBFactoryIT extends AbstractDuctileDBTest {
 

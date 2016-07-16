@@ -1,22 +1,24 @@
 package com.puresoltechnologies.ductiledb.core.blob;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileSystem;
+import java.util.Iterator;
+import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocatedFileStatus;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RemoteIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
+import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
+import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.IOUtils;
+import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This is the base implementation of the BLOB store for DuctileDB.
@@ -28,13 +30,13 @@ public class BlobStoreImpl implements BlobStore {
     /**
      * Root directory for DuctileDB's BLOB store.
      */
-    private static final Path filePath = new Path("/apps/DuctileDB/blobs");
+    private static final File filePath = new File("blobs");
 
     private static final Logger logger = LoggerFactory.getLogger(BlobStoreImpl.class);
-    private final FileSystem fileSystem;
+    private final Storage storage;
 
-    public BlobStoreImpl(Configuration configuration) throws IOException {
-	this.fileSystem = FileSystem.newInstance(configuration);
+    public BlobStoreImpl(Map<String, String> configuration) throws StorageFactoryServiceException {
+	this.storage = StorageFactory.create(configuration);
     }
 
     /**
@@ -43,30 +45,26 @@ public class BlobStoreImpl implements BlobStore {
      * @param fileSystem
      *            is the {@link FileSystem} of Hadoop to store objects to.
      */
-    public BlobStoreImpl(FileSystem fileSystem) {
+    public BlobStoreImpl(Storage storage) {
 	super();
-	this.fileSystem = fileSystem;
+	this.storage = storage;
 	initialize();
     }
 
     private void initialize() {
-	try {
-	    logger.info("Initialize Bloob service...");
-	    if (!fileSystem.exists(filePath)) {
-		throw new RuntimeException("Could not initialize Bloob Service due to missing file directory in HDFS.");
-	    }
-	    FileStatus fileStatus = fileSystem.getFileStatus(filePath);
-	    if (!fileStatus.isDirectory()) {
-		throw new RuntimeException(
-			"Could not initialize Bloob Service due to missing file directory in HDFS. Path exists, but it is not a directory.");
-	    }
-	    logger.info("Bloob service initialized.");
-	} catch (IOException e) {
-	    throw new RuntimeException("Could not initialize Bloob service.", e);
+	logger.info("Initialize Bloob service...");
+	if (!storage.exists(filePath)) {
+	    throw new RuntimeException("Could not initialize Bloob Service due to missing file directory in HDFS.");
 	}
+	FileStatus fileStatus = storage.getFileStatus(filePath);
+	if (!fileStatus.isDirectory()) {
+	    throw new RuntimeException(
+		    "Could not initialize Bloob Service due to missing file directory in HDFS. Path exists, but it is not a directory.");
+	}
+	logger.info("Bloob service initialized.");
     }
 
-    private Path createPath(HashId hashId) {
+    private File createPath(HashId hashId) {
 	String hash = hashId.getHash();
 	StringBuffer child = new StringBuffer();
 	child.append(hash.substring(0, 2));
@@ -78,23 +76,23 @@ public class BlobStoreImpl implements BlobStore {
 	child.append(hash.substring(6, 8));
 	child.append("/");
 	child.append(hash.substring(8));
-	return new Path(filePath, child.toString());
+	return new File(filePath, child.toString());
     }
 
     @Override
     public boolean isBlobAvailable(HashId hashId) throws IOException {
-	Path path = createPath(hashId);
-	return fileSystem.exists(path);
+	File path = createPath(hashId);
+	return storage.exists(path);
     }
 
     @Override
     public long getBlobSize(HashId hashId) throws FileNotFoundException, IOException {
-	Path path = createPath(hashId);
-	RemoteIterator<LocatedFileStatus> files = fileSystem.listFiles(path, false);
+	File path = createPath(hashId);
+	Iterator<File> files = storage.list(path);
 	if (!files.hasNext()) {
 	    throw new FileNotFoundException("Could not find file with hash id '" + hashId + "'.");
 	}
-	return files.next().getLen();
+	return storage.getFileStatus(files.next()).getLength();
     }
 
     @Override
@@ -102,14 +100,14 @@ public class BlobStoreImpl implements BlobStore {
 	if (!isBlobAvailable(hashId)) {
 	    throw new FileNotFoundException("Could not find file with hash id '" + hashId + "'.");
 	}
-	Path path = createPath(hashId);
-	return fileSystem.open(path);
+	File path = createPath(hashId);
+	return storage.open(path);
     }
 
     @Override
     public void storeBlob(HashId hashId, InputStream inputStream) throws IOException {
-	Path path = createPath(hashId);
-	try (FSDataOutputStream outputStream = fileSystem.create(path, false);) {
+	File path = createPath(hashId);
+	try (OutputStream outputStream = storage.create(path);) {
 	    IOUtils.copy(inputStream, outputStream);
 	}
     }
@@ -119,8 +117,8 @@ public class BlobStoreImpl implements BlobStore {
 	if (!isBlobAvailable(hashId)) {
 	    return false;
 	}
-	Path path = createPath(hashId);
-	if (!fileSystem.delete(path, false)) {
+	File path = createPath(hashId);
+	if (!storage.delete(path)) {
 	    throw new IOException("Could not delete file for hash id '" + hashId + "'.");
 	}
 	return true;
@@ -128,6 +126,6 @@ public class BlobStoreImpl implements BlobStore {
 
     @Override
     public void close() throws IOException {
-	fileSystem.close();
+	storage.close();
     };
 }

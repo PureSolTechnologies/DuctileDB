@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.apache.hadoop.hbase.client.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +26,8 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManagerImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
 
@@ -39,36 +40,36 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private final DuctileDBSchema schema;
 
     private final BlobStoreImpl blobStore;
-    private final Connection connection;
+    private final StorageEngine storageEngine;
     private final boolean autoCloseConnection;
 
-    public DuctileDBGraphImpl(BlobStoreImpl blobStore, Connection connection) throws IOException {
-	this(blobStore, connection, false);
+    public DuctileDBGraphImpl(BlobStoreImpl blobStore, StorageEngine storageEngine) throws SchemaException {
+	this(blobStore, storageEngine, false);
     }
 
-    public DuctileDBGraphImpl(BlobStoreImpl blobStore, Connection connection, boolean autoCloseConnection)
-	    throws IOException {
+    public DuctileDBGraphImpl(BlobStoreImpl blobStore, StorageEngine storageEngine, boolean autoCloseConnection)
+	    throws SchemaException {
 	this.blobStore = blobStore;
-	this.connection = connection;
+	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
-	hbaseSchema = new HBaseSchema(connection);
+	hbaseSchema = new HBaseSchema(storageEngine);
 	hbaseSchema.checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
     }
 
-    public final Connection getConnection() {
-	return connection;
+    public final StorageEngine getStorageEngine() {
+	return storageEngine;
     }
 
     @Override
     public void close() throws IOException {
 	if (autoCloseConnection) {
-	    if (connection.isClosed()) {
+	    if (storageEngine.isClosed()) {
 		throw new IllegalStateException("Connection was already closed.");
 	    }
-	    logger.info("Closes connection '" + connection.toString() + "'...");
-	    connection.close();
-	    logger.info("Connection '" + connection.toString() + "' closed.");
+	    logger.info("Closes connection '" + storageEngine.toString() + "'...");
+	    storageEngine.close();
+	    logger.info("Connection '" + storageEngine.toString() + "' closed.");
 	}
     }
 

@@ -3,13 +3,6 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.NavigableMap;
 
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
@@ -18,6 +11,12 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Delete;
+import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.Result;
+import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 
@@ -54,7 +53,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 
     @Override
     public void perform() throws IOException {
-	try (Table table = getConnection().getTable(HBaseTable.VERTICES.getTableName())) {
+	try (Table table = getStorageEngine().getTable(HBaseTable.VERTICES.getName())) {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
@@ -90,10 +89,10 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 
 	    Delete index = OperationsHelper.createEdgePropertyIndexDelete(edgeId, key);
 	    // Add to transaction
-	    put(HBaseTable.VERTICES.getTableName(), startVertexPut);
-	    put(HBaseTable.VERTICES.getTableName(), targetVertexPut);
-	    delete(HBaseTable.EDGES.getTableName(), edgeDelete);
-	    delete(HBaseTable.EDGE_PROPERTIES.getTableName(), index);
+	    put(HBaseTable.VERTICES.getName(), startVertexPut);
+	    put(HBaseTable.VERTICES.getName(), targetVertexPut);
+	    delete(HBaseTable.EDGES.getName(), edgeDelete);
+	    delete(HBaseTable.EDGE_PROPERTIES.getName(), index);
 	}
     }
 }

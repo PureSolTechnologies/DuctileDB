@@ -17,14 +17,6 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
@@ -43,6 +35,11 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Result;
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 /**
  * This transaction is used per thread to record changes in the graph to be
@@ -76,13 +73,13 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private final DuctileDBGraphImpl graph;
     private final TransactionType type;
     private final long threadId;
-    private final Connection connection;
+    private final StorageEngine storageEngine;
     private boolean closed = false;
 
     public DuctileDBTransactionImpl(BlobStoreImpl blobStore, DuctileDBGraphImpl graph, TransactionType type) {
 	this.blobStore = blobStore;
 	this.graph = graph;
-	this.connection = graph.getConnection();
+	this.storageEngine = graph.getStorageEngine();
 	this.threadId = Thread.currentThread().getId();
 	this.type = type;
     }
@@ -96,8 +93,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return type;
     }
 
-    public final Connection getConnection() {
-	return connection;
+    public final StorageEngine getStorageEngine() {
+	return storageEngine;
     }
 
     @Override
@@ -239,31 +236,31 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     Table openMetaDataTable() throws IOException {
-	return connection.getTable(HBaseTable.METADATA.getTableName());
+	return storageEngine.getTable(HBaseTable.METADATA.getName());
     }
 
     Table openVertexTable() throws IOException {
-	return connection.getTable(HBaseTable.VERTICES.getTableName());
+	return storageEngine.getTable(HBaseTable.VERTICES.getName());
     }
 
     Table openEdgeTable() throws IOException {
-	return connection.getTable(HBaseTable.EDGES.getTableName());
+	return storageEngine.getTable(HBaseTable.EDGES.getName());
     }
 
     Table openVertexPropertyTable() throws IOException {
-	return connection.getTable(HBaseTable.VERTEX_PROPERTIES.getTableName());
+	return storageEngine.getTable(HBaseTable.VERTEX_PROPERTIES.getName());
     }
 
     Table openVertexTypesTable() throws IOException {
-	return connection.getTable(HBaseTable.VERTEX_TYPES.getTableName());
+	return storageEngine.getTable(HBaseTable.VERTEX_TYPES.getName());
     }
 
     Table openEdgePropertyTable() throws IOException {
-	return connection.getTable(HBaseTable.EDGE_PROPERTIES.getTableName());
+	return storageEngine.getTable(HBaseTable.EDGE_PROPERTIES.getName());
     }
 
     Table openEdgeTypesTable() throws IOException {
-	return connection.getTable(HBaseTable.EDGE_TYPES.getTableName());
+	return storageEngine.getTable(HBaseTable.EDGE_TYPES.getName());
     }
 
     final long createVertexId() {

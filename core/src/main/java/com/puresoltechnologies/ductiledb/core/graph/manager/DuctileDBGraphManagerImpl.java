@@ -6,14 +6,6 @@ import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Set;
 
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.Table;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManagerException;
@@ -22,6 +14,13 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Delete;
+import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.Result;
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
@@ -40,8 +39,8 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public Version getVersion() {
-	Connection connection = graph.getConnection();
-	try (Table table = connection.getTable(HBaseTable.METADATA.getTableName())) {
+	StorageEngine storageEngine = graph.getStorageEngine();
+	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Result result = table.get(new Get(HBaseColumn.SCHEMA_VERSION.getNameBytes()));
 	    byte[] version = result.getFamilyMap(HBaseColumnFamily.METADATA.getNameBytes())
 		    .get(HBaseColumn.SCHEMA_VERSION.getNameBytes());
@@ -53,8 +52,8 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public Iterable<String> getVariableNames() {
-	Connection connection = graph.getConnection();
-	try (Table table = connection.getTable(HBaseTable.METADATA.getTableName())) {
+	StorageEngine storageEngine = graph.getStorageEngine();
+	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Set<String> variableNames = new HashSet<>();
 	    Result result = table.get(new Get(HBaseColumnFamily.VARIABLES.getNameBytes()));
 	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(HBaseColumnFamily.VARIABLES.getNameBytes());
@@ -72,8 +71,8 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public <T extends Serializable> void setVariable(String variableName, T value) {
-	Connection connection = graph.getConnection();
-	try (Table table = connection.getTable(HBaseTable.METADATA.getTableName())) {
+	StorageEngine storageEngine = graph.getStorageEngine();
+	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Put put = new Put(HBaseColumnFamily.VARIABLES.getNameBytes());
 	    put.addColumn(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName),
 		    Serializer.serializePropertyValue(value));
@@ -86,8 +85,8 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public <T> T getVariable(String variableName) {
-	Connection connection = graph.getConnection();
-	try (Table table = connection.getTable(HBaseTable.METADATA.getTableName())) {
+	StorageEngine storageEngine = graph.getStorageEngine();
+	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Result result = table.get(new Get(HBaseColumnFamily.VARIABLES.getNameBytes()));
 	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(HBaseColumnFamily.VARIABLES.getNameBytes());
 	    if (familyMap == null) {
@@ -105,8 +104,8 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public void removeVariable(String variableName) {
-	Connection connection = graph.getConnection();
-	try (Table table = connection.getTable(HBaseTable.METADATA.getTableName())) {
+	StorageEngine storageEngine = graph.getStorageEngine();
+	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Delete delete = new Delete(HBaseColumnFamily.VARIABLES.getNameBytes());
 	    delete.addColumns(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
 	    table.delete(delete);

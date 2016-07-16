@@ -1,9 +1,12 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
+import static com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks.checkIdentifier;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class SchemaManagerImpl implements SchemaManager {
@@ -53,6 +56,10 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException {
+	if (!checkIdentifier(namespaceName)) {
+	    throw new SchemaException("Namespace name '" + namespaceName
+		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
+	}
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
@@ -110,6 +117,10 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public TableDescriptor createTable(NamespaceDescriptor namespace, String tableName) throws SchemaException {
+	if (!checkIdentifier(tableName)) {
+	    throw new SchemaException("Table name '" + tableName + "' is invalid. Identifiers have to match pattern '"
+		    + EngineChecks.IDENTIFIED_FORM + "'.");
+	}
 	try {
 	    File tableDirectory = new File(namespace.getDirectory(), tableName);
 	    storage.createDirectory(tableDirectory);
@@ -168,6 +179,10 @@ public class SchemaManagerImpl implements SchemaManager {
     @Override
     public ColumnFamilyDescriptor createColumnFamily(TableDescriptor table, String columnFamilyName)
 	    throws SchemaException {
+	if (!checkIdentifier(columnFamilyName)) {
+	    throw new SchemaException("Column family name '" + columnFamilyName
+		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
+	}
 	try {
 	    File columnFamilyDirectory = new File(table.getDirectory(), columnFamilyName);
 	    storage.createDirectory(columnFamilyDirectory);

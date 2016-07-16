@@ -6,14 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.hadoop.hbase.client.Delete;
-
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 
 public class RemoveEdgeOperation extends AbstractTxOperation {
 
@@ -70,11 +69,11 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
 	for (String key : edgePropertyKeys) {
 	    propertyIndices.add(OperationsHelper.createEdgePropertyIndexDelete(edgeId, key));
 	}
-	delete(HBaseTable.VERTICES.getTableName(), deleteOutEdge);
-	delete(HBaseTable.VERTICES.getTableName(), deleteInEdge);
-	delete(HBaseTable.EDGES.getTableName(), deleteEdges);
-	delete(HBaseTable.EDGE_TYPES.getTableName(), typeIndex);
-	delete(HBaseTable.EDGE_PROPERTIES.getTableName(), propertyIndices);
+	delete(HBaseTable.VERTICES.getName(), deleteOutEdge);
+	delete(HBaseTable.VERTICES.getName(), deleteInEdge);
+	delete(HBaseTable.EDGES.getName(), deleteEdges);
+	delete(HBaseTable.EDGE_TYPES.getName(), typeIndex);
+	delete(HBaseTable.EDGE_PROPERTIES.getName(), propertyIndices);
     }
 
 }

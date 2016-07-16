@@ -1,8 +1,11 @@
 package com.puresoltechnologies.ductiledb.storage.spi;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Iterator;
 
 /**
@@ -12,7 +15,7 @@ import java.util.Iterator;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface Storage {
+public interface Storage extends Closeable {
 
     /**
      * This method is used to check the preconditions and to initialize the
@@ -50,10 +53,18 @@ public interface Storage {
      * @param directory
      * @return
      */
-    public Iterator<File> list(File storageDirectory);
+    public Iterator<File> list(File directory);
 
     public boolean exists(File file);
 
     public boolean isDirectory(File directory);
+
+    public FileStatus getFileStatus(File file);
+
+    public InputStream open(File file) throws FileNotFoundException;
+
+    public OutputStream create(File file) throws IOException;
+
+    public boolean delete(File file);
 
 }

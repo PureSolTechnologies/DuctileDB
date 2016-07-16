@@ -26,7 +26,7 @@ public class HBaseSchemaIT {
     @Test
     public void testExplicitSchemaCreation() throws IOException, ServiceException {
 	try (DuctileDB ductileDB = AbstractDuctileDBTest.createDuctileDB();
-		Connection connection = ((DuctileDBGraphImpl) ductileDB.getGraph()).getConnection()) {
+		Connection connection = ((DuctileDBGraphImpl) ductileDB.getGraph()).getStorageEngine()) {
 	    HBaseSchema schema = new HBaseSchema(connection);
 	    schema.checkAndCreateEnvironment();
 	}

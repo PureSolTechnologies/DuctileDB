@@ -2,13 +2,11 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.util.Iterator;
 
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.storage.engine.Result;
 
 public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 

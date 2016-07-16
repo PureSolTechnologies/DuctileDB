@@ -2,10 +2,9 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.io.IOException;
 
-import org.apache.hadoop.hbase.client.Delete;
-
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
+import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 
 public class RemoveVertexOperation extends AbstractTxOperation {
 
@@ -31,6 +30,6 @@ public class RemoveVertexOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete(HBaseTable.VERTICES.getTableName(), delete);
+	delete(HBaseTable.VERTICES.getName(), delete);
     }
 }

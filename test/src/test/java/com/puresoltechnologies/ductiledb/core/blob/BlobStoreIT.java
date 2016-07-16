@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -19,8 +18,9 @@ import com.puresoltechnologies.commons.misc.hash.HashUtilities;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.IOUtils;
 
-public class BlobStoreTest extends AbstractDuctileDBTest {
+public class BlobStoreIT extends AbstractDuctileDBTest {
 
     private static DuctileDB ductileDB;
     private static BlobStore blobStore;

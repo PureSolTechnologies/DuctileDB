@@ -1,13 +1,18 @@
 package com.puresoltechnologies.ductiledb.stores.os;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
+import com.puresoltechnologies.ductiledb.storage.spi.FileType;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class OSStorage implements Storage {
@@ -33,6 +38,11 @@ public class OSStorage implements Storage {
 	if (!rootDirectory.mkdirs()) {
 	    throw new IOException("Could not create directory '" + rootDirectory.getPath() + "'.");
 	}
+    }
+
+    @Override
+    public void close() throws IOException {
+	// intentionally left empty
     }
 
     @Override
@@ -98,5 +108,38 @@ public class OSStorage implements Storage {
     @Override
     public boolean isDirectory(File directory) {
 	return new File(rootDirectory, directory.getPath()).isDirectory();
+    }
+
+    @Override
+    public FileStatus getFileStatus(File file) {
+	File path = new File(rootDirectory, file.getPath());
+	FileType fileType;
+	if (path.isDirectory()) {
+	    fileType = FileType.DIRECTORY;
+	} else if (path.isFile()) {
+	    fileType = FileType.FILE;
+	} else {
+	    fileType = FileType.UNKNOWN;
+	}
+	return new FileStatus(file, fileType, path.isHidden(), file.length());
+    }
+
+    @Override
+    public InputStream open(File file) throws FileNotFoundException {
+	return new FileInputStream(new File(rootDirectory, file.getPath()));
+    }
+
+    @Override
+    public OutputStream create(File file) throws IOException {
+	File path = new File(rootDirectory, file.getPath());
+	if (path.exists()) {
+	    throw new IOException("File '" + file + "' exists already.");
+	}
+	return null;
+    }
+
+    @Override
+    public boolean delete(File file) {
+	return file.delete();
     }
 }

@@ -99,4 +99,36 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 	    schemaManager.dropNamespace(namespace);
 	}
     }
+
+    @Test(expected = SchemaException.class)
+    public void testInvalidNamespaceIdentifier() throws SchemaException {
+	StorageEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	schemaManager.createNamespace("01234567890");
+    }
+
+    @Test(expected = SchemaException.class)
+    public void testInvalidTableIdentifier() throws SchemaException {
+	StorageEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespace = schemaManager.createNamespace("validNamespace");
+	try {
+	    schemaManager.createTable(namespace, "0123456789");
+	} finally {
+	    schemaManager.dropNamespace(namespace);
+	}
+    }
+
+    @Test(expected = SchemaException.class)
+    public void testInvalidColumnFamilyIdentifier() throws SchemaException {
+	StorageEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespace = schemaManager.createNamespace("validNamespace");
+	try {
+	    TableDescriptor table = schemaManager.createTable(namespace, "validTable");
+	    schemaManager.createColumnFamily(table, "0123456789");
+	} finally {
+	    schemaManager.dropNamespace(namespace);
+	}
+    }
 }

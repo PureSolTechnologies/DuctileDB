@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
@@ -23,6 +20,8 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class AddEdgeOperation extends AbstractTxOperation {
 
@@ -112,10 +111,10 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	    propertyIndexPuts.add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(),
 		    (Serializable) property.getValue()));
 	}
-	put(HBaseTable.VERTICES.getTableName(), outPut);
-	put(HBaseTable.VERTICES.getTableName(), inPut);
-	put(HBaseTable.EDGES.getTableName(), edgePut);
-	put(HBaseTable.EDGE_TYPES.getTableName(), typeIndexPut);
-	put(HBaseTable.EDGE_PROPERTIES.getTableName(), propertyIndexPuts);
+	put(HBaseTable.VERTICES.getName(), outPut);
+	put(HBaseTable.VERTICES.getName(), inPut);
+	put(HBaseTable.EDGES.getName(), edgePut);
+	put(HBaseTable.EDGE_TYPES.getName(), typeIndexPut);
+	put(HBaseTable.EDGE_PROPERTIES.getName(), propertyIndexPuts);
     }
 }
