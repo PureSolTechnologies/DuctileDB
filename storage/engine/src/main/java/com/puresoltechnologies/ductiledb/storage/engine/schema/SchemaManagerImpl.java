@@ -4,7 +4,9 @@ import static com.puresoltechnologies.ductiledb.storage.engine.utils.EngineCheck
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,8 @@ public class SchemaManagerImpl implements SchemaManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SchemaManagerImpl.class);
 
+    private final Map<String, NamespaceDescriptor> namespaces = new HashMap<>();
+
     private final StorageEngine storageEngine;
     private final Storage storage;
     private final File storageDirectory;
@@ -25,10 +29,28 @@ public class SchemaManagerImpl implements SchemaManager {
 	this.storageEngine = storageEngine;
 	this.storage = storageEngine.getStorage();
 	this.storageDirectory = storageDirectory;
+	readSchema();
     }
 
-    @Override
-    public Iterator<NamespaceDescriptor> getNamespaces() {
+    private void readSchema() {
+	NamespaceIterator namespaces = readNamespaces();
+	while (namespaces.hasNext()) {
+	    NamespaceDescriptor namespace = namespaces.next();
+	    this.namespaces.put(namespace.getName(), namespace);
+	    TableIterator tables = readTables(namespace);
+	    while (tables.hasNext()) {
+		TableDescriptor table = tables.next();
+		namespace.addTable(table);
+		ColumnFamilyIterator columnFamilies = readColumnFamilies(table);
+		while (columnFamilies.hasNext()) {
+		    ColumnFamilyDescriptor columnFamily = columnFamilies.next();
+		    table.addColumnFamily(columnFamily);
+		}
+	    }
+	}
+    }
+
+    private NamespaceIterator readNamespaces() {
 	return new NamespaceIterator(storage.list(storageDirectory));
     }
 
@@ -53,47 +75,7 @@ public class SchemaManagerImpl implements SchemaManager {
 
     }
 
-    @Override
-    public NamespaceDescriptor getNamespace(String namespaceName) {
-	File directory = new File(storageDirectory, namespaceName);
-	if ((!storage.exists(directory)) || (!storage.isDirectory(directory))) {
-	    return null;
-	}
-	return new NamespaceDescriptor(namespaceName, storage, directory);
-    }
-
-    @Override
-    public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException {
-	if (!checkIdentifier(namespaceName)) {
-	    throw new SchemaException("Namespace name '" + namespaceName
-		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
-	}
-	logger.info("Creating namespace '" + namespaceName + "' in storage '" + getStoreName() + "'...");
-	try {
-	    File namespaceDirectory = new File(storageDirectory, namespaceName);
-	    storage.createDirectory(namespaceDirectory);
-	    return new NamespaceDescriptor(namespaceName, storage, namespaceDirectory);
-	} catch (IOException e) {
-	    throw new SchemaException("Could not create schema '" + namespaceName + "'.", e);
-	}
-    }
-
-    private String getStoreName() {
-	return storageEngine.getStoreName();
-    }
-
-    @Override
-    public void dropNamespace(NamespaceDescriptor namespace) throws SchemaException {
-	try {
-	    logger.info("Dropping '" + namespace + "' in storage '" + getStoreName() + "'...");
-	    storage.removeDirectory(namespace.getDirectory(), true);
-	} catch (IOException e) {
-	    throw new SchemaException("Could not drop schema '" + namespace + "'.", e);
-	}
-    }
-
-    @Override
-    public Iterator<TableDescriptor> getTables(NamespaceDescriptor namespace) {
+    private TableIterator readTables(NamespaceDescriptor namespace) {
 	return new TableIterator(storage.list(namespace.getDirectory()), namespace);
     }
 
@@ -120,13 +102,81 @@ public class SchemaManagerImpl implements SchemaManager {
 
     }
 
+    private ColumnFamilyIterator readColumnFamilies(TableDescriptor table) {
+	return new ColumnFamilyIterator(storage.list(table.getDirectory()), table);
+    }
+
+    private class ColumnFamilyIterator implements Iterator<ColumnFamilyDescriptor> {
+
+	private final Iterator<File> iterator;
+	private final TableDescriptor table;
+
+	public ColumnFamilyIterator(Iterator<File> iterator, TableDescriptor table) {
+	    this.iterator = iterator;
+	    this.table = table;
+	}
+
+	@Override
+	public boolean hasNext() {
+	    return iterator.hasNext();
+	}
+
+	@Override
+	public ColumnFamilyDescriptor next() {
+	    File directory = iterator.next();
+	    return new ColumnFamilyDescriptor(directory.getName(), table, directory);
+	}
+
+    }
+
+    private String getStoreName() {
+	return storageEngine.getStoreName();
+    }
+
+    @Override
+    public Iterator<NamespaceDescriptor> getNamespaces() {
+	return namespaces.values().iterator();
+    }
+
+    @Override
+    public NamespaceDescriptor getNamespace(String namespaceName) {
+	return namespaces.get(namespaceName);
+    }
+
+    @Override
+    public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException {
+	if (!checkIdentifier(namespaceName)) {
+	    throw new SchemaException("Namespace name '" + namespaceName
+		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
+	}
+	logger.info("Creating namespace '" + namespaceName + "' in storage '" + getStoreName() + "'...");
+	try {
+	    File namespaceDirectory = new File(storageDirectory, namespaceName);
+	    storage.createDirectory(namespaceDirectory);
+	    return new NamespaceDescriptor(namespaceName, storage, namespaceDirectory);
+	} catch (IOException e) {
+	    throw new SchemaException("Could not create schema '" + namespaceName + "'.", e);
+	}
+    }
+
+    @Override
+    public void dropNamespace(NamespaceDescriptor namespace) throws SchemaException {
+	try {
+	    logger.info("Dropping '" + namespace + "' in storage '" + getStoreName() + "'...");
+	    storage.removeDirectory(namespace.getDirectory(), true);
+	} catch (IOException e) {
+	    throw new SchemaException("Could not drop schema '" + namespace + "'.", e);
+	}
+    }
+
+    @Override
+    public Iterator<TableDescriptor> getTables(NamespaceDescriptor namespace) {
+	return namespace.getTables();
+    }
+
     @Override
     public TableDescriptor getTable(NamespaceDescriptor namespace, String tableName) {
-	File directory = new File(namespace.getDirectory(), tableName);
-	if ((!storage.exists(directory)) || (!storage.isDirectory(directory))) {
-	    return null;
-	}
-	return new TableDescriptor(tableName, namespace, directory);
+	return namespace.getTable(tableName);
     }
 
     @Override
@@ -155,7 +205,9 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File tableDirectory = new File(namespace.getDirectory(), tableName);
 	    storage.createDirectory(tableDirectory);
-	    return new TableDescriptor(tableName, namespace, tableDirectory);
+	    TableDescriptor tableDescriptor = new TableDescriptor(tableName, namespace, tableDirectory);
+	    namespace.addTable(tableDescriptor);
+	    return tableDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create table '" + namespace + "." + tableName + "'.", e);
 	}
@@ -173,39 +225,12 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public Iterator<ColumnFamilyDescriptor> getColumnFamilies(TableDescriptor table) {
-	return new ColumnFamilyIterator(storage.list(table.getDirectory()), table);
-    }
-
-    private class ColumnFamilyIterator implements Iterator<ColumnFamilyDescriptor> {
-
-	private final Iterator<File> iterator;
-	private final TableDescriptor table;
-
-	public ColumnFamilyIterator(Iterator<File> iterator, TableDescriptor table) {
-	    this.iterator = iterator;
-	    this.table = table;
-	}
-
-	@Override
-	public boolean hasNext() {
-	    return iterator.hasNext();
-	}
-
-	@Override
-	public ColumnFamilyDescriptor next() {
-	    File directory = iterator.next();
-	    return new ColumnFamilyDescriptor(directory.getName(), table, directory);
-	}
-
+	return table.getColumnFamilies();
     }
 
     @Override
     public ColumnFamilyDescriptor getColumnFamily(TableDescriptor table, String columnFamilyName) {
-	File directory = new File(table.getDirectory(), columnFamilyName);
-	if ((!storage.exists(directory)) || (!storage.isDirectory(directory))) {
-	    return null;
-	}
-	return new ColumnFamilyDescriptor(columnFamilyName, table, directory);
+	return table.getColumnFamily(columnFamilyName);
     }
 
     @Override
@@ -220,7 +245,10 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File columnFamilyDirectory = new File(table.getDirectory(), columnFamilyName);
 	    storage.createDirectory(columnFamilyDirectory);
-	    return new ColumnFamilyDescriptor(columnFamilyName, table, columnFamilyDirectory);
+	    ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName, table,
+		    columnFamilyDirectory);
+	    table.addColumnFamily(columnFamilyDescriptor);
+	    return columnFamilyDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create column family '" + table + "." + columnFamilyName + "'.", e);
 	}
@@ -231,6 +259,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    logger.info("Dropping '" + columnFamily + "' in storage '" + getStoreName() + "'...");
 	    storage.removeDirectory(columnFamily.getDirectory(), true);
+	    columnFamily.getTable().removeColumnFamily(columnFamily);
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop column family '" + columnFamily + "'.", e);
 	}

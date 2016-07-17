@@ -25,7 +25,6 @@ public abstract class AbstractStorageEngineTest {
 	HashMap<String, String> configuration = new HashMap<>();
 	configuration.put(OSStorage.DIRECTORY_PROPERTY, storageDirectory.getPath());
 	storageEngine = new StorageEngine(StorageFactory.getStorageInstance(configuration), "test");
-
     }
 
     @AfterClass

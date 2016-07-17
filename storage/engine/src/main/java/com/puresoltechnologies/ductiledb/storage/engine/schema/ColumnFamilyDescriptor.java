@@ -18,6 +18,10 @@ public class ColumnFamilyDescriptor {
 	return name;
     }
 
+    public final TableDescriptor getTable() {
+	return table;
+    }
+
     public final File getDirectory() {
 	return directory;
     }
