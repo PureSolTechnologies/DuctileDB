@@ -7,6 +7,7 @@ import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
+import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 
 public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 

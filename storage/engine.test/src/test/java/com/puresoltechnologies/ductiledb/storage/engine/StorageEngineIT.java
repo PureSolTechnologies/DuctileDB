@@ -14,7 +14,6 @@ public class StorageEngineIT extends AbstractStorageEngineTest {
 
     @Test
     public void test() throws SchemaException {
-
 	StorageEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespace("engine_test");
@@ -29,6 +28,7 @@ public class StorageEngineIT extends AbstractStorageEngineTest {
 
 	Result result = table.get(new Get(key));
 	assertNotNull(result);
+
     }
 
 }

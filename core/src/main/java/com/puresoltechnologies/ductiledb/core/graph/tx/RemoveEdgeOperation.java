@@ -58,10 +58,10 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	long edgeId = edge.getId();
 	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(startVertexId));
-	deleteOutEdge.addColumns(HBaseColumnFamily.EDGES.getNameBytes(),
+	deleteOutEdge.addColumns(HBaseColumnFamily.EDGES.getName(),
 		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode());
 	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(targetVertexId));
-	deleteInEdge.addColumns(HBaseColumnFamily.EDGES.getNameBytes(),
+	deleteInEdge.addColumns(HBaseColumnFamily.EDGES.getName(),
 		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode());
 	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
 	Delete typeIndex = OperationsHelper.createEdgeTypeIndexDelete(edgeId, type);

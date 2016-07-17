@@ -4,7 +4,7 @@
 
 	<parent>
 		<groupId>com.puresoltechnologies.ductiledb</groupId>
-		<artifactId>ductiledb-parent</artifactId>
+		<artifactId>storage</artifactId>
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 

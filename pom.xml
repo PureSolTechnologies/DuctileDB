@@ -385,6 +385,7 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- SELF -->
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>api</artifactId>
@@ -436,11 +437,7 @@
 				<artifactId>xo</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>xo</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+			<!-- PureSol Technologies -->
 			<dependency>
 				<groupId>com.puresoltechnologies.commons</groupId>
 				<artifactId>misc</artifactId>
@@ -467,6 +464,12 @@
 				<groupId>com.puresoltechnologies.versioning</groupId>
 				<artifactId>versioning</artifactId>
 				<version>${versioning.version}</version>
+			</dependency>
+			<!-- 3rd party -->
+			<dependency>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>19.0</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sourceforge.findbugs</groupId>
@@ -741,7 +744,6 @@
 	</reporting>
 
 	<modules>
-		<module>spi</module>
 		<module>storage</module>
 		<module>api</module>
 		<module>core</module>

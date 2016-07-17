@@ -56,7 +56,7 @@ public interface DuctileDBSchemaManager {
      *            removed.
      * @throws IOException
      */
-    public void removePropertyDefinition(ElementType elementType, String propertyKey) throws IOException;
+    public void removePropertyDefinition(ElementType elementType, String propertyKey);
 
     /**
      * This method returns names of all defined types.

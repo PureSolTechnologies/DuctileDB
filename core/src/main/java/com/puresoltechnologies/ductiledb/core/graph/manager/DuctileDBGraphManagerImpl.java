@@ -70,7 +70,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	StorageEngine storageEngine = graph.getStorageEngine();
 	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Put put = new Put(HBaseColumnFamily.VARIABLES.getNameBytes());
-	    put.addColumn(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName),
+	    put.addColumn(HBaseColumnFamily.VARIABLES.getName(), Bytes.toBytes(variableName),
 		    Serializer.serializePropertyValue(value));
 	    table.put(put);
 	} catch (IOException e) {
@@ -101,7 +101,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	StorageEngine storageEngine = graph.getStorageEngine();
 	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Delete delete = new Delete(HBaseColumnFamily.VARIABLES.getNameBytes());
-	    delete.addColumns(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
+	    delete.addColumns(HBaseColumnFamily.VARIABLES.getName(), Bytes.toBytes(variableName));
 	    table.delete(delete);
 	}
     }

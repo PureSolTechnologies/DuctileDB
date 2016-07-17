@@ -12,11 +12,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteStreams;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.IOUtils;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -108,7 +108,7 @@ public class BlobStoreImpl implements BlobStore {
     public void storeBlob(HashId hashId, InputStream inputStream) throws IOException {
 	File path = createPath(hashId);
 	try (OutputStream outputStream = storage.create(path);) {
-	    IOUtils.copy(inputStream, outputStream);
+	    ByteStreams.copy(inputStream, outputStream);
 	}
     }
 

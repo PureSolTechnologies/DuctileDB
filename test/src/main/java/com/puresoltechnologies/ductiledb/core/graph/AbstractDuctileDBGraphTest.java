@@ -16,7 +16,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
@@ -24,13 +23,15 @@ import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 
     private static DuctileDBGraphImpl graph;
 
     @BeforeClass
-    public static void connect() throws IOException, ServiceException {
+    public static void connect() throws StorageException, IOException, SchemaException {
 	DuctileDBTestHelper.removeTables();
 	graph = getGraph();
 	// DuctileDBTestHelper.removeGraph(graph);

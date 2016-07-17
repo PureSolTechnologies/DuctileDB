@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.NavigableMap;
@@ -22,6 +21,8 @@ import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
+import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
+import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
@@ -60,19 +61,19 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    Put put = new Put(Bytes.toBytes(definition.getPropertyKey()));
 	    switch (definition.getElementType()) {
 	    case VERTEX:
-		put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes(),
-			HBaseSchema.PROPERTY_TYPE_COLUMN_BYTES, Bytes.toBytes(definition.getPropertyType().getName()));
-		put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), HBaseSchema.ELEMENT_TYPE_COLUMN_BYTES,
+		put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getName(), GraphSchema.PROPERTY_TYPE_COLUMN_BYTES,
+			Bytes.toBytes(definition.getPropertyType().getName()));
+		put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getName(), GraphSchema.ELEMENT_TYPE_COLUMN_BYTES,
 			Bytes.toBytes(definition.getElementType().name()));
-		put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), HBaseSchema.UNIQUENESS_COLUMN_BYTES,
+		put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getName(), GraphSchema.UNIQUENESS_COLUMN_BYTES,
 			Bytes.toBytes(definition.getUniqueConstraint().name()));
 		break;
 	    case EDGE:
-		put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes(), HBaseSchema.PROPERTY_TYPE_COLUMN_BYTES,
+		put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getName(), GraphSchema.PROPERTY_TYPE_COLUMN_BYTES,
 			Bytes.toBytes(definition.getPropertyType().getName()));
-		put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes(), HBaseSchema.ELEMENT_TYPE_COLUMN_BYTES,
+		put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getName(), GraphSchema.ELEMENT_TYPE_COLUMN_BYTES,
 			Bytes.toBytes(definition.getElementType().name()));
-		put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes(), HBaseSchema.UNIQUENESS_COLUMN_BYTES,
+		put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getName(), GraphSchema.UNIQUENESS_COLUMN_BYTES,
 			Bytes.toBytes(definition.getUniqueConstraint().name()));
 		break;
 	    default:
@@ -111,9 +112,9 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    }
 	    @SuppressWarnings("unchecked")
 	    Class<T> type = (Class<T>) Class
-		    .forName(Bytes.toString(familyMap.get(HBaseSchema.PROPERTY_TYPE_COLUMN_BYTES)));
+		    .forName(Bytes.toString(familyMap.get(GraphSchema.PROPERTY_TYPE_COLUMN_BYTES)));
 	    UniqueConstraint unique = UniqueConstraint
-		    .valueOf(Bytes.toString(familyMap.get(HBaseSchema.UNIQUENESS_COLUMN_BYTES)));
+		    .valueOf(Bytes.toString(familyMap.get(GraphSchema.UNIQUENESS_COLUMN_BYTES)));
 	    PropertyDefinition<T> definition = new PropertyDefinition<>(elementType, propertyKey, type, unique);
 	    return definition;
 	} catch (ClassNotFoundException e) {
@@ -171,29 +172,27 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 			+ "' with unknown property definition for key  '" + propertyKey + "'.");
 	    }
 	}
-	try {
-	    StorageEngine storageEngine = graph.getStorageEngine();
-	    try (Table table = storageEngine.getTable(HBaseTable.TYPE_DEFINITIONS.getName())) {
-		Put put = new Put(Bytes.toBytes(typeName));
-		switch (elementType) {
-		case VERTEX:
-		    for (String propertyKey : propertyKeys) {
-			put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), Bytes.toBytes(propertyKey),
-				Bytes.empty());
-		    }
-		    break;
-		case EDGE:
-		    for (String propertyKey : propertyKeys) {
-			put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes(), Bytes.toBytes(propertyKey),
-				Bytes.empty());
-		    }
-		    break;
-		default:
-		    throw new DuctileDBSchemaManagerException("Cannot define type for element '" + elementType + "'.");
+	StorageEngine storageEngine = graph.getStorageEngine();
+	try (Table table = storageEngine.getTable(HBaseTable.TYPE_DEFINITIONS.getName())) {
+	    Put put = new Put(Bytes.toBytes(typeName));
+	    switch (elementType) {
+	    case VERTEX:
+		for (String propertyKey : propertyKeys) {
+		    put.addColumn(HBaseColumnFamily.VERTEX_DEFINITION.getName(), Bytes.toBytes(propertyKey),
+			    Bytes.empty());
 		}
-		table.put(put);
-		graph.getSchema().defineType(elementType, typeName, propertyKeys);
+		break;
+	    case EDGE:
+		for (String propertyKey : propertyKeys) {
+		    put.addColumn(HBaseColumnFamily.EDGE_DEFINITION.getName(), Bytes.toBytes(propertyKey),
+			    Bytes.empty());
+		}
+		break;
+	    default:
+		throw new DuctileDBSchemaManagerException("Cannot define type for element '" + elementType + "'.");
 	    }
+	    table.put(put);
+	    graph.getSchema().defineType(elementType, typeName, propertyKeys);
 	}
     }
 

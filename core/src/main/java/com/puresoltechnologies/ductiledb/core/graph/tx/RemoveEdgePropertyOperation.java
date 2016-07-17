@@ -61,12 +61,12 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
-		    .getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
+		    .getFamilyMap(HBaseColumnFamily.EDGES.getName());
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
 	    EdgeValue startVertexEdgeValue = Serializer.deserialize(startVertexPropertyBytes, EdgeValue.class);
 	    startVertexEdgeValue.getProperties().remove(key);
 	    Put startVertexPut = new Put(startVertexRowId);
-	    startVertexPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(), startVertexEdgeKey.encode(),
+	    startVertexPut.addColumn(HBaseColumnFamily.EDGES.getName(), startVertexEdgeKey.encode(),
 		    startVertexEdgeValue.encode());
 
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
@@ -76,16 +76,16 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
-		    .getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
+		    .getFamilyMap(HBaseColumnFamily.EDGES.getName());
 	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
 	    EdgeValue targetVertexEdgeValue = Serializer.deserialize(targetVertexPropertyBytes, EdgeValue.class);
 	    targetVertexEdgeValue.getProperties().remove(key);
 	    Put targetVertexPut = new Put(targetVertexRowId);
-	    targetVertexPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(), targetVertexEdgeKey.encode(),
+	    targetVertexPut.addColumn(HBaseColumnFamily.EDGES.getName(), targetVertexEdgeKey.encode(),
 		    targetVertexEdgeValue.encode());
 
 	    Delete edgeDelete = new Delete(IdEncoder.encodeRowId(edgeId));
-	    edgeDelete.addColumns(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
+	    edgeDelete.addColumns(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(key));
 
 	    Delete index = OperationsHelper.createEdgePropertyIndexDelete(edgeId, key);
 	    // Add to transaction

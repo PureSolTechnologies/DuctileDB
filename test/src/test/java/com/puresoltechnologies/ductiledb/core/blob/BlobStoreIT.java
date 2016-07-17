@@ -13,12 +13,12 @@ import java.nio.charset.Charset;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.common.io.ByteStreams;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.IOUtils;
 
 public class BlobStoreIT extends AbstractDuctileDBTest {
 
@@ -43,7 +43,7 @@ public class BlobStoreIT extends AbstractDuctileDBTest {
 
 	InputStream readBlobStream = blobStore.readBlob(hashId);
 	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	IOUtils.copy(readBlobStream, outputStream);
+	ByteStreams.copy(readBlobStream, outputStream);
 	assertEquals("Read BLOB should match stored BLOB.", blobContent,
 		new String(outputStream.toByteArray(), Charset.defaultCharset()));
 

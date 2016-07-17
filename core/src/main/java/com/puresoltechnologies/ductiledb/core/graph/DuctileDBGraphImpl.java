@@ -24,7 +24,7 @@ import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchema;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManagerImpl;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema;
+import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -36,7 +36,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private static final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
 
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
-    private final HBaseSchema hbaseSchema;
+    private final GraphSchema hbaseSchema;
     private final DuctileDBSchema schema;
 
     private final BlobStoreImpl blobStore;
@@ -52,7 +52,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	this.blobStore = blobStore;
 	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
-	hbaseSchema = new HBaseSchema(storageEngine);
+	hbaseSchema = new GraphSchema(storageEngine);
 	hbaseSchema.checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
     }
@@ -97,7 +97,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	return new DuctileDBSchemaManagerImpl(this);
     }
 
-    public final HBaseSchema getHBaseSchema() {
+    public final GraphSchema getHBaseSchema() {
 	return hbaseSchema;
     }
 

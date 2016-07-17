@@ -1,29 +1,28 @@
 package com.puresoltechnologies.ductiledb.core.graph;
 
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_NAMESPACE;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_NAMESPACE;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.NamespaceDescriptor;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Admin;
-import org.apache.hadoop.hbase.client.Connection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBTestConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 /**
  * A collection of simple methods to support testing.
@@ -60,41 +59,32 @@ public class DuctileDBTestHelper {
 	return count[0];
     }
 
-    public static void removeTables() throws IOException, ServiceException {
-	try (Connection connection = DuctileDBGraphFactory.createConnection("localhost",
-		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT)) {
-	    removeTables(connection);
+    public static void removeTables() throws StorageException, IOException, SchemaException {
+	try (StorageEngine storageEngine = DuctileDBGraphFactory
+		.createConnection(DuctileDBTestConfiguration.createConfiguration())) {
+	    removeTables(storageEngine);
 	}
     }
 
-    private static void removeTables(Connection connection) throws IOException {
+    private static void removeTables(StorageEngine storageEngine) throws SchemaException {
 	logger.info("Remove all DuctileDB tables...");
-	Admin admin = connection.getAdmin();
-	HTableDescriptor[] listTables = admin.listTables();
-	for (HTableDescriptor tableDescriptor : listTables) {
-	    TableName tableName = tableDescriptor.getTableName();
-	    if (DUCTILEDB_NAMESPACE.equals(tableName.getNamespaceAsString())) {
-		if (admin.isTableEnabled(tableName)) {
-		    logger.info("Disable table '" + tableName + "'...");
-		    admin.disableTableAsync(tableName);
-		    logger.info("Table '" + tableName + "' disabled.");
+	SchemaManager schemaManager = storageEngine.getSchemaManager();
+	Iterator<NamespaceDescriptor> namespaces = schemaManager.getNamespaces();
+	while (namespaces.hasNext()) {
+	    NamespaceDescriptor namespace = namespaces.next();
+	    Iterator<TableDescriptor> tables = schemaManager.getTables(namespace);
+	    while (tables.hasNext()) {
+		TableDescriptor tableDescriptor = tables.next();
+		String tableName = tableDescriptor.getName();
+		if (DUCTILEDB_NAMESPACE.equals(tableName)) {
+		    logger.info("Delete table '" + tableName + "'...");
+		    schemaManager.dropTable(tableDescriptor);
+		    logger.info("Table '" + tableName + "' deleted.");
 		}
 	    }
 	}
-	for (HTableDescriptor tableDescriptor : listTables) {
-	    TableName tableName = tableDescriptor.getTableName();
-	    if (DUCTILEDB_NAMESPACE.equals(tableName.getNamespaceAsString())) {
-		logger.info("Delete table '" + tableName + "'...");
-		admin.deleteTable(tableName);
-		logger.info("Table '" + tableName + "' deleted.");
-	    }
-	}
-	NamespaceDescriptor[] namespaceDescriptors = admin.listNamespaceDescriptors();
-	for (NamespaceDescriptor namespaceDescriptor : namespaceDescriptors) {
-	    if (DUCTILEDB_NAMESPACE.equals(namespaceDescriptor.getName())) {
-		admin.deleteNamespace(DUCTILEDB_NAMESPACE);
-	    }
-	}
+	NamespaceDescriptor namespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);
+	schemaManager.dropNamespace(namespace);
 	logger.info("All DuctileDB tables removed.");
     }
 

@@ -66,12 +66,12 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
-		    .getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
+		    .getFamilyMap(HBaseColumnFamily.EDGES.getName());
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
 	    EdgeValue startVertexEdgeValue = EdgeValue.decode(startVertexPropertyBytes);
 	    startVertexEdgeValue.getProperties().put(key, value);
 	    Put startVertexPut = new Put(startVertexRowId);
-	    startVertexPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(), startVertexEdgeKey.encode(),
+	    startVertexPut.addColumn(HBaseColumnFamily.EDGES.getName(), startVertexEdgeKey.encode(),
 		    startVertexEdgeValue.encode());
 
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
@@ -81,16 +81,16 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
-		    .getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
+		    .getFamilyMap(HBaseColumnFamily.EDGES.getName());
 	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
 	    EdgeValue targetVertexEdgeValue = EdgeValue.decode(targetVertexPropertyBytes);
 	    targetVertexEdgeValue.getProperties().put(key, value);
 	    Put targetVertexPut = new Put(targetVertexRowId);
-	    targetVertexPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(), targetVertexEdgeKey.encode(),
+	    targetVertexPut.addColumn(HBaseColumnFamily.EDGES.getName(), targetVertexEdgeKey.encode(),
 		    targetVertexEdgeValue.encode());
 
 	    Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
-	    edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
+	    edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(key),
 		    Serializer.serializePropertyValue((Serializable) value));
 
 	    Put index = OperationsHelper.createEdgePropertyIndexPut(edgeId, key, (Serializable) value);

@@ -15,7 +15,7 @@ public class Delete {
 	return key;
     }
 
-    public void addColumns(byte[] nameBytes, byte[] bytes) {
+    public void addColumns(String columnFamily, byte[] bytes) {
 	// TODO Auto-generated method stub
 
     }

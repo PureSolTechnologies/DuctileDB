@@ -7,7 +7,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
-public class HBaseSchema {
+public class GraphSchema {
 
     public static final String DUCTILEDB_NAMESPACE = "ductiledb";
 
@@ -28,7 +28,7 @@ public class HBaseSchema {
 
     private final StorageEngine storageEngine;
 
-    public HBaseSchema(StorageEngine storageEngine) {
+    public GraphSchema(StorageEngine storageEngine) {
 	super();
 	this.storageEngine = storageEngine;
     }

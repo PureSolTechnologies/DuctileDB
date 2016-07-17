@@ -55,4 +55,14 @@ public class Table implements Closeable {
 	return null;
     }
 
+    public ResultScanner getScanner(Scan scan) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    public long incrementColumnValue(byte[] rowKey, String tableName, byte[] key, long incrementValue) {
+	// TODO Auto-generated method stub
+	return 0;
+    }
+
 }

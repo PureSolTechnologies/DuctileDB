@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph.tx;
 
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_ID_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_ID_PROPERTY;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -67,7 +67,7 @@ public class AddVertexOperation extends AbstractTxOperation {
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    String key = property.getKey();
 	    Object value = property.getValue();
-	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
+	    put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(key),
 		    Serializer.serializePropertyValue((Serializable) value));
 	    propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 		    (Serializable) property.getValue()));

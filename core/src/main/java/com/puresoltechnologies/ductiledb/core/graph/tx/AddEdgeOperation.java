@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph.tx;
 
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_ID_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_ID_PROPERTY;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -86,27 +86,27 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	byte[] edgeValue = new EdgeValue(properties).encode();
 	// Put to Start Vertex
 	Put outPut = new Put(IdEncoder.encodeRowId(startVertexId));
-	outPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(),
+	outPut.addColumn(HBaseColumnFamily.EDGES.getName(),
 		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode(), edgeValue);
 	// Put to Target Vertex
 	Put inPut = new Put(IdEncoder.encodeRowId(targetVertexId));
-	inPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(),
+	inPut.addColumn(HBaseColumnFamily.EDGES.getName(),
 		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode(), edgeValue);
 	// Put to Edges Table
 	Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
-	edgePut.addColumn(HBaseColumnFamily.VERICES.getNameBytes(), HBaseColumn.START_VERTEX_ID.getNameBytes(),
+	edgePut.addColumn(HBaseColumnFamily.VERICES.getName(), HBaseColumn.START_VERTEX_ID.getNameBytes(),
 		IdEncoder.encodeRowId(startVertexId));
-	edgePut.addColumn(HBaseColumnFamily.VERICES.getNameBytes(), HBaseColumn.TARGET_VERTEX_ID.getNameBytes(),
+	edgePut.addColumn(HBaseColumnFamily.VERICES.getName(), HBaseColumn.TARGET_VERTEX_ID.getNameBytes(),
 		IdEncoder.encodeRowId(targetVertexId));
-	edgePut.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
+	edgePut.addColumn(HBaseColumnFamily.TYPES.getName(), Bytes.toBytes(type), new byte[0]);
 	Put typeIndexPut = OperationsHelper.createEdgeTypeIndexPut(edgeId, type);
 	List<Put> propertyIndexPuts = new ArrayList<>();
-	edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
+	edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
 		Serializer.serializePropertyValue(edgeId));
-	edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(),
-		Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY), Serializer.serializePropertyValue(new Date()));
+	edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
+		Serializer.serializePropertyValue(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
-	    edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(property.getKey()),
+	    edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(property.getKey()),
 		    Serializer.serializePropertyValue((Serializable) property.getValue()));
 	    propertyIndexPuts.add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(),
 		    (Serializable) property.getValue()));

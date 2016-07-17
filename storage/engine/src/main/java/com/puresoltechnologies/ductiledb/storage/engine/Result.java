@@ -14,4 +14,9 @@ public class Result {
 	return false;
     }
 
+    public byte[] getRow() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
 }

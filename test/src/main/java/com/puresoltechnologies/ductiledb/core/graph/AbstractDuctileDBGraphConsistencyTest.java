@@ -13,12 +13,12 @@ public class AbstractDuctileDBGraphConsistencyTest extends AbstractDuctileDBGrap
     protected static DuctileDBHealthCheck check;
 
     @BeforeClass
-    public static void connect() throws IOException {
+    public static void initializeChecker() throws IOException {
 	check = new DuctileDBHealthCheck(getGraph());
     }
 
     @AfterClass
-    public static void disconnect() throws IOException {
+    public static void runCheck() throws IOException {
 	check.runCheck();
 	check = null;
     }

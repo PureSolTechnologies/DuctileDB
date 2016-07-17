@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph.tx;
 
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
-import static com.puresoltechnologies.ductiledb.core.graph.schema.HBaseSchema.DUCTILEDB_ID_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_CREATE_TIMESTAMP_PROPERTY;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.DUCTILEDB_ID_PROPERTY;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.google.common.io.ByteStreams;
+import com.google.common.io.CountingInputStream;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashIdCreatorInputStream;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
@@ -27,7 +29,6 @@ import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.IOUtils;
 
 public class AddBlobVertexOperation extends AbstractTxOperation {
 
@@ -50,9 +51,9 @@ public class AddBlobVertexOperation extends AbstractTxOperation {
 	    try (CountingInputStream countingInputStream = new CountingInputStream(blobContent); //
 		    HashIdCreatorInputStream hashIdStream = new HashIdCreatorInputStream(countingInputStream); //
 		    FileOutputStream outputStream = new FileOutputStream(this.blobFile)) {
-		IOUtils.copy(hashIdStream, outputStream);
+		ByteStreams.copy(hashIdStream, outputStream);
 		hashId = hashIdStream.getHashId();
-		long size = countingInputStream.getByteCount();
+		long size = countingInputStream.getCount();
 		properties.put(DuctileDBGraph.BLOB_HASHID_PROPERTY_NAME, hashId.toString());
 		properties.put(DuctileDBGraph.BLOB_SIZE_PROPERTY_NAME, size);
 	    }
@@ -93,18 +94,18 @@ public class AddBlobVertexOperation extends AbstractTxOperation {
 	    Put put = new Put(id);
 	    List<Put> typeIndex = new ArrayList<>();
 	    for (String type : types) {
-		put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
+		put.addColumn(HBaseColumnFamily.TYPES.getName(), Bytes.toBytes(type), new byte[0]);
 		typeIndex.add(OperationsHelper.createVertexTypeIndexPut(vertexId, type));
 	    }
 	    List<Put> propertyIndex = new ArrayList<>();
-	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
+	    put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
 		    Serializer.serializePropertyValue(vertexId));
-	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(),
-		    Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY), Serializer.serializePropertyValue(new Date()));
+	    put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
+		    Serializer.serializePropertyValue(new Date()));
 	    for (Entry<String, Object> property : properties.entrySet()) {
 		String key = property.getKey();
 		Object value = property.getValue();
-		put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
+		put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(key),
 			Serializer.serializePropertyValue((Serializable) value));
 		propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 			(Serializable) property.getValue()));
