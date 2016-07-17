@@ -14,9 +14,4 @@ public class Put {
 
     }
 
-    public void addColumn(byte[] nameBytes, byte[] bytes, byte[] empty) {
-	// TODO Auto-generated method stub
-
-    }
-
 }

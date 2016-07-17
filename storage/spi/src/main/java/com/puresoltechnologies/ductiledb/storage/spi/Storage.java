@@ -13,6 +13,9 @@ import java.util.Iterator;
  * DuctileDB. This interface can be used to use plain file systems, Hadoop or
  * any other storage needed. com.puresoltechnologies.ductiledb.spi
  * 
+ * <b>The implemenation of this storage needs to be stateless and therefore
+ * thread-safe.</b>
+ * 
  * @author Rick-Rainer Ludwig
  */
 public interface Storage extends Closeable {

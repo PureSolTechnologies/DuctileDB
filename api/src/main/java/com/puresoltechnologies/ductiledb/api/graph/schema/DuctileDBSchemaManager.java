@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.api.graph.schema;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Set;
 
@@ -53,8 +54,9 @@ public interface DuctileDBSchemaManager {
      * @param propertyKey
      *            is the name of property for which the definition is to be
      *            removed.
+     * @throws IOException
      */
-    public void removePropertyDefinition(ElementType elementType, String propertyKey);
+    public void removePropertyDefinition(ElementType elementType, String propertyKey) throws IOException;
 
     /**
      * This method returns names of all defined types.

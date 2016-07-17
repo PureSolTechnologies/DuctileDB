@@ -6,16 +6,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class SchemaManagerImpl implements SchemaManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(SchemaManagerImpl.class);
+
+    private final StorageEngine storageEngine;
     private final Storage storage;
     private final File storageDirectory;
 
-    public SchemaManagerImpl(Storage storage, File storageDirectory) {
-	this.storage = storage;
+    public SchemaManagerImpl(StorageEngine storageEngine, File storageDirectory) {
+	this.storageEngine = storageEngine;
+	this.storage = storageEngine.getStorage();
 	this.storageDirectory = storageDirectory;
     }
 
@@ -60,6 +68,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	    throw new SchemaException("Namespace name '" + namespaceName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
+	logger.info("Creating namespace '" + namespaceName + "' in storage '" + getStoreName() + "'...");
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
@@ -69,9 +78,14 @@ public class SchemaManagerImpl implements SchemaManager {
 	}
     }
 
+    private String getStoreName() {
+	return storageEngine.getStoreName();
+    }
+
     @Override
     public void dropNamespace(NamespaceDescriptor namespace) throws SchemaException {
 	try {
+	    logger.info("Dropping '" + namespace + "' in storage '" + getStoreName() + "'...");
 	    storage.removeDirectory(namespace.getDirectory(), true);
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop schema '" + namespace + "'.", e);
@@ -116,11 +130,28 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
+    public TableDescriptor getTable(String tableName) {
+	String[] nameSplit = tableName.split("\\.");
+	if (nameSplit.length < 2) {
+	    throw new IllegalArgumentException(
+		    "Table name '" + tableName + "' does not contain namespace name separated with a dot.");
+	}
+	if (nameSplit.length > 2) {
+	    throw new IllegalArgumentException("Table name '" + tableName
+		    + "' contains multiple dots, but only one is allowed to separate the namespace.");
+	}
+	NamespaceDescriptor namespace = getNamespace(nameSplit[0]);
+	return getTable(namespace, nameSplit[1]);
+    }
+
+    @Override
     public TableDescriptor createTable(NamespaceDescriptor namespace, String tableName) throws SchemaException {
 	if (!checkIdentifier(tableName)) {
 	    throw new SchemaException("Table name '" + tableName + "' is invalid. Identifiers have to match pattern '"
 		    + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
+	logger.info("Creating table '" + namespace.getName() + "." + tableName + "' in storage '" + getStoreName()
+		+ "'...");
 	try {
 	    File tableDirectory = new File(namespace.getDirectory(), tableName);
 	    storage.createDirectory(tableDirectory);
@@ -133,6 +164,7 @@ public class SchemaManagerImpl implements SchemaManager {
     @Override
     public void dropTable(TableDescriptor table) throws SchemaException {
 	try {
+	    logger.info("Dropping '" + table + "' in storage '" + getStoreName() + "'...");
 	    storage.removeDirectory(table.getDirectory(), true);
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop schema '" + table + "'.", e);
@@ -183,6 +215,8 @@ public class SchemaManagerImpl implements SchemaManager {
 	    throw new SchemaException("Column family name '" + columnFamilyName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
+	logger.info("Creating column family '" + table.getNamespace().getName() + "." + table.getName() + "/"
+		+ columnFamilyName + "' in storage '" + getStoreName() + "'...");
 	try {
 	    File columnFamilyDirectory = new File(table.getDirectory(), columnFamilyName);
 	    storage.createDirectory(columnFamilyDirectory);
@@ -195,6 +229,7 @@ public class SchemaManagerImpl implements SchemaManager {
     @Override
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamily) throws SchemaException {
 	try {
+	    logger.info("Dropping '" + columnFamily + "' in storage '" + getStoreName() + "'...");
 	    storage.removeDirectory(columnFamily.getDirectory(), true);
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop column family '" + columnFamily + "'.", e);

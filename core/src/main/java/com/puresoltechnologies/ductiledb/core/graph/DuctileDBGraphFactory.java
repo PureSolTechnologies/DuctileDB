@@ -29,7 +29,7 @@ public class DuctileDBGraphFactory {
     public static StorageEngine createConnection(Map<String, String> configuration) throws StorageException {
 	// TODO incorporate configuration...
 	logger.info("Creating connection to HBase with configuration '" + configuration + "'...");
-	StorageEngine storageEngine = new StorageEngine(StorageFactory.create(configuration), "graph");
+	StorageEngine storageEngine = new StorageEngine(StorageFactory.getStorageInstance(configuration), "graph");
 	logger.info("Connection '" + storageEngine + "' to HBase created.");
 	return storageEngine;
     }

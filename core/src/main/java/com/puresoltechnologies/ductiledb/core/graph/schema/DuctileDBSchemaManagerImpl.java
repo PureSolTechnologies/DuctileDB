@@ -89,13 +89,13 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    String propertyKey) {
 	try (Table table = graph.getStorageEngine().getTable(HBaseTable.PROPERTY_DEFINITIONS.getName())) {
 	    Get get = new Get(Bytes.toBytes(propertyKey));
-	    byte[] columnFamily = null;
+	    String columnFamily = null;
 	    switch (elementType) {
 	    case VERTEX:
-		columnFamily = HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes();
+		columnFamily = HBaseColumnFamily.VERTEX_DEFINITION.getName();
 		break;
 	    case EDGE:
-		columnFamily = HBaseColumnFamily.EDGE_DEFINITION.getNameBytes();
+		columnFamily = HBaseColumnFamily.EDGE_DEFINITION.getName();
 		break;
 	    default:
 		throw new DuctileDBSchemaManagerException("Cannot read property for element '" + elementType + "'.");
@@ -116,7 +116,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 		    .valueOf(Bytes.toString(familyMap.get(HBaseSchema.UNIQUENESS_COLUMN_BYTES)));
 	    PropertyDefinition<T> definition = new PropertyDefinition<>(elementType, propertyKey, type, unique);
 	    return definition;
-	} catch (IOException | ClassNotFoundException e) {
+	} catch (ClassNotFoundException e) {
 	    throw new DuctileDBSchemaManagerException("Could not read property names.", e);
 	}
     }
@@ -127,10 +127,10 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    Delete delete = new Delete(Bytes.toBytes(propertyKey));
 	    switch (elementType) {
 	    case VERTEX:
-		delete.addFamily(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
+		delete.addFamily(HBaseColumnFamily.VERTEX_DEFINITION.getName());
 		break;
 	    case EDGE:
-		delete.addFamily(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes());
+		delete.addFamily(HBaseColumnFamily.EDGE_DEFINITION.getName());
 		break;
 	    default:
 		throw new DuctileDBSchemaManagerException(
@@ -194,8 +194,6 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 		table.put(put);
 		graph.getSchema().defineType(elementType, typeName, propertyKeys);
 	    }
-	} catch (IOException e) {
-	    throw new DuctileDBSchemaManagerException("Could not read property names.", e);
 	}
     }
 
@@ -203,13 +201,13 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     public Set<String> getTypeDefinition(ElementType elementType, String typeName) {
 	try (Table table = graph.getStorageEngine().getTable(HBaseTable.TYPE_DEFINITIONS.getName())) {
 	    Get get = new Get(Bytes.toBytes(typeName));
-	    byte[] columnFamily = null;
+	    String columnFamily = null;
 	    switch (elementType) {
 	    case VERTEX:
-		columnFamily = HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes();
+		columnFamily = HBaseColumnFamily.VERTEX_DEFINITION.getName();
 		break;
 	    case EDGE:
-		columnFamily = HBaseColumnFamily.EDGE_DEFINITION.getNameBytes();
+		columnFamily = HBaseColumnFamily.EDGE_DEFINITION.getName();
 		break;
 	    default:
 		throw new DuctileDBSchemaManagerException("Cannot read type for element '" + elementType + "'.");
@@ -228,8 +226,6 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 		propertyKeys.add(Bytes.toString(propertyKeyBytes));
 	    }
 	    return propertyKeys;
-	} catch (IOException e) {
-	    throw new DuctileDBSchemaManagerException("Could not read property names.", e);
 	}
     }
 
@@ -240,10 +236,10 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    Delete delete = new Delete(Bytes.toBytes(typeName));
 	    switch (elementType) {
 	    case VERTEX:
-		delete.addFamily(HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
+		delete.addFamily(HBaseColumnFamily.VERTEX_DEFINITION.getName());
 		break;
 	    case EDGE:
-		delete.addFamily(HBaseColumnFamily.EDGE_DEFINITION.getNameBytes());
+		delete.addFamily(HBaseColumnFamily.EDGE_DEFINITION.getName());
 		break;
 	    default:
 		throw new DuctileDBSchemaManagerException(
@@ -251,8 +247,6 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    }
 	    table.delete(delete);
 	    graph.getSchema().removeType(elementType, typeName);
-	} catch (IOException e) {
-	    throw new DuctileDBSchemaManagerException("Could not read property names.", e);
 	}
     }
 

@@ -36,7 +36,7 @@ public class BlobStoreImpl implements BlobStore {
     private final Storage storage;
 
     public BlobStoreImpl(Map<String, String> configuration) throws StorageFactoryServiceException {
-	this.storage = StorageFactory.create(configuration);
+	this.storage = StorageFactory.getStorageInstance(configuration);
     }
 
     /**

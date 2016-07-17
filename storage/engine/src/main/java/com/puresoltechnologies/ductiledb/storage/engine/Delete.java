@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.util.Set;
+
 public class Delete {
 
     private final byte[] key;
@@ -9,7 +11,7 @@ public class Delete {
 	this.key = key;
     }
 
-    public byte[] getKey() {
+    public final byte[] getKey() {
 	return key;
     }
 
@@ -18,9 +20,14 @@ public class Delete {
 
     }
 
-    public void addFamily(byte[] nameBytes) {
+    public void addFamily(String columnFamily) {
 	// TODO Auto-generated method stub
 
+    }
+
+    public Set<String> getColumnFamilies() {
+	// TODO Auto-generated method stub
+	return null;
     }
 
 }

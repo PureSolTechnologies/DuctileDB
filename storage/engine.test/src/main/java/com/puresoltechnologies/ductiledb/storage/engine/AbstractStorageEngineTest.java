@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
@@ -9,6 +8,8 @@ import java.util.UUID;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
@@ -20,15 +21,15 @@ public abstract class AbstractStorageEngineTest {
     private static StorageEngine storageEngine;
 
     @BeforeClass
-    public static void initialize() throws IOException {
+    public static void initialize() throws StorageException {
 	HashMap<String, String> configuration = new HashMap<>();
 	configuration.put(OSStorage.DIRECTORY_PROPERTY, storageDirectory.getPath());
-	storageEngine = EngineFactory.create(configuration, "test");
+	storageEngine = new StorageEngine(StorageFactory.getStorageInstance(configuration), "test");
 
     }
 
     @AfterClass
-    public static void cleanup() throws FileNotFoundException, IOException {
+    public static void cleanup() throws IOException {
 	Storage storage = storageEngine.getStorage();
 	storage.removeDirectory(new File("test"), true);
 	storageDirectory.delete();

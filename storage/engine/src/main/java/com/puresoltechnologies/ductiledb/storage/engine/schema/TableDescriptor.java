@@ -18,13 +18,17 @@ public class TableDescriptor {
 	return name;
     }
 
+    public final NamespaceDescriptor getNamespace() {
+	return namespace;
+    }
+
     public final File getDirectory() {
 	return directory;
     }
 
     @Override
     public String toString() {
-	return name;
+	return "table:" + namespace.getName() + "." + name;
     }
 
     @Override

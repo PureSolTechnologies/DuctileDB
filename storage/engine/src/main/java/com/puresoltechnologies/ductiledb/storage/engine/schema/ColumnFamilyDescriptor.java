@@ -24,7 +24,7 @@ public class ColumnFamilyDescriptor {
 
     @Override
     public String toString() {
-	return name;
+	return "column family:" + table.getNamespace().getName() + "." + table.getName() + "/" + name;
     }
 
     @Override

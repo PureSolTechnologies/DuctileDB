@@ -1,13 +1,29 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
+
+/**
+ * This class is used to access a single table within the {@link StorageEngine}.
+ * 
+ * @author Rick-Rainer Ludwig
+ */
 public class Table implements Closeable {
 
+    private final StorageEngine storageEngine;
+    private final TableDescriptor tableDescriptor;
+
+    public Table(StorageEngine storageEngine, TableDescriptor tableDescriptor) {
+	super();
+	this.storageEngine = storageEngine;
+	this.tableDescriptor = tableDescriptor;
+    }
+
     @Override
-    public void close() throws IOException {
+    public void close() {
 	// TODO Auto-generated method stub
 
     }
@@ -18,21 +34,23 @@ public class Table implements Closeable {
     }
 
     public void put(List<Put> puts) {
-	// TODO Auto-generated method stub
-
+	for (Put put : puts) {
+	    put(put);
+	}
     }
 
     public void delete(Delete delete) {
-	// TODO Auto-generated method stub
-
+	storageEngine.delete(tableDescriptor, delete.getKey(), delete.getColumnFamilies());
     }
 
     public void delete(List<Delete> deletes) {
-	// TODO Auto-generated method stub
-
+	for (Delete delete : deletes) {
+	    delete(delete);
+	}
     }
 
     public Result get(Get get) {
+	Map<String, LogEntry> logEntry = storageEngine.read(tableDescriptor, get.getKey(), get.getColumnFamilies());
 	// TODO Auto-generated method stub
 	return null;
     }

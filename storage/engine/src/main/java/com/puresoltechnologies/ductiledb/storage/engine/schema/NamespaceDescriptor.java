@@ -26,7 +26,7 @@ public class NamespaceDescriptor {
 
     @Override
     public String toString() {
-	return name;
+	return "namespace:" + name;
     }
 
     @Override

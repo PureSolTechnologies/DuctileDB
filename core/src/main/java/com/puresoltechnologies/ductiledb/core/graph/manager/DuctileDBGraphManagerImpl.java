@@ -42,11 +42,9 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	StorageEngine storageEngine = graph.getStorageEngine();
 	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Result result = table.get(new Get(HBaseColumn.SCHEMA_VERSION.getNameBytes()));
-	    byte[] version = result.getFamilyMap(HBaseColumnFamily.METADATA.getNameBytes())
+	    byte[] version = result.getFamilyMap(HBaseColumnFamily.METADATA.getName())
 		    .get(HBaseColumn.SCHEMA_VERSION.getNameBytes());
 	    return Version.valueOf(Bytes.toString(version));
-	} catch (IOException e) {
-	    throw new DuctileDBGraphManagerException("Could not read variable names.", e);
 	}
     }
 
@@ -56,7 +54,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Set<String> variableNames = new HashSet<>();
 	    Result result = table.get(new Get(HBaseColumnFamily.VARIABLES.getNameBytes()));
-	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(HBaseColumnFamily.VARIABLES.getNameBytes());
+	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(HBaseColumnFamily.VARIABLES.getName());
 	    if (familyMap == null) {
 		return variableNames;
 	    }
@@ -64,8 +62,6 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 		variableNames.add(Bytes.toString(nameBytes));
 	    }
 	    return variableNames;
-	} catch (IOException e) {
-	    throw new DuctileDBGraphManagerException("Could not read variable names.", e);
 	}
     }
 
@@ -88,7 +84,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	StorageEngine storageEngine = graph.getStorageEngine();
 	try (Table table = storageEngine.getTable(HBaseTable.METADATA.getName())) {
 	    Result result = table.get(new Get(HBaseColumnFamily.VARIABLES.getNameBytes()));
-	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(HBaseColumnFamily.VARIABLES.getNameBytes());
+	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(HBaseColumnFamily.VARIABLES.getName());
 	    if (familyMap == null) {
 		return null;
 	    }
@@ -97,8 +93,6 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 		return null;
 	    }
 	    return Serializer.deserializePropertyValue(value);
-	} catch (IOException e) {
-	    throw new DuctileDBGraphManagerException("Could not read value for variable '" + variableName + "'.", e);
 	}
     }
 
@@ -109,8 +103,6 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	    Delete delete = new Delete(HBaseColumnFamily.VARIABLES.getNameBytes());
 	    delete.addColumns(HBaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
 	    table.delete(delete);
-	} catch (IOException e) {
-	    throw new DuctileDBGraphManagerException("Could not remove variable '" + variableName + "'.", e);
 	}
     }
 
