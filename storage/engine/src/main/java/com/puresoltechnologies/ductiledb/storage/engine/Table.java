@@ -25,12 +25,10 @@ public class Table implements Closeable {
     @Override
     public void close() {
 	// TODO Auto-generated method stub
-
     }
 
     public void put(Put put) {
-	// TODO Auto-generated method stub
-
+	storageEngine.store(tableDescriptor, put);
     }
 
     public void put(List<Put> puts) {
@@ -40,7 +38,7 @@ public class Table implements Closeable {
     }
 
     public void delete(Delete delete) {
-	storageEngine.delete(tableDescriptor, delete.getKey(), delete.getColumnFamilies());
+	storageEngine.delete(tableDescriptor, delete);
     }
 
     public void delete(List<Delete> deletes) {
@@ -50,7 +48,7 @@ public class Table implements Closeable {
     }
 
     public Result get(Get get) {
-	Map<String, LogEntry> logEntry = storageEngine.read(tableDescriptor, get.getKey(), get.getColumnFamilies());
+	Map<String, LogEntry> logEntry = storageEngine.read(tableDescriptor, get);
 	// TODO Auto-generated method stub
 	return null;
     }

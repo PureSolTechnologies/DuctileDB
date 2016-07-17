@@ -25,7 +25,7 @@ public class LogEntry implements Comparable<LogEntry> {
 	return timestamp;
     }
 
-    public byte[] getKey() {
+    public byte[] getRowKey() {
 	return key;
     }
 
