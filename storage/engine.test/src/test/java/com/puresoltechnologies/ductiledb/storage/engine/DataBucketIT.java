@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,6 +71,7 @@ public class DataBucketIT extends AbstractStorageEngineTest {
 	}
 	File commitLogFile = new File("bucketIT/commit.log");
 	try (DataBucket bucket = new DataBucket(storage, bucketIDDirectory)) {
+	    Instant start = Instant.now();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    bucket.setMaxCommitLogSize(1024 * 1024);
 	    long commitLogSize = 0;
@@ -86,6 +88,9 @@ public class DataBucketIT extends AbstractStorageEngineTest {
 		bucket.put(timestamp, Bytes.toBytes(rowKey), values);
 		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
 		commitLogSize = fileStatus.getLength();
+		Instant stop = Instant.now();
+		Duration duration = Duration.between(start, stop);
+		System.out.println("size: " + commitLogSize + "; t=" + duration.toMillis() + "ms");
 	    }
 	    Iterator<File> bucketFiles = storage.list(bucketIDDirectory);
 	    File sstableFile = null;

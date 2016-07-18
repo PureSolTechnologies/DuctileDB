@@ -18,6 +18,13 @@ public class Bytes {
 	return new byte[0];
     }
 
+    public static int putBytes(byte[] bytes, byte[] b, int offset) {
+	for (int i = 0; i < b.length; ++i) {
+	    bytes[offset + i] = (b[i]);
+	}
+	return b.length;
+    }
+
     public static byte[] toBytes(short i) {
 	byte[] bytes = new byte[4];
 	bytes[1] = (byte) (i);

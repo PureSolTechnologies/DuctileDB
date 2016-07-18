@@ -20,6 +20,11 @@ public class MemtableImpl implements Memtable {
     }
 
     @Override
+    public void clear() {
+	values.clear();
+    }
+
+    @Override
     public void put(byte[] rowKey, byte[] key, byte[] value) {
 	Map<byte[], byte[]> row = values.get(rowKey);
 	if (row == null) {
@@ -30,12 +35,12 @@ public class MemtableImpl implements Memtable {
     }
 
     @Override
-    public void clear() {
-	values.clear();
+    public Map<byte[], byte[]> get(byte[] rowKey) {
+	return values.get(rowKey);
     }
 
     @Override
-    public Map<byte[], byte[]> get(byte[] rowKey) {
-	return values.get(rowKey);
+    public Map<byte[], Map<byte[], byte[]>> getValues() {
+	return values;
     }
 }

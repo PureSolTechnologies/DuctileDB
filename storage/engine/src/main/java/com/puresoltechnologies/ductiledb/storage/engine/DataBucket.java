@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.MemtableFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
@@ -86,7 +87,13 @@ public class DataBucket implements Closeable {
 		String.valueOf(timestamp.getEpochSecond()) + "-" + String.valueOf(timestamp.getNano()) + ".sstable");
 	File indexFile = new File(directory,
 		String.valueOf(timestamp.getEpochSecond()) + "-" + String.valueOf(timestamp.getNano()) + ".index");
-	storage.create(sstableFile).close();
+	try (SSTableWriter ssTableWriter = new SSTableWriter(storage.create(sstableFile))) {
+	    Map<byte[], Map<byte[], byte[]>> values = memtable.getValues();
+	    for (Entry<byte[], Map<byte[], byte[]>> row : values.entrySet()) {
+		ssTableWriter.write(row.getKey(), row.getValue());
+	    }
+	    ssTableWriter.close();
+	}
 	storage.create(indexFile).close();
     }
 

@@ -11,8 +11,10 @@ public interface Memtable {
 
     public void put(byte[] rowKey, byte[] key, byte[] value);
 
+    public Map<byte[], byte[]> get(byte[] rowKey);
+
     public void clear();
 
-    public Map<byte[], byte[]> get(byte[] rowKey);
+    public Map<byte[], Map<byte[], byte[]>> getValues();
 
 }
