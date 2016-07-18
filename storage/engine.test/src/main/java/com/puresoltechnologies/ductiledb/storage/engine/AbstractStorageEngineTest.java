@@ -3,10 +3,10 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.UUID;
+import java.util.Map;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
@@ -15,20 +15,19 @@ import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public abstract class AbstractStorageEngineTest {
 
-    private static final UUID randomUUID = UUID.randomUUID();
     private static final File baseDirectory = new File("/tmp/storage");
-    private static final File storageDirectory = new File(baseDirectory, randomUUID.toString());
-    private static StorageEngine storageEngine;
+    private final File storageDirectory = new File(baseDirectory, this.getClass().getSimpleName());
+    private StorageEngine storageEngine;
 
-    @BeforeClass
-    public static void initialize() throws StorageException {
-	HashMap<String, String> configuration = new HashMap<>();
+    @Before
+    public void initializeStorageEngine() throws StorageException {
+	Map<String, String> configuration = new HashMap<>();
 	configuration.put(OSStorage.DIRECTORY_PROPERTY, storageDirectory.getPath());
 	storageEngine = new StorageEngine(StorageFactory.getStorageInstance(configuration), "test");
     }
 
-    @AfterClass
-    public static void cleanup() throws IOException {
+    @After
+    public void cleanupStorageEngine() throws IOException {
 	Storage storage = storageEngine.getStorage();
 	storage.removeDirectory(new File("test"), true);
 	storageDirectory.delete();

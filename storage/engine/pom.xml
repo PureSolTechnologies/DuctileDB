@@ -17,6 +17,14 @@
 			<artifactId>storage.api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.commons</groupId>
+			<artifactId>misc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.graphs</groupId>
+			<artifactId>trees</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>

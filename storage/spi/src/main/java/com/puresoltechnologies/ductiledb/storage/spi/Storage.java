@@ -68,6 +68,8 @@ public interface Storage extends Closeable {
 
     public OutputStream create(File file) throws IOException;
 
+    public OutputStream append(File file) throws IOException;
+
     public boolean delete(File file);
 
 }

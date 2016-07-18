@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.stores.os;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -113,6 +114,9 @@ public class OSStorage implements Storage {
     @Override
     public FileStatus getFileStatus(File file) {
 	File path = new File(rootDirectory, file.getPath());
+	if (!path.exists()) {
+	    return null;
+	}
 	FileType fileType;
 	if (path.isDirectory()) {
 	    fileType = FileType.DIRECTORY;
@@ -121,7 +125,7 @@ public class OSStorage implements Storage {
 	} else {
 	    fileType = FileType.UNKNOWN;
 	}
-	return new FileStatus(file, fileType, path.isHidden(), file.length());
+	return new FileStatus(file, fileType, path.isHidden(), path.length());
     }
 
     @Override
@@ -135,11 +139,23 @@ public class OSStorage implements Storage {
 	if (path.exists()) {
 	    throw new IOException("File '" + file + "' exists already.");
 	}
-	return null;
+	if (!path.createNewFile()) {
+	    throw new IOException("File '" + file + "' could not be created.");
+	}
+	return new FileOutputStream(path);
     }
 
     @Override
     public boolean delete(File file) {
-	return file.delete();
+	return new File(rootDirectory, file.getPath()).delete();
+    }
+
+    @Override
+    public OutputStream append(File file) throws IOException {
+	File path = new File(rootDirectory, file.getPath());
+	if (!path.exists()) {
+	    throw new IOException("File '" + file + "' does not exist.");
+	}
+	return new FileOutputStream(path, true);
     }
 }

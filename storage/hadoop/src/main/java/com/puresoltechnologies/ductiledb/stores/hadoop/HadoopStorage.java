@@ -98,4 +98,10 @@ public class HadoopStorage implements Storage {
 	return false;
     }
 
+    @Override
+    public OutputStream append(File file) throws IOException {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
 }

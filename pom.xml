@@ -14,6 +14,7 @@
 		<slf4j.version>1.7.21</slf4j.version>
 		<xo.version>0.6.0</xo.version>
 		<commons.version>0.7.0-SNAPSHOT</commons.version>
+		<graphs.version>0.7.0-SNAPSHOT</graphs.version>
 		<versioning.version>1.1.0</versioning.version>
 		<kryo.version>4.0.0</kryo.version>
 	</properties>
@@ -459,6 +460,11 @@
 				<version>${commons.version}</version>
 				<classifier>elements</classifier>
 				<type>zip</type>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.graphs</groupId>
+				<artifactId>trees</artifactId>
+				<version>${graphs.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.versioning</groupId>

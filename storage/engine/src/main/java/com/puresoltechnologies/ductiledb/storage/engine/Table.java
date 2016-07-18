@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.io.Closeable;
 import java.util.List;
-import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
@@ -48,7 +47,6 @@ public class Table implements Closeable {
     }
 
     public Result get(Get get) {
-	Map<String, LogEntry> logEntry = storageEngine.read(tableDescriptor, get);
 	// TODO Auto-generated method stub
 	return null;
     }

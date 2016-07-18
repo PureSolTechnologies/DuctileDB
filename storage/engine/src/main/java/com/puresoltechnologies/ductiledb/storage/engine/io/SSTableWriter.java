@@ -11,13 +11,18 @@ import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class CommitLogWriter implements Closeable {
+public class SSTableWriter implements Closeable {
 
-    private final OutputStream outputStream;
+    private final CountingOutputStream outputStream;
 
-    public CommitLogWriter(OutputStream outputStream) {
+    public SSTableWriter(OutputStream outputStream) {
 	super();
-	this.outputStream = outputStream;
+	this.outputStream = new CountingOutputStream(outputStream);
+    }
+
+    public SSTableWriter(OutputStream outputStream, long startOffset) {
+	super();
+	this.outputStream = new CountingOutputStream(outputStream, startOffset);
     }
 
     @Override
@@ -25,12 +30,18 @@ public class CommitLogWriter implements Closeable {
 	outputStream.close();
     }
 
-    public void write(byte[] rowKey, byte[] key, byte[] value) throws IOException {
+    public long getOffset() {
+	return outputStream.getCount();
+    }
+
+    public long write(byte[] rowKey, byte[] key, byte[] value) throws IOException {
+	long offset = getOffset();
 	outputStream.write(Bytes.toBytes(rowKey.length));
 	outputStream.write(rowKey);
 	outputStream.write(Bytes.toBytes(key.length));
 	outputStream.write(key);
 	outputStream.write(Bytes.toBytes(value.length));
 	outputStream.write(value);
+	return offset;
     }
 }

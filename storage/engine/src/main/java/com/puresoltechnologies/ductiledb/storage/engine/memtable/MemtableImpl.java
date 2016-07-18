@@ -1,6 +1,9 @@
 package com.puresoltechnologies.ductiledb.storage.engine.memtable;
 
-import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 /**
  * Basic Memtable implementation.
@@ -9,8 +12,30 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
  */
 public class MemtableImpl implements Memtable {
 
-    public MemtableImpl(TableDescriptor tableDescriptor) {
-	// TODO Auto-generated constructor stub
+    private final ByteArrayComparator byteArrayComparator = new ByteArrayComparator();
+    private final Map<byte[], Map<byte[], byte[]>> values = new TreeMap<>(byteArrayComparator);
+
+    public MemtableImpl() {
+	super();
     }
 
+    @Override
+    public void put(byte[] rowKey, byte[] key, byte[] value) {
+	Map<byte[], byte[]> row = values.get(rowKey);
+	if (row == null) {
+	    row = new TreeMap<>(byteArrayComparator);
+	    values.put(rowKey, row);
+	}
+	row.put(key, value);
+    }
+
+    @Override
+    public void clear() {
+	values.clear();
+    }
+
+    @Override
+    public Map<byte[], byte[]> get(byte[] rowKey) {
+	return values.get(rowKey);
+    }
 }

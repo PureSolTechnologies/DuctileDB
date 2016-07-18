@@ -65,11 +65,6 @@ public class StorageEngine implements Closeable {
 	return new Table(this, tableDescriptor);
     }
 
-    public Map<String, LogEntry> read(TableDescriptor tableDescriptor, Get get) {
-	// TODO Auto-generated method stub
-	return null;
-    }
-
     public void store(TableDescriptor tableDescriptor, Put put) {
 	byte[] key = put.getKey();
 	Instant timestamp = put.getTimestamp();

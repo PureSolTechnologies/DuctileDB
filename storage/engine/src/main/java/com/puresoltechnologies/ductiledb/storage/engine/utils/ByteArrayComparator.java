@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.utils;
 
 import java.util.Comparator;
 
-public class ArrayComparator implements Comparator<byte[]> {
+public class ByteArrayComparator implements Comparator<byte[]> {
 
     @Override
     public int compare(byte[] o1, byte[] o2) {
