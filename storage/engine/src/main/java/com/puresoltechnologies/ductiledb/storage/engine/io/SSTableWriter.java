@@ -16,65 +16,87 @@ import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 public class SSTableWriter implements Closeable {
 
     private final OutputStream sstableStream;
+    private final OutputStream indexStream;
     private final int bufferSize;
     private long fileOffset;
-    private final byte[] buffer;
-    private int bufPos;
+    private final byte[] sstableBuffer;
+    private int sstableBufferPos;
+    private final byte[] indexBuffer;
+    private int indexBufferPos;
 
-    public SSTableWriter(OutputStream sstableStream, int bufferSize) {
-	this(sstableStream, bufferSize, 0);
+    public SSTableWriter(OutputStream sstableStream, OutputStream indexStream, int bufferSize) {
+	this(sstableStream, indexStream, bufferSize, 0);
     }
 
-    public SSTableWriter(OutputStream sstableStream, int bufferSize, long startOffset) {
+    public SSTableWriter(OutputStream sstableStream, OutputStream indexStream, int bufferSize, long startOffset) {
 	super();
 	this.sstableStream = sstableStream;
+	this.indexStream = indexStream;
 	this.bufferSize = bufferSize;
 	this.fileOffset = startOffset;
-	this.buffer = new byte[this.bufferSize];
-	this.bufPos = 0;
+	this.sstableBuffer = new byte[this.bufferSize];
+	this.sstableBufferPos = 0;
+	this.indexBuffer = new byte[this.bufferSize];
+	this.indexBufferPos = 0;
     }
 
     @Override
     public void close() throws IOException {
-	flush();
+	flushSSTable();
+	flushIndex();
 	sstableStream.close();
     }
 
-    public long getOffset() {
-	return fileOffset;
-    }
-
-    public long write(byte[] rowKey, Map<byte[], byte[]> columns) throws IOException {
-	long fileOffset = getOffset();
-	write(Bytes.toBytes(rowKey.length));
-	write(rowKey);
+    public void write(byte[] rowKey, Map<byte[], byte[]> columns) throws IOException {
+	writeSSTable(Bytes.toBytes(rowKey.length));
+	writeSSTable(rowKey);
 	for (Entry<byte[], byte[]> column : columns.entrySet()) {
 	    byte[] key = column.getKey();
 	    byte[] value = column.getValue();
-	    write(Bytes.toBytes(key.length));
-	    write(key);
-	    write(Bytes.toBytes(value.length));
-	    write(value);
+	    writeSSTable(Bytes.toBytes(key.length));
+	    writeSSTable(key);
+	    writeSSTable(Bytes.toBytes(value.length));
+	    writeSSTable(value);
 	}
-	return fileOffset;
+	writeIndex(Bytes.toBytes(rowKey.length));
+	writeIndex(rowKey);
+	writeIndex(Bytes.toBytes(fileOffset));
     }
 
-    private void write(byte[] bytes) throws IOException {
-	if (bytes.length > bufferSize - bufPos) {
-	    flush();
+    private void writeSSTable(byte[] bytes) throws IOException {
+	if (bytes.length > bufferSize - sstableBufferPos) {
+	    flushSSTable();
 	    if (bytes.length > bufferSize) {
 		sstableStream.write(bytes);
 	    }
 	} else {
-	    bufPos += Bytes.putBytes(buffer, bytes, bufPos);
+	    sstableBufferPos += Bytes.putBytes(sstableBuffer, bytes, sstableBufferPos);
 	}
 	fileOffset += bytes.length;
     }
 
-    private void flush() throws IOException {
-	if (bufPos > 0) {
-	    sstableStream.write(buffer, 0, bufPos);
-	    bufPos = 0;
+    private void flushSSTable() throws IOException {
+	if (sstableBufferPos > 0) {
+	    sstableStream.write(sstableBuffer, 0, sstableBufferPos);
+	    sstableBufferPos = 0;
+	}
+    }
+
+    private void writeIndex(byte[] bytes) throws IOException {
+	if (bytes.length > bufferSize - indexBufferPos) {
+	    flushIndex();
+	    if (bytes.length > bufferSize) {
+		indexStream.write(bytes);
+	    }
+	} else {
+	    indexBufferPos += Bytes.putBytes(indexBuffer, bytes, indexBufferPos);
+	}
+    }
+
+    private void flushIndex() throws IOException {
+	if (indexBufferPos > 0) {
+	    indexStream.write(indexBuffer, 0, indexBufferPos);
+	    indexBufferPos = 0;
 	}
     }
 

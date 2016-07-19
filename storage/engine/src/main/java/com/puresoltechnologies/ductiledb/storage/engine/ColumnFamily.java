@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -144,14 +145,15 @@ public class ColumnFamily implements Closeable {
 	stopWatch.start();
 	File sstableFile = new File(directory, baseFilename + ".sstable");
 	File indexFile = new File(directory, baseFilename + ".index");
-	try (SSTableWriter ssTableWriter = new SSTableWriter(storage.create(sstableFile), bufferSize)) {
+
+	try (OutputStream sstableOutputStream = storage.create(sstableFile);
+		OutputStream indexOutputStream = storage.create(indexFile);
+		SSTableWriter ssTableWriter = new SSTableWriter(sstableOutputStream, indexOutputStream, bufferSize)) {
 	    Map<byte[], Map<byte[], byte[]>> values = memtable.getValues();
 	    for (Entry<byte[], Map<byte[], byte[]>> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());
 	    }
-	    ssTableWriter.close();
 	}
-	storage.create(indexFile).close();
 	stopWatch.stop();
 	logger.info("New SSTtable segment created in " + stopWatch.getMillis() + "ms.");
     }
