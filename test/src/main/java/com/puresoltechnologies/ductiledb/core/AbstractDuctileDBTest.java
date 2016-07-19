@@ -3,19 +3,19 @@ package com.puresoltechnologies.ductiledb.core;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.InputStream;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public class AbstractDuctileDBTest {
 
+    private static DuctileDBConfiguration configuration = null;
     private static DuctileDB ductileDB = null;
 
     /**
@@ -29,14 +29,20 @@ public class AbstractDuctileDBTest {
      * @throws StorageException
      */
     @BeforeClass
-    public static void initializeDuctileDB() throws StorageException, SchemaException {
+    public static void initializeDuctileDB() throws StorageException, SchemaException, IOException {
+	configuration = readTestConfigration();
 	ductileDB = createDuctileDB();
 	assertNotNull("DuctileDB is null.", ductileDB);
     }
 
+    public static DuctileDBConfiguration readTestConfigration() throws IOException {
+	Yaml yaml = new Yaml();
+	try (InputStream inputStream = AbstractDuctileDBTest.class.getResourceAsStream("/ductiledb-test.yml")) {
+	    return yaml.loadAs(inputStream, DuctileDBConfiguration.class);
+	}
+    }
+
     public static DuctileDB createDuctileDB() throws StorageException, SchemaException {
-	Map<String, String> configuration = new HashMap<>();
-	configuration.put(OSStorage.DIRECTORY_PROPERTY, "/tmp/ductiledb_test");
 	return DuctileDBFactory.connect(configuration);
     }
 

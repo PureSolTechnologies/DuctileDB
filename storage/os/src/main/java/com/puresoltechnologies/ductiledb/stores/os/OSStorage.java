@@ -10,11 +10,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.FileType;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
 
 public class OSStorage implements Storage {
 
@@ -22,8 +22,8 @@ public class OSStorage implements Storage {
 
     private final File rootDirectory;
 
-    public OSStorage(Map<String, String> configuration) {
-	String directory = configuration.get(DIRECTORY_PROPERTY);
+    public OSStorage(StorageConfiguration configuration) {
+	String directory = configuration.getProperties().get(DIRECTORY_PROPERTY).toString();
 	if (directory == null) {
 	    throw new IllegalArgumentException("Directory was not set via property '" + DIRECTORY_PROPERTY + "'.");
 	}

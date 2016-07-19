@@ -6,16 +6,16 @@ import java.util.List;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 /**
- * This class is used to access a single table within the {@link StorageEngine}.
+ * This class is used to access a single table within the {@link DatabaseEngine}.
  * 
  * @author Rick-Rainer Ludwig
  */
 public class Table implements Closeable {
 
-    private final StorageEngine storageEngine;
+    private final DatabaseEngine storageEngine;
     private final TableDescriptor tableDescriptor;
 
-    public Table(StorageEngine storageEngine, TableDescriptor tableDescriptor) {
+    public Table(DatabaseEngine storageEngine, TableDescriptor tableDescriptor) {
 	super();
 	this.storageEngine = storageEngine;
 	this.tableDescriptor = tableDescriptor;

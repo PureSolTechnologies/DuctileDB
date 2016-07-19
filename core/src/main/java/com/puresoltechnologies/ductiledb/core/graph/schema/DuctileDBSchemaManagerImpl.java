@@ -23,7 +23,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
@@ -172,7 +172,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 			+ "' with unknown property definition for key  '" + propertyKey + "'.");
 	    }
 	}
-	StorageEngine storageEngine = graph.getStorageEngine();
+	DatabaseEngine storageEngine = graph.getStorageEngine();
 	try (Table table = storageEngine.getTable(HBaseTable.TYPE_DEFINITIONS.getName())) {
 	    Put put = new Put(Bytes.toBytes(typeName));
 	    switch (elementType) {
@@ -230,7 +230,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public void removeTypeDefinition(ElementType elementType, String typeName) {
-	StorageEngine storageEngine = graph.getStorageEngine();
+	DatabaseEngine storageEngine = graph.getStorageEngine();
 	try (Table table = storageEngine.getTable(HBaseTable.TYPE_DEFINITIONS.getName())) {
 	    Delete delete = new Delete(Bytes.toBytes(typeName));
 	    switch (elementType) {

@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.io.ByteStreams;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
+import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
@@ -35,8 +35,8 @@ public class BlobStoreImpl implements BlobStore {
     private static final Logger logger = LoggerFactory.getLogger(BlobStoreImpl.class);
     private final Storage storage;
 
-    public BlobStoreImpl(Map<String, String> configuration) throws StorageFactoryServiceException {
-	this.storage = StorageFactory.getStorageInstance(configuration);
+    public BlobStoreImpl(DuctileDBConfiguration configuration) throws StorageFactoryServiceException {
+	this.storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
     }
 
     /**

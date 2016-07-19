@@ -119,7 +119,7 @@ public class DuctileStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    connection = DuctileDBGraphFactory.createConnection(hbaseSitePath);
+	    connection = DuctileDBGraphFactory.createDatabaseEngine(hbaseSitePath);
 	    checkAndInitializePropertyIndizes(registeredMetadata);
 	} catch (IOException | ServiceException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);

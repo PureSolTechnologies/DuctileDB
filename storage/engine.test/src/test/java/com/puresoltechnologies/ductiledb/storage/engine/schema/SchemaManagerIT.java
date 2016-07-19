@@ -11,13 +11,13 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractStorageEngineTest;
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 
 public class SchemaManagerIT extends AbstractStorageEngineTest {
 
     @Test
     public void testCreateAndDropNamespace() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	Iterator<NamespaceDescriptor> namespaces = schemaManager.getNamespaces();
 	assertFalse("No namespace should be present.", namespaces.hasNext());
@@ -41,7 +41,7 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 
     @Test
     public void testCreateAndDropTable() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespace = schemaManager.createNamespace("namespace2");
 	try {
@@ -71,7 +71,7 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 
     @Test
     public void testCreateAndDropColumnFamily() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespace = schemaManager.createNamespace("namespace2");
 	try {
@@ -102,14 +102,14 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 
     @Test(expected = SchemaException.class)
     public void testInvalidNamespaceIdentifier() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	schemaManager.createNamespace("01234567890");
     }
 
     @Test(expected = SchemaException.class)
     public void testInvalidTableIdentifier() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespace = schemaManager.createNamespace("validNamespace");
 	try {
@@ -121,7 +121,7 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 
     @Test(expected = SchemaException.class)
     public void testInvalidColumnFamilyIdentifier() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespace = schemaManager.createNamespace("validNamespace");
 	try {

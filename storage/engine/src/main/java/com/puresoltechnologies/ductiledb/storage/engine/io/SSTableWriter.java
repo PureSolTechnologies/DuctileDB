@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -17,9 +18,10 @@ public class SSTableWriter implements Closeable {
 
     private final CountingOutputStream outputStream;
 
-    public SSTableWriter(OutputStream outputStream) {
+    public SSTableWriter(OutputStream outputStream, int blockSize) {
 	super();
-	this.outputStream = new CountingOutputStream(outputStream);
+	BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, blockSize);
+	this.outputStream = new CountingOutputStream(bufferedOutputStream);
     }
 
     public SSTableWriter(OutputStream outputStream, long startOffset) {

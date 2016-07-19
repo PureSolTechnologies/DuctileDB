@@ -24,7 +24,7 @@ public class DuctileDBFactory {
 	return new HashMap<>();
     }
 
-    public static DuctileDB connect(Map<String, String> configuration) throws StorageException, SchemaException {
+    public static DuctileDB connect(DuctileDBConfiguration configuration) throws StorageException, SchemaException {
 	BlobStoreImpl blobStore = new BlobStoreImpl(configuration);
 	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(blobStore, configuration);
 	return new DuctileDBImpl(blobStore, graph);

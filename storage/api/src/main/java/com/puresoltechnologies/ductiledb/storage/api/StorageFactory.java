@@ -1,13 +1,13 @@
 package com.puresoltechnologies.ductiledb.storage.api;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.ServiceLoader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
 import com.puresoltechnologies.ductiledb.storage.spi.StorageFactoryService;
 
 /**
@@ -39,14 +39,14 @@ public class StorageFactory {
      * @return A {@link Storage} is returned.
      * @throws StorageFactoryServiceException
      */
-    public static Storage getStorageInstance(Map<String, String> configuration) throws StorageFactoryServiceException {
+    public static Storage getStorageInstance(StorageConfiguration configuration) throws StorageFactoryServiceException {
 	if (storage == null) {
 	    loadStorageFactoryService(configuration);
 	}
 	return storage;
     }
 
-    private static synchronized void loadStorageFactoryService(Map<String, String> configuration)
+    private static synchronized void loadStorageFactoryService(StorageConfiguration configuration)
 	    throws StorageFactoryServiceException {
 	if (storage == null) {
 	    logger.info("Loading StorageFactoryService via SPI...");

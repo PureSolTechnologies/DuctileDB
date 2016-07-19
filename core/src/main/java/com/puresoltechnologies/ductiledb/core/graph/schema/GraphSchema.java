@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
@@ -26,9 +26,9 @@ public class GraphSchema {
     public static final String DUCTILEDB_ID_PROPERTY = "~ductiledb.id";
     public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
 
-    private final StorageEngine storageEngine;
+    private final DatabaseEngine storageEngine;
 
-    public GraphSchema(StorageEngine storageEngine) {
+    public GraphSchema(DatabaseEngine storageEngine) {
 	super();
 	this.storageEngine = storageEngine;
     }

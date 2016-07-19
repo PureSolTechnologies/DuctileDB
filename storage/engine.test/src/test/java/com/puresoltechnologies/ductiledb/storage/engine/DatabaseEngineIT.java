@@ -10,11 +10,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
-public class StorageEngineIT extends AbstractStorageEngineTest {
+public class DatabaseEngineIT extends AbstractStorageEngineTest {
 
     @Test
     public void test() throws SchemaException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespace("engine_test");
 	TableDescriptor tableDescription = schemaManager.createTable(namespaceDescription, "puttest");

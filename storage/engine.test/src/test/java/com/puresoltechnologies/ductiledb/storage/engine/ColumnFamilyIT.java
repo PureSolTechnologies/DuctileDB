@@ -18,11 +18,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class DataBucketIT extends AbstractStorageEngineTest {
+public class ColumnFamilyIT extends AbstractStorageEngineTest {
 
     @Test
     public void testSmallDataAmount() throws IOException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 
 	byte[] rowKey1 = Bytes.toBytes(1l);
 	byte[] rowKey2 = Bytes.toBytes(2l);
@@ -41,7 +41,7 @@ public class DataBucketIT extends AbstractStorageEngineTest {
 	values3.put(Bytes.toBytes(31l), Bytes.toBytes(311l));
 
 	byte[] timestamp = Bytes.toBytes(Instant.now());
-	try (DataBucket bucket = new DataBucket(engine.getStorage(), new File("bucketIT"))) {
+	try (ColumnFamily bucket = new ColumnFamily(engine.getStorage(), new File("bucketIT"), getConfiguration())) {
 	    bucket.put(timestamp, rowKey1, values1);
 	    bucket.put(timestamp, rowKey2, values2);
 	    bucket.put(timestamp, rowKey3, values3);
@@ -63,14 +63,14 @@ public class DataBucketIT extends AbstractStorageEngineTest {
 
     @Test
     public void testSSTableCreation() throws IOException {
-	StorageEngine engine = getEngine();
+	DatabaseEngine engine = getEngine();
 	Storage storage = engine.getStorage();
 	File bucketIDDirectory = new File("bucketIT");
 	if (storage.exists(bucketIDDirectory)) {
 	    storage.removeDirectory(bucketIDDirectory, true);
 	}
 	File commitLogFile = new File("bucketIT/commit.log");
-	try (DataBucket bucket = new DataBucket(storage, bucketIDDirectory)) {
+	try (ColumnFamily bucket = new ColumnFamily(storage, bucketIDDirectory, getConfiguration())) {
 	    Instant start = Instant.now();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    bucket.setMaxCommitLogSize(1024 * 1024);
@@ -90,7 +90,8 @@ public class DataBucketIT extends AbstractStorageEngineTest {
 		commitLogSize = fileStatus.getLength();
 		Instant stop = Instant.now();
 		Duration duration = Duration.between(start, stop);
-		System.out.println("size: " + commitLogSize + "; t=" + duration.toMillis() + "ms");
+		System.out.println("count: " + rowKey + "; size: " + commitLogSize + "; t=" + duration.toMillis()
+			+ "ms; perf=" + commitLogSize / 1024.0 / duration.toMillis() * 1000.0 + "kB/ms");
 	    }
 	    Iterator<File> bucketFiles = storage.list(bucketIDDirectory);
 	    File sstableFile = null;

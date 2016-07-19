@@ -11,7 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -21,11 +21,11 @@ public class SchemaManagerImpl implements SchemaManager {
 
     private final Map<String, NamespaceDescriptor> namespaces = new HashMap<>();
 
-    private final StorageEngine storageEngine;
+    private final DatabaseEngine storageEngine;
     private final Storage storage;
     private final File storageDirectory;
 
-    public SchemaManagerImpl(StorageEngine storageEngine, File storageDirectory) {
+    public SchemaManagerImpl(DatabaseEngine storageEngine, File storageDirectory) {
 	this.storageEngine = storageEngine;
 	this.storage = storageEngine.getStorage();
 	this.storageDirectory = storageDirectory;

@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.hadoop.fs.FileSystem;
 
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
 
 /**
  * This is a DuctileDB storage for Hadoop.
@@ -23,7 +23,7 @@ public class HadoopStorage implements Storage {
 
     private final FileSystem fileSystem;
 
-    public HadoopStorage(Map<String, String> configuration) {
+    public HadoopStorage(StorageConfiguration configuration) {
 	super();
 	this.fileSystem = null;
     }

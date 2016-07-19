@@ -5,13 +5,13 @@ import java.util.List;
 
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
 
 public abstract class AbstractTxOperation implements TxOperation {
 
     private final DuctileDBTransactionImpl transaction;
-    private final StorageEngine storageEngine;
+    private final DatabaseEngine storageEngine;
 
     public AbstractTxOperation(DuctileDBTransactionImpl transaction) {
 	super();
@@ -23,7 +23,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 	return transaction;
     }
 
-    public final StorageEngine getStorageEngine() {
+    public final DatabaseEngine getStorageEngine() {
 	return storageEngine;
     }
 

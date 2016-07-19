@@ -39,7 +39,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
@@ -75,7 +75,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private final DuctileDBGraphImpl graph;
     private final TransactionType type;
     private final long threadId;
-    private final StorageEngine storageEngine;
+    private final DatabaseEngine storageEngine;
     private boolean closed = false;
 
     public DuctileDBTransactionImpl(BlobStoreImpl blobStore, DuctileDBGraphImpl graph, TransactionType type) {
@@ -95,7 +95,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return type;
     }
 
-    public final StorageEngine getStorageEngine() {
+    public final DatabaseEngine getStorageEngine() {
 	return storageEngine;
     }
 

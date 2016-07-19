@@ -14,7 +14,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManagerImpl
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class StorageEngine implements Closeable {
+public class DatabaseEngine implements Closeable {
 
     private boolean closed = false;
     private final Storage storage;
@@ -22,7 +22,7 @@ public class StorageEngine implements Closeable {
     private final File storageDirectory;
     private final SchemaManager schemaManager;
 
-    public StorageEngine(Storage storage, String storageName) throws StorageException {
+    public DatabaseEngine(Storage storage, String storageName) throws StorageException {
 	this.storage = storage;
 	this.storageName = storageName;
 	this.storageDirectory = new File(storageName);

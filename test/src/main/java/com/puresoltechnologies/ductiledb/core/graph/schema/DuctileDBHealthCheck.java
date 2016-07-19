@@ -21,7 +21,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
-import com.puresoltechnologies.ductiledb.storage.engine.StorageEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
@@ -50,7 +50,7 @@ public class DuctileDBHealthCheck {
     }
 
     private final DuctileDBGraphImpl graph;
-    private final StorageEngine storageEngine;
+    private final DatabaseEngine storageEngine;
 
     public DuctileDBHealthCheck(DuctileDBGraphImpl graph) throws IOException {
 	super();

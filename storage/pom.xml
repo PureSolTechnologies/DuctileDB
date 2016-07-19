@@ -16,18 +16,10 @@
 		<module>spi</module>
 		<module>api</module>
 		<module>engine</module>
+		<module>engine.test</module>
 		<module>os</module>
+		<module>os.test</module>
 		<module>hadoop</module>
 	</modules>
-
-	<profiles>
-		<profile>
-			<id>it</id>
-			<modules>
-				<module>os.test</module>
-				<module>engine.test</module>
-			</modules>
-		</profile>
-	</profiles>
 
 </project>
