@@ -6,22 +6,18 @@ public class ByteArrayComparator implements Comparator<byte[]> {
 
     @Override
     public int compare(byte[] o1, byte[] o2) {
-	int minLength = Math.min(o1.length, o2.length);
-	for (int i = 0; i < minLength; i++) {
-	    if (o1[i] < o2[i]) {
-		return -i;
+	if (o1.length == o2.length) {
+	    for (int i = 0; i < o1.length; i++) {
+		if (o1[i] != o2[i]) {
+		    return o1[i] < o2[i] ? -i : +i;
+		}
 	    }
-	    if (o1[i] > o2[i]) {
-		return +i;
-	    }
+	    return 0;
+	} else if (o1.length < o2.length) {
+	    return -o1.length;
+	} else {
+	    return +o2.length;
 	}
-	if (o1.length < o2.length) {
-	    return -minLength;
-	}
-	if (o1.length > o2.length) {
-	    return +minLength;
-	}
-	return 0;
     }
 
 }

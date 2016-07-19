@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,14 @@ public class ColumnFamily implements Closeable {
 
     private static final long DEFAULT_MAX_COMMIT_LOG_SIZE = 1024 * 1024; // 1MB
 
+    private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+
+	@Override
+	public Thread newThread(Runnable r) {
+	    return new Thread(r, "ductiledb-compaction");
+	}
+    });
+
     private long maxCommitLogSize = DEFAULT_MAX_COMMIT_LOG_SIZE;
 
     private final Memtable memtable;
@@ -40,6 +52,7 @@ public class ColumnFamily implements Closeable {
     private final File commitLogFile;
     private CommitLogWriter commitLogWriter;
     private CountingOutputStream commitLogSizeStream;
+    private final int bufferSize;
 
     public ColumnFamily(Storage storage, File directory, DatabaseEngineConfiguration configuration) throws IOException {
 	super();
@@ -51,6 +64,8 @@ public class ColumnFamily implements Closeable {
 	this.commitLogFile = new File(directory, "commit.log");
 	this.memtable = MemtableFactory.create();
 	this.configuration = configuration;
+	int blockSize = configuration.getStorage().getBlockSize();
+	this.bufferSize = ((int) (configuration.getMaxCommitLogSize() / 10) / blockSize) * blockSize;
 	setMaxCommitLogSize(configuration.getMaxCommitLogSize());
 	if (!storage.exists(directory)) {
 	    storage.createDirectory(directory);
@@ -71,12 +86,22 @@ public class ColumnFamily implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
 	logger.info("Closing database engine '" + directory.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	if (commitLogWriter != null) {
-	    commitLogWriter.close();
+	    try {
+		commitLogWriter.close();
+	    } catch (IOException e) {
+		logger.warn("Could not cleanly close commit log.", e);
+	    }
+	}
+	compactionExecutor.shutdown();
+	try {
+	    compactionExecutor.awaitTermination(1, TimeUnit.MINUTES);
+	} catch (InterruptedException e) {
+	    logger.warn("Shutdown of sstable creation executor took too long.", e);
 	}
 	stopWatch.stop();
 	logger.info("Database engine '" + directory.getName() + "' closed in " + stopWatch.getMillis() + "ms.");
@@ -94,24 +119,32 @@ public class ColumnFamily implements Closeable {
 	    memtable.put(rowKey, value.getKey(), value.getValue());
 	}
 	if (commitLogSizeStream.getCount() > maxCommitLogSize) {
-	    logger.info("Max commit.log size of " + maxCommitLogSize + "bytes reached.");
-	    createSSTableSegment();
-	    createEmptyCommitLog();
-	    memtable.clear();
+	    rolloverCommitLog();
 	}
     }
 
-    private void createSSTableSegment() throws IOException {
+    private void rolloverCommitLog() throws IOException {
+	logger.info("Max commit.log size of " + maxCommitLogSize + "bytes reached.");
+	Instant timestamp = Instant.now();
+	String baseFilename = String.valueOf(timestamp.getEpochSecond()) + "-" + String.valueOf(timestamp.getNano());
+	createNewSSTableSegment(baseFilename);
+	createEmptyCommitLog();
+	memtable.clear();
+	compactionExecutor.submit(new Runnable() {
+	    @Override
+	    public void run() {
+		compaction();
+	    }
+	});
+    }
+
+    private void createNewSSTableSegment(String baseFilename) throws IOException {
 	logger.info("Creating new SSTtable segment...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	Instant timestamp = Instant.now();
-	File sstableFile = new File(directory,
-		String.valueOf(timestamp.getEpochSecond()) + "-" + String.valueOf(timestamp.getNano()) + ".sstable");
-	File indexFile = new File(directory,
-		String.valueOf(timestamp.getEpochSecond()) + "-" + String.valueOf(timestamp.getNano()) + ".index");
-	try (SSTableWriter ssTableWriter = new SSTableWriter(storage.create(sstableFile),
-		configuration.getStorage().getBlockSize())) {
+	File sstableFile = new File(directory, baseFilename + ".sstable");
+	File indexFile = new File(directory, baseFilename + ".index");
+	try (SSTableWriter ssTableWriter = new SSTableWriter(storage.create(sstableFile), bufferSize)) {
 	    Map<byte[], Map<byte[], byte[]>> values = memtable.getValues();
 	    for (Entry<byte[], Map<byte[], byte[]>> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());
@@ -137,6 +170,10 @@ public class ColumnFamily implements Closeable {
 	}
 	commitLogSizeStream = new CountingOutputStream(storage.create(commitLogFile));
 	commitLogWriter = new CommitLogWriter(commitLogSizeStream);
+    }
+
+    private void compaction() {
+
     }
 
     public Map<byte[], byte[]> get(byte[] rowKey) {

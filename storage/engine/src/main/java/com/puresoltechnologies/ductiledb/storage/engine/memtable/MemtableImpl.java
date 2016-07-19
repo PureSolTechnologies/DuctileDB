@@ -12,7 +12,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparato
  */
 public class MemtableImpl implements Memtable {
 
-    private final ByteArrayComparator byteArrayComparator = new ByteArrayComparator();
+    private static final ByteArrayComparator byteArrayComparator = new ByteArrayComparator();
     private final Map<byte[], Map<byte[], byte[]>> values = new TreeMap<>(byteArrayComparator);
 
     public MemtableImpl() {
@@ -43,4 +43,5 @@ public class MemtableImpl implements Memtable {
     public Map<byte[], Map<byte[], byte[]>> getValues() {
 	return values;
     }
+
 }

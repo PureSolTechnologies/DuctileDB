@@ -73,7 +73,7 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 	try (ColumnFamily bucket = new ColumnFamily(storage, bucketIDDirectory, getConfiguration())) {
 	    Instant start = Instant.now();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
-	    bucket.setMaxCommitLogSize(1024 * 1024);
+	    bucket.setMaxCommitLogSize(10 * 1024 * 1024);
 	    long commitLogSize = 0;
 	    long lastCommitLogSize = 0;
 	    long rowKey = 0;
@@ -93,20 +93,20 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 		System.out.println("count: " + rowKey + "; size: " + commitLogSize + "; t=" + duration.toMillis()
 			+ "ms; perf=" + commitLogSize / 1024.0 / duration.toMillis() * 1000.0 + "kB/ms");
 	    }
-	    Iterator<File> bucketFiles = storage.list(bucketIDDirectory);
-	    File sstableFile = null;
-	    while (bucketFiles.hasNext()) {
-		File bucketFile = bucketFiles.next();
-		if (bucketFile.getName().endsWith(".sstable")) {
-		    if (sstableFile == null) {
-			sstableFile = bucketFile;
-		    } else {
-			fail("Only on sstable file is expected.");
-		    }
+	}
+	Iterator<File> bucketFiles = storage.list(bucketIDDirectory);
+	File sstableFile = null;
+	while (bucketFiles.hasNext()) {
+	    File bucketFile = bucketFiles.next();
+	    if (bucketFile.getName().endsWith(".sstable")) {
+		if (sstableFile == null) {
+		    sstableFile = bucketFile;
+		} else {
+		    fail("Only on sstable file is expected.");
 		}
 	    }
-	    assertNotNull(sstableFile);
 	}
+	assertNotNull(sstableFile);
     }
 
 }
