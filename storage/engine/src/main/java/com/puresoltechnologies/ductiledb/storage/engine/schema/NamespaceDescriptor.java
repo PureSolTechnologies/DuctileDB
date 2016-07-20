@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -72,8 +71,8 @@ public class NamespaceDescriptor {
 	tables.remove(tableDescriptor.getName());
     }
 
-    public Iterator<TableDescriptor> getTables() {
-	return tables.values().iterator();
+    public Iterable<TableDescriptor> getTables() {
+	return tables.values();
     }
 
     public TableDescriptor getTable(String tableName) {

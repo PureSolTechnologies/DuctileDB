@@ -10,15 +10,15 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
-public class DatabaseEngineIT extends AbstractStorageEngineTest {
+public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 
     @Test
     public void test() throws SchemaException {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespace("engine_test");
-	TableDescriptor tableDescription = schemaManager.createTable(namespaceDescription, "puttest");
-	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(tableDescription, "puts");
+	NamespaceDescriptor namespaceDescription = schemaManager.createNamespace("namespace_test");
+	TableDescriptor tableDescription = schemaManager.createTable(namespaceDescription, "table_test");
+	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(tableDescription, "columnfamily_test");
 	Table table = engine.getTable(tableDescription);
 
 	byte[] key = new byte[] { 1 };

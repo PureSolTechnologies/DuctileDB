@@ -11,5 +11,5 @@ import java.io.Closeable;
  * @param <T>
  *            is type of the iterating variable.
  */
-public interface ClosableIterable<T> extends Closeable, Iterable<T> {
+public interface CloseableIterable<T> extends Closeable, Iterable<T> {
 }

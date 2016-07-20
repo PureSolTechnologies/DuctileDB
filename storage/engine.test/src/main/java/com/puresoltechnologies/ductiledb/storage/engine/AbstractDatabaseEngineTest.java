@@ -16,34 +16,35 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
-public abstract class AbstractStorageEngineTest {
+public abstract class AbstractDatabaseEngineTest {
 
     private static DatabaseEngineConfiguration configuration;
 
     private DatabaseEngine storageEngine;
+    private String databaseEngineName;
 
     @BeforeClass
     public static void readConfiguration() throws IOException {
 	Yaml yaml = new Yaml();
-	try (InputStream inputStream = AbstractStorageEngineTest.class.getResourceAsStream("/database-engine.yml")) {
+	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
 	    configuration = yaml.loadAs(inputStream, DatabaseEngineConfiguration.class);
 	    assertNotNull(configuration);
 	}
     }
 
     @Before
-    public void initializeStorageEngine() throws StorageException {
-	storageEngine = new DatabaseEngine(StorageFactory.getStorageInstance(configuration.getStorage()), "test");
+    public void initializeStorageEngine() throws StorageException, IOException {
+	databaseEngineName = getClass().getSimpleName();
+	storageEngine = new DatabaseEngine(StorageFactory.getStorageInstance(configuration.getStorage()),
+		databaseEngineName, configuration);
     }
 
     @After
     public void cleanupStorageEngine() throws IOException {
 	Storage storage = storageEngine.getStorage();
-	storage.removeDirectory(new File("test"), true);
+	storage.removeDirectory(new File(databaseEngineName), true);
 	File baseDirectory = new File(
 		configuration.getStorage().getProperties().getProperty(OSStorage.DIRECTORY_PROPERTY));
-	File storageDirectory = new File(baseDirectory, "test");
-	storageDirectory.delete();
 	baseDirectory.delete();
     }
 
@@ -52,7 +53,7 @@ public abstract class AbstractStorageEngineTest {
     }
 
     public static void setConfiguration(DatabaseEngineConfiguration configuration) {
-	AbstractStorageEngineTest.configuration = configuration;
+	AbstractDatabaseEngineTest.configuration = configuration;
     }
 
     protected DatabaseEngine getEngine() {

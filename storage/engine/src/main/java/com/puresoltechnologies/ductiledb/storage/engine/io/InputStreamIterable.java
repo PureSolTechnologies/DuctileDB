@@ -13,7 +13,7 @@ import java.util.Iterator;
  * @param <T>
  *            is the element type.
  */
-public abstract class InputStreamIterable<T> implements ClosableIterable<T> {
+public abstract class InputStreamIterable<T> implements CloseableIterable<T> {
 
     private final InputStream inputStream;
 

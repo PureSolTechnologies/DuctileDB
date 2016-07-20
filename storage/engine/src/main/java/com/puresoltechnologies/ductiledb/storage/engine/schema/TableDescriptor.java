@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 public class TableDescriptor {
@@ -80,8 +79,8 @@ public class TableDescriptor {
 	columnFamilies.remove(columnFamilyDescriptor.getName());
     }
 
-    public Iterator<ColumnFamilyDescriptor> getColumnFamilies() {
-	return columnFamilies.values().iterator();
+    public Iterable<ColumnFamilyDescriptor> getColumnFamilies() {
+	return columnFamilies.values();
     }
 
     public ColumnFamilyDescriptor getColumnFamily(String columnFamilyName) {

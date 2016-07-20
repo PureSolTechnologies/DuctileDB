@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -15,21 +15,31 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class ColumnFamilyIT extends AbstractStorageEngineTest {
+public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 
     @Test
-    public void testSmallDataAmount() throws IOException {
+    public void testSmallDataAmount() throws StorageException, SchemaException {
 	DatabaseEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespace = schemaManager.createNamespace("testSmallDataAmount");
+	TableDescriptor tableDescriptor = schemaManager.createTable(namespace, "test");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
 
 	byte[] rowKey1 = Bytes.toBytes(1l);
 	byte[] rowKey2 = Bytes.toBytes(2l);
@@ -48,7 +58,8 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 	values3.put(Bytes.toBytes(31l), Bytes.toBytes(311l));
 
 	byte[] timestamp = Bytes.toBytes(Instant.now());
-	try (ColumnFamily bucket = new ColumnFamily(engine.getStorage(), new File("bucketIT"), getConfiguration())) {
+	try (ColumnFamilyEngine bucket = new ColumnFamilyEngine(engine.getStorage(), columnFamilyDescriptor,
+		getConfiguration())) {
 	    bucket.put(timestamp, rowKey1, values1);
 	    bucket.put(timestamp, rowKey2, values2);
 	    bucket.put(timestamp, rowKey3, values3);
@@ -69,19 +80,22 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
     }
 
     @Test
-    public void testSSTableCreation() throws IOException {
+    public void testSSTableCreation() throws SchemaException, FileNotFoundException, IOException, StorageException {
 	DatabaseEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespace = schemaManager.createNamespace("testSSTableCreation");
+	TableDescriptor tableDescriptor = schemaManager.createTable(namespace, "test");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
 	Storage storage = engine.getStorage();
-	File bucketIDDirectory = new File("bucketIT");
-	if (storage.exists(bucketIDDirectory)) {
-	    storage.removeDirectory(bucketIDDirectory, true);
-	}
-	File commitLogFile = new File("bucketIT/commit.log");
+
+	File commitLogFile = new File(getClass().getSimpleName() + "/" + "testSSTableCreation/test/testcf/commit.log");
 	DatabaseEngineConfiguration configuration = getConfiguration();
-	try (ColumnFamily bucket = new ColumnFamily(storage, bucketIDDirectory, configuration)) {
-	    Instant start = Instant.now();
+	try (ColumnFamilyEngine bucket = new ColumnFamilyEngine(engine.getStorage(), columnFamilyDescriptor,
+		getConfiguration())) {
+	    // StopWatch stopWatch = new StopWatch();
+	    // stopWatch.start();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
-	    bucket.setMaxCommitLogSize(10 * 1024 * 1024);
+	    bucket.setMaxCommitLogSize(1024 * 1024);
 	    long commitLogSize = 0;
 	    long lastCommitLogSize = 0;
 	    long rowKey = 0;
@@ -96,13 +110,15 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 		bucket.put(timestamp, Bytes.toBytes(rowKey), values);
 		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
 		commitLogSize = fileStatus.getLength();
-		Instant stop = Instant.now();
-		Duration duration = Duration.between(start, stop);
-		System.out.println("count: " + rowKey + "; size: " + commitLogSize + "; t=" + duration.toMillis()
-			+ "ms; perf=" + commitLogSize / 1024.0 / duration.toMillis() * 1000.0 + "kB/ms");
+		// stopWatch.stop();
+		// System.out.println("count: " + rowKey + "; size: " +
+		// commitLogSize + "; t=" + stopWatch.getMillis()
+		// + "ms; perf=" + commitLogSize / 1024.0 /
+		// stopWatch.getMillis() * 1000.0 + "kB/ms");
 	    }
 	}
-	Iterator<File> bucketFiles = storage.list(bucketIDDirectory);
+	File columnFamilyDirectory = new File(getClass().getSimpleName() + "/" + "testSSTableCreation/test/testcf");
+	Iterator<File> bucketFiles = storage.list(columnFamilyDirectory);
 	File sstableFile = null;
 	File indexFile = null;
 	while (bucketFiles.hasNext()) {
@@ -142,8 +158,10 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 		    long offset = indexEntry.getOffset();
 		    assertTrue(currentOffset < offset);
 		    if (currentRowKey != null) {
-			System.out.println("Checking '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
-				+ Bytes.toHumanReadableString(rowKey) + "'.");
+			// System.out.println("Checking '" +
+			// Bytes.toHumanReadableString(currentRowKey) + "' and
+			// '"
+			// + Bytes.toHumanReadableString(rowKey) + "'.");
 			if (comparator.compare(currentRowKey, rowKey) >= 0) {
 			    fail("Wrong key order for '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
 				    + Bytes.toHumanReadableString(rowKey) + "'.");

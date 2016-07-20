@@ -10,23 +10,23 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.storage.engine.AbstractStorageEngineTest;
+import com.puresoltechnologies.ductiledb.storage.engine.AbstractDatabaseEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 
-public class SchemaManagerIT extends AbstractStorageEngineTest {
+public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 
     @Test
     public void testCreateAndDropNamespace() throws SchemaException {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	Iterator<NamespaceDescriptor> namespaces = schemaManager.getNamespaces();
+	Iterator<NamespaceDescriptor> namespaces = schemaManager.getNamespaces().iterator();
 	assertFalse("No namespace should be present.", namespaces.hasNext());
 	assertNull("No namespace should be present.", schemaManager.getNamespace("namespace"));
 
 	NamespaceDescriptor namespace = schemaManager.createNamespace("namespace");
 	assertNotNull(namespace);
 
-	namespaces = schemaManager.getNamespaces();
+	namespaces = schemaManager.getNamespaces().iterator();
 	assertTrue("Namespaces were expected to be present.", namespaces.hasNext());
 	NamespaceDescriptor descriptor = namespaces.next();
 	assertEquals(namespace, descriptor);
@@ -46,14 +46,14 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 	NamespaceDescriptor namespace = schemaManager.createNamespace("namespace2");
 	try {
 
-	    Iterator<TableDescriptor> tables = schemaManager.getTables(namespace);
+	    Iterator<TableDescriptor> tables = schemaManager.getTables(namespace).iterator();
 	    assertFalse("No table should be present.", tables.hasNext());
 	    assertNull("No table should be present.", schemaManager.getTable(namespace, "table"));
 
 	    TableDescriptor table = schemaManager.createTable(namespace, "table");
 	    assertNotNull(table);
 
-	    tables = schemaManager.getTables(namespace);
+	    tables = schemaManager.getTables(namespace).iterator();
 	    assertTrue("Tables were expected to be present.", tables.hasNext());
 	    TableDescriptor descriptor = tables.next();
 	    assertEquals(table, descriptor);
@@ -77,14 +77,14 @@ public class SchemaManagerIT extends AbstractStorageEngineTest {
 	try {
 	    TableDescriptor table = schemaManager.createTable(namespace, "table2");
 
-	    Iterator<ColumnFamilyDescriptor> columnFamilies = schemaManager.getColumnFamilies(table);
+	    Iterator<ColumnFamilyDescriptor> columnFamilies = schemaManager.getColumnFamilies(table).iterator();
 	    assertFalse("No column family should be present.", columnFamilies.hasNext());
 	    assertNull("No column family should be present.", schemaManager.getTable(namespace, "table"));
 
 	    ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(table, "columnFamily");
 	    assertNotNull(columnFamily);
 
-	    columnFamilies = schemaManager.getColumnFamilies(table);
+	    columnFamilies = schemaManager.getColumnFamilies(table).iterator();
 	    assertTrue("Column families were expected to be present.", columnFamilies.hasNext());
 	    ColumnFamilyDescriptor descriptor = columnFamilies.next();
 	    assertEquals(columnFamily, descriptor);
