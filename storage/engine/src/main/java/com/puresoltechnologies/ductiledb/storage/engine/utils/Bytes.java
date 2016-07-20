@@ -174,4 +174,29 @@ public class Bytes {
 		((bytes[8]) << 24);
 	return Instant.ofEpochSecond(seconds, nano);
     }
+
+    /**
+     * This method converts byte array into a readable hex number string.
+     * 
+     * @param bytes
+     * @return
+     */
+    public static String toHumanReadableString(byte[] bytes) {
+	if (bytes == null) {
+	    throw new IllegalArgumentException("Byte array must not be null!");
+	}
+	StringBuffer hexString = new StringBuffer();
+	for (int i = 0; i < bytes.length; i++) {
+	    if (hexString.length() > 0) {
+		hexString.append(' ');
+	    }
+	    int digit = 0xFF & bytes[i];
+	    String hexDigits = Integer.toHexString(digit);
+	    if (hexDigits.length() < 2) {
+		hexString.append("0");
+	    }
+	    hexString.append(hexDigits);
+	}
+	return hexString.toString();
+    }
 }

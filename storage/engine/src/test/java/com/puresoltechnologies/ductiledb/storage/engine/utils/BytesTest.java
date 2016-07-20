@@ -31,4 +31,20 @@ public class BytesTest {
 	assertEquals(now.getNano(), decoded.getNano());
     }
 
+    @Test
+    public void testLongConversion() {
+	long l = 1;
+	byte[] encoded = Bytes.toBytes(l);
+	assertEquals(8, encoded.length);
+	assertEquals(0, encoded[0]);
+	assertEquals(0, encoded[1]);
+	assertEquals(0, encoded[2]);
+	assertEquals(0, encoded[3]);
+	assertEquals(0, encoded[4]);
+	assertEquals(0, encoded[5]);
+	assertEquals(0, encoded[6]);
+	assertEquals(1, encoded[7]);
+	long decoded = Bytes.toLong(encoded);
+	assertEquals(l, decoded);
+    }
 }

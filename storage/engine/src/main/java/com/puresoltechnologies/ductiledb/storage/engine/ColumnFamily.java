@@ -1,9 +1,9 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -53,6 +53,7 @@ public class ColumnFamily implements Closeable {
     private final File commitLogFile;
     private CommitLogWriter commitLogWriter;
     private CountingOutputStream commitLogSizeStream;
+    private final int blockSize;
     private final int bufferSize;
 
     public ColumnFamily(Storage storage, File directory, DatabaseEngineConfiguration configuration) throws IOException {
@@ -65,7 +66,7 @@ public class ColumnFamily implements Closeable {
 	this.commitLogFile = new File(directory, "commit.log");
 	this.memtable = MemtableFactory.create();
 	this.configuration = configuration;
-	int blockSize = configuration.getStorage().getBlockSize();
+	blockSize = configuration.getStorage().getBlockSize();
 	this.bufferSize = ((int) (configuration.getMaxCommitLogSize() / 10) / blockSize) * blockSize;
 	setMaxCommitLogSize(configuration.getMaxCommitLogSize());
 	if (!storage.exists(directory)) {
@@ -79,7 +80,8 @@ public class ColumnFamily implements Closeable {
     private void open() throws IOException {
 	if (storage.exists(commitLogFile)) {
 	    FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-	    commitLogSizeStream = new CountingOutputStream(storage.append(commitLogFile), fileStatus.getLength());
+	    commitLogSizeStream = new CountingOutputStream(new BufferedOutputStream(storage.append(commitLogFile)),
+		    fileStatus.getLength());
 	    commitLogWriter = new CommitLogWriter(commitLogSizeStream);
 	} else {
 	    createEmptyCommitLog();
@@ -143,12 +145,7 @@ public class ColumnFamily implements Closeable {
 	logger.info("Creating new SSTtable segment...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	File sstableFile = new File(directory, baseFilename + ".sstable");
-	File indexFile = new File(directory, baseFilename + ".index");
-
-	try (OutputStream sstableOutputStream = storage.create(sstableFile);
-		OutputStream indexOutputStream = storage.create(indexFile);
-		SSTableWriter ssTableWriter = new SSTableWriter(sstableOutputStream, indexOutputStream, bufferSize)) {
+	try (SSTableWriter ssTableWriter = new SSTableWriter(storage, directory, baseFilename, bufferSize)) {
 	    Map<byte[], Map<byte[], byte[]>> values = memtable.getValues();
 	    for (Entry<byte[], Map<byte[], byte[]>> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());

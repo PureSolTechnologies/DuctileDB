@@ -9,14 +9,14 @@ public class ByteArrayComparator implements Comparator<byte[]> {
 	if (o1.length == o2.length) {
 	    for (int i = 0; i < o1.length; i++) {
 		if (o1[i] != o2[i]) {
-		    return o1[i] < o2[i] ? -i : +i;
+		    return (o1[i] & 0xFF) - (o2[i] & 0xFF);
 		}
 	    }
 	    return 0;
 	} else if (o1.length < o2.length) {
-	    return -o1.length;
+	    return -1;
 	} else {
-	    return +o2.length;
+	    return +1;
 	}
     }
 

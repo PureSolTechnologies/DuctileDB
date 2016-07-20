@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -14,6 +15,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -70,7 +75,8 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 	    storage.removeDirectory(bucketIDDirectory, true);
 	}
 	File commitLogFile = new File("bucketIT/commit.log");
-	try (ColumnFamily bucket = new ColumnFamily(storage, bucketIDDirectory, getConfiguration())) {
+	DatabaseEngineConfiguration configuration = getConfiguration();
+	try (ColumnFamily bucket = new ColumnFamily(storage, bucketIDDirectory, configuration)) {
 	    Instant start = Instant.now();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    bucket.setMaxCommitLogSize(10 * 1024 * 1024);
@@ -96,17 +102,50 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 	}
 	Iterator<File> bucketFiles = storage.list(bucketIDDirectory);
 	File sstableFile = null;
+	File indexFile = null;
 	while (bucketFiles.hasNext()) {
 	    File bucketFile = bucketFiles.next();
 	    if (bucketFile.getName().endsWith(".sstable")) {
 		if (sstableFile == null) {
 		    sstableFile = bucketFile;
 		} else {
-		    fail("Only on sstable file is expected.");
+		    fail("Only one sstable file is expected.");
+		}
+	    }
+	    if (bucketFile.getName().endsWith(".index")) {
+		if (indexFile == null) {
+		    indexFile = bucketFile;
+		} else {
+		    fail("Only one index file is expected.");
 		}
 	    }
 	}
 	assertNotNull(sstableFile);
+	assertNotNull(indexFile);
+
+	ByteArrayComparator comparator = new ByteArrayComparator();
+	try (SSTableReader reader = new SSTableReader(storage, sstableFile, indexFile,
+		configuration.getStorage().getBlockSize())) {
+	    try (SSTableIndexIterable index = reader.readIndex()) {
+		byte[] currentRowKey = null;
+		long currentOffset = -1;
+		for (SSTableIndexEntry indexEntry : index) {
+		    byte[] rowKey = indexEntry.getRowKey();
+		    long offset = indexEntry.getOffset();
+		    assertTrue(currentOffset < offset);
+		    if (currentRowKey != null) {
+			System.out.println("Checking '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
+				+ Bytes.toHumanReadableString(rowKey) + "'.");
+			if (comparator.compare(currentRowKey, rowKey) >= 0) {
+			    fail("Wrong key order for '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
+				    + Bytes.toHumanReadableString(rowKey) + "'.");
+			}
+		    }
+		    currentOffset = offset;
+		    currentRowKey = rowKey;
+		}
+	    }
+	}
     }
 
 }

@@ -1,12 +1,15 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This class is used to write to a commit log provided via OutputStream.
@@ -24,14 +27,19 @@ public class SSTableWriter implements Closeable {
     private final byte[] indexBuffer;
     private int indexBufferPos;
 
-    public SSTableWriter(OutputStream sstableStream, OutputStream indexStream, int bufferSize) {
-	this(sstableStream, indexStream, bufferSize, 0);
+    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws IOException {
+	this(storage, directory, baseFilename, bufferSize, 0);
     }
 
-    public SSTableWriter(OutputStream sstableStream, OutputStream indexStream, int bufferSize, long startOffset) {
+    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize, long startOffset)
+	    throws IOException {
 	super();
-	this.sstableStream = sstableStream;
-	this.indexStream = indexStream;
+
+	File sstableFile = new File(directory, baseFilename + ".sstable");
+	File indexFile = new File(directory, baseFilename + ".index");
+
+	this.sstableStream = storage.create(sstableFile);
+	this.indexStream = storage.create(indexFile);
 	this.bufferSize = bufferSize;
 	this.fileOffset = startOffset;
 	this.sstableBuffer = new byte[this.bufferSize];
@@ -50,7 +58,9 @@ public class SSTableWriter implements Closeable {
     public void write(byte[] rowKey, Map<byte[], byte[]> columns) throws IOException {
 	writeSSTable(Bytes.toBytes(rowKey.length));
 	writeSSTable(rowKey);
-	for (Entry<byte[], byte[]> column : columns.entrySet()) {
+	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();
+	writeSSTable(Bytes.toBytes(entrySet.size()));
+	for (Entry<byte[], byte[]> column : entrySet) {
 	    byte[] key = column.getKey();
 	    byte[] value = column.getValue();
 	    writeSSTable(Bytes.toBytes(key.length));
@@ -68,6 +78,8 @@ public class SSTableWriter implements Closeable {
 	    flushSSTable();
 	    if (bytes.length > bufferSize) {
 		sstableStream.write(bytes);
+	    } else {
+		sstableBufferPos += Bytes.putBytes(sstableBuffer, bytes, sstableBufferPos);
 	    }
 	} else {
 	    sstableBufferPos += Bytes.putBytes(sstableBuffer, bytes, sstableBufferPos);
@@ -87,6 +99,8 @@ public class SSTableWriter implements Closeable {
 	    flushIndex();
 	    if (bytes.length > bufferSize) {
 		indexStream.write(bytes);
+	    } else {
+		indexBufferPos += Bytes.putBytes(indexBuffer, bytes, indexBufferPos);
 	    }
 	} else {
 	    indexBufferPos += Bytes.putBytes(indexBuffer, bytes, indexBufferPos);
