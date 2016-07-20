@@ -18,8 +18,10 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.MemtableFactory;
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.RowMap;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -34,8 +36,6 @@ public class ColumnFamily implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamily.class);
 
-    private static final long DEFAULT_MAX_COMMIT_LOG_SIZE = 1024 * 1024; // 1MB
-
     private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 
 	@Override
@@ -44,16 +44,14 @@ public class ColumnFamily implements Closeable {
 	}
     });
 
-    private long maxCommitLogSize = DEFAULT_MAX_COMMIT_LOG_SIZE;
+    private long maxCommitLogSize;
 
     private final Memtable memtable;
     private final Storage storage;
-    private final DatabaseEngineConfiguration configuration;
     private final File directory;
     private final File commitLogFile;
     private CommitLogWriter commitLogWriter;
     private CountingOutputStream commitLogSizeStream;
-    private final int blockSize;
     private final int bufferSize;
 
     public ColumnFamily(Storage storage, File directory, DatabaseEngineConfiguration configuration) throws IOException {
@@ -65,10 +63,8 @@ public class ColumnFamily implements Closeable {
 	this.directory = directory;
 	this.commitLogFile = new File(directory, "commit.log");
 	this.memtable = MemtableFactory.create();
-	this.configuration = configuration;
-	blockSize = configuration.getStorage().getBlockSize();
-	this.bufferSize = ((int) (configuration.getMaxCommitLogSize() / 10) / blockSize) * blockSize;
-	setMaxCommitLogSize(configuration.getMaxCommitLogSize());
+	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
+	this.bufferSize = configuration.getBufferSize();
 	if (!storage.exists(directory)) {
 	    storage.createDirectory(directory);
 	}
@@ -110,10 +106,6 @@ public class ColumnFamily implements Closeable {
 	logger.info("Database engine '" + directory.getName() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
-    public void setMaxCommitLogSize(long maxSize) {
-	this.maxCommitLogSize = maxSize;
-    }
-
     public synchronized void put(byte[] timestamp, byte[] rowKey, Map<byte[], byte[]> values) throws IOException {
 	for (Entry<byte[], byte[]> value : values.entrySet()) {
 	    commitLogWriter.write(rowKey, value.getKey(), value.getValue());
@@ -146,8 +138,8 @@ public class ColumnFamily implements Closeable {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	try (SSTableWriter ssTableWriter = new SSTableWriter(storage, directory, baseFilename, bufferSize)) {
-	    Map<byte[], Map<byte[], byte[]>> values = memtable.getValues();
-	    for (Entry<byte[], Map<byte[], byte[]>> row : values.entrySet()) {
+	    RowMap values = memtable.getValues();
+	    for (Entry<byte[], ColumnMap> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());
 	    }
 	}
@@ -177,5 +169,9 @@ public class ColumnFamily implements Closeable {
 
     public Map<byte[], byte[]> get(byte[] rowKey) {
 	return memtable.get(rowKey);
+    }
+
+    public void setMaxCommitLogSize(int maxCommitLogSize) {
+	this.maxCommitLogSize = maxCommitLogSize;
     }
 }

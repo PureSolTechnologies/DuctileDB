@@ -1,7 +1,8 @@
 databaseEngine:
-  maxCommitLogSize: 1048576
+  bufferSize: -1 # determine automatically by maxCommitLogSize and storage block size
+  maxCommitLogSize: 1048576 # 1MB
   storage:
-    blockSize: 4096
+    blockSize: 8192
     properties: {storage.os.directory: /tmp/storage_test}
 blobStore:
 graph:

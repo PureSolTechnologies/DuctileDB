@@ -4,6 +4,15 @@ import java.util.Comparator;
 
 public class ByteArrayComparator implements Comparator<byte[]> {
 
+    private static final ByteArrayComparator instance = new ByteArrayComparator();
+
+    public static ByteArrayComparator getInstance() {
+	return instance;
+    }
+
+    private ByteArrayComparator() {
+    }
+
     @Override
     public int compare(byte[] o1, byte[] o2) {
 	if (o1.length == o2.length) {

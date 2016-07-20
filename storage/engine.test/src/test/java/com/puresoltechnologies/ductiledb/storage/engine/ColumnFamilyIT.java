@@ -15,6 +15,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
@@ -123,14 +125,20 @@ public class ColumnFamilyIT extends AbstractStorageEngineTest {
 	assertNotNull(sstableFile);
 	assertNotNull(indexFile);
 
-	ByteArrayComparator comparator = new ByteArrayComparator();
+	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 	try (SSTableReader reader = new SSTableReader(storage, sstableFile, indexFile,
 		configuration.getStorage().getBlockSize())) {
-	    try (SSTableIndexIterable index = reader.readIndex()) {
+	    try (SSTableIndexIterable index = reader.readIndex(); SSTableDataIterable data = reader.readData()) {
 		byte[] currentRowKey = null;
 		long currentOffset = -1;
-		for (SSTableIndexEntry indexEntry : index) {
+		Iterator<SSTableIndexEntry> indexIterator = index.iterator();
+		Iterator<SSTableDataEntry> dataIterator = data.iterator();
+		while (indexIterator.hasNext() && dataIterator.hasNext()) {
+		    SSTableIndexEntry indexEntry = indexIterator.next();
+		    SSTableDataEntry dataEntry = dataIterator.next();
 		    byte[] rowKey = indexEntry.getRowKey();
+		    assertEquals(Bytes.toHumanReadableString(rowKey),
+			    Bytes.toHumanReadableString(dataEntry.getRowKey()));
 		    long offset = indexEntry.getOffset();
 		    assertTrue(currentOffset < offset);
 		    if (currentRowKey != null) {

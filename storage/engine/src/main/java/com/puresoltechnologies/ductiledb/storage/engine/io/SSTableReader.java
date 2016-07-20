@@ -34,4 +34,8 @@ public class SSTableReader implements Closeable {
     public SSTableIndexIterable readIndex() throws FileNotFoundException {
 	return new SSTableIndexIterable(storage.open(indexFile), bufferSize);
     }
+
+    public SSTableDataIterable readData() throws FileNotFoundException {
+	return new SSTableDataIterable(storage.open(sstableFile), bufferSize);
+    }
 }

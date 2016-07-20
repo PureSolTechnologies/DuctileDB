@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class ByteArrayComparatorTest {
 
-    private static final ByteArrayComparator comparator = new ByteArrayComparator();
+    private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
     @Test
     public void testEquals() {

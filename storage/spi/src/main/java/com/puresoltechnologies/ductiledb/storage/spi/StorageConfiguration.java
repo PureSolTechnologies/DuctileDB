@@ -10,7 +10,9 @@ import java.util.Properties;
  */
 public class StorageConfiguration {
 
-    private int blockSize = 4096;
+    public static final int DEFAULT_BLOCKSIZE = 8192;
+
+    private int blockSize = DEFAULT_BLOCKSIZE;
     private Properties properties;
 
     public int getBlockSize() {
