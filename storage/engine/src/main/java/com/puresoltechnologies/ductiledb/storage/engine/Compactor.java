@@ -17,7 +17,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.DbFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -35,44 +34,34 @@ public class Compactor {
 
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
+    private final File commitLogFile;
+    private final int blockSize;
     private final int bufferSize;
     private final long maxDataFileSize;
 
-    public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, int bufferSize,
-	    long maxDataFileSize) {
+    public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File commitLogFile, int blockSize,
+	    int bufferSize, long maxDataFileSize) {
 	super();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	this.commitLogFile = commitLogFile;
+	this.blockSize = blockSize;
 	this.bufferSize = bufferSize;
 	this.maxDataFileSize = maxDataFileSize;
     }
 
     public void runCompaction() throws StorageException {
 	try {
-	    File commitLog = findCommitLogs();
-	    logger.info("Start compaction for '" + commitLog + "'...");
+	    logger.info("Start compaction for '" + commitLogFile + "'...");
 	    StopWatch stopWatch = new StopWatch();
 	    stopWatch.start();
-	    List<File> dataFiles = findDataFiles();
-	    performCompation(commitLog, dataFiles);
-	    deleteCommitLogFiles(commitLog);
+	    performCompaction();
+	    deleteCommitLogFiles();
 	    stopWatch.stop();
-	    logger.info("Compaction for '" + commitLog + "' finished in " + stopWatch.getMillis() + "ms.");
+	    logger.info("Compaction for '" + commitLogFile + "' finished in " + stopWatch.getMillis() + "ms.");
 	} catch (IOException e) {
-	    throw new StorageException("Could not read data.", e);
+	    throw new StorageException("Could not run compaction.", e);
 	}
-    }
-
-    private File findCommitLogs() {
-	File commitLog = null;
-	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
-	    if (commitLog == null) {
-		commitLog = file;
-	    } else if (file.getName().compareTo(commitLog.getName()) < 0) {
-		commitLog = file;
-	    }
-	}
-	return commitLog;
     }
 
     private List<File> findDataFiles() {
@@ -84,49 +73,40 @@ public class Compactor {
 	return dataFiles;
     }
 
-    private void performCompation(File commitLog, List<File> dataFiles) throws StorageException, IOException {
-	String baseFilename = ColumnFamilyEngine.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
-	int fileCount = 0;
-
-	SSTableReader commitLogReader = new SSTableReader(storage, commitLog, bufferSize);
+    private void performCompaction() throws StorageException, IOException {
+	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile, blockSize);
 	try (SSTableDataIterable commitLogData = commitLogReader.readData()) {
 	    Iterator<SSTableDataEntry> commitLogIterator = commitLogData.iterator();
-	    SSTableDataEntry commitLogNext = commitLogIterator.next();
+	    List<File> dataFiles = findDataFiles();
+	    String baseFilename = ColumnFamilyEngine.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
+	    integrateCommitLog(commitLogIterator, dataFiles, baseFilename);
+	}
+    }
 
-	    SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		    baseFilename + "-" + fileCount, bufferSize);
-	    try {
-		for (File dataFile : dataFiles) {
-		    SSTableReader dataReader = new SSTableReader(storage, dataFile, bufferSize);
-		    byte[] commitLogRowKey = commitLogNext.getRowKey();
-		    try (SSTableDataIterable data = dataReader.readData()) {
-			for (SSTableDataEntry dataEntry : data) {
-			    byte[] dataRowKey = dataEntry.getRowKey();
-			    if (comparator.compare(dataRowKey, commitLogRowKey) == 0) {
-				writer.write(dataRowKey, dataEntry.update(commitLogNext.getColumns()));
-			    } else if (comparator.compare(dataRowKey, commitLogRowKey) < 0) {
-				writer.write(dataRowKey, dataEntry.getColumns());
-			    } else {
-				while (comparator.compare(dataRowKey, commitLogRowKey) > 0) {
-				    writer.write(dataRowKey, commitLogNext.getColumns());
-				    commitLogNext = commitLogIterator.next();
-				    commitLogRowKey = commitLogNext.getRowKey();
-				}
-			    }
-			    if (writer.getDataFileSize() >= maxDataFileSize) {
-				writer.close();
-				fileCount++;
-				writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-					baseFilename + "-" + fileCount, bufferSize);
+    private void integrateCommitLog(Iterator<SSTableDataEntry> commitLogIterator, List<File> dataFiles,
+	    String baseFilename) throws StorageException, IOException {
+	SSTableDataEntry commitLogNext = commitLogIterator.next();
+	int fileCount = 0;
+	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
+		baseFilename + "-" + fileCount, bufferSize);
+	try {
+	    for (File dataFile : dataFiles) {
+		SSTableReader dataReader = new SSTableReader(storage, dataFile, blockSize);
+		byte[] commitLogRowKey = commitLogNext.getRowKey();
+		try (SSTableDataIterable data = dataReader.readData()) {
+		    for (SSTableDataEntry dataEntry : data) {
+			byte[] dataRowKey = dataEntry.getRowKey();
+			if (comparator.compare(dataRowKey, commitLogRowKey) == 0) {
+			    writer.write(dataRowKey, dataEntry.update(commitLogNext.getColumns()));
+			} else if (comparator.compare(dataRowKey, commitLogRowKey) < 0) {
+			    writer.write(dataRowKey, dataEntry.getColumns());
+			} else {
+			    while (comparator.compare(dataRowKey, commitLogRowKey) > 0) {
+				writer.write(dataRowKey, commitLogNext.getColumns());
+				commitLogNext = commitLogIterator.next();
+				commitLogRowKey = commitLogNext.getRowKey();
 			    }
 			}
-		    }
-		}
-		if (commitLogNext != null) {
-		    writer.write(commitLogNext);
-		    while (commitLogIterator.hasNext()) {
-			SSTableDataEntry commitLogEntry = commitLogIterator.next();
-			writer.write(commitLogEntry.getRowKey(), commitLogEntry.getColumns());
 			if (writer.getDataFileSize() >= maxDataFileSize) {
 			    writer.close();
 			    fileCount++;
@@ -135,15 +115,28 @@ public class Compactor {
 			}
 		    }
 		}
-	    } finally {
-		writer.close();
 	    }
+	    if (commitLogNext != null) {
+		writer.write(commitLogNext);
+		while (commitLogIterator.hasNext()) {
+		    SSTableDataEntry commitLogEntry = commitLogIterator.next();
+		    writer.write(commitLogEntry.getRowKey(), commitLogEntry.getColumns());
+		    if (writer.getDataFileSize() >= maxDataFileSize) {
+			writer.close();
+			fileCount++;
+			writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
+				baseFilename + "-" + fileCount, bufferSize);
+		    }
+		}
+	    }
+	} finally {
+	    writer.close();
 	}
     }
 
-    private void deleteCommitLogFiles(File commitLog) {
-	storage.delete(SSTableReader.getIndexName(commitLog));
-	storage.delete(commitLog);
+    private void deleteCommitLogFiles() {
+	storage.delete(SSTableReader.getIndexName(commitLogFile));
+	storage.delete(commitLogFile);
     }
 
 }

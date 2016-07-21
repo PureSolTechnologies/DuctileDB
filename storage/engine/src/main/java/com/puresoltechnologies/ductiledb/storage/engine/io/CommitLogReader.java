@@ -1,44 +1,29 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This class is used to read a commit log provided via InputStream.
  * 
  * @author Rick-Rainer Ludwig
  */
-public class CommitLogReader implements Closeable {
+public class CommitLogReader {
 
-    private final InputStream inputStream;
+    private final Storage storage;
+    private final File commitLogFile;
+    private final int blockSize;
 
-    public CommitLogReader(InputStream inputStream) {
+    public CommitLogReader(Storage storage, File commitLogFile, int blockSize) {
 	super();
-	this.inputStream = inputStream;
+	this.storage = storage;
+	this.commitLogFile = commitLogFile;
+	this.blockSize = blockSize;
     }
 
-    @Override
-    public void close() throws IOException {
-	inputStream.close();
-    }
-
-    public CommitLogEntry write() throws IOException {
-	byte[] bytes = new byte[4];
-	inputStream.read(bytes, 0, 4);
-	int length = Bytes.toInt(bytes);
-	byte[] rowKey = new byte[length];
-	inputStream.read(rowKey, 0, length);
-	inputStream.read(bytes, 0, 4);
-	length = Bytes.toInt(bytes);
-	byte[] key = new byte[length];
-	inputStream.read(key, 0, length);
-	inputStream.read(bytes, 0, 4);
-	length = Bytes.toInt(bytes);
-	byte[] value = new byte[length];
-	inputStream.read(value, 0, length);
-	return new CommitLogEntry(rowKey, key, value);
+    public CommitLogIterable readData() throws FileNotFoundException {
+	return new CommitLogIterable(storage.open(commitLogFile), blockSize);
     }
 }

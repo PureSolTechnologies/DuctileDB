@@ -20,6 +20,9 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  */
 public class SSTableWriter implements Closeable {
 
+    private final File dataFile;
+    private final File indexFile;
+
     private final OutputStream sstableStream;
     private final OutputStream indexStream;
     private final int bufferSize;
@@ -32,10 +35,9 @@ public class SSTableWriter implements Closeable {
     public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
 	super();
 	try {
-	    File sstableFile = new File(directory, baseFilename + ColumnFamilyEngine.DATA_FILE_SUFFIX);
-	    File indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
-
-	    this.sstableStream = storage.create(sstableFile);
+	    this.dataFile = new File(directory, baseFilename + ColumnFamilyEngine.DATA_FILE_SUFFIX);
+	    this.indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
+	    this.sstableStream = storage.create(dataFile);
 	    this.indexStream = storage.create(indexFile);
 	    this.bufferSize = bufferSize;
 	    this.fileOffset = 0;
@@ -56,7 +58,15 @@ public class SSTableWriter implements Closeable {
 	indexStream.close();
     }
 
-    public long getDataFileSize() {
+    public final File getDataFile() {
+	return dataFile;
+    }
+
+    public final File getIndexFile() {
+	return indexFile;
+    }
+
+    public final long getDataFileSize() {
 	return fileOffset;
     }
 

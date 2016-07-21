@@ -14,8 +14,8 @@ public class SSTableDataIterable extends InputStreamIterable<SSTableDataEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(SSTableIndexIterable.class);
 
-    public SSTableDataIterable(InputStream inputStream, int bufferSize) {
-	super(new BufferedInputStream(inputStream, bufferSize));
+    public SSTableDataIterable(InputStream inputStream, int blockSize) {
+	super(new BufferedInputStream(inputStream, blockSize));
     }
 
     @Override

@@ -16,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
@@ -60,6 +63,7 @@ public class ColumnFamilyEngine implements Closeable {
     private final File commitLogFile;
     private CommitLogWriter commitLogWriter;
     private CountingOutputStream commitLogSizeStream;
+    private final int blockSize;
     private final int bufferSize;
 
     public ColumnFamilyEngine(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
@@ -74,6 +78,7 @@ public class ColumnFamilyEngine implements Closeable {
 	this.memtable = MemtableFactory.create();
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
+	this.blockSize = configuration.getStorage().getBlockSize();
 	this.bufferSize = configuration.getBufferSize();
 	open();
 	stopWatch.stop();
@@ -87,10 +92,7 @@ public class ColumnFamilyEngine implements Closeable {
 		storage.createDirectory(columnFamilyDescriptor.getDirectory());
 	    }
 	    if (storage.exists(commitLogFile)) {
-		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-		commitLogSizeStream = new CountingOutputStream(new BufferedOutputStream(storage.append(commitLogFile)),
-			fileStatus.getLength());
-		commitLogWriter = new CommitLogWriter(commitLogSizeStream);
+		openCommitLog();
 	    } else {
 		createEmptyCommitLog();
 	    }
@@ -98,6 +100,19 @@ public class ColumnFamilyEngine implements Closeable {
 	    throw new StorageException("Could not initialize column family '" + columnFamilyDescriptor.getName() + "'.",
 		    e);
 	}
+    }
+
+    private void openCommitLog() throws IOException {
+	CommitLogReader commitLogReader = new CommitLogReader(storage, commitLogFile, blockSize);
+	try (CommitLogIterable commitLogData = commitLogReader.readData()) {
+	    for (CommitLogEntry entry : commitLogData) {
+		memtable.put(entry.getRowKey(), entry.getKey(), entry.getValue());
+	    }
+	}
+	FileStatus fileStatus = storage.getFileStatus(commitLogFile);
+	commitLogSizeStream = new CountingOutputStream(new BufferedOutputStream(storage.append(commitLogFile)),
+		fileStatus.getLength());
+	commitLogWriter = new CommitLogWriter(commitLogSizeStream);
     }
 
     @Override
@@ -151,14 +166,14 @@ public class ColumnFamilyEngine implements Closeable {
 	try {
 	    logger.info("Max " + COMMIT_LOG_NAME + " size of " + maxCommitLogSize + "bytes reached.");
 	    String baseFilename = createBaseFilename("CommitLog");
-	    createNewSSTableSegment(baseFilename);
+	    File commitLogFile = createNewSSTableSegment(baseFilename);
 	    createEmptyCommitLog();
 	    memtable.clear();
 	    compactionExecutor.submit(new Runnable() {
 		@Override
 		public void run() {
 		    try {
-			runCompaction();
+			runCompaction(commitLogFile);
 		    } catch (StorageException e) {
 			logger.error("Could not run compaction.", e);
 		    }
@@ -186,19 +201,22 @@ public class ColumnFamilyEngine implements Closeable {
 	return buffer.toString();
     }
 
-    private void createNewSSTableSegment(String baseFilename) throws IOException, StorageException {
+    private File createNewSSTableSegment(String baseFilename) throws IOException, StorageException {
 	logger.info("Creating new SSTtable segment...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
+	File commitLogFile;
 	try (SSTableWriter ssTableWriter = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
 		baseFilename, bufferSize)) {
 	    RowMap values = memtable.getValues();
 	    for (Entry<byte[], ColumnMap> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());
 	    }
+	    commitLogFile = ssTableWriter.getDataFile();
 	}
 	stopWatch.stop();
 	logger.info("New SSTtable segment created in " + stopWatch.getMillis() + "ms.");
+	return commitLogFile;
     }
 
     private void createEmptyCommitLog() throws StorageException {
@@ -221,8 +239,9 @@ public class ColumnFamilyEngine implements Closeable {
 	}
     }
 
-    private void runCompaction() throws StorageException {
-	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, bufferSize, maxDataFileSize);
+    private void runCompaction(File commitLogFile) throws StorageException {
+	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, blockSize, bufferSize,
+		maxDataFileSize);
 	compactor.runCompaction();
     }
 
