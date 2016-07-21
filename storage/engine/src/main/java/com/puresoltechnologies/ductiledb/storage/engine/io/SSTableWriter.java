@@ -1,9 +1,14 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.security.DigestOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -23,39 +28,57 @@ public class SSTableWriter implements Closeable {
     private final File dataFile;
     private final File indexFile;
 
-    private final OutputStream sstableStream;
-    private final OutputStream indexStream;
+    private final Storage storage;
+    private final File directory;
+    private final String baseFilename;
+    private final DigestOutputStream dataStream;
+    private final DigestOutputStream indexStream;
+    private final int blockSize;
     private final int bufferSize;
     private long fileOffset;
-    private final byte[] sstableBuffer;
-    private int sstableBufferPos;
+    private final byte[] dataBuffer;
+    private int dataBufferPos;
     private final byte[] indexBuffer;
     private int indexBufferPos;
+    private byte[] startRowKey = null;
+    private byte[] endRowKey = null;
 
-    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
+    public SSTableWriter(Storage storage, File directory, String baseFilename, int blockSize, int bufferSize)
+	    throws StorageException {
 	super();
 	try {
+	    this.storage = storage;
+	    this.directory = directory;
+	    this.baseFilename = baseFilename;
 	    this.dataFile = new File(directory, baseFilename + ColumnFamilyEngine.DATA_FILE_SUFFIX);
 	    this.indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
-	    this.sstableStream = storage.create(dataFile);
-	    this.indexStream = storage.create(indexFile);
+	    this.dataStream = new DigestOutputStream(storage.create(dataFile), MessageDigest.getInstance("MD5"));
+	    this.indexStream = new DigestOutputStream(storage.create(indexFile), MessageDigest.getInstance("MD5"));
+	    this.blockSize = blockSize;
 	    this.bufferSize = bufferSize;
 	    this.fileOffset = 0;
-	    this.sstableBuffer = new byte[this.bufferSize];
-	    this.sstableBufferPos = 0;
+	    this.dataBuffer = new byte[this.bufferSize];
+	    this.dataBufferPos = 0;
 	    this.indexBuffer = new byte[this.bufferSize];
 	    this.indexBufferPos = 0;
-	} catch (IOException e) {
+	} catch (IOException | NoSuchAlgorithmException e) {
 	    throw new StorageException("Could not initialize sstable writer.", e);
 	}
     }
 
     @Override
     public void close() throws IOException {
-	flushSSTable();
+	flushData();
 	flushIndex();
-	sstableStream.close();
+	dataStream.close();
 	indexStream.close();
+	MessageDigest dataDigest = dataStream.getMessageDigest();
+	MessageDigest indexDigest = indexStream.getMessageDigest();
+	try (BufferedWriter md5Writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(
+		storage.create(new File(directory, baseFilename + ColumnFamilyEngine.MD5_FILE_SUFFIX)), blockSize)))) {
+	    md5Writer.write(Bytes.toHexString(dataDigest.digest()) + "  " + dataFile.getName() + "\n");
+	    md5Writer.write(Bytes.toHexString(indexDigest.digest()) + "  " + indexFile.getName() + "\n");
+	}
     }
 
     public final File getDataFile() {
@@ -70,42 +93,54 @@ public class SSTableWriter implements Closeable {
 	return fileOffset;
     }
 
+    public final byte[] getStartRowKey() {
+	return startRowKey;
+    }
+
+    public final byte[] getEndRowKey() {
+	return endRowKey;
+    }
+
     public void write(byte[] rowKey, ColumnMap columns) throws IOException {
-	writeSSTable(Bytes.toBytes(rowKey.length));
-	writeSSTable(rowKey);
+	if (startRowKey == null) {
+	    startRowKey = rowKey;
+	}
+	endRowKey = rowKey;
+	writeData(Bytes.toBytes(rowKey.length));
+	writeData(rowKey);
 	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();
-	writeSSTable(Bytes.toBytes(entrySet.size()));
+	writeData(Bytes.toBytes(entrySet.size()));
 	for (Entry<byte[], byte[]> column : entrySet) {
 	    byte[] key = column.getKey();
 	    byte[] value = column.getValue();
-	    writeSSTable(Bytes.toBytes(key.length));
-	    writeSSTable(key);
-	    writeSSTable(Bytes.toBytes(value.length));
-	    writeSSTable(value);
+	    writeData(Bytes.toBytes(key.length));
+	    writeData(key);
+	    writeData(Bytes.toBytes(value.length));
+	    writeData(value);
 	}
 	writeIndex(Bytes.toBytes(rowKey.length));
 	writeIndex(rowKey);
 	writeIndex(Bytes.toBytes(fileOffset));
     }
 
-    private void writeSSTable(byte[] bytes) throws IOException {
-	if (bytes.length > bufferSize - sstableBufferPos) {
-	    flushSSTable();
+    private void writeData(byte[] bytes) throws IOException {
+	if (bytes.length > bufferSize - dataBufferPos) {
+	    flushData();
 	    if (bytes.length > bufferSize) {
-		sstableStream.write(bytes);
+		dataStream.write(bytes);
 	    } else {
-		sstableBufferPos += Bytes.putBytes(sstableBuffer, bytes, sstableBufferPos);
+		dataBufferPos += Bytes.putBytes(dataBuffer, bytes, dataBufferPos);
 	    }
 	} else {
-	    sstableBufferPos += Bytes.putBytes(sstableBuffer, bytes, sstableBufferPos);
+	    dataBufferPos += Bytes.putBytes(dataBuffer, bytes, dataBufferPos);
 	}
 	fileOffset += bytes.length;
     }
 
-    private void flushSSTable() throws IOException {
-	if (sstableBufferPos > 0) {
-	    sstableStream.write(sstableBuffer, 0, sstableBufferPos);
-	    sstableBufferPos = 0;
+    private void flushData() throws IOException {
+	if (dataBufferPos > 0) {
+	    dataStream.write(dataBuffer, 0, dataBufferPos);
+	    dataBufferPos = 0;
 	}
     }
 

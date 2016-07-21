@@ -1,11 +1,17 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +23,8 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.DbFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -39,6 +46,10 @@ public class Compactor {
     private final int bufferSize;
     private final long maxDataFileSize;
 
+    private int fileCount = 0;
+    private final Map<Integer, byte[]> startRowKeys = new HashMap<>();
+    private final Map<Integer, byte[]> endRowKeys = new HashMap<>();
+
     public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File commitLogFile, int blockSize,
 	    int bufferSize, long maxDataFileSize) {
 	super();
@@ -55,7 +66,9 @@ public class Compactor {
 	    logger.info("Start compaction for '" + commitLogFile + "'...");
 	    StopWatch stopWatch = new StopWatch();
 	    stopWatch.start();
-	    performCompaction();
+	    String baseFilename = ColumnFamilyEngine.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
+	    performCompaction(baseFilename);
+	    writeMetaData(baseFilename);
 	    deleteCommitLogFiles();
 	    stopWatch.stop();
 	    logger.info("Compaction for '" + commitLogFile + "' finished in " + stopWatch.getMillis() + "ms.");
@@ -65,20 +78,51 @@ public class Compactor {
     }
 
     private List<File> findDataFiles() {
-	List<File> dataFiles = new ArrayList<>();
-	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new DbFilenameFilter())) {
-	    dataFiles.add(file);
+	Pattern pattern = Pattern
+		.compile(ColumnFamilyEngine.DB_FILE_PREFIX + "-(\\d+)" + ColumnFamilyEngine.METADATA_SUFFIX);
+	List<String> timestamps = new ArrayList<>();
+	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
+	    Matcher matcher = pattern.matcher(file.getName());
+	    if (matcher.matches()) {
+		timestamps.add(matcher.group(1));
+	    }
 	}
-	Collections.sort(dataFiles);
+	List<File> dataFiles = new ArrayList<>();
+	if (timestamps.size() > 0) {
+	    Collections.sort(timestamps);
+	    while (timestamps.size() > 3) {
+		String timestamp = timestamps.get(0);
+		for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
+		    @Override
+		    public boolean accept(File dir, String name) {
+			return name.startsWith(ColumnFamilyEngine.DB_FILE_PREFIX + "-" + timestamp);
+		    }
+		})) {
+		    storage.delete(file);
+		}
+		timestamps.remove(timestamp);
+	    }
+	    Collections.reverse(timestamps);
+	    String lastTimestamp = timestamps.get(0);
+	    for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String name) {
+		    return name.startsWith(ColumnFamilyEngine.DB_FILE_PREFIX + "-" + lastTimestamp)
+			    && name.endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX);
+		}
+	    })) {
+		dataFiles.add(file);
+	    }
+	    Collections.sort(dataFiles);
+	}
 	return dataFiles;
     }
 
-    private void performCompaction() throws StorageException, IOException {
+    private void performCompaction(String baseFilename) throws StorageException, IOException {
 	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile, blockSize);
 	try (SSTableDataIterable commitLogData = commitLogReader.readData()) {
 	    Iterator<SSTableDataEntry> commitLogIterator = commitLogData.iterator();
 	    List<File> dataFiles = findDataFiles();
-	    String baseFilename = ColumnFamilyEngine.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
 	    integrateCommitLog(commitLogIterator, dataFiles, baseFilename);
 	}
     }
@@ -86,12 +130,11 @@ public class Compactor {
     private void integrateCommitLog(Iterator<SSTableDataEntry> commitLogIterator, List<File> dataFiles,
 	    String baseFilename) throws StorageException, IOException {
 	SSTableDataEntry commitLogNext = commitLogIterator.next();
-	int fileCount = 0;
 	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename + "-" + fileCount, bufferSize);
+		baseFilename + "-" + fileCount, blockSize, bufferSize);
 	try {
 	    for (File dataFile : dataFiles) {
-		SSTableReader dataReader = new SSTableReader(storage, dataFile, blockSize);
+		SSTableReader dataReader = new SSTableReader(storage, dataFile, bufferSize);
 		byte[] commitLogRowKey = commitLogNext.getRowKey();
 		try (SSTableDataIterable data = dataReader.readData()) {
 		    for (SSTableDataEntry dataEntry : data) {
@@ -109,9 +152,11 @@ public class Compactor {
 			}
 			if (writer.getDataFileSize() >= maxDataFileSize) {
 			    writer.close();
+			    startRowKeys.put(fileCount, writer.getStartRowKey());
+			    endRowKeys.put(fileCount, writer.getEndRowKey());
 			    fileCount++;
 			    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-				    baseFilename + "-" + fileCount, bufferSize);
+				    baseFilename + "-" + fileCount, blockSize, bufferSize);
 			}
 		    }
 		}
@@ -123,19 +168,41 @@ public class Compactor {
 		    writer.write(commitLogEntry.getRowKey(), commitLogEntry.getColumns());
 		    if (writer.getDataFileSize() >= maxDataFileSize) {
 			writer.close();
+			startRowKeys.put(fileCount, writer.getStartRowKey());
+			endRowKeys.put(fileCount, writer.getEndRowKey());
 			fileCount++;
 			writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-				baseFilename + "-" + fileCount, bufferSize);
+				baseFilename + "-" + fileCount, blockSize, bufferSize);
 		    }
 		}
 	    }
 	} finally {
 	    writer.close();
+	    startRowKeys.put(fileCount, writer.getStartRowKey());
+	    endRowKeys.put(fileCount, writer.getEndRowKey());
+	}
+    }
+
+    private void writeMetaData(String baseFilename) throws IOException {
+	try (BufferedOutputStream stream = new BufferedOutputStream(storage.create(
+		new File(columnFamilyDescriptor.getDirectory(), baseFilename + ColumnFamilyEngine.METADATA_SUFFIX)),
+		blockSize)) {
+	    stream.write(Bytes.toBytes(fileCount + 1)); // Number of files
+	    for (int fileId = 0; fileId <= fileCount; ++fileId) {
+		stream.write(Bytes.toBytes(fileId)); // file id
+		byte[] startRowKey = startRowKeys.get(fileId);
+		stream.write(Bytes.toBytes(startRowKey.length));
+		stream.write(startRowKey);
+		byte[] endRowKey = endRowKeys.get(fileId);
+		stream.write(Bytes.toBytes(endRowKey.length));
+		stream.write(endRowKey);
+	    }
 	}
     }
 
     private void deleteCommitLogFiles() {
-	storage.delete(SSTableReader.getIndexName(commitLogFile));
+	storage.delete(ColumnFamilyEngine.getIndexName(commitLogFile));
+	storage.delete(ColumnFamilyEngine.getMD5Name(commitLogFile));
 	storage.delete(commitLogFile);
     }
 

@@ -44,8 +44,20 @@ public class ColumnFamilyEngine implements Closeable {
     public static final String DB_FILE_PREFIX = "DB";
     public static final String DATA_FILE_SUFFIX = ".data";
     public static final String INDEX_FILE_SUFFIX = ".index";
+    public static final String MD5_FILE_SUFFIX = ".md5";
+    public static final String METADATA_SUFFIX = ".metadata";
     public static final String COMMIT_LOG_PREFIX = "CommitLog";
     public static final String COMMIT_LOG_NAME = COMMIT_LOG_PREFIX + ".failsave";
+
+    public static File getIndexName(File dataFile) {
+	return new File(dataFile.getParent(),
+		dataFile.getName().replace(ColumnFamilyEngine.DATA_FILE_SUFFIX, ColumnFamilyEngine.INDEX_FILE_SUFFIX));
+    }
+
+    public static File getMD5Name(File dataFile) {
+	return new File(dataFile.getParent(),
+		dataFile.getName().replace(ColumnFamilyEngine.DATA_FILE_SUFFIX, ColumnFamilyEngine.MD5_FILE_SUFFIX));
+    }
 
     private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 	@Override
@@ -207,7 +219,7 @@ public class ColumnFamilyEngine implements Closeable {
 	stopWatch.start();
 	File commitLogFile;
 	try (SSTableWriter ssTableWriter = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename, bufferSize)) {
+		baseFilename, blockSize, bufferSize)) {
 	    RowMap values = memtable.getValues();
 	    for (Entry<byte[], ColumnMap> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());

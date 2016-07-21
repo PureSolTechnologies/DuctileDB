@@ -129,7 +129,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    }
 	}
 	assertNotNull(dataFile);
-	File indexFile = SSTableReader.getIndexName(dataFile);
+	File indexFile = ColumnFamilyEngine.getIndexName(dataFile);
 	assertNotNull(indexFile);
 
 	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
@@ -186,6 +186,63 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    long rowKey = 0;
 	    int rolloverCount = 0;
 	    while (rolloverCount < 3) {
+		lastCommitLogSize = commitLogSize;
+		rowKey++;
+		Map<byte[], byte[]> values = new HashMap<>();
+		for (long i = 1; i <= 10; i++) {
+		    byte[] value = Bytes.toBytes(rowKey * i);
+		    values.put(value, value);
+		}
+		columnFamily.put(timestamp, Bytes.toBytes(rowKey), values);
+		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
+		commitLogSize = fileStatus.getLength();
+		if (lastCommitLogSize > commitLogSize) {
+		    ++rolloverCount;
+		}
+		// stopWatch.stop();
+		// System.out.println("count: " + rowKey + "; size: " +
+		// commitLogSize + "; t=" + stopWatch.getMillis()
+		// + "ms; perf=" + commitLogSize / 1024.0 /
+		// stopWatch.getMillis() * 1000.0 + "kB/ms");
+	    }
+	}
+	Set<File> dataFiles = new HashSet<>();
+	Set<File> indexFiles = new HashSet<>();
+	for (File file : storage.list(columnFamilyDescriptor.getDirectory())) {
+	    if (file.getName().endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX)) {
+		dataFiles.add(file);
+	    }
+	    if (file.getName().endsWith(ColumnFamilyEngine.INDEX_FILE_SUFFIX)) {
+		indexFiles.add(file);
+	    }
+	}
+	assertEquals(6, dataFiles.size());
+	assertEquals(6, indexFiles.size());
+    }
+
+    @Test
+    public void testLargeSSTableCreationWithCompaction()
+	    throws SchemaException, FileNotFoundException, IOException, StorageException {
+	DatabaseEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespace = schemaManager.createNamespace("testSSTableCreationWithCompaction");
+	TableDescriptor tableDescriptor = schemaManager.createTable(namespace, "test");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
+	Storage storage = engine.getStorage();
+
+	try (ColumnFamilyEngine columnFamily = new ColumnFamilyEngine(engine.getStorage(), columnFamilyDescriptor,
+		getConfiguration())) {
+	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
+	    // StopWatch stopWatch = new StopWatch();
+	    // stopWatch.start();
+	    byte[] timestamp = Bytes.toBytes(Instant.now());
+	    columnFamily.setMaxCommitLogSize(1024 * 1024);
+	    columnFamily.setMaxDataFileSize(10 * 1024 * 1024);
+	    long commitLogSize = 0;
+	    long lastCommitLogSize = 0;
+	    long rowKey = 0;
+	    int rolloverCount = 0;
+	    while (rolloverCount < 20) {
 		lastCommitLogSize = commitLogSize;
 		rowKey++;
 		Map<byte[], byte[]> values = new HashMap<>();

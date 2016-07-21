@@ -13,18 +13,13 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  */
 public class SSTableReader {
 
-    public static File getIndexName(File dataFile) {
-	return new File(dataFile.getParent(),
-		dataFile.getName().replace(ColumnFamilyEngine.DATA_FILE_SUFFIX, ColumnFamilyEngine.INDEX_FILE_SUFFIX));
-    }
-
     private final Storage storage;
     private final File dataFile;
     private final File indexFile;
     private final int blockSize;
 
     public SSTableReader(Storage storage, File dataFile, int blockSize) {
-	this(storage, dataFile, getIndexName(dataFile), blockSize);
+	this(storage, dataFile, ColumnFamilyEngine.getIndexName(dataFile), blockSize);
     }
 
     public SSTableReader(Storage storage, File dataFile, File indexFile, int blockSize) {

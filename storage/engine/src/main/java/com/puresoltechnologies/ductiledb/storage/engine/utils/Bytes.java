@@ -39,13 +39,13 @@ public class Bytes {
     }
 
     public static short toShort(byte[] bytes) {
-	return (short) (((bytes[1] & 0xFF)) + //
-		((bytes[0] & 0xFF) << 8));
+	return (short) (((bytes[1] & 0xFF)) //
+		| ((bytes[0] & 0xFF) << 8));
     }
 
     public static short toShort(byte[] bytes, int offset) {
-	return (short) (((bytes[offset + 1] & 0xFF)) + //
-		((bytes[offset] & 0xFF) << 8));
+	return (short) (((bytes[offset + 1] & 0xFF)) //
+		| ((bytes[offset] & 0xFF) << 8));
     }
 
     public static byte[] toBytes(int i) {
@@ -66,17 +66,17 @@ public class Bytes {
     }
 
     public static int toInt(byte[] bytes) {
-	return ((bytes[3] & 0xFF)) + //
-		((bytes[2] & 0xFF) << 8) + //
-		((bytes[1] & 0xFF) << 16) + //
-		((bytes[0]) << 24);
+	return ((bytes[3] & 0xFF)) //
+		| ((bytes[2] & 0xFF) << 8) //
+		| ((bytes[1] & 0xFF) << 16) //
+		| ((bytes[0]) << 24);
     }
 
     public static int toInt(byte[] bytes, int offset) {
-	return ((bytes[offset + 3] & 0xFF)) + //
-		((bytes[offset + 2] & 0xFF) << 8) + //
-		((bytes[offset + 1] & 0xFF) << 16) + //
-		((bytes[offset]) << 24);
+	return ((bytes[offset + 3] & 0xFF)) //
+		| ((bytes[offset + 2] & 0xFF) << 8) //
+		| ((bytes[offset + 1] & 0xFF) << 16) //
+		| ((bytes[offset]) << 24);
     }
 
     public static byte[] toBytes(long l) {
@@ -105,25 +105,25 @@ public class Bytes {
     }
 
     public static long toLong(byte[] bytes) {
-	return ((bytes[7] & 0xFFL)) + //
-		((bytes[6] & 0xFFL) << 8) + //
-		((bytes[5] & 0xFFL) << 16) + //
-		((bytes[4] & 0xFFL) << 24) + //
-		((bytes[3] & 0xFFL) << 32) + //
-		((bytes[2] & 0xFFL) << 40) + //
-		((bytes[1] & 0xFFL) << 48) + //
-		(((long) bytes[0]) << 56);
+	return ((bytes[7] & 0xFFL)) //
+		| ((bytes[6] & 0xFFL) << 8) //
+		| ((bytes[5] & 0xFFL) << 16) //
+		| ((bytes[4] & 0xFFL) << 24) //
+		| ((bytes[3] & 0xFFL) << 32) //
+		| ((bytes[2] & 0xFFL) << 40) //
+		| ((bytes[1] & 0xFFL) << 48) //
+		| ((bytes[0]) << 56);
     }
 
     public static long toLong(byte[] bytes, int offset) {
-	return ((bytes[offset + 7] & 0xFFL)) + //
-		((bytes[offset + 6] & 0xFFL) << 8) + //
-		((bytes[offset + 5] & 0xFFL) << 16) + //
-		((bytes[offset + 4] & 0xFFL) << 24) + //
-		((bytes[offset + 3] & 0xFFL) << 32) + //
-		((bytes[offset + 2] & 0xFFL) << 40) + //
-		((bytes[offset + 1] & 0xFFL) << 48) + //
-		(((long) bytes[offset]) << 56);
+	return ((bytes[offset + 7] & 0xFFL)) //
+		| ((bytes[offset + 6] & 0xFFL) << 8) //
+		| ((bytes[offset + 5] & 0xFFL) << 16) //
+		| ((bytes[offset + 4] & 0xFFL) << 24) //
+		| ((bytes[offset + 3] & 0xFFL) << 32) //
+		| ((bytes[offset + 2] & 0xFFL) << 40) //
+		| ((bytes[offset + 1] & 0xFFL) << 48) //
+		| ((bytes[offset]) << 56);
     }
 
     public static byte[] toBytes(String string) {
@@ -160,18 +160,8 @@ public class Bytes {
     }
 
     public static Instant toInstant(byte[] bytes) {
-	long seconds = ((bytes[7] & 0xFFL)) + //
-		((bytes[6] & 0xFFL) << 8) + //
-		((bytes[5] & 0xFFL) << 16) + //
-		((bytes[4] & 0xFFL) << 24) + //
-		((bytes[3] & 0xFFL) << 32) + //
-		((bytes[2] & 0xFFL) << 40) + //
-		((bytes[1] & 0xFFL) << 48) + //
-		(((long) bytes[0]) << 56);
-	int nano = ((bytes[11] & 0xFF)) + //
-		((bytes[10] & 0xFF) << 8) + //
-		((bytes[9] & 0xFF) << 16) + //
-		((bytes[8]) << 24);
+	long seconds = toLong(bytes);
+	int nano = toInt(bytes, 8);
 	return Instant.ofEpochSecond(seconds, nano);
     }
 
@@ -190,6 +180,28 @@ public class Bytes {
 	    if (hexString.length() > 0) {
 		hexString.append(' ');
 	    }
+	    int digit = 0xFF & bytes[i];
+	    String hexDigits = Integer.toHexString(digit);
+	    if (hexDigits.length() < 2) {
+		hexString.append("0");
+	    }
+	    hexString.append(hexDigits);
+	}
+	return hexString.toString();
+    }
+
+    /**
+     * This method converts byte array into a readable hex number string.
+     * 
+     * @param bytes
+     * @return
+     */
+    public static String toHexString(byte[] bytes) {
+	if (bytes == null) {
+	    throw new IllegalArgumentException("Byte array must not be null!");
+	}
+	StringBuffer hexString = new StringBuffer();
+	for (int i = 0; i < bytes.length; i++) {
 	    int digit = 0xFF & bytes[i];
 	    String hexDigits = Integer.toHexString(digit);
 	    if (hexDigits.length() < 2) {
