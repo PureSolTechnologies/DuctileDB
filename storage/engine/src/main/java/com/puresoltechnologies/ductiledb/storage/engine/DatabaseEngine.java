@@ -109,7 +109,7 @@ public class DatabaseEngine implements Closeable {
 	return new Table(this, tableDescriptor);
     }
 
-    public void store(TableDescriptor tableDescriptor, Put put) {
+    public void put(TableDescriptor tableDescriptor, Put put) {
 	byte[] key = put.getKey();
 	Instant timestamp = put.getTimestamp();
 	Iterator<String> columnFamilies = put.getColumnFamilies();
@@ -122,9 +122,6 @@ public class DatabaseEngine implements Closeable {
 
     private void store(ColumnFamilyDescriptor columnFamilyDescriptor, byte[] key, Instant timestamp,
 	    Map<byte[], byte[]> columnValues) {
-	File directory = columnFamilyDescriptor.getDirectory();
-	File dataLog = new File(directory, "data.log");
-	File commitLog = new File(directory, "commit.log");
 	// TODO storeData(tab)
     }
 

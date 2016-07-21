@@ -27,7 +27,7 @@ public class Table implements Closeable {
     }
 
     public void put(Put put) {
-	storageEngine.store(tableDescriptor, put);
+	storageEngine.put(tableDescriptor, put);
     }
 
     public void put(List<Put> puts) {

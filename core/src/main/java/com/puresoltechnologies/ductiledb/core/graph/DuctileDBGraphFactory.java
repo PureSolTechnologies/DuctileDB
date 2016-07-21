@@ -21,7 +21,7 @@ public class DuctileDBGraphFactory {
 	// TODO incorporate configuration...
 	logger.info("Creating connection to HBase with configuration '" + configuration + "'...");
 	DatabaseEngine storageEngine = new DatabaseEngine(StorageFactory.getStorageInstance(configuration.getStorage()),
-		"graph");
+		"graph", configuration);
 	logger.info("Connection '" + storageEngine + "' to HBase created.");
 	return storageEngine;
     }

@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
@@ -47,7 +47,7 @@ public class OSStorage implements Storage {
     }
 
     @Override
-    public Iterator<File> list(File directory) {
+    public Iterable<File> list(File directory) {
 	File[] files = new File(rootDirectory, directory.getPath()).listFiles();
 	List<File> list = new ArrayList<>();
 	for (File file : files) {
@@ -57,7 +57,21 @@ public class OSStorage implements Storage {
 	    }
 	    list.add(new File(directoryString));
 	}
-	return list.iterator();
+	return list;
+    }
+
+    @Override
+    public Iterable<File> list(File directory, FilenameFilter filter) {
+	File[] files = new File(rootDirectory, directory.getPath()).listFiles(filter);
+	List<File> list = new ArrayList<>();
+	for (File file : files) {
+	    String directoryString = file.getPath().replace(rootDirectory.getPath(), "");
+	    if (directoryString.startsWith(File.separator)) {
+		directoryString = directoryString.substring(1);
+	    }
+	    list.add(new File(directoryString));
+	}
+	return list;
     }
 
     @Override

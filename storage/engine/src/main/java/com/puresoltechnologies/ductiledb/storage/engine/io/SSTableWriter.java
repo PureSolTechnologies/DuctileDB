@@ -4,10 +4,12 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -27,25 +29,23 @@ public class SSTableWriter implements Closeable {
     private final byte[] indexBuffer;
     private int indexBufferPos;
 
-    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws IOException {
-	this(storage, directory, baseFilename, bufferSize, 0);
-    }
-
-    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize, long startOffset)
-	    throws IOException {
+    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
 	super();
+	try {
+	    File sstableFile = new File(directory, baseFilename + ColumnFamilyEngine.DATA_FILE_SUFFIX);
+	    File indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
 
-	File sstableFile = new File(directory, baseFilename + ".sstable");
-	File indexFile = new File(directory, baseFilename + ".index");
-
-	this.sstableStream = storage.create(sstableFile);
-	this.indexStream = storage.create(indexFile);
-	this.bufferSize = bufferSize;
-	this.fileOffset = startOffset;
-	this.sstableBuffer = new byte[this.bufferSize];
-	this.sstableBufferPos = 0;
-	this.indexBuffer = new byte[this.bufferSize];
-	this.indexBufferPos = 0;
+	    this.sstableStream = storage.create(sstableFile);
+	    this.indexStream = storage.create(indexFile);
+	    this.bufferSize = bufferSize;
+	    this.fileOffset = 0;
+	    this.sstableBuffer = new byte[this.bufferSize];
+	    this.sstableBufferPos = 0;
+	    this.indexBuffer = new byte[this.bufferSize];
+	    this.indexBufferPos = 0;
+	} catch (IOException e) {
+	    throw new StorageException("Could not initialize sstable writer.", e);
+	}
     }
 
     @Override
@@ -53,9 +53,14 @@ public class SSTableWriter implements Closeable {
 	flushSSTable();
 	flushIndex();
 	sstableStream.close();
+	indexStream.close();
     }
 
-    public void write(byte[] rowKey, Map<byte[], byte[]> columns) throws IOException {
+    public long getDataFileSize() {
+	return fileOffset;
+    }
+
+    public void write(byte[] rowKey, ColumnMap columns) throws IOException {
 	writeSSTable(Bytes.toBytes(rowKey.length));
 	writeSSTable(rowKey);
 	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();
@@ -112,6 +117,10 @@ public class SSTableWriter implements Closeable {
 	    indexStream.write(indexBuffer, 0, indexBufferPos);
 	    indexBufferPos = 0;
 	}
+    }
+
+    public void write(SSTableDataEntry entry) throws IOException {
+	write(entry.getRowKey(), entry.getColumns());
     }
 
 }

@@ -3,10 +3,10 @@ package com.puresoltechnologies.ductiledb.storage.spi;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
 
 /**
  * This is the central interface for the storage system to be used for
@@ -56,7 +56,16 @@ public interface Storage extends Closeable {
      * @param directory
      * @return
      */
-    public Iterator<File> list(File directory);
+    public Iterable<File> list(File directory);
+
+    /**
+     * This method lists the content of a folder.
+     * 
+     * @param directory
+     * @param filter
+     * @return
+     */
+    public Iterable<File> list(File directory, FilenameFilter filter);
 
     public boolean exists(File file);
 

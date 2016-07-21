@@ -38,8 +38,13 @@ public class ColumnFamilyEngine implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyEngine.class);
 
-    private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+    public static final String DB_FILE_PREFIX = "DB";
+    public static final String DATA_FILE_SUFFIX = ".data";
+    public static final String INDEX_FILE_SUFFIX = ".index";
+    public static final String COMMIT_LOG_PREFIX = "CommitLog";
+    public static final String COMMIT_LOG_NAME = COMMIT_LOG_PREFIX + ".failsave";
 
+    private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 	@Override
 	public Thread newThread(Runnable r) {
 	    return new Thread(r, "ductiledb-compaction");
@@ -47,6 +52,7 @@ public class ColumnFamilyEngine implements Closeable {
     });
 
     private long maxCommitLogSize;
+    private long maxDataFileSize;
 
     private final Memtable memtable;
     private final Storage storage;
@@ -64,9 +70,10 @@ public class ColumnFamilyEngine implements Closeable {
 	stopWatch.start();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
-	this.commitLogFile = new File(columnFamilyDescriptor.getDirectory(), "commit.log");
+	this.commitLogFile = new File(columnFamilyDescriptor.getDirectory(), COMMIT_LOG_NAME);
 	this.memtable = MemtableFactory.create();
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
+	this.maxDataFileSize = configuration.getMaxDataFileSize();
 	this.bufferSize = configuration.getBufferSize();
 	open();
 	stopWatch.stop();
@@ -130,7 +137,7 @@ public class ColumnFamilyEngine implements Closeable {
 		commitLogWriter.write(rowKey, value.getKey(), value.getValue());
 	    }
 	} catch (IOException e) {
-	    throw new StorageException("Could nto write commit.log.", e);
+	    throw new StorageException("Could not write " + COMMIT_LOG_NAME + ".", e);
 	}
     }
 
@@ -142,25 +149,44 @@ public class ColumnFamilyEngine implements Closeable {
 
     private void rolloverCommitLog() throws StorageException {
 	try {
-	    logger.info("Max commit.log size of " + maxCommitLogSize + "bytes reached.");
-	    Instant timestamp = Instant.now();
-	    String baseFilename = String.valueOf(timestamp.getEpochSecond()) + "-"
-		    + String.valueOf(timestamp.getNano());
+	    logger.info("Max " + COMMIT_LOG_NAME + " size of " + maxCommitLogSize + "bytes reached.");
+	    String baseFilename = createBaseFilename("CommitLog");
 	    createNewSSTableSegment(baseFilename);
 	    createEmptyCommitLog();
 	    memtable.clear();
 	    compactionExecutor.submit(new Runnable() {
 		@Override
 		public void run() {
-		    compaction();
+		    try {
+			runCompaction();
+		    } catch (StorageException e) {
+			logger.error("Could not run compaction.", e);
+		    }
 		}
 	    });
 	} catch (IOException e) {
-	    throw new StorageException("Could not rollover commit.log", e);
+	    throw new StorageException("Could not rollover " + COMMIT_LOG_NAME, e);
 	}
     }
 
-    private void createNewSSTableSegment(String baseFilename) throws IOException {
+    public static String createBaseFilename(String filePrefix) {
+	Instant timestamp = Instant.now();
+	StringBuffer buffer = new StringBuffer(filePrefix);
+	buffer.append('-');
+	buffer.append(timestamp.getEpochSecond());
+	int millis = timestamp.getNano() / 1000000;
+	if (millis < 100) {
+	    if (millis < 10) {
+		buffer.append("00");
+	    } else {
+		buffer.append('0');
+	    }
+	}
+	buffer.append(millis);
+	return buffer.toString();
+    }
+
+    private void createNewSSTableSegment(String baseFilename) throws IOException, StorageException {
 	logger.info("Creating new SSTtable segment...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
@@ -185,18 +211,19 @@ public class ColumnFamilyEngine implements Closeable {
 		    commitLogSizeStream = null;
 		}
 		if (!storage.delete(commitLogFile)) {
-		    throw new IOException("Could not delete commit.log file.");
+		    throw new IOException("Could not delete " + COMMIT_LOG_NAME + " file.");
 		}
 	    }
 	    commitLogSizeStream = new CountingOutputStream(storage.create(commitLogFile));
 	    commitLogWriter = new CommitLogWriter(commitLogSizeStream);
 	} catch (IOException e) {
-	    throw new StorageException("Could not create empty commit.log.", e);
+	    throw new StorageException("Could not create empty " + COMMIT_LOG_NAME + ".", e);
 	}
     }
 
-    private void compaction() {
-
+    private void runCompaction() throws StorageException {
+	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, bufferSize, maxDataFileSize);
+	compactor.runCompaction();
     }
 
     public Map<byte[], byte[]> get(byte[] rowKey) {
@@ -205,5 +232,9 @@ public class ColumnFamilyEngine implements Closeable {
 
     public void setMaxCommitLogSize(int maxCommitLogSize) {
 	this.maxCommitLogSize = maxCommitLogSize;
+    }
+
+    public void setMaxDataFileSize(long maxDataFileSize) {
+	this.maxDataFileSize = maxDataFileSize;
     }
 }

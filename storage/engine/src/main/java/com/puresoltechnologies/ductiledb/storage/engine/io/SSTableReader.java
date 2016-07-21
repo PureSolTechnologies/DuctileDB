@@ -1,10 +1,9 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -12,23 +11,27 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class SSTableReader implements Closeable {
+public class SSTableReader {
+
+    public static File getIndexName(File dataFile) {
+	return new File(dataFile.getParent(),
+		dataFile.getName().replace(ColumnFamilyEngine.DATA_FILE_SUFFIX, ColumnFamilyEngine.INDEX_FILE_SUFFIX));
+    }
 
     private final Storage storage;
-    private final File sstableFile;
+    private final File dataFile;
     private final File indexFile;
     private final int bufferSize;
 
-    public SSTableReader(Storage storage, File sstableFile, File indexFile, int bufferSize) {
-	this.storage = storage;
-	this.sstableFile = sstableFile;
-	this.indexFile = indexFile;
-	this.bufferSize = bufferSize;
+    public SSTableReader(Storage storage, File dataFile, int bufferSize) {
+	this(storage, dataFile, getIndexName(dataFile), bufferSize);
     }
 
-    @Override
-    public void close() throws IOException {
-	// TODO Auto-generated method stub
+    public SSTableReader(Storage storage, File dataFile, File indexFile, int bufferSize) {
+	this.storage = storage;
+	this.dataFile = dataFile;
+	this.indexFile = indexFile;
+	this.bufferSize = bufferSize;
     }
 
     public SSTableIndexIterable readIndex() throws FileNotFoundException {
@@ -36,6 +39,6 @@ public class SSTableReader implements Closeable {
     }
 
     public SSTableDataIterable readData() throws FileNotFoundException {
-	return new SSTableDataIterable(storage.open(sstableFile), bufferSize);
+	return new SSTableDataIterable(storage.open(dataFile), bufferSize);
     }
 }

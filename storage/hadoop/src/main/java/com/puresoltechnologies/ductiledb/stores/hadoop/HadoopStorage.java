@@ -2,10 +2,10 @@ package com.puresoltechnologies.ductiledb.stores.hadoop;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Iterator;
 
 import org.apache.hadoop.fs.FileSystem;
 
@@ -57,7 +57,13 @@ public class HadoopStorage implements Storage {
     }
 
     @Override
-    public Iterator<File> list(File storageDirectory) {
+    public Iterable<File> list(File storageDirectory) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public Iterable<File> list(File storageDirectory, FilenameFilter filter) {
 	// TODO Auto-generated method stub
 	return null;
     }

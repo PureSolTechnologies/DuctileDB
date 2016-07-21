@@ -71,12 +71,8 @@ public class DuctileDBTestHelper {
     private static void removeTables(DatabaseEngine storageEngine) throws SchemaException {
 	logger.info("Remove all DuctileDB tables...");
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	Iterator<NamespaceDescriptor> namespaces = schemaManager.getNamespaces();
-	while (namespaces.hasNext()) {
-	    NamespaceDescriptor namespace = namespaces.next();
-	    Iterator<TableDescriptor> tables = schemaManager.getTables(namespace);
-	    while (tables.hasNext()) {
-		TableDescriptor tableDescriptor = tables.next();
+	for (NamespaceDescriptor namespace : schemaManager.getNamespaces()) {
+	    for (TableDescriptor tableDescriptor : schemaManager.getTables(namespace)) {
 		String tableName = tableDescriptor.getName();
 		if (DUCTILEDB_NAMESPACE.equals(tableName)) {
 		    logger.info("Delete table '" + tableName + "'...");

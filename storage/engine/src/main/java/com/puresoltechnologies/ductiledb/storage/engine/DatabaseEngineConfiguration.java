@@ -10,9 +10,11 @@ import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
 public class DatabaseEngineConfiguration {
 
     private static final long ONE_MEGABYTE = 1024 * 1024;
+    private static final long ONE_GIGABYTE = 1024 * ONE_MEGABYTE;
 
-    private int bufferSize = -1;
     private long maxCommitLogSize = ONE_MEGABYTE;
+    private long maxDataFileSize = ONE_GIGABYTE;
+    private int bufferSize = -1;
     private StorageConfiguration storage = new StorageConfiguration();
 
     public StorageConfiguration getStorage() {
@@ -29,6 +31,18 @@ public class DatabaseEngineConfiguration {
 
     public void setMaxCommitLogSize(long maxCommitLogSize) {
 	this.maxCommitLogSize = maxCommitLogSize;
+    }
+
+    public long getMaxDataFileSize() {
+	return maxDataFileSize;
+    }
+
+    public void setMaxDataFileSize(long maxDataFileSize) {
+	this.maxDataFileSize = maxDataFileSize;
+    }
+
+    public void setBufferSize(int bufferSize) {
+	this.bufferSize = bufferSize;
     }
 
     public int getBufferSize() {

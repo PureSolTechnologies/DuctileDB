@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
+import java.util.Map.Entry;
+
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 
 public class SSTableDataEntry {
@@ -19,6 +21,20 @@ public class SSTableDataEntry {
 
     public ColumnMap getColumns() {
 	return columns;
+    }
+
+    public ColumnMap update(ColumnMap columnMap) {
+	ColumnMap updated = new ColumnMap();
+	updated.putAll(columns);
+	for (Entry<byte[], byte[]> entry : columnMap.entrySet()) {
+	    byte[] value = entry.getValue();
+	    if (value != null) {
+		updated.put(entry.getKey(), value);
+	    } else {
+		updated.remove(entry.getKey());
+	    }
+	}
+	return updated;
     }
 
 }
