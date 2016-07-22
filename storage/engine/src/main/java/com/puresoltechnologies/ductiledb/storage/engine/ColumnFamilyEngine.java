@@ -16,12 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.MemtableFactory;
@@ -69,8 +71,9 @@ public class ColumnFamilyEngine implements Closeable {
     private long maxCommitLogSize;
     private long maxDataFileSize;
 
-    private final Memtable memtable;
     private final Storage storage;
+    private final Memtable memtable;
+    private final Index index;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File commitLogFile;
     private CommitLogWriter commitLogWriter;
@@ -88,6 +91,7 @@ public class ColumnFamilyEngine implements Closeable {
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.commitLogFile = new File(columnFamilyDescriptor.getDirectory(), COMMIT_LOG_NAME);
 	this.memtable = MemtableFactory.create();
+	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
 	this.blockSize = configuration.getStorage().getBlockSize();
@@ -108,6 +112,7 @@ public class ColumnFamilyEngine implements Closeable {
 	    } else {
 		createEmptyCommitLog();
 	    }
+	    index.update();
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize column family '" + columnFamilyDescriptor.getName() + "'.",
 		    e);
@@ -255,6 +260,7 @@ public class ColumnFamilyEngine implements Closeable {
 	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, blockSize, bufferSize,
 		maxDataFileSize);
 	compactor.runCompaction();
+	index.update();
     }
 
     public Map<byte[], byte[]> get(byte[] rowKey) {

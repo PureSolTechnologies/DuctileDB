@@ -18,11 +18,12 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableIndexIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -30,7 +31,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.DbFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

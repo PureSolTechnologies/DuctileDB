@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io;
+package com.puresoltechnologies.ductiledb.storage.engine.io.commitlog;
 
 public class CommitLogEntry {
 

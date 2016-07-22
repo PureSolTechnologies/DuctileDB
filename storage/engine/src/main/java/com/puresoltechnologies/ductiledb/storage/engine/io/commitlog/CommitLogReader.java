@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io;
+package com.puresoltechnologies.ductiledb.storage.engine.io.commitlog;
 
 import java.io.File;
 import java.io.FileNotFoundException;

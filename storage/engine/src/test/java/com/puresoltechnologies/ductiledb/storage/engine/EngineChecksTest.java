@@ -5,8 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks;
-
 public class EngineChecksTest {
 
     @Test

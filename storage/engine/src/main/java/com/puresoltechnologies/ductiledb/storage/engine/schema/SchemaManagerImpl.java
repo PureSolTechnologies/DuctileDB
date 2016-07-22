@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
-import static com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks.checkIdentifier;
+import static com.puresoltechnologies.ductiledb.storage.engine.EngineChecks.checkIdentifier;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.EngineChecks;
+import com.puresoltechnologies.ductiledb.storage.engine.EngineChecks;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class SchemaManagerImpl implements SchemaManager {

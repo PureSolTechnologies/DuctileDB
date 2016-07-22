@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.utils;
+package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.regex.Pattern;
 

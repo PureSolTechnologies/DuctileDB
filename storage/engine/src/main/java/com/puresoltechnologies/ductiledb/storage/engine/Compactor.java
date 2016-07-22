@@ -10,21 +10,19 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableDataIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.SSTableWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -77,15 +75,10 @@ public class Compactor {
 	}
     }
 
-    private List<File> findDataFiles() {
-	Pattern pattern = Pattern
-		.compile(ColumnFamilyEngine.DB_FILE_PREFIX + "-(\\d+)" + ColumnFamilyEngine.METADATA_SUFFIX);
+    private List<File> findDataFiles() throws IOException {
 	List<String> timestamps = new ArrayList<>();
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
-	    Matcher matcher = pattern.matcher(file.getName());
-	    if (matcher.matches()) {
-		timestamps.add(matcher.group(1));
-	    }
+	    timestamps.add(ColumnFamilyEngineUtils.extractTimestampForMetadataFile(file.getName()));
 	}
 	List<File> dataFiles = new ArrayList<>();
 	if (timestamps.size() > 0) {

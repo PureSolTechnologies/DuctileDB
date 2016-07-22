@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io;
+package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -7,6 +7,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class SSTableIndexIterable extends InputStreamIterable<SSTableIndexEntry> {

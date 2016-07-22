@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io;
+package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
 /**
  * This class represents a single index file entry.
