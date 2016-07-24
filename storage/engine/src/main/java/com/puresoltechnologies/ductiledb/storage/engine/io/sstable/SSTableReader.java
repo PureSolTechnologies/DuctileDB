@@ -16,24 +16,22 @@ public class SSTableReader {
     private final Storage storage;
     private final File dataFile;
     private final File indexFile;
-    private final int blockSize;
 
     public SSTableReader(Storage storage, File dataFile, int blockSize) {
-	this(storage, dataFile, ColumnFamilyEngine.getIndexName(dataFile), blockSize);
+	this(storage, dataFile, ColumnFamilyEngine.getIndexName(dataFile));
     }
 
-    public SSTableReader(Storage storage, File dataFile, File indexFile, int blockSize) {
+    public SSTableReader(Storage storage, File dataFile, File indexFile) {
 	this.storage = storage;
 	this.dataFile = dataFile;
 	this.indexFile = indexFile;
-	this.blockSize = blockSize;
     }
 
     public SSTableIndexIterable readIndex() throws FileNotFoundException {
-	return new SSTableIndexIterable(storage.open(indexFile), blockSize);
+	return new SSTableIndexIterable(storage.open(indexFile));
     }
 
     public SSTableDataIterable readData() throws FileNotFoundException {
-	return new SSTableDataIterable(storage.open(dataFile), blockSize);
+	return new SSTableDataIterable(storage.open(dataFile));
     }
 }

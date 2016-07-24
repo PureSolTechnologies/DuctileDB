@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
@@ -14,8 +13,8 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -33,7 +32,6 @@ public class SSTableWriter implements Closeable {
     private final String baseFilename;
     private final DigestOutputStream dataStream;
     private final DigestOutputStream indexStream;
-    private final int blockSize;
     private final int bufferSize;
     private long fileOffset;
     private final byte[] dataBuffer;
@@ -41,10 +39,11 @@ public class SSTableWriter implements Closeable {
     private final byte[] indexBuffer;
     private int indexBufferPos;
     private byte[] startRowKey = null;
+    private long startOffset = 0;
     private byte[] endRowKey = null;
+    private long endOffset = 0;
 
-    public SSTableWriter(Storage storage, File directory, String baseFilename, int blockSize, int bufferSize)
-	    throws StorageException {
+    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
 	super();
 	try {
 	    this.storage = storage;
@@ -54,7 +53,6 @@ public class SSTableWriter implements Closeable {
 	    this.indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
 	    this.dataStream = new DigestOutputStream(storage.create(dataFile), MessageDigest.getInstance("MD5"));
 	    this.indexStream = new DigestOutputStream(storage.create(indexFile), MessageDigest.getInstance("MD5"));
-	    this.blockSize = blockSize;
 	    this.bufferSize = bufferSize;
 	    this.fileOffset = 0;
 	    this.dataBuffer = new byte[this.bufferSize];
@@ -74,8 +72,8 @@ public class SSTableWriter implements Closeable {
 	indexStream.close();
 	MessageDigest dataDigest = dataStream.getMessageDigest();
 	MessageDigest indexDigest = indexStream.getMessageDigest();
-	try (BufferedWriter md5Writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(
-		storage.create(new File(directory, baseFilename + ColumnFamilyEngine.MD5_FILE_SUFFIX)), blockSize)))) {
+	try (BufferedWriter md5Writer = new BufferedWriter(new OutputStreamWriter(
+		storage.create(new File(directory, baseFilename + ColumnFamilyEngine.MD5_FILE_SUFFIX))))) {
 	    md5Writer.write(Bytes.toHexString(dataDigest.digest()) + "  " + dataFile.getName() + "\n");
 	    md5Writer.write(Bytes.toHexString(indexDigest.digest()) + "  " + indexFile.getName() + "\n");
 	}
@@ -97,15 +95,25 @@ public class SSTableWriter implements Closeable {
 	return startRowKey;
     }
 
+    public final long getStartOffset() {
+	return startOffset;
+    }
+
     public final byte[] getEndRowKey() {
 	return endRowKey;
+    }
+
+    public final long getEndOffset() {
+	return endOffset;
     }
 
     public void write(byte[] rowKey, ColumnMap columns) throws IOException {
 	if (startRowKey == null) {
 	    startRowKey = rowKey;
+	    startOffset = fileOffset;
 	}
 	endRowKey = rowKey;
+	endOffset = fileOffset;
 	writeData(Bytes.toBytes(rowKey.length));
 	writeData(rowKey);
 	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();

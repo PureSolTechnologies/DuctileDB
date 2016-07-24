@@ -7,15 +7,15 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class CommitLogIterable extends InputStreamIterable<CommitLogEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(CommitLogIterable.class);
 
-    public CommitLogIterable(InputStream inputStream, int blockSize) {
-	super(new BufferedInputStream(inputStream, blockSize));
+    public CommitLogIterable(BufferedInputStream inputStream) {
+	super(inputStream);
     }
 
     @Override

@@ -14,16 +14,14 @@ public class CommitLogReader {
 
     private final Storage storage;
     private final File commitLogFile;
-    private final int blockSize;
 
-    public CommitLogReader(Storage storage, File commitLogFile, int blockSize) {
+    public CommitLogReader(Storage storage, File commitLogFile) {
 	super();
 	this.storage = storage;
 	this.commitLogFile = commitLogFile;
-	this.blockSize = blockSize;
     }
 
     public CommitLogIterable readData() throws FileNotFoundException {
-	return new CommitLogIterable(storage.open(commitLogFile), blockSize);
+	return new CommitLogIterable(storage.open(commitLogFile));
     }
 }

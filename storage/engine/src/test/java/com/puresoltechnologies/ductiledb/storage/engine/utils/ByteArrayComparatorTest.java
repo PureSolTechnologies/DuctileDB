@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+
 public class ByteArrayComparatorTest {
 
     private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();

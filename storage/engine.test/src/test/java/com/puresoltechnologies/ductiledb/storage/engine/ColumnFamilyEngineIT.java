@@ -18,6 +18,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
@@ -30,7 +31,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -91,7 +91,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
 	Storage storage = engine.getStorage();
 
-	DatabaseEngineConfiguration configuration = getConfiguration();
 	try (ColumnFamilyEngine columnFamily = new ColumnFamilyEngine(engine.getStorage(), columnFamilyDescriptor,
 		getConfiguration())) {
 	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
@@ -133,8 +132,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	assertNotNull(indexFile);
 
 	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
-	SSTableReader reader = new SSTableReader(storage, dataFile, indexFile,
-		configuration.getStorage().getBlockSize());
+	SSTableReader reader = new SSTableReader(storage, dataFile, indexFile);
 	try (SSTableIndexIterable index = reader.readIndex(); SSTableDataIterable data = reader.readData()) {
 	    byte[] currentRowKey = null;
 	    long currentOffset = -1;

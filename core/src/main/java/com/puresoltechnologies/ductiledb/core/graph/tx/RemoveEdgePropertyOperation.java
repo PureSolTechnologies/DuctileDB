@@ -16,7 +16,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 

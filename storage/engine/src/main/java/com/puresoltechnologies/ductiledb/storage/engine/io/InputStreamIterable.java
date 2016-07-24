@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -15,14 +16,14 @@ import java.util.Iterator;
  */
 public abstract class InputStreamIterable<T> implements CloseableIterable<T> {
 
-    private final InputStream inputStream;
+    private final BufferedInputStream inputStream;
 
-    public InputStreamIterable(InputStream inputStream) {
+    public InputStreamIterable(BufferedInputStream inputStream) {
 	super();
 	this.inputStream = inputStream;
     }
 
-    protected InputStream getInputStream() {
+    protected BufferedInputStream getInputStream() {
 	return inputStream;
     }
 

@@ -6,7 +6,7 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class AddVertexTypeOperation extends AbstractTxOperation {
 

@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.stores.hadoop;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.apache.hadoop.fs.FileSystem;
 
@@ -21,11 +21,18 @@ import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
  */
 public class HadoopStorage implements Storage {
 
+    private final StorageConfiguration configuration;
     private final FileSystem fileSystem;
 
     public HadoopStorage(StorageConfiguration configuration) {
 	super();
+	this.configuration = configuration;
 	this.fileSystem = null;
+    }
+
+    @Override
+    public final StorageConfiguration getConfiguration() {
+	return configuration;
     }
 
     public void createFile() {
@@ -87,13 +94,13 @@ public class HadoopStorage implements Storage {
     }
 
     @Override
-    public InputStream open(File file) throws FileNotFoundException {
+    public BufferedInputStream open(File file) throws FileNotFoundException {
 	// TODO Auto-generated method stub
 	return null;
     }
 
     @Override
-    public OutputStream create(File file) throws IOException {
+    public BufferedOutputStream create(File file) throws IOException {
 	// TODO Auto-generated method stub
 	return null;
     }
@@ -105,7 +112,7 @@ public class HadoopStorage implements Storage {
     }
 
     @Override
-    public OutputStream append(File file) throws IOException {
+    public BufferedOutputStream append(File file) throws IOException {
 	// TODO Auto-generated method stub
 	return null;
     }

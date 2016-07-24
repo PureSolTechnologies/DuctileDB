@@ -1,13 +1,13 @@
 package com.puresoltechnologies.ductiledb.stores.os;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +20,24 @@ public class OSStorage implements Storage {
 
     public static final String DIRECTORY_PROPERTY = "storage.os.directory";
 
+    private final StorageConfiguration configuration;
+    private final int blockSize;
     private final File rootDirectory;
 
     public OSStorage(StorageConfiguration configuration) {
+	super();
+	this.configuration = configuration;
+	this.blockSize = configuration.getBlockSize();
 	String directory = configuration.getProperties().get(DIRECTORY_PROPERTY).toString();
 	if (directory == null) {
 	    throw new IllegalArgumentException("Directory was not set via property '" + DIRECTORY_PROPERTY + "'.");
 	}
 	rootDirectory = new File(directory);
+    }
+
+    @Override
+    public final StorageConfiguration getConfiguration() {
+	return configuration;
     }
 
     public final File getRootDirectory() {
@@ -143,12 +153,12 @@ public class OSStorage implements Storage {
     }
 
     @Override
-    public InputStream open(File file) throws FileNotFoundException {
-	return new FileInputStream(new File(rootDirectory, file.getPath()));
+    public BufferedInputStream open(File file) throws FileNotFoundException {
+	return new BufferedInputStream(new FileInputStream(new File(rootDirectory, file.getPath())), blockSize);
     }
 
     @Override
-    public OutputStream create(File file) throws IOException {
+    public BufferedOutputStream create(File file) throws IOException {
 	File path = new File(rootDirectory, file.getPath());
 	if (path.exists()) {
 	    throw new IOException("File '" + file + "' exists already.");
@@ -156,7 +166,7 @@ public class OSStorage implements Storage {
 	if (!path.createNewFile()) {
 	    throw new IOException("File '" + file + "' could not be created.");
 	}
-	return new FileOutputStream(path);
+	return new BufferedOutputStream(new FileOutputStream(path), blockSize);
     }
 
     @Override
@@ -165,11 +175,11 @@ public class OSStorage implements Storage {
     }
 
     @Override
-    public OutputStream append(File file) throws IOException {
+    public BufferedOutputStream append(File file) throws IOException {
 	File path = new File(rootDirectory, file.getPath());
 	if (!path.exists()) {
 	    throw new IOException("File '" + file + "' does not exist.");
 	}
-	return new FileOutputStream(path, true);
+	return new BufferedOutputStream(new FileOutputStream(path, true), blockSize);
     }
 }

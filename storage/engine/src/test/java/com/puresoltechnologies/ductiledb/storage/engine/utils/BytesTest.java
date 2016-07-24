@@ -7,6 +7,8 @@ import java.time.Instant;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+
 public class BytesTest {
 
     @Test

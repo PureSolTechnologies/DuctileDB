@@ -11,13 +11,13 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManagerImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**

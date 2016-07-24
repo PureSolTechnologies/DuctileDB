@@ -20,7 +20,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {

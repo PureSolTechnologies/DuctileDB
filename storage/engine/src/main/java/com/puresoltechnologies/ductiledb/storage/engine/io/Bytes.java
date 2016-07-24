@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.utils;
+package com.puresoltechnologies.ductiledb.storage.engine.io;
 
 import java.nio.charset.Charset;
 import java.time.Instant;

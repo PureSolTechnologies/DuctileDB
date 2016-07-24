@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
@@ -29,7 +29,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.MemtableFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.RowMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -78,7 +77,6 @@ public class ColumnFamilyEngine implements Closeable {
     private final File commitLogFile;
     private CommitLogWriter commitLogWriter;
     private CountingOutputStream commitLogSizeStream;
-    private final int blockSize;
     private final int bufferSize;
 
     public ColumnFamilyEngine(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
@@ -94,7 +92,6 @@ public class ColumnFamilyEngine implements Closeable {
 	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
-	this.blockSize = configuration.getStorage().getBlockSize();
 	this.bufferSize = configuration.getBufferSize();
 	open();
 	stopWatch.stop();
@@ -120,15 +117,14 @@ public class ColumnFamilyEngine implements Closeable {
     }
 
     private void openCommitLog() throws IOException {
-	CommitLogReader commitLogReader = new CommitLogReader(storage, commitLogFile, blockSize);
+	CommitLogReader commitLogReader = new CommitLogReader(storage, commitLogFile);
 	try (CommitLogIterable commitLogData = commitLogReader.readData()) {
 	    for (CommitLogEntry entry : commitLogData) {
 		memtable.put(entry.getRowKey(), entry.getKey(), entry.getValue());
 	    }
 	}
 	FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-	commitLogSizeStream = new CountingOutputStream(new BufferedOutputStream(storage.append(commitLogFile)),
-		fileStatus.getLength());
+	commitLogSizeStream = new CountingOutputStream(storage.append(commitLogFile), fileStatus.getLength());
 	commitLogWriter = new CommitLogWriter(commitLogSizeStream);
     }
 
@@ -224,7 +220,7 @@ public class ColumnFamilyEngine implements Closeable {
 	stopWatch.start();
 	File commitLogFile;
 	try (SSTableWriter ssTableWriter = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename, blockSize, bufferSize)) {
+		baseFilename, bufferSize)) {
 	    RowMap values = memtable.getValues();
 	    for (Entry<byte[], ColumnMap> row : values.entrySet()) {
 		ssTableWriter.write(row.getKey(), row.getValue());
@@ -257,13 +253,14 @@ public class ColumnFamilyEngine implements Closeable {
     }
 
     private void runCompaction(File commitLogFile) throws StorageException {
-	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, blockSize, bufferSize,
+	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
 		maxDataFileSize);
 	compactor.runCompaction();
 	index.update();
     }
 
     public Map<byte[], byte[]> get(byte[] rowKey) {
+
 	return memtable.get(rowKey);
     }
 

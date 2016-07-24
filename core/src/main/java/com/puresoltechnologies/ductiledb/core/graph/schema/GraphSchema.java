@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
 
 public class GraphSchema {
 

@@ -1,12 +1,12 @@
 package com.puresoltechnologies.ductiledb.storage.spi;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * This is the central interface for the storage system to be used for
@@ -19,6 +19,13 @@ import java.io.OutputStream;
  * @author Rick-Rainer Ludwig
  */
 public interface Storage extends Closeable {
+
+    /**
+     * This method returns the confituration of the storage device.
+     * 
+     * @return A {@link StorageConfiguration} object is returned.
+     */
+    public StorageConfiguration getConfiguration();
 
     /**
      * This method is used to check the preconditions and to initialize the
@@ -73,11 +80,11 @@ public interface Storage extends Closeable {
 
     public FileStatus getFileStatus(File file);
 
-    public InputStream open(File file) throws FileNotFoundException;
+    public BufferedInputStream open(File file) throws FileNotFoundException;
 
-    public OutputStream create(File file) throws IOException;
+    public BufferedOutputStream create(File file) throws IOException;
 
-    public OutputStream append(File file) throws IOException;
+    public BufferedOutputStream append(File file) throws IOException;
 
     public boolean delete(File file);
 

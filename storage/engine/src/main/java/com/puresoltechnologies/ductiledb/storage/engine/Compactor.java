@@ -6,15 +6,17 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
@@ -22,8 +24,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -40,21 +40,18 @@ public class Compactor {
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File commitLogFile;
-    private final int blockSize;
     private final int bufferSize;
     private final long maxDataFileSize;
 
     private int fileCount = 0;
-    private final Map<Integer, byte[]> startRowKeys = new HashMap<>();
-    private final Map<Integer, byte[]> endRowKeys = new HashMap<>();
+    private final TreeMap<File, List<IndexEntry>> index = new TreeMap<>();
 
-    public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File commitLogFile, int blockSize,
-	    int bufferSize, long maxDataFileSize) {
+    public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File commitLogFile, int bufferSize,
+	    long maxDataFileSize) {
 	super();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.commitLogFile = commitLogFile;
-	this.blockSize = blockSize;
 	this.bufferSize = bufferSize;
 	this.maxDataFileSize = maxDataFileSize;
     }
@@ -112,7 +109,8 @@ public class Compactor {
     }
 
     private void performCompaction(String baseFilename) throws StorageException, IOException {
-	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile, blockSize);
+	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile,
+		storage.getConfiguration().getBlockSize());
 	try (SSTableDataIterable commitLogData = commitLogReader.readData()) {
 	    Iterator<SSTableDataEntry> commitLogIterator = commitLogData.iterator();
 	    List<File> dataFiles = findDataFiles();
@@ -124,7 +122,7 @@ public class Compactor {
 	    String baseFilename) throws StorageException, IOException {
 	SSTableDataEntry commitLogNext = commitLogIterator.next();
 	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename + "-" + fileCount, blockSize, bufferSize);
+		baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    for (File dataFile : dataFiles) {
 		SSTableReader dataReader = new SSTableReader(storage, dataFile, bufferSize);
@@ -145,11 +143,10 @@ public class Compactor {
 			}
 			if (writer.getDataFileSize() >= maxDataFileSize) {
 			    writer.close();
-			    startRowKeys.put(fileCount, writer.getStartRowKey());
-			    endRowKeys.put(fileCount, writer.getEndRowKey());
+			    addToIndex(writer);
 			    fileCount++;
 			    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-				    baseFilename + "-" + fileCount, blockSize, bufferSize);
+				    baseFilename + "-" + fileCount, bufferSize);
 			}
 		    }
 		}
@@ -161,34 +158,47 @@ public class Compactor {
 		    writer.write(commitLogEntry.getRowKey(), commitLogEntry.getColumns());
 		    if (writer.getDataFileSize() >= maxDataFileSize) {
 			writer.close();
-			startRowKeys.put(fileCount, writer.getStartRowKey());
-			endRowKeys.put(fileCount, writer.getEndRowKey());
+			addToIndex(writer);
 			fileCount++;
 			writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-				baseFilename + "-" + fileCount, blockSize, bufferSize);
+				baseFilename + "-" + fileCount, bufferSize);
 		    }
 		}
 	    }
 	} finally {
 	    writer.close();
-	    startRowKeys.put(fileCount, writer.getStartRowKey());
-	    endRowKeys.put(fileCount, writer.getEndRowKey());
+	    addToIndex(writer);
 	}
     }
 
+    private void addToIndex(SSTableWriter writer) {
+	List<IndexEntry> indizes = index.get(writer.getDataFile());
+	if (indizes == null) {
+	    indizes = new ArrayList<>();
+	    index.put(writer.getDataFile(), indizes);
+	}
+	indizes.add(new IndexEntry(writer.getStartRowKey(), writer.getDataFile(), writer.getStartOffset()));
+	indizes.add(new IndexEntry(writer.getEndRowKey(), writer.getDataFile(), writer.getEndOffset()));
+    }
+
     private void writeMetaData(String baseFilename) throws IOException {
-	try (BufferedOutputStream stream = new BufferedOutputStream(storage.create(
-		new File(columnFamilyDescriptor.getDirectory(), baseFilename + ColumnFamilyEngine.METADATA_SUFFIX)),
-		blockSize)) {
+	try (BufferedOutputStream stream = storage.create(
+		new File(columnFamilyDescriptor.getDirectory(), baseFilename + ColumnFamilyEngine.METADATA_SUFFIX))) {
 	    stream.write(Bytes.toBytes(fileCount + 1)); // Number of files
-	    for (int fileId = 0; fileId <= fileCount; ++fileId) {
-		stream.write(Bytes.toBytes(fileId)); // file id
-		byte[] startRowKey = startRowKeys.get(fileId);
-		stream.write(Bytes.toBytes(startRowKey.length));
-		stream.write(startRowKey);
-		byte[] endRowKey = endRowKeys.get(fileId);
-		stream.write(Bytes.toBytes(endRowKey.length));
-		stream.write(endRowKey);
+	    for (File file : index.keySet()) {
+		String fileName = file.getName();
+		stream.write(Bytes.toBytes(fileName.length()));
+		stream.write(Bytes.toBytes(fileName));
+		List<IndexEntry> indexEntries = index.get(file);
+		Collections.sort(indexEntries);
+		for (IndexEntry entry : indexEntries) {
+		    byte[] rowKey = entry.getRowKey();
+		    stream.write(Bytes.toBytes(rowKey.length));
+		    stream.write(rowKey);
+
+		    long offset = entry.getOffset();
+		    stream.write(Bytes.toBytes(offset));
+		}
 	    }
 	}
     }
