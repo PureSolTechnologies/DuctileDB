@@ -12,12 +12,13 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescr
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.trees.RedBlackTree;
+import com.puresoltechnologies.trees.RedBlackTreeNode;
 
 public class IndexImpl implements Index {
 
-    private static class RowKey implements Comparable<RowKey> {
+    private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
-	private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
+    private static class RowKey implements Comparable<RowKey> {
 
 	private final byte[] rowKey;
 
@@ -95,8 +96,21 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public IndexEntry find(byte[] rowKey) {
+    public IndexEntry get(byte[] rowKey) {
 	return indexTree.get(new RowKey(rowKey));
+    }
+
+    @Override
+    public OffsetRange find(byte[] rowKey) {
+	RedBlackTreeNode<RowKey, IndexEntry> nearest = indexTree.findNearest(new RowKey(rowKey));
+	if (comparator.compare(nearest.getKey().rowKey, rowKey) < 0) {
+	    // indexTree.findNextLarger
+	} else if (comparator.compare(nearest.getKey().rowKey, rowKey) > 0) {
+	    // indexTree.findNextSmaller
+	} else {
+	    return new OffsetRange(nearest.getValue(), nearest.getValue());
+	}
+	return new OffsetRange(null, null);
     }
 
 }

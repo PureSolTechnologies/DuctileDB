@@ -18,13 +18,23 @@ public interface Index {
     public void update() throws StorageException;
 
     /**
-     * This method is used to find a certain row in the index.
+     * This method returns the value for the given row key.
+     * 
+     * @param rowKey
+     * @return
+     */
+    public IndexEntry get(byte[] rowKey);
+
+    /**
+     * This method is used to find a certain row in the index or better the
+     * range in which the row can be found.
      * 
      * @param rowKey
      *            is the row to be looked after.
-     * @return An {@link IndexEntry} is returned containing the result.
-     *         <code>null</code> is returned to
+     * @return An {@link OffsetRange} is returned containing the result. It is a
+     *         range in which the entry can be found. <code>null</code> is
+     *         returned to indicate that the key is not available.
      */
-    public IndexEntry find(byte[] rowKey);
+    public OffsetRange find(byte[] rowKey);
 
 }

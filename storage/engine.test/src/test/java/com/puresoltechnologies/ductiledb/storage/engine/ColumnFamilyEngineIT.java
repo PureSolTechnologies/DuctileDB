@@ -223,9 +223,18 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    throws SchemaException, FileNotFoundException, IOException, StorageException {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespace("testSSTableCreationWithCompaction");
-	TableDescriptor tableDescriptor = schemaManager.createTable(namespace, "test");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
+	NamespaceDescriptor namespace = schemaManager.getNamespace("testSSTableCreationWithCompaction");
+	if (namespace == null) {
+	    namespace = schemaManager.createNamespace("testSSTableCreationWithCompaction");
+	}
+	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, "test");
+	if (tableDescriptor == null) {
+	    tableDescriptor = schemaManager.createTable(namespace, "test");
+	}
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.getColumnFamily(tableDescriptor, "testcf");
+	if (columnFamilyDescriptor == null) {
+	    columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
+	}
 	Storage storage = engine.getStorage();
 
 	try (ColumnFamilyEngine columnFamily = new ColumnFamilyEngine(engine.getStorage(), columnFamilyDescriptor,
@@ -249,6 +258,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		    values.put(value, value);
 		}
 		columnFamily.put(timestamp, Bytes.toBytes(rowKey), values);
+
 		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
 		commitLogSize = fileStatus.getLength();
 		if (lastCommitLogSize > commitLogSize) {

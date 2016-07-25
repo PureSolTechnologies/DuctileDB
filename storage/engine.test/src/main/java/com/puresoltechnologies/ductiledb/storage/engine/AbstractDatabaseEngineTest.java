@@ -18,46 +18,48 @@ import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public abstract class AbstractDatabaseEngineTest {
 
-    private static DatabaseEngineConfiguration configuration;
+	private static DatabaseEngineConfiguration configuration;
 
-    private DatabaseEngine storageEngine;
-    private String databaseEngineName;
+	private DatabaseEngine storageEngine;
+	private String databaseEngineName;
 
-    @BeforeClass
-    public static void readConfiguration() throws IOException {
-	Yaml yaml = new Yaml();
-	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
-	    configuration = yaml.loadAs(inputStream, DatabaseEngineConfiguration.class);
-	    assertNotNull(configuration);
+	@BeforeClass
+	public static void readConfiguration() throws IOException {
+		Yaml yaml = new Yaml();
+		try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
+			configuration = yaml.loadAs(inputStream, DatabaseEngineConfiguration.class);
+			assertNotNull(configuration);
+		}
 	}
-    }
 
-    @Before
-    public void initializeStorageEngine() throws StorageException, IOException {
-	databaseEngineName = getClass().getSimpleName();
-	storageEngine = new DatabaseEngine(StorageFactory.getStorageInstance(configuration.getStorage()),
-		databaseEngineName, configuration);
-    }
+	@Before
+	public void initializeStorageEngine() throws StorageException, IOException {
+		databaseEngineName = getClass().getSimpleName();
+		storageEngine = new DatabaseEngine(StorageFactory.getStorageInstance(configuration.getStorage()),
+				databaseEngineName, configuration);
+	}
 
-    @After
-    public void cleanupStorageEngine() throws IOException {
-	Storage storage = storageEngine.getStorage();
-	storage.removeDirectory(new File(databaseEngineName), true);
-	File baseDirectory = new File(
-		configuration.getStorage().getProperties().getProperty(OSStorage.DIRECTORY_PROPERTY));
-	baseDirectory.delete();
-    }
+	@After
+	public void cleanupStorageEngine() throws IOException {
+		if (storageEngine != null) {
+			Storage storage = storageEngine.getStorage();
+			storage.removeDirectory(new File(databaseEngineName), true);
+		}
+		File baseDirectory = new File(
+				configuration.getStorage().getProperties().getProperty(OSStorage.DIRECTORY_PROPERTY));
+		baseDirectory.delete();
+	}
 
-    public static DatabaseEngineConfiguration getConfiguration() {
-	return configuration;
-    }
+	public static DatabaseEngineConfiguration getConfiguration() {
+		return configuration;
+	}
 
-    public static void setConfiguration(DatabaseEngineConfiguration configuration) {
-	AbstractDatabaseEngineTest.configuration = configuration;
-    }
+	public static void setConfiguration(DatabaseEngineConfiguration configuration) {
+		AbstractDatabaseEngineTest.configuration = configuration;
+	}
 
-    protected DatabaseEngine getEngine() {
-	return storageEngine;
-    }
+	protected DatabaseEngine getEngine() {
+		return storageEngine;
+	}
 
 }

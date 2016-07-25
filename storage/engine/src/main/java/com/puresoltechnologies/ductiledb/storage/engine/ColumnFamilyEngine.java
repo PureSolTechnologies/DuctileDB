@@ -18,6 +18,7 @@ import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
+import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogIterable;
@@ -260,7 +261,8 @@ public class ColumnFamilyEngine implements Closeable {
     }
 
     public Map<byte[], byte[]> get(byte[] rowKey) {
-
+	OffsetRange offsetRange = index.find(rowKey);
+	// TODO Implementation of database file and commit log reading
 	return memtable.get(rowKey);
     }
 

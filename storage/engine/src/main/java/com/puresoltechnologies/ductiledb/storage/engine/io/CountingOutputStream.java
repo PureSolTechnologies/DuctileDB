@@ -17,6 +17,11 @@ public class CountingOutputStream extends FilterOutputStream {
 	this.count = startCount;
     }
 
+    @Override
+    public void close() throws IOException {
+    	super.close();
+    }
+    
     public long getCount() {
 	return count;
     }
