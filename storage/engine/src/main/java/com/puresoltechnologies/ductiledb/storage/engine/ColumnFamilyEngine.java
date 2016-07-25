@@ -17,13 +17,17 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
@@ -79,6 +83,7 @@ public class ColumnFamilyEngine implements Closeable {
     private CommitLogWriter commitLogWriter;
     private CountingOutputStream commitLogSizeStream;
     private final int bufferSize;
+    private final int maxGenerations;
 
     public ColumnFamilyEngine(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
@@ -94,6 +99,7 @@ public class ColumnFamilyEngine implements Closeable {
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
 	this.bufferSize = configuration.getBufferSize();
+	this.maxGenerations = configuration.getMaxFileGenerations();
 	open();
 	stopWatch.stop();
 	logger.info("Column family engine '" + columnFamilyDescriptor.getName() + "' started in "
@@ -254,16 +260,62 @@ public class ColumnFamilyEngine implements Closeable {
     }
 
     private void runCompaction(File commitLogFile) throws StorageException {
-	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
-		maxDataFileSize);
+	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize, maxDataFileSize,
+		maxGenerations);
 	compactor.runCompaction();
 	index.update();
     }
 
-    public Map<byte[], byte[]> get(byte[] rowKey) {
+    public Map<byte[], byte[]> get(byte[] rowKey) throws StorageException {
+	ColumnMap result = readFromDataFiles(rowKey);
+	ColumnMap commitLogsResult = readFromCommitLogs(rowKey);
+	if (commitLogsResult == null) {
+	    if (result == null) {
+		result = commitLogsResult;
+	    } else {
+		result.putAll(commitLogsResult);
+	    }
+	}
+	ColumnMap memTableContent = memtable.get(rowKey);
+	if (memTableContent != null) {
+	    if (result == null) {
+		result = memTableContent;
+	    } else {
+		result.putAll(memTableContent);
+	    }
+	}
+	return result;
+    }
+
+    private ColumnMap readFromDataFiles(byte[] rowKey) throws StorageException {
 	OffsetRange offsetRange = index.find(rowKey);
-	// TODO Implementation of database file and commit log reading
-	return memtable.get(rowKey);
+	if (offsetRange == null) {
+	    return null;
+	}
+	IndexEntry startOffset = offsetRange.getStartOffset();
+	IndexEntry endOffset = offsetRange.getEndOffset();
+	if (!startOffset.getDataFile().equals(endOffset.getDataFile())) {
+	    throw new IllegalStateException("File overlapping index range for key '"
+		    + Bytes.toHumanReadableString(rowKey) + "':\n" + startOffset + "\n" + endOffset);
+	}
+	SSTableReader reader = new SSTableReader(storage, startOffset.getDataFile());
+	return reader.readColumnMap(rowKey, startOffset, endOffset);
+    }
+
+    private ColumnMap readFromCommitLogs(byte[] rowKey) throws StorageException {
+	ColumnMap columnMap = null;
+	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
+	    SSTableReader reader = new SSTableReader(storage, commitLog);
+	    ColumnMap entry = reader.readColumnMap(rowKey);
+	    if (entry == null) {
+		if (columnMap == null) {
+		    columnMap = entry;
+		} else {
+		    columnMap.putAll(entry);
+		}
+	    }
+	}
+	return columnMap;
     }
 
     public void setMaxCommitLogSize(int maxCommitLogSize) {

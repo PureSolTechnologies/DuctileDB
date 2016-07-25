@@ -118,6 +118,18 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		// + "ms; perf=" + commitLogSize / 1024.0 /
 		// stopWatch.getMillis() * 1000.0 + "kB/ms");
 	    }
+
+	    Map<byte[], byte[]> columnMap = columnFamily.get(Bytes.toBytes(2l));
+	    assertEquals(Bytes.toBytes(2l), columnMap.get(Bytes.toBytes(2l)));
+	    assertEquals(Bytes.toBytes(4l), columnMap.get(Bytes.toBytes(4l)));
+	    assertEquals(Bytes.toBytes(6l), columnMap.get(Bytes.toBytes(6l)));
+	    assertEquals(Bytes.toBytes(8l), columnMap.get(Bytes.toBytes(8l)));
+	    assertEquals(Bytes.toBytes(10l), columnMap.get(Bytes.toBytes(10l)));
+	    assertEquals(Bytes.toBytes(12l), columnMap.get(Bytes.toBytes(12l)));
+	    assertEquals(Bytes.toBytes(14l), columnMap.get(Bytes.toBytes(14l)));
+	    assertEquals(Bytes.toBytes(16l), columnMap.get(Bytes.toBytes(16l)));
+	    assertEquals(Bytes.toBytes(18l), columnMap.get(Bytes.toBytes(18l)));
+	    assertEquals(Bytes.toBytes(20l), columnMap.get(Bytes.toBytes(20l)));
 	}
 	File dataFile = null;
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new DbFilenameFilter())) {
@@ -159,6 +171,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		currentRowKey = rowKey;
 	    }
 	}
+
     }
 
     @Test

@@ -15,6 +15,7 @@ public class DatabaseEngineConfiguration {
     private long maxCommitLogSize = ONE_MEGABYTE;
     private long maxDataFileSize = ONE_GIGABYTE;
     private int bufferSize = -1;
+    private int maxFileGenerations = 3;
     private StorageConfiguration storage = new StorageConfiguration();
 
     public StorageConfiguration getStorage() {
@@ -58,4 +59,13 @@ public class DatabaseEngineConfiguration {
 	    return bufferSize;
 	}
     }
+
+    public int getMaxFileGenerations() {
+	return maxFileGenerations;
+    }
+
+    public void setMaxFileGenerations(int maxFileGenerations) {
+	this.maxFileGenerations = maxFileGenerations;
+    }
+
 }

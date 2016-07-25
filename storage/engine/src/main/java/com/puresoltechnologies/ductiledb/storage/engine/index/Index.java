@@ -18,6 +18,14 @@ public interface Index {
     public void update() throws StorageException;
 
     /**
+     * This method is used to register a new index entry.
+     * 
+     * @param rowKey
+     * @param indexEntry
+     */
+    public void put(byte[] rowKey, IndexEntry indexEntry);
+
+    /**
      * This method returns the value for the given row key.
      * 
      * @param rowKey

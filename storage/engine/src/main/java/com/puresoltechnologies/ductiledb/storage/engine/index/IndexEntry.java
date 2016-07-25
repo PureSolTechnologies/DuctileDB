@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.index;
 
 import java.io.File;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 /**
@@ -43,5 +44,10 @@ public class IndexEntry implements Comparable<IndexEntry> {
 	    return cmp;
 	}
 	return BYTE_ARRAY_COMPARATOR.compare(this.rowKey, o.rowKey);
+    }
+
+    @Override
+    public String toString() {
+	return Bytes.toHumanReadableString(rowKey) + " -> " + dataFile + ":" + offset;
     }
 }

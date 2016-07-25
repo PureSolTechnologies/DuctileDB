@@ -60,5 +60,10 @@ public abstract class InputStreamIterable<T> implements CloseableIterable<T> {
 	};
     }
 
+    public long skip(long n) throws IOException {
+	return inputStream.skip(n);
+    }
+
     protected abstract T readEntry();
+
 }

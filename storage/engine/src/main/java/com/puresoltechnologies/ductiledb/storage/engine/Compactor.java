@@ -42,18 +42,20 @@ public class Compactor {
     private final File commitLogFile;
     private final int bufferSize;
     private final long maxDataFileSize;
+    private final int maxGenerations;
 
     private int fileCount = 0;
     private final TreeMap<File, List<IndexEntry>> index = new TreeMap<>();
 
     public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File commitLogFile, int bufferSize,
-	    long maxDataFileSize) {
+	    long maxDataFileSize, int maxGenerations) {
 	super();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.commitLogFile = commitLogFile;
 	this.bufferSize = bufferSize;
 	this.maxDataFileSize = maxDataFileSize;
+	this.maxGenerations = maxGenerations;
     }
 
     public void runCompaction() throws StorageException {
@@ -80,18 +82,7 @@ public class Compactor {
 	List<File> dataFiles = new ArrayList<>();
 	if (timestamps.size() > 0) {
 	    Collections.sort(timestamps);
-	    while (timestamps.size() > 3) {
-		String timestamp = timestamps.get(0);
-		for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
-		    @Override
-		    public boolean accept(File dir, String name) {
-			return name.startsWith(ColumnFamilyEngine.DB_FILE_PREFIX + "-" + timestamp);
-		    }
-		})) {
-		    storage.delete(file);
-		}
-		timestamps.remove(timestamp);
-	    }
+	    deleteObsoleteStorageFiles(timestamps);
 	    Collections.reverse(timestamps);
 	    String lastTimestamp = timestamps.get(0);
 	    for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
@@ -108,9 +99,23 @@ public class Compactor {
 	return dataFiles;
     }
 
+    private void deleteObsoleteStorageFiles(List<String> timestamps) {
+	while (timestamps.size() > maxGenerations) {
+	    String timestamp = timestamps.get(0);
+	    for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
+		@Override
+		public boolean accept(File dir, String name) {
+		    return name.startsWith(ColumnFamilyEngine.DB_FILE_PREFIX + "-" + timestamp);
+		}
+	    })) {
+		storage.delete(file);
+	    }
+	    timestamps.remove(timestamp);
+	}
+    }
+
     private void performCompaction(String baseFilename) throws StorageException, IOException {
-	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile,
-		storage.getConfiguration().getBlockSize());
+	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile);
 	try (SSTableDataIterable commitLogData = commitLogReader.readData()) {
 	    Iterator<SSTableDataEntry> commitLogIterator = commitLogData.iterator();
 	    List<File> dataFiles = findDataFiles();
@@ -125,7 +130,7 @@ public class Compactor {
 		baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    for (File dataFile : dataFiles) {
-		SSTableReader dataReader = new SSTableReader(storage, dataFile, bufferSize);
+		SSTableReader dataReader = new SSTableReader(storage, dataFile);
 		byte[] commitLogRowKey = commitLogNext.getRowKey();
 		try (SSTableDataIterable data = dataReader.readData()) {
 		    for (SSTableDataEntry dataEntry : data) {

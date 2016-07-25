@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.index;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
@@ -12,7 +13,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescr
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.trees.RedBlackTree;
-import com.puresoltechnologies.trees.RedBlackTreeNode;
 
 public class IndexImpl implements Index {
 
@@ -83,9 +83,8 @@ public class IndexImpl implements Index {
 		    IndexEntry index1 = new IndexEntry(entry.getStartKey(),
 			    new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()),
 			    entry.getStartOffset());
-		    IndexEntry index2 = new IndexEntry(entry.getStartKey(),
-			    new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()),
-			    entry.getStartOffset());
+		    IndexEntry index2 = new IndexEntry(entry.getEndKey(),
+			    new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getEndOffset());
 		    indexTree.put(new RowKey(index1.getRowKey()), index1);
 		    indexTree.put(new RowKey(index2.getRowKey()), index2);
 		}
@@ -96,21 +95,22 @@ public class IndexImpl implements Index {
     }
 
     @Override
+    public void put(byte[] rowKey, IndexEntry indexEntry) {
+	indexTree.put(new RowKey(rowKey), indexEntry);
+    }
+
+    @Override
     public IndexEntry get(byte[] rowKey) {
 	return indexTree.get(new RowKey(rowKey));
     }
 
     @Override
     public OffsetRange find(byte[] rowKey) {
-	RedBlackTreeNode<RowKey, IndexEntry> nearest = indexTree.findNearest(new RowKey(rowKey));
-	if (comparator.compare(nearest.getKey().rowKey, rowKey) < 0) {
-	    // indexTree.findNextLarger
-	} else if (comparator.compare(nearest.getKey().rowKey, rowKey) > 0) {
-	    // indexTree.findNextSmaller
-	} else {
-	    return new OffsetRange(nearest.getValue(), nearest.getValue());
+	try {
+	    return new OffsetRange(indexTree.floorNode(new RowKey(rowKey)).getValue(),
+		    indexTree.ceilingNode(new RowKey(rowKey)).getValue());
+	} catch (NoSuchElementException e) {
+	    return null;
 	}
-	return new OffsetRange(null, null);
     }
-
 }
