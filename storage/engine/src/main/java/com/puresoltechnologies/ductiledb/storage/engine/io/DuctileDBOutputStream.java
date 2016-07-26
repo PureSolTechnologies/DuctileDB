@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
+package com.puresoltechnologies.ductiledb.storage.engine.io;
 
 import java.io.BufferedOutputStream;
 import java.io.Closeable;
@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 /**
  * This is a special output stream to increase the buffer size, calculate MD5
@@ -26,7 +23,7 @@ public class DuctileDBOutputStream implements Closeable {
     private final byte[] buffer;
     private final int bufferSize;
 
-    public DuctileDBOutputStream(BufferedOutputStream bufferedOutputStream, int bufferSize) throws StorageException {
+    public DuctileDBOutputStream(BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
 	super();
 	try {
 	    this.stream = new DigestOutputStream(bufferedOutputStream, MessageDigest.getInstance("MD5"));
@@ -35,7 +32,7 @@ public class DuctileDBOutputStream implements Closeable {
 	    this.bufferPos = 0;
 	    this.fileOffset = 0;
 	} catch (NoSuchAlgorithmException e) {
-	    throw new StorageException("Could not initialize DuctileDBOutputStream.", e);
+	    throw new IOException("Could not initialize DuctileDBOutputStream.", e);
 	}
 
     }
@@ -56,7 +53,7 @@ public class DuctileDBOutputStream implements Closeable {
 	return Bytes.toHexString(digest.digest());
     }
 
-    public long getFileOffset() {
+    public long getOffset() {
 	return fileOffset;
     }
 

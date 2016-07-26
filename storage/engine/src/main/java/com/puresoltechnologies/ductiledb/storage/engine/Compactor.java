@@ -18,8 +18,8 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
@@ -117,32 +117,32 @@ public class Compactor {
 
     private void performCompaction(String baseFilename) throws StorageException, IOException {
 	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile);
-	try (SSTableDataIterable commitLogData = commitLogReader.readData()) {
-	    Iterator<SSTableDataEntry> commitLogIterator = commitLogData.iterator();
+	try (ColumnFamilyRowIterable commitLogData = commitLogReader.readData()) {
+	    Iterator<ColumnFamilyRow> commitLogIterator = commitLogData.iterator();
 	    List<File> dataFiles = findDataFiles();
 	    integrateCommitLog(commitLogIterator, dataFiles, baseFilename);
 	}
     }
 
-    private void integrateCommitLog(Iterator<SSTableDataEntry> commitLogIterator, List<File> dataFiles,
+    private void integrateCommitLog(Iterator<ColumnFamilyRow> commitLogIterator, List<File> dataFiles,
 	    String baseFilename) throws StorageException, IOException {
-	SSTableDataEntry commitLogNext = commitLogIterator.next();
+	ColumnFamilyRow commitLogNext = commitLogIterator.next();
 	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
 		baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    for (File dataFile : dataFiles) {
 		SSTableReader dataReader = new SSTableReader(storage, dataFile);
 		byte[] commitLogRowKey = commitLogNext.getRowKey();
-		try (SSTableDataIterable data = dataReader.readData()) {
-		    for (SSTableDataEntry dataEntry : data) {
+		try (ColumnFamilyRowIterable data = dataReader.readData()) {
+		    for (ColumnFamilyRow dataEntry : data) {
 			byte[] dataRowKey = dataEntry.getRowKey();
 			if (comparator.compare(dataRowKey, commitLogRowKey) == 0) {
-			    writer.write(dataRowKey, dataEntry.update(commitLogNext.getColumns()));
+			    writer.write(dataRowKey, dataEntry.update(commitLogNext.getColumnMap()));
 			} else if (comparator.compare(dataRowKey, commitLogRowKey) < 0) {
-			    writer.write(dataRowKey, dataEntry.getColumns());
+			    writer.write(dataRowKey, dataEntry.getColumnMap());
 			} else {
 			    while (comparator.compare(dataRowKey, commitLogRowKey) > 0) {
-				writer.write(dataRowKey, commitLogNext.getColumns());
+				writer.write(dataRowKey, commitLogNext.getColumnMap());
 				commitLogNext = commitLogIterator.next();
 				commitLogRowKey = commitLogNext.getRowKey();
 			    }
@@ -160,8 +160,8 @@ public class Compactor {
 	    if (commitLogNext != null) {
 		writer.write(commitLogNext);
 		while (commitLogIterator.hasNext()) {
-		    SSTableDataEntry commitLogEntry = commitLogIterator.next();
-		    writer.write(commitLogEntry.getRowKey(), commitLogEntry.getColumns());
+		    ColumnFamilyRow commitLogEntry = commitLogIterator.next();
+		    writer.write(commitLogEntry.getRowKey(), commitLogEntry.getColumnMap());
 		    if (writer.getDataFileSize() >= maxDataFileSize) {
 			writer.close();
 			addToIndex(writer);

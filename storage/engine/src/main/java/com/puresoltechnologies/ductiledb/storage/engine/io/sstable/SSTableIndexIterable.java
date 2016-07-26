@@ -1,26 +1,25 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
 public class SSTableIndexIterable extends InputStreamIterable<SSTableIndexEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(SSTableIndexIterable.class);
 
-    public SSTableIndexIterable(BufferedInputStream inputStream) {
+    public SSTableIndexIterable(IndexInputStream inputStream) {
 	super(inputStream);
     }
 
     @Override
     protected SSTableIndexEntry readEntry() {
-	InputStream inputStream = getInputStream();
+	DuctileDBInputStream inputStream = getInputStream();
 	try {
 	    byte[] buffer = new byte[8];
 	    int len = inputStream.read(buffer, 0, 4);

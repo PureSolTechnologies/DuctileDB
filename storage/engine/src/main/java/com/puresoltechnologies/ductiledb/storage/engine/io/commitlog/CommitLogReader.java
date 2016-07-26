@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.io.commitlog;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -22,6 +23,6 @@ public class CommitLogReader {
     }
 
     public CommitLogIterable readData() throws FileNotFoundException {
-	return new CommitLogIterable(storage.open(commitLogFile));
+	return new CommitLogIterable(new DuctileDBInputStream(storage.open(commitLogFile)));
     }
 }

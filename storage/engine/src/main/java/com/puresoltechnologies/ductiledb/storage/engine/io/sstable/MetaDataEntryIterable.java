@@ -1,13 +1,12 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
 public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
@@ -16,13 +15,13 @@ public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
 
     private final int fileCount;
 
-    public MetaDataEntryIterable(BufferedInputStream inputStream) throws IOException {
+    public MetaDataEntryIterable(DuctileDBInputStream inputStream) throws IOException {
 	super(inputStream);
 	this.fileCount = readFileCount();
     }
 
     private int readFileCount() throws IOException {
-	InputStream inputStream = getInputStream();
+	DuctileDBInputStream inputStream = getInputStream();
 	byte[] buffer = new byte[4];
 	inputStream.read(buffer);
 	return Bytes.toInt(buffer);
@@ -35,7 +34,7 @@ public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
     @Override
     protected MetaDataEntry readEntry() {
 	try {
-	    InputStream inputStream = getInputStream();
+	    DuctileDBInputStream inputStream = getInputStream();
 	    byte[] buffer = new byte[8];
 	    int len = inputStream.read(buffer, 0, 4);
 	    if (len < 0) {

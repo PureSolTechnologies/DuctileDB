@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntryIterable;
@@ -80,7 +81,8 @@ public class IndexImpl implements Index {
 		}
 	    }
 	    if (latestMetadata != null) {
-		for (MetaDataEntry entry : new MetaDataEntryIterable(storage.open(latestMetadata))) {
+		for (MetaDataEntry entry : new MetaDataEntryIterable(
+			new DuctileDBInputStream(storage.open(latestMetadata)))) {
 		    IndexEntry index1 = new IndexEntry(entry.getStartKey(),
 			    new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()),
 			    entry.getStartOffset());

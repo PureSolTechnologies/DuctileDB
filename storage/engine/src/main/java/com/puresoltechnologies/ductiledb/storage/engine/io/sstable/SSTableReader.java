@@ -39,18 +39,18 @@ public class SSTableReader {
     }
 
     public SSTableIndexIterable readIndex() throws FileNotFoundException {
-	return new SSTableIndexIterable(storage.open(indexFile));
+	return new SSTableIndexIterable(new IndexInputStream(storage.open(indexFile)));
     }
 
-    public SSTableDataIterable readData() throws FileNotFoundException {
-	return new SSTableDataIterable(storage.open(dataFile));
+    public ColumnFamilyRowIterable readData() throws FileNotFoundException {
+	return new ColumnFamilyRowIterable(new DataInputStream(storage.open(dataFile)));
     }
 
     public ColumnMap readColumnMap(SSTableIndexEntry indexEntry) throws StorageException {
-	try (SSTableDataIterable data = readData()) {
+	try (ColumnFamilyRowIterable data = readData()) {
 	    data.skip(indexEntry.getOffset());
-	    SSTableDataEntry entry = data.iterator().next();
-	    return entry.getColumns();
+	    ColumnFamilyRow entry = data.iterator().next();
+	    return entry.getColumnMap();
 	} catch (IOException e) {
 	    throw new StorageException("Could not read data.", e);
 	}

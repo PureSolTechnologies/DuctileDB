@@ -18,8 +18,8 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
@@ -149,14 +149,14 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 
 	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 	SSTableReader reader = new SSTableReader(storage, dataFile, indexFile);
-	try (SSTableIndexIterable index = reader.readIndex(); SSTableDataIterable data = reader.readData()) {
+	try (SSTableIndexIterable index = reader.readIndex(); ColumnFamilyRowIterable data = reader.readData()) {
 	    byte[] currentRowKey = null;
 	    long currentOffset = -1;
 	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
-	    Iterator<SSTableDataEntry> dataIterator = data.iterator();
+	    Iterator<ColumnFamilyRow> dataIterator = data.iterator();
 	    while (indexIterator.hasNext() && dataIterator.hasNext()) {
 		SSTableIndexEntry indexEntry = indexIterator.next();
-		SSTableDataEntry dataEntry = dataIterator.next();
+		ColumnFamilyRow dataEntry = dataIterator.next();
 		byte[] rowKey = indexEntry.getRowKey();
 		assertEquals(Bytes.toHumanReadableString(rowKey), Bytes.toHumanReadableString(dataEntry.getRowKey()));
 		long offset = indexEntry.getOffset();

@@ -1,27 +1,26 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.commitlog;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
 public class CommitLogIterable extends InputStreamIterable<CommitLogEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(CommitLogIterable.class);
 
-    public CommitLogIterable(BufferedInputStream inputStream) {
+    public CommitLogIterable(DuctileDBInputStream inputStream) {
 	super(inputStream);
     }
 
     @Override
     protected CommitLogEntry readEntry() {
 	try {
-	    InputStream inputStream = getInputStream();
+	    DuctileDBInputStream inputStream = getInputStream();
 	    byte[] bytes = new byte[4];
 	    int len = inputStream.read(bytes, 0, 4);
 	    if (len == -1) {
