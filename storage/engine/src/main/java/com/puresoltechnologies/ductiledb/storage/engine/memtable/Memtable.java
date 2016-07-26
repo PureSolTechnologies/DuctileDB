@@ -1,18 +1,37 @@
 package com.puresoltechnologies.ductiledb.storage.engine.memtable;
 
 /**
- * This interface represents a memtable used for storage engine.
+ * Basic Memtable implementation.
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface Memtable {
+public class Memtable {
 
-    public void put(byte[] rowKey, byte[] key, byte[] value);
+    private final RowMap values = new RowMap();
 
-    public ColumnMap get(byte[] rowKey);
+    public Memtable() {
+	super();
+    }
 
-    public void clear();
+    public void clear() {
+	values.clear();
+    }
 
-    public RowMap getValues();
+    public void put(byte[] rowKey, byte[] key, byte[] value) {
+	ColumnMap row = values.get(rowKey);
+	if (row == null) {
+	    row = new ColumnMap();
+	    values.put(rowKey, row);
+	}
+	row.put(key, value);
+    }
+
+    public ColumnMap get(byte[] rowKey) {
+	return values.get(rowKey);
+    }
+
+    public RowMap getValues() {
+	return values;
+    }
 
 }

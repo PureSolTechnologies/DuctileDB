@@ -32,7 +32,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.MemtableFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.RowMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
@@ -68,8 +67,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private long maxCommitLogSize;
     private long maxDataFileSize;
 
+    private final Memtable memtable = new Memtable();
     private final Storage storage;
-    private final Memtable memtable;
     private final Index index;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File commitLogFile;
@@ -87,7 +86,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.commitLogFile = new File(columnFamilyDescriptor.getDirectory(), COMMIT_LOG_NAME);
-	this.memtable = MemtableFactory.create();
 	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
