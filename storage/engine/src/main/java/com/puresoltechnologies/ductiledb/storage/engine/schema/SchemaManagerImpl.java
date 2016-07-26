@@ -11,7 +11,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.EngineChecks;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -21,11 +22,11 @@ public class SchemaManagerImpl implements SchemaManager {
 
     private final Map<String, NamespaceDescriptor> namespaces = new HashMap<>();
 
-    private final DatabaseEngine databaseEngine;
+    private final DatabaseEngineImpl databaseEngine;
     private final Storage storage;
     private final File storageDirectory;
 
-    public SchemaManagerImpl(DatabaseEngine databaseEngine, File storageDirectory) {
+    public SchemaManagerImpl(DatabaseEngineImpl databaseEngine, File storageDirectory) {
 	this.databaseEngine = databaseEngine;
 	this.storage = databaseEngine.getStorage();
 	this.storageDirectory = storageDirectory;
@@ -153,7 +154,7 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException {
+    public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException, StorageException {
 	if (!checkIdentifier(namespaceName)) {
 	    throw new SchemaException("Namespace name '" + namespaceName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
@@ -162,7 +163,10 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
-	    return new NamespaceDescriptor(namespaceName, storage, namespaceDirectory);
+	    NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(namespaceName, storage,
+		    namespaceDirectory);
+	    databaseEngine.addNamespace(namespaceDescriptor);
+	    return namespaceDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create schema '" + namespaceName + "'.", e);
 	}
@@ -205,7 +209,7 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (!checkIdentifier(tableName)) {
 	    throw new SchemaException("Table name '" + tableName + "' is invalid. Identifiers have to match pattern '"
 		    + EngineChecks.IDENTIFIED_FORM + "'.");
@@ -217,6 +221,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	    storage.createDirectory(tableDirectory);
 	    TableDescriptor tableDescriptor = new TableDescriptor(tableName, namespaceDescriptor, tableDirectory);
 	    namespaceDescriptor.addTable(tableDescriptor);
+	    databaseEngine.addTable(tableDescriptor);
 	    return tableDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create table '" + namespaceDescriptor + "." + tableName + "'.", e);
@@ -245,7 +250,7 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (!checkIdentifier(columnFamilyName)) {
 	    throw new SchemaException("Column family name '" + columnFamilyName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
@@ -258,6 +263,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	    ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName,
 		    tableDescriptor, columnFamilyDirectory);
 	    tableDescriptor.addColumnFamily(columnFamilyDescriptor);
+	    databaseEngine.addColumnFamily(columnFamilyDescriptor);
 	    return columnFamilyDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException(

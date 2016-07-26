@@ -13,6 +13,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescr
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.trees.RedBlackTree;
+import com.puresoltechnologies.trees.RedBlackTreeNode;
 
 public class IndexImpl implements Index {
 
@@ -107,8 +108,12 @@ public class IndexImpl implements Index {
     @Override
     public OffsetRange find(byte[] rowKey) {
 	try {
-	    return new OffsetRange(indexTree.floorNode(new RowKey(rowKey)).getValue(),
-		    indexTree.ceilingNode(new RowKey(rowKey)).getValue());
+	    RedBlackTreeNode<RowKey, IndexEntry> floorNode = indexTree.floorNode(new RowKey(rowKey));
+	    RedBlackTreeNode<RowKey, IndexEntry> ceilingNode = indexTree.ceilingNode(new RowKey(rowKey));
+	    if ((floorNode == null) || (ceilingNode == null)) {
+		return null;
+	    }
+	    return new OffsetRange(floorNode.getValue(), ceilingNode.getValue());
 	} catch (NoSuchElementException e) {
 	    return null;
 	}

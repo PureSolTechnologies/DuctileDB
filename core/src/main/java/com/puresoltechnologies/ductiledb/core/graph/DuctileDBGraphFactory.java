@@ -10,6 +10,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class DuctileDBGraphFactory {
@@ -20,8 +21,8 @@ public class DuctileDBGraphFactory {
 	    throws StorageException {
 	// TODO incorporate configuration...
 	logger.info("Creating connection to HBase with configuration '" + configuration + "'...");
-	DatabaseEngine storageEngine = new DatabaseEngine(StorageFactory.getStorageInstance(configuration.getStorage()),
-		"graph", configuration);
+	DatabaseEngine storageEngine = new DatabaseEngineImpl(
+		StorageFactory.getStorageInstance(configuration.getStorage()), "graph", configuration);
 	logger.info("Connection '" + storageEngine + "' to HBase created.");
 	return storageEngine;
     }

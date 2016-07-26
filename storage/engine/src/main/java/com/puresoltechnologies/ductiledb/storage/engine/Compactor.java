@@ -63,7 +63,7 @@ public class Compactor {
 	    logger.info("Start compaction for '" + commitLogFile + "'...");
 	    StopWatch stopWatch = new StopWatch();
 	    stopWatch.start();
-	    String baseFilename = ColumnFamilyEngine.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
+	    String baseFilename = ColumnFamilyEngineImpl.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
 	    performCompaction(baseFilename);
 	    writeMetaData(baseFilename);
 	    deleteCommitLogFiles();
@@ -209,8 +209,8 @@ public class Compactor {
     }
 
     private void deleteCommitLogFiles() {
-	storage.delete(ColumnFamilyEngine.getIndexName(commitLogFile));
-	storage.delete(ColumnFamilyEngine.getMD5Name(commitLogFile));
+	storage.delete(ColumnFamilyEngineImpl.getIndexName(commitLogFile));
+	storage.delete(ColumnFamilyEngineImpl.getMD5Name(commitLogFile));
 	storage.delete(commitLogFile);
     }
 

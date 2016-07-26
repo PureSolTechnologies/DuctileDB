@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -33,7 +34,7 @@ public class GraphSchema {
 	this.storageEngine = storageEngine;
     }
 
-    public void checkAndCreateEnvironment() throws SchemaException {
+    public void checkAndCreateEnvironment() throws SchemaException, StorageException {
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
 	NamespaceDescriptor namespace = assureNamespacePresence(schemaManager);
 	assureMetaDataTablePresence(schemaManager, namespace);
@@ -48,7 +49,8 @@ public class GraphSchema {
 
     }
 
-    private NamespaceDescriptor assureNamespacePresence(SchemaManager schemaManager) throws SchemaException {
+    private NamespaceDescriptor assureNamespacePresence(SchemaManager schemaManager)
+	    throws SchemaException, StorageException {
 	NamespaceDescriptor namespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);
 	if (namespace == null) {
 	    namespace = schemaManager.createNamespace(DUCTILEDB_NAMESPACE);
@@ -57,7 +59,7 @@ public class GraphSchema {
     }
 
     private void assureMetaDataTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.METADATA.getName()) == null) {
 	    TableDescriptor tableDescription = schemaManager.createTable(namespace, HBaseTable.METADATA.getName());
 	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.METADATA.getName());
@@ -91,7 +93,7 @@ public class GraphSchema {
     }
 
     private void assurePropertiesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.PROPERTY_DEFINITIONS.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.PROPERTY_DEFINITIONS.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getName());
@@ -100,7 +102,7 @@ public class GraphSchema {
     }
 
     private void assureTypesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.TYPE_DEFINITIONS.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.TYPE_DEFINITIONS.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getName());
@@ -109,7 +111,7 @@ public class GraphSchema {
     }
 
     private void assureVerticesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.VERTICES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTICES.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getName());
@@ -119,7 +121,7 @@ public class GraphSchema {
     }
 
     private void assureEdgesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.EDGES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGES.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getName());
@@ -129,7 +131,7 @@ public class GraphSchema {
     }
 
     private void assureVertexTypesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.VERTEX_TYPES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTEX_TYPES.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
@@ -137,7 +139,7 @@ public class GraphSchema {
     }
 
     private void assureVertexPropertiesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.VERTEX_PROPERTIES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTEX_PROPERTIES.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
@@ -145,7 +147,7 @@ public class GraphSchema {
     }
 
     private void assureEdgeTypesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.EDGE_TYPES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGE_TYPES.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
@@ -153,7 +155,7 @@ public class GraphSchema {
     }
 
     private void assureEdgePropertiesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException {
+	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.EDGE_PROPERTIES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGE_PROPERTIES.getName());
 	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());

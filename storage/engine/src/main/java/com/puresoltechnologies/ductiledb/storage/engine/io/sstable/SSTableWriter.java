@@ -128,7 +128,7 @@ public class SSTableWriter implements Closeable {
 	}
 	writeIndex(Bytes.toBytes(rowKey.length));
 	writeIndex(rowKey);
-	writeIndex(Bytes.toBytes(fileOffset));
+	writeIndex(Bytes.toBytes(endOffset));
     }
 
     private void writeData(byte[] bytes) throws IOException {

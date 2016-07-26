@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+
 /**
  * This is the central SchemaManager.
  * 
@@ -11,7 +13,7 @@ public interface SchemaManager {
 
     public NamespaceDescriptor getNamespace(String namespaceName);
 
-    public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException;
+    public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException, StorageException;
 
     public void dropNamespace(NamespaceDescriptor namespaceDescriptor) throws SchemaException;
 
@@ -22,7 +24,7 @@ public interface SchemaManager {
     public TableDescriptor getTable(String tableName);
 
     public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName)
-	    throws SchemaException;
+	    throws SchemaException, StorageException;
 
     public void dropTable(TableDescriptor tableDescriptor) throws SchemaException;
 
@@ -31,7 +33,7 @@ public interface SchemaManager {
     public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName);
 
     public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName)
-	    throws SchemaException;
+	    throws SchemaException, StorageException;
 
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException;
 

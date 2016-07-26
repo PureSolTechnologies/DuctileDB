@@ -3,21 +3,23 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.io.Closeable;
 import java.util.List;
 
+import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 /**
- * This class is used to access a single table within the {@link DatabaseEngine}.
+ * This class is used to access a single table within the
+ * {@link DatabaseEngine}.
  * 
  * @author Rick-Rainer Ludwig
  */
 public class Table implements Closeable {
 
-    private final DatabaseEngine storageEngine;
+    private final TableEngineImpl tableEngine;
     private final TableDescriptor tableDescriptor;
 
-    public Table(DatabaseEngine storageEngine, TableDescriptor tableDescriptor) {
+    public Table(TableEngineImpl tableEngine, TableDescriptor tableDescriptor) {
 	super();
-	this.storageEngine = storageEngine;
+	this.tableEngine = tableEngine;
 	this.tableDescriptor = tableDescriptor;
     }
 
@@ -27,7 +29,6 @@ public class Table implements Closeable {
     }
 
     public void put(Put put) {
-	storageEngine.put(tableDescriptor, put);
     }
 
     public void put(List<Put> puts) {
@@ -37,7 +38,6 @@ public class Table implements Closeable {
     }
 
     public void delete(Delete delete) {
-	storageEngine.delete(tableDescriptor, delete);
     }
 
     public void delete(List<Delete> deletes) {
@@ -59,6 +59,10 @@ public class Table implements Closeable {
     public long incrementColumnValue(byte[] rowKey, String tableName, byte[] key, long incrementValue) {
 	// TODO Auto-generated method stub
 	return 0;
+    }
+
+    public ColumnFamily getColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
+	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamilyDescriptor));
     }
 
 }
