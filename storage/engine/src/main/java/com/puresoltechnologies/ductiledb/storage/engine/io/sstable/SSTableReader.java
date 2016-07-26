@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
@@ -19,6 +22,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  */
 public class SSTableReader {
 
+    private static final Logger logger = LoggerFactory.getLogger(SSTableReader.class);
     private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
     private final Storage storage;
@@ -62,6 +66,9 @@ public class SSTableReader {
 		    return readColumnMap(entry);
 		}
 	    }
+	    return null;
+	} catch (FileNotFoundException e) {
+	    logger.warn("Could not read file.", e);
 	    return null;
 	} catch (IOException e) {
 	    throw new StorageException("Could not read data.", e);

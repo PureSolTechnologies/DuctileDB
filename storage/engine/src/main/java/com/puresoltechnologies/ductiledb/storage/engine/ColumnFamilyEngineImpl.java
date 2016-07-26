@@ -21,12 +21,14 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
@@ -107,10 +109,17 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    } else {
 		createEmptyCommitLog();
 	    }
+	    checkDataFiles();
 	    index.update();
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize column family '" + columnFamilyDescriptor.getName() + "'.",
 		    e);
+	}
+    }
+
+    private void checkDataFiles() {
+	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
+	    new SSTableSet(storage, file).check();
 	}
     }
 
@@ -292,19 +301,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private ColumnMap readFromCommitLogs(byte[] rowKey) throws StorageException {
-	ColumnMap columnMap = null;
 	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
 	    SSTableReader reader = new SSTableReader(storage, commitLog);
 	    ColumnMap entry = reader.readColumnMap(rowKey);
-	    if (entry == null) {
-		if (columnMap == null) {
-		    columnMap = entry;
-		} else {
-		    columnMap.putAll(entry);
-		}
+	    if (entry != null) {
+		return entry;
 	    }
 	}
-	return columnMap;
+	return null;
     }
 
     public void setMaxCommitLogSize(int maxCommitLogSize) {

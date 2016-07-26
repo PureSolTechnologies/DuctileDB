@@ -43,6 +43,7 @@ public abstract class AbstractDatabaseEngineTest {
     public void cleanupStorageEngine() throws IOException {
 	if (storageEngine != null) {
 	    Storage storage = storageEngine.getStorage();
+	    storageEngine.close();
 	    storage.removeDirectory(new File(databaseEngineName), true);
 	}
 	File baseDirectory = new File(
