@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.commitlog;
+package com.puresoltechnologies.ductiledb.storage.engine.io;
 
 import java.io.File;
 import java.io.FilenameFilter;

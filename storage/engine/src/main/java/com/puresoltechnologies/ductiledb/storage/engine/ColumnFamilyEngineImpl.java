@@ -3,7 +3,6 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,13 +19,12 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CountingOutputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.commitlog.CommitLogWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataInputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
@@ -34,7 +32,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.RowMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -62,8 +59,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private final Index index;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File commitLogFile;
-    private CommitLogWriter commitLogWriter;
-    private CountingOutputStream commitLogSizeStream;
+    private DataOutputStream commitLogStream;
     private final int bufferSize;
     private final int maxGenerations;
 
@@ -112,15 +108,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private void openCommitLog() throws IOException {
-	CommitLogReader commitLogReader = new CommitLogReader(storage, commitLogFile);
-	try (CommitLogIterable commitLogData = commitLogReader.readData()) {
-	    for (CommitLogEntry entry : commitLogData) {
-		memtable.put(entry.getRowKey(), entry.getKey(), entry.getValue());
+	try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
+	    try (ColumnFamilyRowIterable iterable = new ColumnFamilyRowIterable(dataInputStream)) {
+		for (ColumnFamilyRow row : iterable) {
+		    memtable.put(row.getRowKey(), row.getColumnMap());
+		}
 	    }
 	}
-	FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-	commitLogSizeStream = new CountingOutputStream(storage.append(commitLogFile), fileStatus.getLength());
-	commitLogWriter = new CommitLogWriter(commitLogSizeStream);
+	commitLogStream = new DataOutputStream(storage.append(commitLogFile), bufferSize);
     }
 
     @Override
@@ -128,9 +123,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	logger.info("Closing column family engine '" + columnFamilyDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	if (commitLogWriter != null) {
+	if (commitLogStream != null) {
 	    try {
-		commitLogWriter.close();
+		commitLogStream.close();
 	    } catch (IOException e) {
 		logger.warn("Could not cleanly close commit log.", e);
 	    }
@@ -155,25 +150,21 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
 	writeCommitLog(rowKey, values);
 	writeMemtable(rowKey, values);
-	if (commitLogSizeStream.getCount() > maxCommitLogSize) {
+	if (commitLogStream.getOffset() > maxCommitLogSize) {
 	    rolloverCommitLog();
 	}
     }
 
-    private void writeCommitLog(byte[] rowKey, Map<byte[], byte[]> values) throws StorageException {
+    private void writeCommitLog(byte[] rowKey, ColumnMap values) throws StorageException {
 	try {
-	    for (Entry<byte[], byte[]> value : values.entrySet()) {
-		commitLogWriter.write(rowKey, value.getKey(), value.getValue());
-	    }
+	    commitLogStream.writeRow(rowKey, values);
 	} catch (IOException e) {
 	    throw new StorageException("Could not write " + COMMIT_LOG_NAME + ".", e);
 	}
     }
 
-    private void writeMemtable(byte[] rowKey, Map<byte[], byte[]> values) {
-	for (Entry<byte[], byte[]> value : values.entrySet()) {
-	    memtable.put(rowKey, value.getKey(), value.getValue());
-	}
+    private void writeMemtable(byte[] rowKey, ColumnMap columnMap) {
+	memtable.put(rowKey, columnMap);
     }
 
     private void rolloverCommitLog() throws StorageException {
@@ -235,19 +226,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void createEmptyCommitLog() throws StorageException {
 	try {
-	    if (commitLogWriter != null) {
-		commitLogWriter.close();
-		commitLogWriter = null;
-		if (commitLogSizeStream != null) {
-		    commitLogSizeStream.close();
-		    commitLogSizeStream = null;
-		}
+	    if (commitLogStream != null) {
+		commitLogStream.close();
+		commitLogStream = null;
 		if (!storage.delete(commitLogFile)) {
 		    throw new IOException("Could not delete " + COMMIT_LOG_NAME + " file.");
 		}
 	    }
-	    commitLogSizeStream = new CountingOutputStream(storage.create(commitLogFile));
-	    commitLogWriter = new CommitLogWriter(commitLogSizeStream);
+	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create empty " + COMMIT_LOG_NAME + ".", e);
 	}

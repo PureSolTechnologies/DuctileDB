@@ -17,13 +17,13 @@ public class Memtable {
 	values.clear();
     }
 
-    public void put(byte[] rowKey, byte[] key, byte[] value) {
+    public void put(byte[] rowKey, ColumnMap columnMap) {
 	ColumnMap row = values.get(rowKey);
 	if (row == null) {
 	    row = new ColumnMap();
 	    values.put(rowKey, row);
 	}
-	row.put(key, value);
+	row.putAll(columnMap);
     }
 
     public ColumnMap get(byte[] rowKey) {
