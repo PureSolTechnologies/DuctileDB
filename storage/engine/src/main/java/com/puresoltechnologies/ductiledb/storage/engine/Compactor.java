@@ -21,6 +21,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilte
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
@@ -209,8 +210,8 @@ public class Compactor {
     }
 
     private void deleteCommitLogFiles() {
-	storage.delete(ColumnFamilyEngineImpl.getIndexName(commitLogFile));
-	storage.delete(ColumnFamilyEngineImpl.getMD5Name(commitLogFile));
+	storage.delete(SSTableSet.getIndexName(commitLogFile));
+	storage.delete(SSTableSet.getMD5Name(commitLogFile));
 	storage.delete(commitLogFile);
     }
 

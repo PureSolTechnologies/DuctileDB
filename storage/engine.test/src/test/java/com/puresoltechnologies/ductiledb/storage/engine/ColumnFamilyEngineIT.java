@@ -15,7 +15,6 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
@@ -24,6 +23,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableDataIt
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -105,8 +105,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
 	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
-	    StopWatch stopWatch = new StopWatch();
-	    stopWatch.start();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    long commitLogSize = 0;
@@ -123,9 +121,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
 		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
 		commitLogSize = fileStatus.getLength();
-		stopWatch.stop();
-		System.out.println("count: " + rowKey + "; size: " + commitLogSize + "; t=" + stopWatch.getMillis()
-			+ "ms; perf=" + commitLogSize / 1024.0 / stopWatch.getMillis() * 1000.0 + "kB/ms");
 	    }
 
 	    ColumnMap columnMap = columnFamilyEngine.get(Bytes.toBytes(2l));
@@ -149,7 +144,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    }
 	}
 	assertNotNull(dataFile);
-	File indexFile = ColumnFamilyEngineImpl.getIndexName(dataFile);
+	File indexFile = SSTableSet.getIndexName(dataFile);
 	assertNotNull(indexFile);
 
 	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
@@ -167,8 +162,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		long offset = indexEntry.getOffset();
 		assertTrue(currentOffset < offset);
 		if (currentRowKey != null) {
-		    System.out.println("Checking '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
-			    + Bytes.toHumanReadableString(rowKey) + "'.");
 		    if (comparator.compare(currentRowKey, rowKey) >= 0) {
 			fail("Wrong key order for '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
 				+ Bytes.toHumanReadableString(rowKey) + "'.");
@@ -195,8 +188,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
 	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
-	    StopWatch stopWatch = new StopWatch();
-	    stopWatch.start();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
@@ -218,9 +209,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		if (lastCommitLogSize > commitLogSize) {
 		    ++rolloverCount;
 		}
-		stopWatch.stop();
-		System.out.println("count: " + rowKey + "; size: " + commitLogSize + "; t=" + stopWatch.getMillis()
-			+ "ms; perf=" + commitLogSize / 1024.0 / stopWatch.getMillis() * 1000.0 + "kB/ms");
 	    }
 	}
 	Set<File> dataFiles = new HashSet<>();
@@ -260,8 +248,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
 	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
-	    StopWatch stopWatch = new StopWatch();
-	    stopWatch.start();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(10 * 1024 * 1024);
@@ -284,9 +270,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		if (lastCommitLogSize > commitLogSize) {
 		    ++rolloverCount;
 		}
-		stopWatch.stop();
-		System.out.println("count: " + rowKey + "; size: " + commitLogSize + "; t=" + stopWatch.getMillis()
-			+ "ms; perf=" + commitLogSize / 1024.0 / stopWatch.getMillis() * 1000.0 + "kB/ms");
 	    }
 	}
 	Set<File> dataFiles = new HashSet<>();

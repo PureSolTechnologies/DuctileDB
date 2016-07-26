@@ -47,16 +47,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyEngineImpl.class);
 
-    public static File getIndexName(File dataFile) {
-	return new File(dataFile.getParent(), dataFile.getName().replace(ColumnFamilyEngineImpl.DATA_FILE_SUFFIX,
-		ColumnFamilyEngineImpl.INDEX_FILE_SUFFIX));
-    }
-
-    public static File getMD5Name(File dataFile) {
-	return new File(dataFile.getParent(), dataFile.getName().replace(ColumnFamilyEngineImpl.DATA_FILE_SUFFIX,
-		ColumnFamilyEngineImpl.MD5_FILE_SUFFIX));
-    }
-
     private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 	@Override
 	public Thread newThread(Runnable r) {

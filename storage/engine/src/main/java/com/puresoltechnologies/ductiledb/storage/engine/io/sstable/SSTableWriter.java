@@ -5,9 +5,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -30,14 +28,8 @@ public class SSTableWriter implements Closeable {
     private final Storage storage;
     private final File directory;
     private final String baseFilename;
-    private final DigestOutputStream dataStream;
-    private final DigestOutputStream indexStream;
-    private final int bufferSize;
-    private long fileOffset;
-    private final byte[] dataBuffer;
-    private int dataBufferPos;
-    private final byte[] indexBuffer;
-    private int indexBufferPos;
+    private final DuctileDBOutputStream dataStream;
+    private final DuctileDBOutputStream indexStream;
     private byte[] startRowKey = null;
     private long startOffset = 0;
     private byte[] endRowKey = null;
@@ -51,30 +43,26 @@ public class SSTableWriter implements Closeable {
 	    this.baseFilename = baseFilename;
 	    this.dataFile = new File(directory, baseFilename + ColumnFamilyEngine.DATA_FILE_SUFFIX);
 	    this.indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
-	    this.dataStream = new DigestOutputStream(storage.create(dataFile), MessageDigest.getInstance("MD5"));
-	    this.indexStream = new DigestOutputStream(storage.create(indexFile), MessageDigest.getInstance("MD5"));
-	    this.bufferSize = bufferSize;
-	    this.fileOffset = 0;
-	    this.dataBuffer = new byte[this.bufferSize];
-	    this.dataBufferPos = 0;
-	    this.indexBuffer = new byte[this.bufferSize];
-	    this.indexBufferPos = 0;
-	} catch (IOException | NoSuchAlgorithmException e) {
+	    this.dataStream = new DuctileDBOutputStream(storage.create(dataFile), bufferSize);
+	    this.indexStream = new DuctileDBOutputStream(storage.create(indexFile), bufferSize);
+	} catch (IOException e) {
 	    throw new StorageException("Could not initialize sstable writer.", e);
 	}
     }
 
     @Override
     public void close() throws IOException {
-	flushData();
-	flushIndex();
 	dataStream.close();
 	indexStream.close();
-	MessageDigest dataDigest = dataStream.getMessageDigest();
-	MessageDigest indexDigest = indexStream.getMessageDigest();
+	writeMD5File();
+    }
+
+    private void writeMD5File() throws IOException {
 	try (BufferedWriter md5Writer = new BufferedWriter(new OutputStreamWriter(
 		storage.create(new File(directory, baseFilename + ColumnFamilyEngine.MD5_FILE_SUFFIX))))) {
+	    MessageDigest dataDigest = dataStream.getMessageDigest();
 	    md5Writer.write(Bytes.toHexString(dataDigest.digest()) + "  " + dataFile.getName() + "\n");
+	    MessageDigest indexDigest = indexStream.getMessageDigest();
 	    md5Writer.write(Bytes.toHexString(indexDigest.digest()) + "  " + indexFile.getName() + "\n");
 	}
     }
@@ -88,7 +76,7 @@ public class SSTableWriter implements Closeable {
     }
 
     public final long getDataFileSize() {
-	return fileOffset;
+	return dataStream.getFileOffset();
     }
 
     public final byte[] getStartRowKey() {
@@ -110,66 +98,25 @@ public class SSTableWriter implements Closeable {
     public void write(byte[] rowKey, ColumnMap columns) throws IOException {
 	if (startRowKey == null) {
 	    startRowKey = rowKey;
-	    startOffset = fileOffset;
+	    startOffset = dataStream.getFileOffset();
 	}
 	endRowKey = rowKey;
-	endOffset = fileOffset;
-	writeData(Bytes.toBytes(rowKey.length));
-	writeData(rowKey);
+	endOffset = dataStream.getFileOffset();
+	dataStream.writeData(Bytes.toBytes(rowKey.length));
+	dataStream.writeData(rowKey);
 	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();
-	writeData(Bytes.toBytes(entrySet.size()));
+	dataStream.writeData(Bytes.toBytes(entrySet.size()));
 	for (Entry<byte[], byte[]> column : entrySet) {
 	    byte[] key = column.getKey();
 	    byte[] value = column.getValue();
-	    writeData(Bytes.toBytes(key.length));
-	    writeData(key);
-	    writeData(Bytes.toBytes(value.length));
-	    writeData(value);
+	    dataStream.writeData(Bytes.toBytes(key.length));
+	    dataStream.writeData(key);
+	    dataStream.writeData(Bytes.toBytes(value.length));
+	    dataStream.writeData(value);
 	}
-	writeIndex(Bytes.toBytes(rowKey.length));
-	writeIndex(rowKey);
-	writeIndex(Bytes.toBytes(endOffset));
-    }
-
-    private void writeData(byte[] bytes) throws IOException {
-	if (bytes.length > bufferSize - dataBufferPos) {
-	    flushData();
-	    if (bytes.length > bufferSize) {
-		dataStream.write(bytes);
-	    } else {
-		dataBufferPos += Bytes.putBytes(dataBuffer, bytes, dataBufferPos);
-	    }
-	} else {
-	    dataBufferPos += Bytes.putBytes(dataBuffer, bytes, dataBufferPos);
-	}
-	fileOffset += bytes.length;
-    }
-
-    private void flushData() throws IOException {
-	if (dataBufferPos > 0) {
-	    dataStream.write(dataBuffer, 0, dataBufferPos);
-	    dataBufferPos = 0;
-	}
-    }
-
-    private void writeIndex(byte[] bytes) throws IOException {
-	if (bytes.length > bufferSize - indexBufferPos) {
-	    flushIndex();
-	    if (bytes.length > bufferSize) {
-		indexStream.write(bytes);
-	    } else {
-		indexBufferPos += Bytes.putBytes(indexBuffer, bytes, indexBufferPos);
-	    }
-	} else {
-	    indexBufferPos += Bytes.putBytes(indexBuffer, bytes, indexBufferPos);
-	}
-    }
-
-    private void flushIndex() throws IOException {
-	if (indexBufferPos > 0) {
-	    indexStream.write(indexBuffer, 0, indexBufferPos);
-	    indexBufferPos = 0;
-	}
+	indexStream.writeData(Bytes.toBytes(rowKey.length));
+	indexStream.writeData(rowKey);
+	indexStream.writeData(Bytes.toBytes(endOffset));
     }
 
     public void write(SSTableDataEntry entry) throws IOException {

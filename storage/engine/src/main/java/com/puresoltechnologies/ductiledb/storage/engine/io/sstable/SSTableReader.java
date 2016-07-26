@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
@@ -30,7 +29,7 @@ public class SSTableReader {
     private final File indexFile;
 
     public SSTableReader(Storage storage, File dataFile) {
-	this(storage, dataFile, ColumnFamilyEngineImpl.getIndexName(dataFile));
+	this(storage, dataFile, SSTableSet.getIndexName(dataFile));
     }
 
     public SSTableReader(Storage storage, File dataFile, File indexFile) {
