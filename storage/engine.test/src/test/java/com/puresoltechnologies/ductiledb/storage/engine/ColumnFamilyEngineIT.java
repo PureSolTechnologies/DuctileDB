@@ -306,8 +306,8 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		indexFiles.add(file);
 	    }
 	}
-	assertEquals(6, dataFiles.size());
-	assertEquals(6, indexFiles.size());
+	assertEquals(8, dataFiles.size());
+	assertEquals(8, indexFiles.size());
     }
 
 }
