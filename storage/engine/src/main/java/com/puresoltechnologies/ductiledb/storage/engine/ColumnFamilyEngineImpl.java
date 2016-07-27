@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -22,15 +23,13 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataOutputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.RowMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -58,7 +57,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private final Storage storage;
     private final Index index;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
-    private final File commitLogFile;
+    private File commitLogFile = null;
     private DataOutputStream commitLogStream;
     private final int bufferSize;
     private final int maxGenerations;
@@ -71,7 +70,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	stopWatch.start();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
-	this.commitLogFile = new File(columnFamilyDescriptor.getDirectory(), COMMIT_LOG_NAME);
 	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
@@ -88,11 +86,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    if (!storage.exists(columnFamilyDescriptor.getDirectory())) {
 		storage.createDirectory(columnFamilyDescriptor.getDirectory());
 	    }
-	    if (storage.exists(commitLogFile)) {
-		openCommitLog();
-	    } else {
-		createEmptyCommitLog();
-	    }
+	    processExistingCommitLog();
+	    createEmptyCommitLog();
 	    checkDataFiles();
 	    index.update();
 	} catch (IOException e) {
@@ -107,15 +102,36 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     }
 
-    private void openCommitLog() throws IOException {
-	try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
-	    try (ColumnFamilyRowIterable iterable = new ColumnFamilyRowIterable(dataInputStream)) {
-		for (ColumnFamilyRow row : iterable) {
-		    memtable.put(row.getRowKey(), row.getColumnMap());
+    private void processExistingCommitLog() throws IOException, StorageException {
+	// TODO: read all Commit-log, check for index and create if needed. Run
+	// // compaction.
+	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
+	    File indexName = SSTableSet.getIndexName(commitLog);
+	    if (!storage.exists(indexName)) {
+		createIndex(commitLog, indexName);
+	    }
+	    runCompaction(commitLog);
+	}
+    }
+
+    private void createIndex(File commitLog, File indexName) throws StorageException {
+	try (DataInputStream dataStream = new DataInputStream(storage.open(commitLog))) {
+	    long offset = dataStream.getOffset();
+	    ColumnFamilyRow row = dataStream.readRow();
+	    Memtable memtable = new Memtable();
+	    while (row != null) {
+		memtable.put(row.getRowKey(), offset);
+		offset = dataStream.getOffset();
+		row = dataStream.readRow();
+	    }
+	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName), bufferSize)) {
+		for (Entry<byte[], Long> entry : memtable.getValues().entrySet()) {
+		    indexStream.writeIndexEntry(entry.getKey(), entry.getValue());
 		}
 	    }
+	} catch (IOException e) {
+	    throw new StorageException("Could not create index for commit log '" + commitLog + "'.", e);
 	}
-	commitLogStream = new DataOutputStream(storage.append(commitLogFile), bufferSize);
     }
 
     @Override
@@ -148,9 +164,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    columnMap.putAll(values);
 	    values = columnMap;
 	}
+	long offset = commitLogStream.getOffset();
 	writeCommitLog(rowKey, values);
-	writeMemtable(rowKey, values);
-	if (commitLogStream.getOffset() > maxCommitLogSize) {
+	writeMemtable(rowKey, offset);
+	if (offset > maxCommitLogSize) {
 	    rolloverCommitLog();
 	}
     }
@@ -159,33 +176,24 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	try {
 	    commitLogStream.writeRow(rowKey, values);
 	} catch (IOException e) {
-	    throw new StorageException("Could not write " + COMMIT_LOG_NAME + ".", e);
+	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);
 	}
     }
 
-    private void writeMemtable(byte[] rowKey, ColumnMap columnMap) {
-	memtable.put(rowKey, columnMap);
+    private void writeMemtable(byte[] rowKey, long offset) {
+	memtable.put(rowKey, offset);
     }
 
     private void rolloverCommitLog() throws StorageException {
 	try {
-	    logger.info("Max " + COMMIT_LOG_NAME + " size of " + maxCommitLogSize + "bytes reached.");
-	    String baseFilename = createBaseFilename("CommitLog");
-	    File commitLogFile = createNewSSTableSegment(baseFilename);
+	    logger.info("Max " + commitLogFile.getName() + " size of " + maxCommitLogSize + "bytes reached.");
+	    createIndexFile();
+	    File commitLogFileSave = this.commitLogFile;
 	    createEmptyCommitLog();
 	    memtable.clear();
-	    compactionExecutor.submit(new Runnable() {
-		@Override
-		public void run() {
-		    try {
-			runCompaction(commitLogFile);
-		    } catch (StorageException e) {
-			logger.error("Could not run compaction.", e);
-		    }
-		}
-	    });
+	    runCompaction(commitLogFileSave);
 	} catch (IOException e) {
-	    throw new StorageException("Could not rollover " + COMMIT_LOG_NAME, e);
+	    throw new StorageException("Could not rollover " + commitLogFile.getName(), e);
 	}
     }
 
@@ -206,22 +214,19 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	return buffer.toString();
     }
 
-    private File createNewSSTableSegment(String baseFilename) throws IOException, StorageException {
+    private void createIndexFile() throws IOException, StorageException {
 	logger.info("Creating new SSTtable segment...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	File commitLogFile;
-	try (SSTableWriter ssTableWriter = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename, bufferSize)) {
-	    RowMap values = memtable.getValues();
-	    for (Entry<byte[], ColumnMap> row : values.entrySet()) {
-		ssTableWriter.write(row.getKey(), row.getValue());
+	File indexFile = SSTableSet.getIndexName(commitLogFile);
+	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize)) {
+	    TreeMap<byte[], Long> offsets = memtable.getValues();
+	    for (Entry<byte[], Long> row : offsets.entrySet()) {
+		indexStream.writeIndexEntry(row.getKey(), row.getValue());
 	    }
-	    commitLogFile = ssTableWriter.getDataFile();
 	}
 	stopWatch.stop();
 	logger.info("New SSTtable segment created in " + stopWatch.getMillis() + "ms.");
-	return commitLogFile;
     }
 
     private void createEmptyCommitLog() throws StorageException {
@@ -230,27 +235,47 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		commitLogStream.close();
 		commitLogStream = null;
 		if (!storage.delete(commitLogFile)) {
-		    throw new IOException("Could not delete " + COMMIT_LOG_NAME + " file.");
+		    throw new IOException("Could not delete " + commitLogFile.getName() + " file.");
 		}
 	    }
+	    commitLogFile = new File(columnFamilyDescriptor.getDirectory(),
+		    createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
 	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
 	} catch (IOException e) {
-	    throw new StorageException("Could not create empty " + COMMIT_LOG_NAME + ".", e);
+	    throw new StorageException("Could not create empty " + commitLogFile.getName() + ".", e);
 	}
     }
 
-    private void runCompaction(File commitLogFile) throws StorageException {
-	Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize, maxDataFileSize,
-		maxGenerations);
-	compactor.runCompaction();
-	index.update();
+    private void runCompaction(File commitLogFile) {
+	compactionExecutor.submit(new Runnable() {
+	    @Override
+	    public void run() {
+		try {
+		    Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
+			    maxDataFileSize, maxGenerations);
+		    compactor.runCompaction();
+		    index.update();
+		} catch (StorageException e) {
+		    logger.error("Could not run compaction.", e);
+		}
+	    }
+	});
     }
 
     @Override
     public ColumnMap get(byte[] rowKey) throws StorageException {
-	ColumnMap columnMap = memtable.get(rowKey);
-	if (columnMap != null) {
-	    return columnMap;
+	long offset = memtable.get(rowKey);
+	ColumnMap columnMap;
+	if (offset >= 0) {
+	    try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
+		dataInputStream.skip(offset);
+		ColumnFamilyRow row = dataInputStream.readRow();
+		if (row != null) {
+		    return row.getColumnMap();
+		}
+	    } catch (IOException e) {
+		logger.warn("Could not read data from current commit log '" + commitLogFile + "'.", e);
+	    }
 	}
 	columnMap = readFromCommitLogs(rowKey);
 	if (columnMap != null) {

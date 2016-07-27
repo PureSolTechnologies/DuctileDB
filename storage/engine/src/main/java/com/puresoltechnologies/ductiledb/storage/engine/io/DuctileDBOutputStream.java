@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 public class DuctileDBOutputStream implements Closeable {
 
     private int bufferPos;
-    private long fileOffset;
+    private long offset;
     private MessageDigest digest = null;
 
     private final DigestOutputStream stream;
@@ -30,7 +30,7 @@ public class DuctileDBOutputStream implements Closeable {
 	    this.buffer = new byte[bufferSize];
 	    this.bufferSize = bufferSize;
 	    this.bufferPos = 0;
-	    this.fileOffset = 0;
+	    this.offset = 0;
 	} catch (NoSuchAlgorithmException e) {
 	    throw new IOException("Could not initialize DuctileDBOutputStream.", e);
 	}
@@ -54,7 +54,7 @@ public class DuctileDBOutputStream implements Closeable {
     }
 
     public long getOffset() {
-	return fileOffset;
+	return offset;
     }
 
     public void writeData(byte[] bytes) throws IOException {
@@ -68,7 +68,7 @@ public class DuctileDBOutputStream implements Closeable {
 	} else {
 	    bufferPos += Bytes.putBytes(buffer, bytes, bufferPos);
 	}
-	fileOffset += bytes.length;
+	offset += bytes.length;
     }
 
     public void flush() throws IOException {

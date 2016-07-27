@@ -6,11 +6,13 @@ import java.io.IOException;
 
 public class DuctileDBInputStream implements Closeable {
 
+    private long offset;
     private final BufferedInputStream stream;
 
     public DuctileDBInputStream(BufferedInputStream bufferedOutputStream) {
 	super();
 	this.stream = bufferedOutputStream;
+	this.offset = 0;
     }
 
     @Override
@@ -18,16 +20,26 @@ public class DuctileDBInputStream implements Closeable {
 	stream.close();
     }
 
+    public long getOffset() {
+	return offset;
+    }
+
     public long skip(long n) throws IOException {
-	return stream.skip(n);
+	long skipped = stream.skip(n);
+	offset += skipped;
+	return skipped;
     }
 
     public int read(byte[] buffer, int off, int len) throws IOException {
-	return stream.read(buffer, off, len);
+	int bytesRead = stream.read(buffer, off, len);
+	offset += bytesRead;
+	return bytesRead;
     }
 
     public int read(byte[] buffer) throws IOException {
-	return stream.read(buffer);
+	int bytesRead = stream.read(buffer);
+	offset += bytesRead;
+	return bytesRead;
     }
 
 }

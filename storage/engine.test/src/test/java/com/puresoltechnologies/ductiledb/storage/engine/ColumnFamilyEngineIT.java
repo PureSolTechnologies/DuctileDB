@@ -104,7 +104,9 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	Table table = engine.getTable(tableDescriptor);
 	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
-	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
+	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
+	    assertEquals(1, commitLogs.size());
+	    File commitLogFile = commitLogs.iterator().next();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    long commitLogSize = 0;
@@ -187,16 +189,12 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	Table table = engine.getTable(tableDescriptor);
 	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
-	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
+	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
-	    long commitLogSize = 0;
-	    long lastCommitLogSize = 0;
 	    long rowKey = 0;
-	    int rolloverCount = 0;
-	    while (rolloverCount < 3) {
-		lastCommitLogSize = commitLogSize;
+	    while (commitLogs.size() < 3) {
 		rowKey++;
 		ColumnMap values = new ColumnMap();
 		for (long i = 1; i <= 10; i++) {
@@ -204,11 +202,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		    values.put(value, value);
 		}
 		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
-		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-		commitLogSize = fileStatus.getLength();
-		if (lastCommitLogSize > commitLogSize) {
-		    ++rolloverCount;
-		}
+		commitLogs.addAll(getCommitLogs(storage, columnFamilyDescriptor.getDirectory()));
 	    }
 	}
 	Set<File> dataFiles = new HashSet<>();
@@ -247,16 +241,12 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	Table table = engine.getTable(tableDescriptor);
 	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
-	    File commitLogFile = new File(columnFamilyDescriptor.getDirectory(), ColumnFamilyEngine.COMMIT_LOG_NAME);
+	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(10 * 1024 * 1024);
-	    long commitLogSize = 0;
-	    long lastCommitLogSize = 0;
 	    long rowKey = 0;
-	    int rolloverCount = 0;
-	    while (rolloverCount < 20) {
-		lastCommitLogSize = commitLogSize;
+	    while (commitLogs.size() < 20) {
 		rowKey++;
 		ColumnMap values = new ColumnMap();
 		for (long i = 1; i <= 10; i++) {
@@ -264,12 +254,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		    values.put(value, value);
 		}
 		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
-
-		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-		commitLogSize = fileStatus.getLength();
-		if (lastCommitLogSize > commitLogSize) {
-		    ++rolloverCount;
-		}
+		commitLogs.addAll(getCommitLogs(storage, columnFamilyDescriptor.getDirectory()));
 	    }
 	}
 	Set<File> dataFiles = new HashSet<>();

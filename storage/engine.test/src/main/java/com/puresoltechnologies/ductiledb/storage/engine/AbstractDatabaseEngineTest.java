@@ -5,6 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +15,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
@@ -61,6 +64,14 @@ public abstract class AbstractDatabaseEngineTest {
 
     protected DatabaseEngineImpl getEngine() {
 	return storageEngine;
+    }
+
+    protected Set<File> getCommitLogs(Storage storage, File directory) {
+	Set<File> commitLogs = new HashSet<>();
+	for (File commitLog : storage.list(directory, new CommitLogFilenameFilter())) {
+	    commitLogs.add(commitLog);
+	}
+	return commitLogs;
     }
 
 }

@@ -1,5 +1,9 @@
 package com.puresoltechnologies.ductiledb.storage.engine.memtable;
 
+import java.util.TreeMap;
+
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
+
 /**
  * Basic Memtable implementation.
  * 
@@ -7,7 +11,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.memtable;
  */
 public class Memtable {
 
-    private final RowMap values = new RowMap();
+    private final TreeMap<byte[], Long> values = new TreeMap<>(ByteArrayComparator.getInstance());
 
     public Memtable() {
 	super();
@@ -17,20 +21,19 @@ public class Memtable {
 	values.clear();
     }
 
-    public void put(byte[] rowKey, ColumnMap columnMap) {
-	ColumnMap row = values.get(rowKey);
-	if (row == null) {
-	    row = new ColumnMap();
-	    values.put(rowKey, row);
+    public void put(byte[] rowKey, long offset) {
+	values.put(rowKey, offset);
+    }
+
+    public long get(byte[] rowKey) {
+	Long offset = values.get(rowKey);
+	if (offset == null) {
+	    return -1;
 	}
-	row.putAll(columnMap);
+	return offset;
     }
 
-    public ColumnMap get(byte[] rowKey) {
-	return values.get(rowKey);
-    }
-
-    public RowMap getValues() {
+    public TreeMap<byte[], Long> getValues() {
 	return values;
     }
 

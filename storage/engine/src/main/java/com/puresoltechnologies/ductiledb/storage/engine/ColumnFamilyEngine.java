@@ -19,7 +19,6 @@ public interface ColumnFamilyEngine extends Closeable {
     public static final String MD5_FILE_SUFFIX = ".md5";
     public static final String METADATA_SUFFIX = ".metadata";
     public static final String COMMIT_LOG_PREFIX = "CommitLog";
-    public static final String COMMIT_LOG_NAME = COMMIT_LOG_PREFIX + ".failsave";
 
     public void put(byte[] timestamp, byte[] rowKey, ColumnMap columnValues) throws StorageException;
 
