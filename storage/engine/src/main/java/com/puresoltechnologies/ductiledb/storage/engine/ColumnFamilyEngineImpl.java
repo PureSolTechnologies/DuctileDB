@@ -3,6 +3,9 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -175,6 +178,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private void writeCommitLog(byte[] rowKey, ColumnMap values) throws StorageException {
 	try {
 	    commitLogStream.writeRow(rowKey, values);
+	    commitLogStream.flush();
 	} catch (IOException e) {
 	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);
 	}
@@ -187,10 +191,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private void rolloverCommitLog() throws StorageException {
 	try {
 	    logger.info("Max " + commitLogFile.getName() + " size of " + maxCommitLogSize + "bytes reached.");
-	    createIndexFile();
 	    File commitLogFileSave = this.commitLogFile;
+	    createIndexFile();
 	    createEmptyCommitLog();
-	    memtable.clear();
 	    runCompaction(commitLogFileSave);
 	} catch (IOException e) {
 	    throw new StorageException("Could not rollover " + commitLogFile.getName(), e);
@@ -215,7 +218,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private void createIndexFile() throws IOException, StorageException {
-	logger.info("Creating new SSTtable segment...");
+	logger.info("Creating new SSTtable index...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	File indexFile = SSTableSet.getIndexName(commitLogFile);
@@ -224,9 +227,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    for (Entry<byte[], Long> row : offsets.entrySet()) {
 		indexStream.writeIndexEntry(row.getKey(), row.getValue());
 	    }
+	    indexStream.flush();
 	}
 	stopWatch.stop();
-	logger.info("New SSTtable segment created in " + stopWatch.getMillis() + "ms.");
+	logger.info("New SSTtable index created in " + stopWatch.getMillis() + "ms.");
     }
 
     private void createEmptyCommitLog() throws StorageException {
@@ -234,10 +238,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    if (commitLogStream != null) {
 		commitLogStream.close();
 		commitLogStream = null;
-		if (!storage.delete(commitLogFile)) {
-		    throw new IOException("Could not delete " + commitLogFile.getName() + " file.");
-		}
 	    }
+	    memtable.clear();
 	    commitLogFile = new File(columnFamilyDescriptor.getDirectory(),
 		    createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
 	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
@@ -300,7 +302,16 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private ColumnMap readFromCommitLogs(byte[] rowKey) throws StorageException {
+	List<File> commitLogs = new ArrayList<>();
 	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
+	    if (commitLog.equals(commitLogFile)) {
+		continue;
+	    }
+	    commitLogs.add(commitLog);
+	}
+	Collections.sort(commitLogs);
+	Collections.reverse(commitLogs);
+	for (File commitLog : commitLogs) {
 	    SSTableReader reader = new SSTableReader(storage, commitLog);
 	    ColumnMap entry = reader.readColumnMap(rowKey);
 	    if (entry != null) {

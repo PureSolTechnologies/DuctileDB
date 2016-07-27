@@ -74,6 +74,7 @@ public class DuctileDBOutputStream implements Closeable {
     public void flush() throws IOException {
 	if (bufferPos > 0) {
 	    stream.write(buffer, 0, bufferPos);
+	    stream.flush();
 	    bufferPos = 0;
 	}
     }

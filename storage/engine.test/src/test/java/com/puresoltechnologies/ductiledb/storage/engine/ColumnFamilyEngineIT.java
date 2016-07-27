@@ -31,7 +31,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
@@ -40,9 +39,10 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     public void testSmallDataAmount() throws StorageException, SchemaException {
 	DatabaseEngineImpl engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespace("testSmallDataAmount");
-	TableDescriptor tableDescriptor = schemaManager.createTable(namespace, "test");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
+	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSmallDataAmount");
+	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
+		"testcf");
 
 	byte[] rowKey1 = Bytes.toBytes(1l);
 	byte[] rowKey2 = Bytes.toBytes(2l);
@@ -87,18 +87,10 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     public void testSSTableCreation() throws SchemaException, FileNotFoundException, IOException, StorageException {
 	DatabaseEngineImpl engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.getNamespace("testSSTableCreation");
-	if (namespace == null) {
-	    namespace = schemaManager.createNamespace("testSSTableCreation");
-	}
-	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, "test");
-	if (tableDescriptor == null) {
-	    tableDescriptor = schemaManager.createTable(namespace, "test");
-	}
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.getColumnFamily(tableDescriptor, "testcf");
-	if (columnFamilyDescriptor == null) {
-	    columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
-	}
+	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSSTableCreation");
+	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
+		"testcf");
 	Storage storage = engine.getStorage();
 
 	Table table = engine.getTable(tableDescriptor);
@@ -109,11 +101,8 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    File commitLogFile = commitLogs.iterator().next();
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
-	    long commitLogSize = 0;
-	    long lastCommitLogSize = 0;
 	    long rowKey = 0;
-	    while (lastCommitLogSize <= commitLogSize) {
-		lastCommitLogSize = commitLogSize;
+	    while ((commitLogs.size() == 1) && (storage.exists(commitLogFile))) {
 		rowKey++;
 		ColumnMap values = new ColumnMap();
 		for (long i = 1; i <= 10; i++) {
@@ -121,8 +110,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		    values.put(value, value);
 		}
 		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
-		FileStatus fileStatus = storage.getFileStatus(commitLogFile);
-		commitLogSize = fileStatus.getLength();
+		commitLogs.addAll(getCommitLogs(storage, columnFamilyDescriptor.getDirectory()));
 	    }
 
 	    ColumnMap columnMap = columnFamilyEngine.get(Bytes.toBytes(2l));
@@ -177,65 +165,15 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     }
 
     @Test
-    public void testSSTableCreationWithCompaction()
-	    throws SchemaException, FileNotFoundException, IOException, StorageException {
-	DatabaseEngineImpl engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespace("testSSTableCreationWithCompaction");
-	TableDescriptor tableDescriptor = schemaManager.createTable(namespace, "test");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
-	Storage storage = engine.getStorage();
-
-	Table table = engine.getTable(tableDescriptor);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
-	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
-	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
-	    byte[] timestamp = Bytes.toBytes(Instant.now());
-	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
-	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
-	    long rowKey = 0;
-	    while (commitLogs.size() < 3) {
-		rowKey++;
-		ColumnMap values = new ColumnMap();
-		for (long i = 1; i <= 10; i++) {
-		    byte[] value = Bytes.toBytes(rowKey * i);
-		    values.put(value, value);
-		}
-		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
-		commitLogs.addAll(getCommitLogs(storage, columnFamilyDescriptor.getDirectory()));
-	    }
-	}
-	Set<File> dataFiles = new HashSet<>();
-	Set<File> indexFiles = new HashSet<>();
-	for (File file : storage.list(columnFamilyDescriptor.getDirectory())) {
-	    if (file.getName().endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX)) {
-		dataFiles.add(file);
-	    }
-	    if (file.getName().endsWith(ColumnFamilyEngine.INDEX_FILE_SUFFIX)) {
-		indexFiles.add(file);
-	    }
-	}
-	assertEquals(9, dataFiles.size());
-	assertEquals(9, indexFiles.size());
-    }
-
-    @Test
     public void testLargeSSTableCreationWithCompaction()
 	    throws SchemaException, FileNotFoundException, IOException, StorageException {
 	DatabaseEngineImpl engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.getNamespace("testSSTableCreationWithCompaction");
-	if (namespace == null) {
-	    namespace = schemaManager.createNamespace("testSSTableCreationWithCompaction");
-	}
-	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, "test");
-	if (tableDescriptor == null) {
-	    tableDescriptor = schemaManager.createTable(namespace, "test");
-	}
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.getColumnFamily(tableDescriptor, "testcf");
-	if (columnFamilyDescriptor == null) {
-	    columnFamilyDescriptor = schemaManager.createColumnFamily(tableDescriptor, "testcf");
-	}
+	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSSTableCreationWithCompaction");
+	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
+		"testcf");
+
 	Storage storage = engine.getStorage();
 
 	Table table = engine.getTable(tableDescriptor);
@@ -267,8 +205,9 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		indexFiles.add(file);
 	    }
 	}
+
 	assertEquals(9, dataFiles.size());
-	assertEquals(9, indexFiles.size());
+	assertEquals(8, indexFiles.size());
     }
 
 }

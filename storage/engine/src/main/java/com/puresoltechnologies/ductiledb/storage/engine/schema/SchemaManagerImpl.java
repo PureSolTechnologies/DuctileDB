@@ -160,12 +160,16 @@ public class SchemaManagerImpl implements SchemaManager {
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
 	logger.info("Creating namespace '" + namespaceName + "' in storage '" + getStoreName() + "'...");
+	if (namespaces.containsKey(namespaceName)) {
+	    throw new SchemaException("Namespace '" + namespaceName + "' is already present.");
+	}
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
 	    NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(namespaceName, storage,
 		    namespaceDirectory);
 	    databaseEngine.addNamespace(namespaceDescriptor);
+	    namespaces.put(namespaceDescriptor.getName(), namespaceDescriptor);
 	    return namespaceDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create schema '" + namespaceName + "'.", e);
@@ -173,9 +177,21 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
+    public NamespaceDescriptor createNamespaceIfNotPresent(String namespaceName)
+	    throws SchemaException, StorageException {
+	NamespaceDescriptor namespaceDescriptor = getNamespace(namespaceName);
+	if (namespaceDescriptor == null) {
+	    return createNamespace(namespaceName);
+	} else {
+	    return namespaceDescriptor;
+	}
+    }
+
+    @Override
     public void dropNamespace(NamespaceDescriptor namespaceDescriptor) throws SchemaException {
 	try {
 	    logger.info("Dropping '" + namespaceDescriptor + "' in storage '" + getStoreName() + "'...");
+	    namespaces.remove(namespaceDescriptor.getName());
 	    storage.removeDirectory(namespaceDescriptor.getDirectory(), true);
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop schema '" + namespaceDescriptor + "'.", e);
@@ -216,6 +232,14 @@ public class SchemaManagerImpl implements SchemaManager {
 	}
 	logger.info("Creating table '" + namespaceDescriptor.getName() + "." + tableName + "' in storage '"
 		+ getStoreName() + "'...");
+	NamespaceDescriptor presentDescriptor = namespaces.get(namespaceDescriptor.getName());
+	if (!namespaceDescriptor.equals(presentDescriptor)) {
+	    throw new StorageException("Namespace '" + namespaceDescriptor.getName() + "' is not present.");
+	}
+	if (presentDescriptor.getTable(tableName) != null) {
+	    throw new StorageException(
+		    "Table '" + namespaceDescriptor.getName() + "." + tableName + "' is already present.");
+	}
 	try {
 	    File tableDirectory = new File(namespaceDescriptor.getDirectory(), tableName);
 	    storage.createDirectory(tableDirectory);
@@ -225,6 +249,17 @@ public class SchemaManagerImpl implements SchemaManager {
 	    return tableDescriptor;
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create table '" + namespaceDescriptor + "." + tableName + "'.", e);
+	}
+    }
+
+    @Override
+    public TableDescriptor createTableIfNotPresent(NamespaceDescriptor namespaceDescriptor, String tableName)
+	    throws SchemaException, StorageException {
+	TableDescriptor tableDescriptor = getTable(namespaceDescriptor, tableName);
+	if (tableDescriptor == null) {
+	    return createTable(namespaceDescriptor, tableName);
+	} else {
+	    return tableDescriptor;
 	}
     }
 
@@ -255,8 +290,28 @@ public class SchemaManagerImpl implements SchemaManager {
 	    throw new SchemaException("Column family name '" + columnFamilyName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
-	logger.info("Creating column family '" + tableDescriptor.getNamespace().getName() + "."
-		+ tableDescriptor.getName() + "/" + columnFamilyName + "' in storage '" + getStoreName() + "'...");
+	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
+	logger.info("Creating column family '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "/"
+		+ columnFamilyName + "' in storage '" + getStoreName() + "'...");
+	NamespaceDescriptor presentDescriptor = namespaces.get(namespaceDescriptor.getName());
+	if (!namespaceDescriptor.equals(presentDescriptor)) {
+	    throw new StorageException("Namespace '" + namespaceDescriptor.getName() + "' is not present.");
+	}
+	TableDescriptor presentTable = presentDescriptor.getTable(tableDescriptor.getName());
+	if (presentTable == null) {
+	    throw new StorageException(
+		    "Table '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "' is not present.");
+	}
+	if (!presentTable.equals(tableDescriptor)) {
+	    throw new StorageException(
+		    "Table '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "' is not present.");
+	}
+	ColumnFamilyDescriptor columnFamily = presentTable.getColumnFamily(columnFamilyName);
+	if (columnFamily != null) {
+	    throw new StorageException(
+		    "Column family '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "/"
+			    + columnFamilyName + "' in storage '" + getStoreName() + "' is already present.");
+	}
 	try {
 	    File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), columnFamilyName);
 	    storage.createDirectory(columnFamilyDirectory);
@@ -268,6 +323,17 @@ public class SchemaManagerImpl implements SchemaManager {
 	} catch (IOException e) {
 	    throw new SchemaException(
 		    "Could not create column family '" + tableDescriptor + "." + columnFamilyName + "'.", e);
+	}
+    }
+
+    @Override
+    public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor,
+	    String columnFamilyName) throws SchemaException, StorageException {
+	ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamily(tableDescriptor, columnFamilyName);
+	if (columnFamilyDescriptor == null) {
+	    return createColumnFamily(tableDescriptor, columnFamilyName);
+	} else {
+	    return columnFamilyDescriptor;
 	}
     }
 

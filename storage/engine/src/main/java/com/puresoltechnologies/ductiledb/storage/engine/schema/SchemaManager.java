@@ -15,6 +15,9 @@ public interface SchemaManager {
 
     public NamespaceDescriptor createNamespace(String namespaceName) throws SchemaException, StorageException;
 
+    public NamespaceDescriptor createNamespaceIfNotPresent(String namespaceName)
+	    throws SchemaException, StorageException;
+
     public void dropNamespace(NamespaceDescriptor namespaceDescriptor) throws SchemaException;
 
     public Iterable<TableDescriptor> getTables(NamespaceDescriptor namespaceDescriptor);
@@ -26,6 +29,9 @@ public interface SchemaManager {
     public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName)
 	    throws SchemaException, StorageException;
 
+    public TableDescriptor createTableIfNotPresent(NamespaceDescriptor namespaceDescriptor, String tableName)
+	    throws SchemaException, StorageException;
+
     public void dropTable(TableDescriptor tableDescriptor) throws SchemaException;
 
     public Iterable<ColumnFamilyDescriptor> getColumnFamilies(TableDescriptor tableDescriptor);
@@ -34,6 +40,9 @@ public interface SchemaManager {
 
     public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName)
 	    throws SchemaException, StorageException;
+
+    public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor,
+	    String columnFamilyName) throws SchemaException, StorageException;
 
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException;
 

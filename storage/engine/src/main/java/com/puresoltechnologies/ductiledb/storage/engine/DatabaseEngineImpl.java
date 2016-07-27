@@ -144,4 +144,8 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	tableEngine.dropColumnFamily(columnFamilyDescriptor);
     }
 
+    @Override
+    public String toString() {
+	return "DatabaseEngine: " + storageName;
+    }
 }
