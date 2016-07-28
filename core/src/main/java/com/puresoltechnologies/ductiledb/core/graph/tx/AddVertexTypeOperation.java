@@ -39,7 +39,7 @@ public class AddVertexTypeOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
-	put.addColumn(HBaseColumnFamily.TYPES.getName(), Bytes.toBytes(type), Bytes.toBytes(type));
+	put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), Bytes.toBytes(type));
 	Put index = OperationsHelper.createVertexTypeIndexPut(vertexId, type);
 	put(HBaseTable.VERTICES.getName(), put);
 	put(HBaseTable.VERTEX_TYPES.getName(), index);

@@ -15,17 +15,17 @@ public class Delete {
 	return key;
     }
 
-    public void addColumns(String columnFamily, byte[] bytes) {
+    public void addColumns(byte[] columnFamily, byte[] bytes) {
 	// TODO Auto-generated method stub
 
     }
 
-    public void addFamily(String columnFamily) {
+    public void addFamily(byte[] columnFamily) {
 	// TODO Auto-generated method stub
 
     }
 
-    public Set<String> getColumnFamilies() {
+    public Set<byte[]> getColumnFamilies() {
 	// TODO Auto-generated method stub
 	return null;
     }

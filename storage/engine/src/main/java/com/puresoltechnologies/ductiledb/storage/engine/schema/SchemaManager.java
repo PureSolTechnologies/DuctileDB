@@ -36,13 +36,13 @@ public interface SchemaManager {
 
     public Iterable<ColumnFamilyDescriptor> getColumnFamilies(TableDescriptor tableDescriptor);
 
-    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName);
+    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName);
 
-    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName)
+    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName)
 	    throws SchemaException, StorageException;
 
     public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor,
-	    String columnFamilyName) throws SchemaException, StorageException;
+	    byte[] columnFamilyName) throws SchemaException, StorageException;
 
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException;
 

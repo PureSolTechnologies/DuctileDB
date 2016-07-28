@@ -62,8 +62,8 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.METADATA.getName()) == null) {
 	    TableDescriptor tableDescription = schemaManager.createTable(namespace, HBaseTable.METADATA.getName());
-	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.METADATA.getName());
-	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.VARIABLES.getName());
+	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.METADATA.getNameBytes());
+	    schemaManager.createColumnFamily(tableDescription, HBaseColumnFamily.VARIABLES.getNameBytes());
 
 	    // FIXME!!!
 	    // Table table =
@@ -96,8 +96,8 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.PROPERTY_DEFINITIONS.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.PROPERTY_DEFINITIONS.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGE_DEFINITION.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGE_DEFINITION.getNameBytes());
 	}
     }
 
@@ -105,8 +105,8 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.TYPE_DEFINITIONS.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.TYPE_DEFINITIONS.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGE_DEFINITION.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGE_DEFINITION.getNameBytes());
 	}
     }
 
@@ -114,9 +114,9 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.VERTICES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTICES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.PROPERTIES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getNameBytes());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.EDGES.getNameBytes());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.PROPERTIES.getNameBytes());
 	}
     }
 
@@ -124,9 +124,9 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.EDGES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.PROPERTIES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERICES.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.TYPES.getNameBytes());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.PROPERTIES.getNameBytes());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.VERICES.getNameBytes());
 	}
     }
 
@@ -134,7 +134,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.VERTEX_TYPES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTEX_TYPES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getNameBytes());
 	}
     }
 
@@ -142,7 +142,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.VERTEX_PROPERTIES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.VERTEX_PROPERTIES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getNameBytes());
 	}
     }
 
@@ -150,7 +150,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.EDGE_TYPES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGE_TYPES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getNameBytes());
 	}
     }
 
@@ -158,7 +158,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, HBaseTable.EDGE_PROPERTIES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, HBaseTable.EDGE_PROPERTIES.getName());
-	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getName());
+	    schemaManager.createColumnFamily(table, HBaseColumnFamily.INDEX.getNameBytes());
 	}
     }
 

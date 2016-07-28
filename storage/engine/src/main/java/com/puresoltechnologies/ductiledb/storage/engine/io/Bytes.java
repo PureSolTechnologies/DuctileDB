@@ -211,4 +211,28 @@ public class Bytes {
 	}
 	return hexString.toString();
     }
+
+    public static byte[] fromHumanReadableString(String identifier) {
+	if (identifier.length() % 2 != 0) {
+	    throw new IllegalArgumentException("The identifier needs to have a even number of digits.");
+	}
+	byte[] bytes = new byte[identifier.length() / 2];
+	for (int i = 0; i < identifier.length() / 2; ++i) {
+	    bytes[i] = (byte) (char2byte(identifier.charAt(2 * i)) * 16 + char2byte(identifier.charAt(2 * i + 1)));
+	}
+	return bytes;
+    }
+
+    private static byte char2byte(char c) {
+	if (('0' <= c) || ('9' >= c)) {
+	    return (byte) (c - '0');
+	}
+	if (('A' <= c) || ('F' >= c)) {
+	    return (byte) (c - 'A' + 10);
+	}
+	if (('a' <= c) || ('f' >= c)) {
+	    return (byte) (c - 'A' + 10);
+	}
+	throw new IllegalArgumentException("Character '" + c + "' is not part of a hex number.");
+    }
 }

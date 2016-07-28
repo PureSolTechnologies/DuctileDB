@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -19,7 +20,8 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespace("namespace_test");
 	TableDescriptor tableDescription = schemaManager.createTable(namespaceDescription, "table_test");
-	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(tableDescription, "columnfamily_test");
+	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(tableDescription,
+		Bytes.toBytes("columnfamily_test"));
 	Table table = engine.getTable(tableDescription);
 
 	byte[] key = new byte[] { 1 };

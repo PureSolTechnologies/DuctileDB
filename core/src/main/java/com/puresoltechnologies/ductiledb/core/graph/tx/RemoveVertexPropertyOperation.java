@@ -40,7 +40,7 @@ public class RemoveVertexPropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete.addColumns(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(key));
+	delete.addColumns(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
 	Delete index = OperationsHelper.createVertexPropertyIndexDelete(vertexId, key);
 	delete(HBaseTable.VERTICES.getName(), delete);
 	delete(HBaseTable.VERTEX_PROPERTIES.getName(), index);

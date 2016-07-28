@@ -4,7 +4,7 @@ import java.util.NavigableMap;
 
 public class Result {
 
-    public NavigableMap<byte[], byte[]> getFamilyMap(String columnFamily) {
+    public NavigableMap<byte[], byte[]> getFamilyMap(byte[] columnFamily) {
 	// TODO Auto-generated method stub
 	return null;
     }

@@ -13,6 +13,7 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractDatabaseEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 
@@ -82,7 +83,8 @@ public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 	    assertFalse("No column family should be present.", columnFamilies.hasNext());
 	    assertNull("No column family should be present.", schemaManager.getTable(namespace, "table"));
 
-	    ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(table, "columnFamily");
+	    ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(table,
+		    Bytes.toBytes("columnFamily"));
 	    assertNotNull(columnFamily);
 
 	    columnFamilies = schemaManager.getColumnFamilies(table).iterator();
@@ -120,16 +122,4 @@ public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 	}
     }
 
-    @Test(expected = SchemaException.class)
-    public void testInvalidColumnFamilyIdentifier() throws SchemaException, StorageException {
-	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespace("validNamespace");
-	try {
-	    TableDescriptor table = schemaManager.createTable(namespace, "validTable");
-	    schemaManager.createColumnFamily(table, "0123456789");
-	} finally {
-	    schemaManager.dropNamespace(namespace);
-	}
-    }
 }

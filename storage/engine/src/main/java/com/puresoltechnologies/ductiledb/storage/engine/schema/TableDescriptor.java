@@ -1,12 +1,14 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
+
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 public class TableDescriptor {
 
-    private final Map<String, ColumnFamilyDescriptor> columnFamilies = new HashMap<>();
+    private final TreeMap<byte[], ColumnFamilyDescriptor> columnFamilies = new TreeMap<>(
+	    ByteArrayComparator.getInstance());
     private final String name;
     private final NamespaceDescriptor namespace;
     private final File directory;
@@ -83,7 +85,7 @@ public class TableDescriptor {
 	return columnFamilies.values();
     }
 
-    public ColumnFamilyDescriptor getColumnFamily(String columnFamilyName) {
+    public ColumnFamilyDescriptor getColumnFamily(byte[] columnFamilyName) {
 	return columnFamilies.get(columnFamilyName);
     }
 

@@ -56,18 +56,18 @@ public class AddVertexOperation extends AbstractTxOperation {
 	Put put = new Put(id);
 	List<Put> typeIndex = new ArrayList<>();
 	for (String type : types) {
-	    put.addColumn(HBaseColumnFamily.TYPES.getName(), Bytes.toBytes(type), new byte[0]);
+	    put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
 	    typeIndex.add(OperationsHelper.createVertexTypeIndexPut(vertexId, type));
 	}
 	List<Put> propertyIndex = new ArrayList<>();
-	put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
+	put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
 		Serializer.serializePropertyValue(vertexId));
-	put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
+	put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
 		Serializer.serializePropertyValue(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    String key = property.getKey();
 	    Object value = property.getValue();
-	    put.addColumn(HBaseColumnFamily.PROPERTIES.getName(), Bytes.toBytes(key),
+	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
 		    Serializer.serializePropertyValue((Serializable) value));
 	    propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 		    (Serializable) property.getValue()));

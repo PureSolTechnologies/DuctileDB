@@ -42,7 +42,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSmallDataAmount");
 	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		"testcf");
+		Bytes.toBytes("testcf"));
 
 	byte[] rowKey1 = Bytes.toBytes(1l);
 	byte[] rowKey2 = Bytes.toBytes(2l);
@@ -90,7 +90,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSSTableCreation");
 	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		"testcf");
+		Bytes.toBytes("testcf"));
 	Storage storage = engine.getStorage();
 
 	Table table = engine.getTable(tableDescriptor);
@@ -172,7 +172,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSSTableCreationWithCompaction");
 	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		"testcf");
+		Bytes.toBytes("testcf"));
 
 	Storage storage = engine.getStorage();
 

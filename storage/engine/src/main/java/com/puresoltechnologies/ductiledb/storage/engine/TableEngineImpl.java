@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +9,7 @@ import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -25,7 +25,8 @@ public class TableEngineImpl implements TableEngine {
     private final Storage storage;
     private final TableDescriptor tableDescriptor;
     private final DatabaseEngineConfiguration configuration;
-    private final Map<String, ColumnFamilyEngineImpl> columnFamilyEngines = new HashMap<>();
+    private final TreeMap<byte[], ColumnFamilyEngineImpl> columnFamilyEngines = new TreeMap<>(
+	    ByteArrayComparator.getInstance());
 
     public TableEngineImpl(Storage storage, TableDescriptor tableDescriptor, DatabaseEngineConfiguration configuration)
 	    throws StorageException {

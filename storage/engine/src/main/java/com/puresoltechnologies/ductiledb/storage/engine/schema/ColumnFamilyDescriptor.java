@@ -4,17 +4,17 @@ import java.io.File;
 
 public class ColumnFamilyDescriptor {
 
-    private final String name;
+    private final byte[] name;
     private final TableDescriptor table;
     private final File directory;
 
-    public ColumnFamilyDescriptor(String name, TableDescriptor table, File directory) {
+    public ColumnFamilyDescriptor(byte[] name, TableDescriptor table, File directory) {
 	this.name = name;
 	this.table = table;
 	this.directory = directory;
     }
 
-    public final String getName() {
+    public final byte[] getName() {
 	return name;
     }
 

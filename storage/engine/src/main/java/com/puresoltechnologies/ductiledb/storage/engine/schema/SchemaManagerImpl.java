@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.EngineChecks;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class SchemaManagerImpl implements SchemaManager {
@@ -132,7 +133,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public ColumnFamilyDescriptor next() {
 		    File directory = iterator.next();
-		    return new ColumnFamilyDescriptor(directory.getName(), table, directory);
+		    return new ColumnFamilyDescriptor(Bytes.toBytes(directory.getName()), table, directory);
 		}
 	    };
 	}
@@ -279,14 +280,14 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName) {
+    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName) {
 	return tableDescriptor.getColumnFamily(columnFamilyName);
     }
 
     @Override
-    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, String columnFamilyName)
+    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName)
 	    throws SchemaException, StorageException {
-	if (!checkIdentifier(columnFamilyName)) {
+	if ((columnFamilyName == null) || (columnFamilyName.length == 0)) {
 	    throw new SchemaException("Column family name '" + columnFamilyName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
@@ -313,7 +314,7 @@ public class SchemaManagerImpl implements SchemaManager {
 			    + columnFamilyName + "' in storage '" + getStoreName() + "' is already present.");
 	}
 	try {
-	    File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), columnFamilyName);
+	    File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), Bytes.toString(columnFamilyName));
 	    storage.createDirectory(columnFamilyDirectory);
 	    ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName,
 		    tableDescriptor, columnFamilyDirectory);
@@ -328,7 +329,7 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor,
-	    String columnFamilyName) throws SchemaException, StorageException {
+	    byte[] columnFamilyName) throws SchemaException, StorageException {
 	ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamily(tableDescriptor, columnFamilyName);
 	if (columnFamilyDescriptor == null) {
 	    return createColumnFamily(tableDescriptor, columnFamilyName);

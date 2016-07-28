@@ -20,51 +20,51 @@ public class OperationsHelper {
 
     public static Put createVertexTypeIndexPut(long vertexId, String type) {
 	Put typeIndexPut = new Put(Bytes.toBytes(type));
-	typeIndexPut.addColumn(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(vertexId), new byte[0]);
+	typeIndexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId), new byte[0]);
 	return typeIndexPut;
     }
 
     public static Delete createVertexTypeIndexDelete(long vertexId, String type) {
 	Delete typeIndexDelete = new Delete(Bytes.toBytes(type));
-	typeIndexDelete.addColumns(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(vertexId));
+	typeIndexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId));
 	return typeIndexDelete;
     }
 
     public static Put createVertexPropertyIndexPut(long vertexId, String key, Serializable value) throws IOException {
 	Put indexPut = new Put(Bytes.toBytes(key));
-	indexPut.addColumn(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(vertexId),
+	indexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId),
 		Serializer.serializePropertyValue(value));
 	return indexPut;
     }
 
     public static Delete createVertexPropertyIndexDelete(long vertexId, String key) {
 	Delete indexDelete = new Delete(Bytes.toBytes(key));
-	indexDelete.addColumns(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(vertexId));
+	indexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(vertexId));
 	return indexDelete;
     }
 
     public static Put createEdgeTypeIndexPut(long edgeId, String type) {
 	Put typeIndexPut = new Put(Bytes.toBytes(type));
-	typeIndexPut.addColumn(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(edgeId), new byte[0]);
+	typeIndexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId), new byte[0]);
 	return typeIndexPut;
     }
 
     public static Put createEdgePropertyIndexPut(long edgeId, String key, Serializable value) throws IOException {
 	Put indexPut = new Put(Bytes.toBytes(key));
-	indexPut.addColumn(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(edgeId),
+	indexPut.addColumn(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId),
 		Serializer.serializePropertyValue(value));
 	return indexPut;
     }
 
     public static Delete createEdgeTypeIndexDelete(long edgeId, String type) {
 	Delete typeIndexDelete = new Delete(Bytes.toBytes(type));
-	typeIndexDelete.addColumns(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(edgeId));
+	typeIndexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId));
 	return typeIndexDelete;
     }
 
     public static Delete createEdgePropertyIndexDelete(long edgeId, String key) {
 	Delete indexDelete = new Delete(Bytes.toBytes(key));
-	indexDelete.addColumns(HBaseColumnFamily.INDEX.getName(), IdEncoder.encodeRowId(edgeId));
+	indexDelete.addColumns(HBaseColumnFamily.INDEX.getNameBytes(), IdEncoder.encodeRowId(edgeId));
 	return indexDelete;
     }
 
