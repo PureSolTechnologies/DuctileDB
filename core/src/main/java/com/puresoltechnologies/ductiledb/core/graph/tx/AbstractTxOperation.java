@@ -3,9 +3,10 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.List;
 
+import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Table;
 
 public abstract class AbstractTxOperation implements TxOperation {
@@ -28,7 +29,7 @@ public abstract class AbstractTxOperation implements TxOperation {
     }
 
     protected void put(String tableName, Put put) throws IOException {
-	try (Table table = storageEngine.getTable(tableName)) {
+	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, tableName)) {
 	    table.put(put);
 	}
     }
@@ -37,13 +38,13 @@ public abstract class AbstractTxOperation implements TxOperation {
 	if (puts.isEmpty()) {
 	    return;
 	}
-	try (Table table = storageEngine.getTable(tableName)) {
+	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, tableName)) {
 	    table.put(puts);
 	}
     }
 
     protected void delete(String tableName, Delete delete) throws IOException {
-	try (Table table = storageEngine.getTable(tableName)) {
+	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, tableName)) {
 	    table.delete(delete);
 	}
     }
@@ -52,7 +53,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 	if (deletes.isEmpty()) {
 	    return;
 	}
-	try (Table table = storageEngine.getTable(tableName)) {
+	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, tableName)) {
 	    table.delete(deletes);
 	}
     }

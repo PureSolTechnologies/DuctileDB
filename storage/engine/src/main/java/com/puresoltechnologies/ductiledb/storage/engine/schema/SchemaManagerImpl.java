@@ -192,8 +192,8 @@ public class SchemaManagerImpl implements SchemaManager {
     public void dropNamespace(NamespaceDescriptor namespaceDescriptor) throws SchemaException {
 	try {
 	    logger.info("Dropping '" + namespaceDescriptor + "' in storage '" + getStoreName() + "'...");
-	    namespaces.remove(namespaceDescriptor.getName());
 	    storage.removeDirectory(namespaceDescriptor.getDirectory(), true);
+	    namespaces.remove(namespaceDescriptor.getName());
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop schema '" + namespaceDescriptor + "'.", e);
 	}
@@ -207,21 +207,6 @@ public class SchemaManagerImpl implements SchemaManager {
     @Override
     public TableDescriptor getTable(NamespaceDescriptor namespaceDescriptor, String tableName) {
 	return namespaceDescriptor.getTable(tableName);
-    }
-
-    @Override
-    public TableDescriptor getTable(String tableName) {
-	String[] nameSplit = tableName.split("\\.");
-	if (nameSplit.length < 2) {
-	    throw new IllegalArgumentException(
-		    "Table name '" + tableName + "' does not contain namespace name separated with a dot.");
-	}
-	if (nameSplit.length > 2) {
-	    throw new IllegalArgumentException("Table name '" + tableName
-		    + "' contains multiple dots, but only one is allowed to separate the namespace.");
-	}
-	NamespaceDescriptor namespace = getNamespace(nameSplit[0]);
-	return getTable(namespace, nameSplit[1]);
     }
 
     @Override
@@ -269,6 +254,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    logger.info("Dropping '" + tableDescriptor + "' in storage '" + getStoreName() + "'...");
 	    storage.removeDirectory(tableDescriptor.getDirectory(), true);
+	    tableDescriptor.getNamespace().removeTable(tableDescriptor);
 	} catch (IOException e) {
 	    throw new SchemaException("Could not drop schema '" + tableDescriptor + "'.", e);
 	}

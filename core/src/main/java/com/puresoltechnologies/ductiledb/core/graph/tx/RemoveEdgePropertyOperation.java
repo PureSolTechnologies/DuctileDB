@@ -7,8 +7,9 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
@@ -53,7 +54,8 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 
     @Override
     public void perform() throws IOException {
-	try (Table table = getStorageEngine().getTable(HBaseTable.VERTICES.getName())) {
+	try (Table table = getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		DatabaseTable.VERTICES.getName())) {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
@@ -61,12 +63,12 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
-		    .getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
+		    .getFamilyMap(DatabaseColumnFamily.EDGES.getNameBytes());
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
 	    EdgeValue startVertexEdgeValue = Serializer.deserialize(startVertexPropertyBytes, EdgeValue.class);
 	    startVertexEdgeValue.getProperties().remove(key);
 	    Put startVertexPut = new Put(startVertexRowId);
-	    startVertexPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(), startVertexEdgeKey.encode(),
+	    startVertexPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(), startVertexEdgeKey.encode(),
 		    startVertexEdgeValue.encode());
 
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
@@ -76,23 +78,23 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
 		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
-		    .getFamilyMap(HBaseColumnFamily.EDGES.getNameBytes());
+		    .getFamilyMap(DatabaseColumnFamily.EDGES.getNameBytes());
 	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
 	    EdgeValue targetVertexEdgeValue = Serializer.deserialize(targetVertexPropertyBytes, EdgeValue.class);
 	    targetVertexEdgeValue.getProperties().remove(key);
 	    Put targetVertexPut = new Put(targetVertexRowId);
-	    targetVertexPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(), targetVertexEdgeKey.encode(),
+	    targetVertexPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(), targetVertexEdgeKey.encode(),
 		    targetVertexEdgeValue.encode());
 
 	    Delete edgeDelete = new Delete(IdEncoder.encodeRowId(edgeId));
-	    edgeDelete.addColumns(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
+	    edgeDelete.addColumns(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
 
 	    Delete index = OperationsHelper.createEdgePropertyIndexDelete(edgeId, key);
 	    // Add to transaction
-	    put(HBaseTable.VERTICES.getName(), startVertexPut);
-	    put(HBaseTable.VERTICES.getName(), targetVertexPut);
-	    delete(HBaseTable.EDGES.getName(), edgeDelete);
-	    delete(HBaseTable.EDGE_PROPERTIES.getName(), index);
+	    put(DatabaseTable.VERTICES.getName(), startVertexPut);
+	    put(DatabaseTable.VERTICES.getName(), targetVertexPut);
+	    delete(DatabaseTable.EDGES.getName(), edgeDelete);
+	    delete(DatabaseTable.EDGE_PROPERTIES.getName(), index);
 	}
     }
 }

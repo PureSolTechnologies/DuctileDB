@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
@@ -47,10 +47,10 @@ public class SetVertexPropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
-	put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
+	put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
 		Serializer.serializePropertyValue((Serializable) value));
 	Put index = OperationsHelper.createVertexPropertyIndexPut(vertexId, key, (Serializable) value);
-	put(HBaseTable.VERTICES.getName(), put);
-	put(HBaseTable.VERTEX_PROPERTIES.getName(), index);
+	put(DatabaseTable.VERTICES.getName(), put);
+	put(DatabaseTable.VERTEX_PROPERTIES.getName(), index);
     }
 }

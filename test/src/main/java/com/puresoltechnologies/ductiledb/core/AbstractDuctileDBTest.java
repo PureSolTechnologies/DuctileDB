@@ -42,7 +42,10 @@ public class AbstractDuctileDBTest {
 	}
     }
 
-    public static DuctileDB createDuctileDB() throws StorageException, SchemaException {
+    public static DuctileDB createDuctileDB() throws StorageException, SchemaException, IOException {
+	if (configuration == null) {
+	    configuration = readTestConfigration();
+	}
 	return DuctileDBFactory.connect(configuration);
     }
 

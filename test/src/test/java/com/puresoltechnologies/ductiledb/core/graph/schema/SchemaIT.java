@@ -17,7 +17,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
-public class HBaseSchemaIT {
+public class SchemaIT {
 
     @Before
     public void removeTables() throws StorageException, IOException, SchemaException {

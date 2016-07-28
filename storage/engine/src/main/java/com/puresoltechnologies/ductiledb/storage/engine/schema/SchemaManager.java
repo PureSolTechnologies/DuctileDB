@@ -24,8 +24,6 @@ public interface SchemaManager {
 
     public TableDescriptor getTable(NamespaceDescriptor namespaceDescriptor, String tableName);
 
-    public TableDescriptor getTable(String tableName);
-
     public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName)
 	    throws SchemaException, StorageException;
 

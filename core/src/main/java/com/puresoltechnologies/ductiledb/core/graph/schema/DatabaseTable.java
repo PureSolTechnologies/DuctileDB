@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-public enum HBaseTable {
+public enum DatabaseTable {
 
     METADATA("metadata"), //
     PROPERTY_DEFINITIONS("property_definitions"), //
@@ -14,7 +14,7 @@ public enum HBaseTable {
 
     private final String name;
 
-    HBaseTable(String name) {
+    DatabaseTable(String name) {
 	this.name = name;
     }
 

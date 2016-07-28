@@ -23,7 +23,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 /**
  * A collection of simple methods to support testing.
@@ -69,21 +68,13 @@ public class DuctileDBTestHelper {
     }
 
     private static void removeTables(DatabaseEngine storageEngine) throws SchemaException {
-	logger.info("Remove all DuctileDB tables...");
+	logger.info("Remove DuctileDB namespace...");
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	for (NamespaceDescriptor namespace : schemaManager.getNamespaces()) {
-	    for (TableDescriptor tableDescriptor : schemaManager.getTables(namespace)) {
-		String tableName = tableDescriptor.getName();
-		if (DUCTILEDB_NAMESPACE.equals(tableName)) {
-		    logger.info("Delete table '" + tableName + "'...");
-		    schemaManager.dropTable(tableDescriptor);
-		    logger.info("Table '" + tableName + "' deleted.");
-		}
-	    }
+	NamespaceDescriptor ductileDBNamespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);
+	if (ductileDBNamespace != null) {
+	    schemaManager.dropNamespace(ductileDBNamespace);
 	}
-	NamespaceDescriptor namespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);
-	schemaManager.dropNamespace(namespace);
-	logger.info("All DuctileDB tables removed.");
+	logger.info("DuctileDB namespace removed.");
     }
 
     public static void removeGraph(DuctileDBGraph graph) throws IOException {

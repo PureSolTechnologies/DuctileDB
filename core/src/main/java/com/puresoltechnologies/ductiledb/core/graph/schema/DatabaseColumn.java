@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.core.graph.schema;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public enum HBaseColumn {
+public enum DatabaseColumn {
 
     VERTEX_ID("VertexId"), //
     START_VERTEX_ID("StartVertexId"), //
@@ -14,7 +14,7 @@ public enum HBaseColumn {
     private final String name;
     private final byte[] nameBytes;
 
-    HBaseColumn(String name) {
+    DatabaseColumn(String name) {
 	this.name = name;
 	this.nameBytes = Bytes.toBytes(this.name);
     }

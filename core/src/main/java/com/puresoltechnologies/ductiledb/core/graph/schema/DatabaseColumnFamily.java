@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.core.graph.schema;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public enum HBaseColumnFamily {
+public enum DatabaseColumnFamily {
 
     METADATA("metadata"), //
     VERTEX_DEFINITION("vertex_property"), //
@@ -18,7 +18,7 @@ public enum HBaseColumnFamily {
     private final String name;
     private final byte[] nameBytes;
 
-    HBaseColumnFamily(String name) {
+    DatabaseColumnFamily(String name) {
 	this.name = name;
 	this.nameBytes = Bytes.toBytes(this.name);
     }

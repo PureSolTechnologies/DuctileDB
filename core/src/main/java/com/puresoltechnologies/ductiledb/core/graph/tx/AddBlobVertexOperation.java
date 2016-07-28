@@ -23,8 +23,8 @@ import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashIdCreatorInputStream;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransactionException;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
@@ -94,25 +94,25 @@ public class AddBlobVertexOperation extends AbstractTxOperation {
 	    Put put = new Put(id);
 	    List<Put> typeIndex = new ArrayList<>();
 	    for (String type : types) {
-		put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
+		put.addColumn(DatabaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
 		typeIndex.add(OperationsHelper.createVertexTypeIndexPut(vertexId, type));
 	    }
 	    List<Put> propertyIndex = new ArrayList<>();
-	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
+	    put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
 		    Serializer.serializePropertyValue(vertexId));
-	    put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(),
+	    put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(),
 		    Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY), Serializer.serializePropertyValue(new Date()));
 	    for (Entry<String, Object> property : properties.entrySet()) {
 		String key = property.getKey();
 		Object value = property.getValue();
-		put.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
+		put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
 			Serializer.serializePropertyValue((Serializable) value));
 		propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 			(Serializable) property.getValue()));
 	    }
-	    put(HBaseTable.VERTICES.getName(), put);
-	    put(HBaseTable.VERTEX_TYPES.getName(), typeIndex);
-	    put(HBaseTable.VERTEX_PROPERTIES.getName(), propertyIndex);
+	    put(DatabaseTable.VERTICES.getName(), put);
+	    put(DatabaseTable.VERTEX_TYPES.getName(), typeIndex);
+	    put(DatabaseTable.VERTEX_PROPERTIES.getName(), propertyIndex);
 	} finally {
 	    blobFile.delete();
 	}

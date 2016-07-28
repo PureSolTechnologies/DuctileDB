@@ -15,9 +15,9 @@ import java.util.Map.Entry;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumn;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
@@ -86,35 +86,35 @@ public class AddEdgeOperation extends AbstractTxOperation {
 	byte[] edgeValue = new EdgeValue(properties).encode();
 	// Put to Start Vertex
 	Put outPut = new Put(IdEncoder.encodeRowId(startVertexId));
-	outPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(),
+	outPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(),
 		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode(), edgeValue);
 	// Put to Target Vertex
 	Put inPut = new Put(IdEncoder.encodeRowId(targetVertexId));
-	inPut.addColumn(HBaseColumnFamily.EDGES.getNameBytes(),
+	inPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(),
 		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode(), edgeValue);
 	// Put to Edges Table
 	Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
-	edgePut.addColumn(HBaseColumnFamily.VERICES.getNameBytes(), HBaseColumn.START_VERTEX_ID.getNameBytes(),
+	edgePut.addColumn(DatabaseColumnFamily.VERICES.getNameBytes(), DatabaseColumn.START_VERTEX_ID.getNameBytes(),
 		IdEncoder.encodeRowId(startVertexId));
-	edgePut.addColumn(HBaseColumnFamily.VERICES.getNameBytes(), HBaseColumn.TARGET_VERTEX_ID.getNameBytes(),
+	edgePut.addColumn(DatabaseColumnFamily.VERICES.getNameBytes(), DatabaseColumn.TARGET_VERTEX_ID.getNameBytes(),
 		IdEncoder.encodeRowId(targetVertexId));
-	edgePut.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
+	edgePut.addColumn(DatabaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
 	Put typeIndexPut = OperationsHelper.createEdgeTypeIndexPut(edgeId, type);
 	List<Put> propertyIndexPuts = new ArrayList<>();
-	edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
+	edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
 		Serializer.serializePropertyValue(edgeId));
-	edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(),
+	edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(),
 		Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY), Serializer.serializePropertyValue(new Date()));
 	for (Entry<String, Object> property : properties.entrySet()) {
-	    edgePut.addColumn(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(property.getKey()),
+	    edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(property.getKey()),
 		    Serializer.serializePropertyValue((Serializable) property.getValue()));
 	    propertyIndexPuts.add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(),
 		    (Serializable) property.getValue()));
 	}
-	put(HBaseTable.VERTICES.getName(), outPut);
-	put(HBaseTable.VERTICES.getName(), inPut);
-	put(HBaseTable.EDGES.getName(), edgePut);
-	put(HBaseTable.EDGE_TYPES.getName(), typeIndexPut);
-	put(HBaseTable.EDGE_PROPERTIES.getName(), propertyIndexPuts);
+	put(DatabaseTable.VERTICES.getName(), outPut);
+	put(DatabaseTable.VERTICES.getName(), inPut);
+	put(DatabaseTable.EDGES.getName(), edgePut);
+	put(DatabaseTable.EDGE_TYPES.getName(), typeIndexPut);
+	put(DatabaseTable.EDGE_PROPERTIES.getName(), propertyIndexPuts);
     }
 }

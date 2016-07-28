@@ -20,10 +20,10 @@ public class DuctileDBGraphFactory {
     public static DatabaseEngine createDatabaseEngine(DatabaseEngineConfiguration configuration)
 	    throws StorageException {
 	// TODO incorporate configuration...
-	logger.info("Creating connection to HBase with configuration '" + configuration + "'...");
+	logger.info("Creating connection to DuctileDB with configuration '" + configuration + "'...");
 	DatabaseEngine storageEngine = new DatabaseEngineImpl(
 		StorageFactory.getStorageInstance(configuration.getStorage()), "graph", configuration);
-	logger.info("Connection '" + storageEngine + "' to HBase created.");
+	logger.info("Connection '" + storageEngine + "' to DuctileDB created.");
 	return storageEngine;
     }
 

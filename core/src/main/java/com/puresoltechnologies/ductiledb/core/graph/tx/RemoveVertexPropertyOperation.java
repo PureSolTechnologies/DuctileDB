@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -40,9 +40,9 @@ public class RemoveVertexPropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Delete delete = new Delete(id);
-	delete.addColumns(HBaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
+	delete.addColumns(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key));
 	Delete index = OperationsHelper.createVertexPropertyIndexDelete(vertexId, key);
-	delete(HBaseTable.VERTICES.getName(), delete);
-	delete(HBaseTable.VERTEX_PROPERTIES.getName(), index);
+	delete(DatabaseTable.VERTICES.getName(), delete);
+	delete(DatabaseTable.VERTEX_PROPERTIES.getName(), index);
     }
 }

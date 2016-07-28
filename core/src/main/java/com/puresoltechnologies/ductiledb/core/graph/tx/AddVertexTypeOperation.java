@@ -2,8 +2,8 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseColumnFamily;
-import com.puresoltechnologies.ductiledb.core.graph.schema.HBaseTable;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -39,9 +39,9 @@ public class AddVertexTypeOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
 	Put put = new Put(id);
-	put.addColumn(HBaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), Bytes.toBytes(type));
+	put.addColumn(DatabaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), Bytes.toBytes(type));
 	Put index = OperationsHelper.createVertexTypeIndexPut(vertexId, type);
-	put(HBaseTable.VERTICES.getName(), put);
-	put(HBaseTable.VERTEX_TYPES.getName(), index);
+	put(DatabaseTable.VERTICES.getName(), put);
+	put(DatabaseTable.VERTEX_TYPES.getName(), index);
     }
 }

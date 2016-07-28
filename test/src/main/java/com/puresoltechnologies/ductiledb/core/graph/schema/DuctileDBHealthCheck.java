@@ -79,24 +79,26 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    try (Table table = storageEngine.getTable(HBaseTable.VERTEX_TYPES.getName())) {
+	    try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.VERTEX_TYPES.getName())) {
 		for (String type : vertex.getTypes()) {
 		    Result result = table.get(new Get(Bytes.toBytes(type)));
 		    assertFalse("Could not find row for type '" + type + "' in vertex type index.", result.isEmpty());
-		    byte[] value = result.getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes())
+		    byte[] value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes())
 			    .get(IdEncoder.encodeRowId(vertex.getId()));
 		    assertNotNull("Could not find vertex type index entry for type '" + type + "' for vertex with id '"
 			    + vertex.getId() + "'", value);
 		}
 	    }
-	    try (Table table = storageEngine.getTable(HBaseTable.VERTEX_PROPERTIES.getName())) {
+	    try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.VERTEX_PROPERTIES.getName())) {
 		for (String key : vertex.getPropertyKeys()) {
 		    Object value = vertex.getProperty(key);
 		    Result result = table.get(new Get(Bytes.toBytes(key)));
 		    assertFalse("Could not find row for property '" + key + "' in vertex property index.",
 			    result.isEmpty());
 		    NavigableMap<byte[], byte[]> familyMap = result
-			    .getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes());
+			    .getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
 		    assertNotNull("Could not find vertex property index entry for property '" + key
 			    + "' for vertex with id '" + vertex.getId() + "'", familyMap);
 		    Object deserialized = Serializer
@@ -126,22 +128,24 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String type = edge.getType();
-	    try (Table table = storageEngine.getTable(HBaseTable.EDGE_TYPES.getName())) {
+	    try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.EDGE_TYPES.getName())) {
 		Result result = table.get(new Get(Bytes.toBytes(type)));
 		assertFalse("Could not find row for type '" + type + "' in edge type index.", result.isEmpty());
-		byte[] value = result.getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes())
+		byte[] value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes())
 			.get(IdEncoder.encodeRowId(edge.getId()));
 		assertNotNull("Could not find edge type index entry for type '" + type + "' for edge with id '"
 			+ edge.getId() + "'", value);
 	    }
-	    try (Table table = storageEngine.getTable(HBaseTable.EDGE_PROPERTIES.getName())) {
+	    try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.EDGE_PROPERTIES.getName())) {
 		for (String key : edge.getPropertyKeys()) {
 		    Object value = edge.getProperty(key);
 		    Result result = table.get(new Get(Bytes.toBytes(key)));
 		    assertFalse("Could not find row for property '" + key + "' in edge property index.",
 			    result.isEmpty());
 		    NavigableMap<byte[], byte[]> familyMap = result
-			    .getFamilyMap(HBaseColumnFamily.INDEX.getNameBytes());
+			    .getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
 		    assertNotNull("Could not find edge property index entry for property '" + key
 			    + "' for edge with id '" + edge.getId() + "'", familyMap);
 		    Object deserialized = Serializer
@@ -197,14 +201,14 @@ public class DuctileDBHealthCheck {
 	assertFalse("Vertices were found, but graph is expected to be empty.",
 		graph.getVertices().iterator().hasNext());
 	assertFalse("Edges were found, but graph is expected to be empty.", graph.getEdges().iterator().hasNext());
-	for (HBaseTable schemaTable : HBaseTable.values()) {
-	    if (schemaTable == HBaseTable.METADATA) {
+	for (DatabaseTable schemaTable : DatabaseTable.values()) {
+	    if (schemaTable == DatabaseTable.METADATA) {
 		/*
 		 * The metadata table is allowed to contain data.
 		 */
 		continue;
 	    }
-	    try (Table table = storageEngine.getTable(schemaTable.getName())) {
+	    try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, schemaTable.getName())) {
 		ResultScanner scanner = table.getScanner(new Scan());
 		assertNull("Row data was found, but database was expected to be empty. Row found in table '"
 			+ schemaTable.name() + "'.", scanner.next());
