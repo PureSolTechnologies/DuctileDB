@@ -20,8 +20,31 @@ public interface ColumnFamilyEngine extends Closeable {
     public static final String METADATA_SUFFIX = ".metadata";
     public static final String COMMIT_LOG_PREFIX = "CommitLog";
 
+    /**
+     * This method is used to put additional columns to the given row.
+     * 
+     * @param timestamp
+     * @param rowKey
+     * @param columnValues
+     * @throws StorageException
+     */
     public void put(byte[] timestamp, byte[] rowKey, ColumnMap columnValues) throws StorageException;
 
+    /**
+     * This metho retrieves the columns from the given row.
+     * 
+     * @param rowKey
+     * @return
+     * @throws StorageException
+     */
     public ColumnMap get(byte[] rowKey) throws StorageException;
+
+    /**
+     * This method removes the given row.
+     * 
+     * @param rowKey
+     * @throws StorageException
+     */
+    public void delete(byte[] rowKey) throws StorageException;
 
 }

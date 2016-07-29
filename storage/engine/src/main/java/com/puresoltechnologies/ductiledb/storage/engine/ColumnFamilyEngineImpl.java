@@ -84,6 +84,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		+ stopWatch.getMillis() + "ms.");
     }
 
+    public void setMaxCommitLogSize(int maxCommitLogSize) {
+	this.maxCommitLogSize = maxCommitLogSize;
+    }
+
+    public void setMaxDataFileSize(long maxDataFileSize) {
+	this.maxDataFileSize = maxDataFileSize;
+    }
+
     private void open() throws StorageException {
 	try {
 	    if (!storage.exists(columnFamilyDescriptor.getDirectory())) {
@@ -321,11 +329,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	return null;
     }
 
-    public void setMaxCommitLogSize(int maxCommitLogSize) {
-	this.maxCommitLogSize = maxCommitLogSize;
-    }
-
-    public void setMaxDataFileSize(long maxDataFileSize) {
-	this.maxDataFileSize = maxDataFileSize;
+    @Override
+    public synchronized void delete(byte[] rowKey) throws StorageException {
+	writeMemtable(rowKey, -1);
     }
 }
