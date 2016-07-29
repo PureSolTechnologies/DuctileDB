@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.time.Instant;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -7,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
@@ -75,5 +79,37 @@ public class TableEngineImpl implements TableEngine {
 
     public ColumnFamilyEngineImpl getColumnFamilyEngine(ColumnFamilyDescriptor columnFamilyDescriptor) {
 	return columnFamilyEngines.get(columnFamilyDescriptor.getName());
+    }
+
+    public void put(Put put) throws StorageException {
+	byte[] rowKey = put.getKey();
+	Instant timestamp = put.getTimestamp();
+	for (byte[] columnFamily : put.getColumnFamilies()) {
+	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
+	    columnFamilyEngine.put(Bytes.toBytes(timestamp), rowKey, put.getColumnValues(columnFamily));
+	}
+    }
+
+    public void delete(Delete delete) throws StorageException {
+	byte[] rowKey = delete.getKey();
+	for (byte[] columnFamily : delete.getColumnFamilies()) {
+	    Set<byte[]> columns = delete.getColumns(columnFamily);
+	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
+	    if (columns.size() == 0) {
+		columnFamilyEngine.delete(rowKey);
+	    } else {
+		columnFamilyEngine.delete(rowKey, columns);
+	    }
+	}
+    }
+
+    public Result get(Get get) throws StorageException {
+	byte[] rowKey = get.getKey();
+	Result result = new Result(rowKey);
+	for (byte[] columnFamily : get.getColumnFamilies()) {
+	    ColumnMap columns = columnFamilyEngines.get(columnFamily).get(rowKey);
+	    result.add(columnFamily, columns);
+	}
+	return result;
     }
 }

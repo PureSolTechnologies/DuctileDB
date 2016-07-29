@@ -18,9 +18,9 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
     public void test() throws SchemaException, StorageException {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespace("namespace_test");
-	TableDescriptor tableDescription = schemaManager.createTable(namespaceDescription, "table_test");
-	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(tableDescription,
+	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent("namespace_test");
+	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription, "table_test");
+	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		Bytes.toBytes("columnfamily_test"));
 	Table table = engine.getTable(tableDescription);
 

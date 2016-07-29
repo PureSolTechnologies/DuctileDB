@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -332,5 +333,24 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public synchronized void delete(byte[] rowKey) throws StorageException {
 	writeMemtable(rowKey, -1);
+    }
+
+    public void delete(byte[] rowKey, Set<byte[]> columns) throws StorageException {
+	ColumnMap columnMap = get(rowKey);
+	if (columnMap != null) {
+	    for (byte[] columnKey : columns) {
+		columnMap.remove(columnKey);
+	    }
+	    if (columnMap.size() == 0) {
+		delete(rowKey);
+	    } else {
+		long offset = commitLogStream.getOffset();
+		writeCommitLog(rowKey, columnMap);
+		writeMemtable(rowKey, offset);
+		if (offset > maxCommitLogSize) {
+		    rolloverCommitLog();
+		}
+	    }
+	}
     }
 }

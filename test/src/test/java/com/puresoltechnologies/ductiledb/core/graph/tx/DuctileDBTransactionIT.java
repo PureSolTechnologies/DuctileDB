@@ -32,6 +32,7 @@ import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 /**
  * This intergrationt tests check the correct behavior of transactions.
@@ -48,7 +49,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     }
 
     @After
-    public void checkGraph() throws IOException {
+    public void checkGraph() throws IOException, StorageException {
 	DuctileDBHealthCheck.runCheck(graph);
     }
 

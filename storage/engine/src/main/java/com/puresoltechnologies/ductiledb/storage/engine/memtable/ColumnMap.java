@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.memtable;
 
+import java.util.Map;
 import java.util.TreeMap;
 
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
@@ -16,6 +17,11 @@ public class ColumnMap extends TreeMap<byte[], byte[]> {
 
     public ColumnMap() {
 	super(ByteArrayComparator.getInstance());
+    }
+
+    public ColumnMap(Map<byte[], byte[]> columnFamily) {
+	this();
+	putAll(columnFamily);
     }
 
 }

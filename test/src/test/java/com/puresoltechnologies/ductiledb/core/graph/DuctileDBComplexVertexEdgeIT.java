@@ -10,8 +10,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 
@@ -25,7 +25,7 @@ public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
     }
 
     @After
-    public void checkHealth() throws IOException {
+    public void checkHealth() throws IOException, StorageException {
 	healthChecker.runCheck();
     }
 

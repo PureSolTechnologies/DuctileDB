@@ -15,6 +15,7 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
@@ -41,40 +42,49 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public Version getVersion() {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName())) {
-	    Result result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getNameBytes()));
-	    byte[] version = result.getFamilyMap(DatabaseColumnFamily.METADATA.getNameBytes())
-		    .get(DatabaseColumn.SCHEMA_VERSION.getNameBytes());
-	    return Version.valueOf(Bytes.toString(version));
+	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Result result;
+	try {
+	    result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getNameBytes()));
+	} catch (StorageException e) {
+	    throw new DuctileDBGraphManagerException("Could not read version.", e);
 	}
+	byte[] version = result.getFamilyMap(DatabaseColumnFamily.METADATA.getNameBytes())
+		.get(DatabaseColumn.SCHEMA_VERSION.getNameBytes());
+	return Version.valueOf(Bytes.toString(version));
     }
 
     @Override
     public Iterable<String> getVariableNames() {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName())) {
-	    Set<String> variableNames = new HashSet<>();
-	    Result result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
-	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getNameBytes());
-	    if (familyMap == null) {
-		return variableNames;
-	    }
-	    for (byte[] nameBytes : familyMap.keySet()) {
-		variableNames.add(Bytes.toString(nameBytes));
-	    }
+	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Set<String> variableNames = new HashSet<>();
+	Result result;
+	try {
+	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
+	} catch (StorageException e) {
+	    throw new DuctileDBGraphManagerException("Could not read variable names.", e);
+	}
+	NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getNameBytes());
+	if (familyMap == null) {
 	    return variableNames;
 	}
+	for (byte[] nameBytes : familyMap.keySet()) {
+	    variableNames.add(Bytes.toString(nameBytes));
+	}
+	return variableNames;
     }
 
     @Override
     public <T extends Serializable> void setVariable(String variableName, T value) {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName())) {
+	try {
+	    DatabaseEngine storageEngine = graph.getStorageEngine();
+	    Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
 	    Put put = new Put(DatabaseColumnFamily.VARIABLES.getNameBytes());
 	    put.addColumn(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName),
 		    Serializer.serializePropertyValue(value));
 	    table.put(put);
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBGraphManagerException(
 		    "Could not set value '" + value + "' for variable '" + variableName + "'.", e);
 	}
@@ -83,27 +93,34 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public <T> T getVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName())) {
-	    Result result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
-	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getNameBytes());
-	    if (familyMap == null) {
-		return null;
-	    }
-	    byte[] value = familyMap.get(Bytes.toBytes(variableName));
-	    if (value == null) {
-		return null;
-	    }
-	    return Serializer.deserializePropertyValue(value);
+	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Result result;
+	try {
+	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
+	} catch (StorageException e) {
+	    throw new DuctileDBGraphManagerException("Could not read variable.", e);
 	}
+	NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getNameBytes());
+	if (familyMap == null) {
+	    return null;
+	}
+	byte[] value = familyMap.get(Bytes.toBytes(variableName));
+	if (value == null) {
+	    return null;
+	}
+	return Serializer.deserializePropertyValue(value);
     }
 
     @Override
     public void removeVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	try (Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName())) {
-	    Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getNameBytes());
-	    delete.addColumns(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
+	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getNameBytes());
+	delete.addColumns(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
+	try {
 	    table.delete(delete);
+	} catch (StorageException e) {
+	    throw new DuctileDBGraphManagerException("Could not remove variable.", e);
 	}
     }
 

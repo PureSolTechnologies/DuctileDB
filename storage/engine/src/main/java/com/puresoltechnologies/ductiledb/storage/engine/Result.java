@@ -2,21 +2,32 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.NavigableMap;
 
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnFamilyMap;
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
+
 public class Result {
 
+    private final byte[] key;
+    private final ColumnFamilyMap columnFamilies = new ColumnFamilyMap();
+
+    public Result(byte[] rowKey) {
+	this.key = rowKey;
+    }
+
     public NavigableMap<byte[], byte[]> getFamilyMap(byte[] columnFamily) {
-	// TODO Auto-generated method stub
-	return null;
+	return columnFamilies.get(columnFamily);
     }
 
     public boolean isEmpty() {
-	// TODO Auto-generated method stub
-	return false;
+	return columnFamilies.isEmpty();
     }
 
     public byte[] getRow() {
-	// TODO Auto-generated method stub
-	return null;
+	return key;
+    }
+
+    public void add(byte[] columnFamily, ColumnMap columns) {
+	columnFamilies.put(columnFamily, columns);
     }
 
 }

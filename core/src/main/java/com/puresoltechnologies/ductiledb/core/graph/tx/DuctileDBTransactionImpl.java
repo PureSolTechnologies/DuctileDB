@@ -36,6 +36,7 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
@@ -178,7 +179,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (vertex != null) {
 	    return vertex;
 	}
-	try (Table vertexTable = openVertexTable()) {
+	try {
+	    Table vertexTable = openVertexTable();
 	    byte[] id = IdEncoder.encodeRowId(vertexId);
 	    Get get = new Get(id);
 	    Result result = vertexTable.get(get);
@@ -189,7 +191,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		setCachedVertex(vertex);
 	    }
 	    return vertex;
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBException("Could not get vertex.", e);
 	}
     }
@@ -214,7 +216,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (edge != null) {
 	    return edge;
 	}
-	try (Table table = openEdgeTable()) {
+	try {
+	    Table table = openEdgeTable();
 	    byte[] id = IdEncoder.encodeRowId(edgeId);
 	    Get get = new Get(id);
 	    Result result = table.get(get);
@@ -225,7 +228,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		setCachedEdge(edge);
 	    }
 	    return edge;
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBException("Could not get edge.", e);
 	}
     }
@@ -268,7 +271,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     final long createVertexId() {
 	if (vertexIdCounter >= ID_CACHE_SIZE) {
-	    try (Table metaDataTable = openMetaDataTable()) {
+	    try {
+		Table metaDataTable = openMetaDataTable();
 		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, DatabaseColumnFamily.METADATA.getName(),
 			DatabaseColumn.VERTEX_ID.getNameBytes(), ID_CACHE_SIZE);
 		vertexIdCounter = 0;
@@ -284,7 +288,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     final long createEdgeId() {
 	if (edgeIdCounter >= ID_CACHE_SIZE) {
-	    try (Table metaDataTable = openMetaDataTable()) {
+	    try {
+		Table metaDataTable = openMetaDataTable();
 		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, DatabaseColumnFamily.METADATA.getName(),
 			DatabaseColumn.EDGE_ID.getNameBytes(), ID_CACHE_SIZE);
 		edgeIdCounter = 0;
@@ -341,7 +346,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public Iterable<DuctileDBEdge> getEdges() {
-	try (Table table = openEdgeTable()) {
+	try {
+	    Table table = openEdgeTable();
 	    ResultScanner result = table.getScanner(new Scan());
 	    return new AttachedEdgeIterable(this, result);
 	} catch (IOException e) {
@@ -354,7 +360,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if ((propertyKey == null) || (propertyKey.isEmpty())) {
 	    throw new IllegalArgumentException("Property key must not be null.");
 	}
-	try (Table table = openEdgePropertyTable()) {
+	try {
+	    Table table = openEdgePropertyTable();
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    Result result = table.get(new Get(Bytes.toBytes(propertyKey)));
 	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
@@ -393,7 +400,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    return edges.iterator();
 		}
 	    };
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBException("Could not get edges.", e);
 	}
     }
@@ -403,7 +410,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if ((type == null) || (type.isEmpty())) {
 	    throw new IllegalArgumentException("Type must not be null.");
 	}
-	try (Table table = openEdgeTypesTable()) {
+	try {
+	    Table table = openEdgeTypesTable();
 	    Result result = table.get(new Get(Bytes.toBytes(type)));
 	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
 	    List<DuctileDBEdge> edges = new ArrayList<>();
@@ -432,7 +440,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    return edges.iterator();
 		}
 	    };
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBException("Could not get edges.", e);
 	}
     }
@@ -448,7 +456,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     @Override
     public Iterable<DuctileDBVertex> getVertices() {
-	try (Table table = openVertexTable()) {
+	try {
+	    Table table = openVertexTable();
 	    ResultScanner result = table.getScanner(new Scan());
 	    return new AttachedVertexIterable(this, result);
 	} catch (IOException e) {
@@ -461,7 +470,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if ((propertyKey == null) || (propertyKey.isEmpty())) {
 	    throw new IllegalArgumentException("Property key must not be null.");
 	}
-	try (Table table = openVertexPropertyTable()) {
+	try {
+	    Table table = openVertexPropertyTable();
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
 	    Get get = new Get(Bytes.toBytes(propertyKey));
 	    get.addFamily(DatabaseColumnFamily.INDEX.getNameBytes());
@@ -501,7 +511,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    return vertices.iterator();
 		}
 	    };
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBException("Could not get vertices.", e);
 	}
     }
@@ -511,7 +521,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if ((type == null) || (type.isEmpty())) {
 	    throw new IllegalArgumentException("Type must not be null.");
 	}
-	try (Table table = openVertexTypesTable()) {
+	try {
+	    Table table = openVertexTypesTable();
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
 	    Get get = new Get(Bytes.toBytes(type));
 	    get.addFamily(DatabaseColumnFamily.INDEX.getNameBytes());
@@ -544,7 +555,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 		    return vertices.iterator();
 		}
 	    };
-	} catch (IOException e) {
+	} catch (IOException | StorageException e) {
 	    throw new DuctileDBException("Could not get vertices.", e);
 	}
     }

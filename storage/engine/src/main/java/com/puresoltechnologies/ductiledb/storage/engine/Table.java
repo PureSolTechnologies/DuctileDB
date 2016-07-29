@@ -1,8 +1,8 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.io.Closeable;
 import java.util.List;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
@@ -12,7 +12,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class Table implements Closeable {
+public class Table {
 
     private final TableEngineImpl tableEngine;
     private final TableDescriptor tableDescriptor;
@@ -23,32 +23,28 @@ public class Table implements Closeable {
 	this.tableDescriptor = tableDescriptor;
     }
 
-    @Override
-    public void close() {
-	// TODO Auto-generated method stub
+    public void put(Put put) throws StorageException {
+	tableEngine.put(put);
     }
 
-    public void put(Put put) {
-    }
-
-    public void put(List<Put> puts) {
+    public void put(List<Put> puts) throws StorageException {
 	for (Put put : puts) {
 	    put(put);
 	}
     }
 
-    public void delete(Delete delete) {
+    public void delete(Delete delete) throws StorageException {
+	tableEngine.delete(delete);
     }
 
-    public void delete(List<Delete> deletes) {
+    public void delete(List<Delete> deletes) throws StorageException {
 	for (Delete delete : deletes) {
 	    delete(delete);
 	}
     }
 
-    public Result get(Get get) {
-	// TODO Auto-generated method stub
-	return null;
+    public Result get(Get get) throws StorageException {
+	return tableEngine.get(get);
     }
 
     public ResultScanner getScanner(Scan scan) {

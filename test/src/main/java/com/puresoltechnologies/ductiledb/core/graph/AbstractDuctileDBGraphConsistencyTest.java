@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class AbstractDuctileDBGraphConsistencyTest extends AbstractDuctileDBGraphTest {
 
@@ -18,13 +19,13 @@ public class AbstractDuctileDBGraphConsistencyTest extends AbstractDuctileDBGrap
     }
 
     @AfterClass
-    public static void runCheck() throws IOException {
+    public static void runCheck() throws IOException, StorageException {
 	check.runCheck();
 	check = null;
     }
 
     @Before
-    public void checkConsistency() throws IOException {
+    public void checkConsistency() throws IOException, StorageException {
 	check.runCheck();
     }
 }

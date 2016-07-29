@@ -77,7 +77,7 @@ public class DuctileDBTestHelper {
 	logger.info("DuctileDB namespace removed.");
     }
 
-    public static void removeGraph(DuctileDBGraph graph) throws IOException {
+    public static void removeGraph(DuctileDBGraph graph) throws IOException, StorageException {
 	logger.info("Delete ductile graph...");
 	for (DuctileDBEdge edge : graph.getEdges()) {
 	    edge.remove();

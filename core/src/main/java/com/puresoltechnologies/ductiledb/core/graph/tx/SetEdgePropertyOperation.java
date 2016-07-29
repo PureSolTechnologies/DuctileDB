@@ -6,6 +6,7 @@ import java.util.NavigableMap;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
+import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
@@ -13,6 +14,7 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
@@ -59,8 +61,9 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 
     @Override
     public void perform() throws IOException {
-	try (Table table = getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		DatabaseTable.VERTICES.getName())) {
+	try {
+	    Table table = getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.VERTICES.getName());
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
@@ -101,6 +104,8 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 	    put(DatabaseTable.VERTICES.getName(), targetVertexPut);
 	    put(DatabaseTable.EDGES.getName(), edgePut);
 	    put(DatabaseTable.EDGE_PROPERTIES.getName(), index);
+	} catch (StorageException e) {
+	    throw new DuctileDBGraphManagerException("Could not perform action.", e);
 	}
     }
 }
