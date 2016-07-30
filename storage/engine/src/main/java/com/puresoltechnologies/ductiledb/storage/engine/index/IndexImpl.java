@@ -7,9 +7,9 @@ import java.util.NoSuchElementException;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntryIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -71,26 +71,25 @@ public class IndexImpl implements Index {
 
     @Override
     public void update() throws StorageException {
+	File latestMetadata = SSTableSet.getLatestMetaDataFile(storage, columnFamilyDescriptor);
+	update(latestMetadata);
+    }
+
+    @Override
+    public void update(File latestMetadata) throws StorageException {
+	indexTree.clear();
+	if (latestMetadata == null) {
+	    return;
+	}
 	try {
-	    Iterable<File> listMetadata = storage.list(columnFamilyDescriptor.getDirectory(),
-		    new MetadataFilenameFilter());
-	    File latestMetadata = null;
-	    for (File metadata : listMetadata) {
-		if ((latestMetadata == null) || (latestMetadata.compareTo(metadata) < 0)) {
-		    latestMetadata = metadata;
-		}
-	    }
-	    if (latestMetadata != null) {
-		for (MetaDataEntry entry : new MetaDataEntryIterable(
-			new DuctileDBInputStream(storage.open(latestMetadata)))) {
-		    IndexEntry index1 = new IndexEntry(entry.getStartKey(),
-			    new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()),
-			    entry.getStartOffset());
-		    IndexEntry index2 = new IndexEntry(entry.getEndKey(),
-			    new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getEndOffset());
-		    indexTree.put(new RowKey(index1.getRowKey()), index1);
-		    indexTree.put(new RowKey(index2.getRowKey()), index2);
-		}
+	    for (MetaDataEntry entry : new MetaDataEntryIterable(
+		    new DuctileDBInputStream(storage.open(latestMetadata)))) {
+		IndexEntry index1 = new IndexEntry(entry.getStartKey(),
+			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getStartOffset());
+		IndexEntry index2 = new IndexEntry(entry.getEndKey(),
+			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getEndOffset());
+		indexTree.put(new RowKey(index1.getRowKey()), index1);
+		indexTree.put(new RowKey(index2.getRowKey()), index2);
 	    }
 	} catch (IOException e) {
 	    throw new StorageException("Could not determine latest timestamp.");

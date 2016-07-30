@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,11 +20,6 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
-import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
@@ -59,12 +55,12 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private final Memtable memtable = new Memtable();
     private final Storage storage;
-    private final Index index;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private File commitLogFile = null;
     private DataOutputStream commitLogStream;
     private final int bufferSize;
     private final int maxGenerations;
+    private SSTableSet dataSet = null;
 
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
@@ -74,7 +70,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	stopWatch.start();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
-	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
 	this.bufferSize = configuration.getBufferSize();
@@ -101,22 +96,20 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    processExistingCommitLog();
 	    createEmptyCommitLog();
 	    checkDataFiles();
-	    index.update();
+	    dataSet = new SSTableSet(storage, columnFamilyDescriptor);
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize column family '" + columnFamilyDescriptor.getName() + "'.",
 		    e);
 	}
     }
 
-    private void checkDataFiles() {
+    private void checkDataFiles() throws FileNotFoundException {
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
-	    new SSTableSet(storage, file).check();
+	    new SSTableSet(storage, columnFamilyDescriptor, file).check();
 	}
     }
 
     private void processExistingCommitLog() throws IOException, StorageException {
-	// TODO: read all Commit-log, check for index and create if needed. Run
-	// // compaction.
 	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
 	    File indexName = SSTableSet.getIndexName(commitLog);
 	    if (!storage.exists(indexName)) {
@@ -265,8 +258,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		    Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
 			    maxDataFileSize, maxGenerations);
 		    compactor.runCompaction();
-		    index.update();
-		} catch (StorageException e) {
+		    dataSet = new SSTableSet(storage, columnFamilyDescriptor);
+		} catch (StorageException | FileNotFoundException e) {
 		    logger.error("Could not run compaction.", e);
 		}
 	    }
@@ -296,18 +289,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private ColumnMap readFromDataFiles(byte[] rowKey) throws StorageException {
-	OffsetRange offsetRange = index.find(rowKey);
-	if (offsetRange == null) {
-	    return null;
+	try {
+	    return dataSet.get(rowKey);
+	} catch (IOException e) {
+	    throw new StorageException("Could not read data.", e);
 	}
-	IndexEntry startOffset = offsetRange.getStartOffset();
-	IndexEntry endOffset = offsetRange.getEndOffset();
-	if (!startOffset.getDataFile().equals(endOffset.getDataFile())) {
-	    throw new IllegalStateException("File overlapping index range for key '"
-		    + Bytes.toHumanReadableString(rowKey) + "':\n" + startOffset + "\n" + endOffset);
-	}
-	SSTableReader reader = new SSTableReader(storage, startOffset.getDataFile());
-	return reader.readColumnMap(rowKey, startOffset, endOffset);
     }
 
     private ColumnMap readFromCommitLogs(byte[] rowKey) throws StorageException {

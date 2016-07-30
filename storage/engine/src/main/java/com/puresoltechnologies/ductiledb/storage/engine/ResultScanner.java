@@ -6,6 +6,14 @@ import java.util.Iterator;
 
 public class ResultScanner implements Closeable, Iterable<Result> {
 
+    private final Table table;
+    private final Scan scan;
+
+    public ResultScanner(Table table, Scan scan) {
+	this.table = table;
+	this.scan = scan;
+    }
+
     @Override
     public Iterator<Result> iterator() {
 	// TODO Auto-generated method stub

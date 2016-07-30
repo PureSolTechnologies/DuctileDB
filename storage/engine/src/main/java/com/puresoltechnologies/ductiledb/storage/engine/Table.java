@@ -48,8 +48,7 @@ public class Table {
     }
 
     public ResultScanner getScanner(Scan scan) {
-	// TODO Auto-generated method stub
-	return null;
+	return new ResultScanner(this, scan);
     }
 
     public long incrementColumnValue(byte[] rowKey, String tableName, byte[] key, long incrementValue) {

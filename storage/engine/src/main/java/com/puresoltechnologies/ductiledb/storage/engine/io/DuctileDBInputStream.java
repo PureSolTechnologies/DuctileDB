@@ -30,6 +30,16 @@ public class DuctileDBInputStream implements Closeable {
 	return skipped;
     }
 
+    public long goToOffset(long offset) throws IOException {
+	if (this.offset > offset) {
+	    throw new IOException("The offset was already passed.");
+	}
+	if (this.offset < offset) {
+	    return skip(offset - this.offset);
+	}
+	return 0;
+    }
+
     public int read(byte[] buffer, int off, int len) throws IOException {
 	int bytesRead = stream.read(buffer, off, len);
 	offset += bytesRead;

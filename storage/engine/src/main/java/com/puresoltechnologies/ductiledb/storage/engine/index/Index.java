@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.index;
 
+import java.io.File;
+
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 /**
@@ -16,6 +18,14 @@ public interface Index {
      * @throws StorageException
      */
     public void update() throws StorageException;
+
+    /**
+     * This method is called to update the index by data filed defined by the
+     * base filename.
+     * 
+     * @throws StorageException
+     */
+    public void update(File latestMetadataFile) throws StorageException;
 
     /**
      * This method is used to register a new index entry.
