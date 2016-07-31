@@ -339,4 +339,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    }
 	}
     }
+
+    @Override
+    public ColumnFamilyScanner getScanner() {
+	// TODO Auto-generated method stub
+	return null;
+    }
 }

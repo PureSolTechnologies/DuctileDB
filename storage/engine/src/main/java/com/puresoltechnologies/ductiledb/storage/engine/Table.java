@@ -23,6 +23,10 @@ public class Table {
 	this.tableDescriptor = tableDescriptor;
     }
 
+    public TableDescriptor getTableDescriptor() {
+	return tableDescriptor;
+    }
+
     public void put(Put put) throws StorageException {
 	tableEngine.put(put);
     }
@@ -57,7 +61,11 @@ public class Table {
     }
 
     public ColumnFamily getColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamilyDescriptor));
+	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamilyDescriptor.getName()));
+    }
+
+    public ColumnFamily getColumnFamily(byte[] columnFamily) {
+	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamily));
     }
 
 }

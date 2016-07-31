@@ -77,8 +77,8 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Table engine '" + tableDescriptor.getName() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
-    public ColumnFamilyEngineImpl getColumnFamilyEngine(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	return columnFamilyEngines.get(columnFamilyDescriptor.getName());
+    public ColumnFamilyEngineImpl getColumnFamilyEngine(byte[] columnFamily) {
+	return columnFamilyEngines.get(columnFamily);
     }
 
     public void put(Put put) throws StorageException {
@@ -106,7 +106,7 @@ public class TableEngineImpl implements TableEngine {
     public Result get(Get get) throws StorageException {
 	byte[] rowKey = get.getKey();
 	Result result = new Result(rowKey);
-	for (byte[] columnFamily : get.getColumnFamilies()) {
+	for (byte[] columnFamily : get.getColumnFamilies().keySet()) {
 	    ColumnMap columns = columnFamilyEngines.get(columnFamily).get(rowKey);
 	    result.add(columnFamily, columns);
 	}

@@ -9,7 +9,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface Index {
+public interface Index extends Iterable<IndexEntry> {
 
     /**
      * This method is called to update the index by data filed defined by the

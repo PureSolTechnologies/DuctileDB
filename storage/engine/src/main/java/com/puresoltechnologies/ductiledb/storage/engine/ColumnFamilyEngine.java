@@ -47,4 +47,10 @@ public interface ColumnFamilyEngine extends Closeable {
      */
     public void delete(byte[] rowKey) throws StorageException;
 
+    /**
+     * This method returns a scanner for the column family.
+     * 
+     * @return
+     */
+    public ColumnFamilyScanner getScanner();
 }

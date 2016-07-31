@@ -1,12 +1,17 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 public class Get {
 
     private final byte[] key;
-    private final Set<byte[]> columnFamilies = new HashSet<>();
+    private final NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = new TreeMap<>(
+	    ByteArrayComparator.getInstance());
 
     public Get(byte[] key) {
 	super();
@@ -18,10 +23,20 @@ public class Get {
     }
 
     public final void addFamily(byte[] columnFamily) {
-	columnFamilies.add(columnFamily);
+	columnFamilies.remove(columnFamily);
+	columnFamilies.put(columnFamily, null);
     }
 
-    public final Set<byte[]> getColumnFamilies() {
+    public final void addColumn(byte[] columnFamily, byte[] column) {
+	NavigableSet<byte[]> columns = columnFamilies.get(columnFamily);
+	if (columns == null) {
+	    columns = new TreeSet<>();
+	    columnFamilies.put(columnFamily, columns);
+	}
+	columns.add(column);
+    }
+
+    public final NavigableMap<byte[], NavigableSet<byte[]>> getColumnFamilies() {
 	return columnFamilies;
     }
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntry;
@@ -118,5 +119,34 @@ public class IndexImpl implements Index {
 	} catch (NoSuchElementException e) {
 	    return null;
 	}
+    }
+
+    @Override
+    public PeekingIterator<IndexEntry> iterator() {
+	return new PeekingIterator<IndexEntry>() {
+
+	    private PeekingIterator<RedBlackTreeNode<RowKey, IndexEntry>> iterator = indexTree.iterator();
+
+	    @Override
+	    public boolean hasNext() {
+		return iterator.hasNext();
+	    }
+
+	    @Override
+	    public IndexEntry peek() {
+		return iterator.peek().getValue();
+	    }
+
+	    @Override
+	    public IndexEntry next() {
+		return iterator.next().getValue();
+	    }
+
+	    @Override
+	    public void remove() {
+		iterator.remove();
+	    }
+	};
+
     }
 }
