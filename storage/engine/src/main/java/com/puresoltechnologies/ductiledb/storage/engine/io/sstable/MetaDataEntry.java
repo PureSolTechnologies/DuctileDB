@@ -1,14 +1,16 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+
 public class MetaDataEntry {
 
     private final String fileName;
-    private final byte[] startKey;
+    private final RowKey startKey;
     private final long startOffset;
-    private final byte[] endKey;
+    private final RowKey endKey;
     private final long endOffset;
 
-    public MetaDataEntry(String fileName, byte[] startKey, long startOffset, byte[] endKey, long endOffset) {
+    public MetaDataEntry(String fileName, RowKey startKey, long startOffset, RowKey endKey, long endOffset) {
 	super();
 	this.fileName = fileName;
 	this.startKey = startKey;
@@ -21,7 +23,7 @@ public class MetaDataEntry {
 	return fileName;
     }
 
-    public byte[] getStartKey() {
+    public RowKey getStartKey() {
 	return startKey;
     }
 
@@ -29,7 +31,7 @@ public class MetaDataEntry {
 	return startOffset;
     }
 
-    public byte[] getEndKey() {
+    public RowKey getEndKey() {
 	return endKey;
     }
 

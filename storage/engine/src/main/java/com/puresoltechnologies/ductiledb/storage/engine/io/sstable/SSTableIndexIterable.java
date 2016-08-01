@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
@@ -42,7 +43,7 @@ public class SSTableIndexIterable extends InputStreamIterable<SSTableIndexEntry>
 		return null;
 	    }
 	    long offset = Bytes.toLong(buffer);
-	    return new SSTableIndexEntry(rowKey, offset);
+	    return new SSTableIndexEntry(new RowKey(rowKey), offset);
 	} catch (IOException e) {
 	    logger.error("Error reading index file.", e);
 	    return null;

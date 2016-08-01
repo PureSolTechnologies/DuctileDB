@@ -1,17 +1,19 @@
 package com.puresoltechnologies.ductiledb.storage.engine.memtable;
 
-import java.util.TreeMap;
-
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
+import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+import com.puresoltechnologies.trees.RedBlackTree;
+import com.puresoltechnologies.trees.RedBlackTreeNode;
 
 /**
  * Basic Memtable implementation.
  * 
  * @author Rick-Rainer Ludwig
  */
-public class Memtable {
+public class Memtable implements Iterable<IndexEntry> {
 
-    private final TreeMap<byte[], Long> values = new TreeMap<>(ByteArrayComparator.getInstance());
+    private final RedBlackTree<RowKey, IndexEntry> values = new RedBlackTree<>();
 
     public Memtable() {
 	super();
@@ -21,20 +23,35 @@ public class Memtable {
 	values.clear();
     }
 
-    public void put(byte[] rowKey, long offset) {
-	values.put(rowKey, offset);
+    public void put(IndexEntry indexEntry) {
+	values.put(indexEntry.getRowKey(), indexEntry);
     }
 
-    public long get(byte[] rowKey) {
-	Long offset = values.get(rowKey);
-	if (offset == null) {
-	    return -1;
-	}
-	return offset;
+    public IndexEntry get(RowKey rowKey) {
+	return values.get(rowKey);
     }
 
-    public TreeMap<byte[], Long> getValues() {
-	return values;
-    }
+    @Override
+    public PeekingIterator<IndexEntry> iterator() {
+	return new PeekingIterator<IndexEntry>() {
 
+	    private final PeekingIterator<RedBlackTreeNode<RowKey, IndexEntry>> iterator = values.iterator();
+
+	    @Override
+	    public boolean hasNext() {
+		return iterator.hasNext();
+	    }
+
+	    @Override
+	    public IndexEntry next() {
+		return iterator.next().getValue();
+	    }
+
+	    @Override
+	    public IndexEntry peek() {
+		return iterator.peek().getValue();
+	    }
+
+	};
+    }
 }

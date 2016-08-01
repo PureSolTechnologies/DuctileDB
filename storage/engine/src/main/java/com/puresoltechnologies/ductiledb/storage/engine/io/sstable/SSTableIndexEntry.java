@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+
 /**
  * This class represents a single index file entry.
  * 
@@ -8,16 +10,16 @@ package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
  */
 public class SSTableIndexEntry {
 
-    private final byte[] rowKey;
+    private final RowKey rowKey;
     private final long offset;
 
-    public SSTableIndexEntry(byte[] rowKey, long offset) {
+    public SSTableIndexEntry(RowKey rowKey, long offset) {
 	super();
 	this.rowKey = rowKey;
 	this.offset = offset;
     }
 
-    public byte[] getRowKey() {
+    public RowKey getRowKey() {
 	return rowKey;
     }
 

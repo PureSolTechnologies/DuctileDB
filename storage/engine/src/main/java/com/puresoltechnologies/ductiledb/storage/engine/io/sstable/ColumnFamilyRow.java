@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 
 /**
@@ -9,15 +10,15 @@ import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
  */
 public class ColumnFamilyRow {
 
-    private final byte[] rowKey;
+    private final RowKey rowKey;
     private final ColumnMap columnMap;
 
-    public ColumnFamilyRow(byte[] rowKey, ColumnMap columnMap) {
+    public ColumnFamilyRow(RowKey rowKey, ColumnMap columnMap) {
 	this.rowKey = rowKey;
 	this.columnMap = columnMap;
     }
 
-    public byte[] getRowKey() {
+    public RowKey getRowKey() {
 	return rowKey;
     }
 

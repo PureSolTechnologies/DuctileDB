@@ -15,7 +15,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
@@ -96,7 +96,7 @@ public class SSTableSet implements Closeable {
 
     }
 
-    public ColumnMap get(byte[] rowKey) throws IOException {
+    public ColumnMap get(RowKey rowKey) throws IOException {
 	OffsetRange offsetRange = index.find(rowKey);
 	if (offsetRange == null) {
 	    return null;
@@ -106,8 +106,8 @@ public class SSTableSet implements Closeable {
 	File dataFile = startOffset.getDataFile();
 	File dataFile2 = endOffset.getDataFile();
 	if (!dataFile.equals(dataFile2)) {
-	    throw new IllegalStateException("File overlapping index range for key '"
-		    + Bytes.toHumanReadableString(rowKey) + "':\n" + startOffset + "\n" + endOffset);
+	    throw new IllegalStateException(
+		    "File overlapping index range for key '" + rowKey + "':\n" + startOffset + "\n" + endOffset);
 	}
 
 	DataInputStream dataStream = dataStreams.get(dataFile);

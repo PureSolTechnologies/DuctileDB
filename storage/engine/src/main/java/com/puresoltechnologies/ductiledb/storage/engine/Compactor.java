@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
@@ -27,7 +28,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -38,8 +38,6 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 public class Compactor {
 
     private static final Logger logger = LoggerFactory.getLogger(Compactor.class);
-
-    private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
@@ -137,13 +135,13 @@ public class Compactor {
 		SSTableReader dataReader = new SSTableReader(storage, dataFile);
 		try (ColumnFamilyRowIterable data = dataReader.readData()) {
 		    for (ColumnFamilyRow dataEntry : data) {
-			byte[] dataRowKey = dataEntry.getRowKey();
-			if (comparator.compare(dataRowKey, commitLogNext.getRowKey()) == 0) {
+			RowKey dataRowKey = dataEntry.getRowKey();
+			if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
 			    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
-			} else if (comparator.compare(dataRowKey, commitLogNext.getRowKey()) < 0) {
+			} else if (dataRowKey.compareTo(commitLogNext.getRowKey()) < 0) {
 			    writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
 			} else {
-			    while (comparator.compare(dataRowKey, commitLogNext.getRowKey()) > 0) {
+			    while (dataRowKey.compareTo(commitLogNext.getRowKey()) > 0) {
 				writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
 				commitLogNext = commitLogIterator.next();
 			    }
@@ -179,13 +177,13 @@ public class Compactor {
 	     * the entry to delete it
 	     */
 	    ColumnMap columnMap = commitLogReader.readColumnMap(commitLogNext);
-	    byte[] rowKey = commitLogNext.getRowKey();
+	    RowKey rowKey = commitLogNext.getRowKey();
 	    writer = writeDataEntry(writer, baseFilename, rowKey, columnMap);
 	}
 	return writer;
     }
 
-    private SSTableWriter writeDataEntry(SSTableWriter writer, String baseFilename, byte[] rowKey, ColumnMap columnMap)
+    private SSTableWriter writeDataEntry(SSTableWriter writer, String baseFilename, RowKey rowKey, ColumnMap columnMap)
 	    throws IOException, StorageException {
 	writer.write(rowKey, columnMap);
 	if (writer.getDataFileSize() >= maxDataFileSize) {
@@ -219,9 +217,9 @@ public class Compactor {
 		List<IndexEntry> indexEntries = index.get(file);
 		Collections.sort(indexEntries);
 		for (IndexEntry entry : indexEntries) {
-		    byte[] rowKey = entry.getRowKey();
-		    stream.write(Bytes.toBytes(rowKey.length));
-		    stream.write(rowKey);
+		    RowKey rowKey = entry.getRowKey();
+		    stream.write(Bytes.toBytes(rowKey.getKey().length));
+		    stream.write(rowKey.getKey());
 
 		    long offset = entry.getOffset();
 		    stream.write(Bytes.toBytes(offset));

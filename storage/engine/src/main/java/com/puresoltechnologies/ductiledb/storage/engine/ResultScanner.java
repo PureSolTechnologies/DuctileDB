@@ -32,7 +32,6 @@ public class ResultScanner implements Closeable, Iterable<Result> {
 
     @Override
     public void close() throws IOException {
-	// TODO Auto-generated method stub
 
     }
 

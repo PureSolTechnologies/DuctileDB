@@ -53,6 +53,6 @@ public interface Index extends Iterable<IndexEntry> {
      *         range in which the entry can be found. <code>null</code> is
      *         returned to indicate that the key is not available.
      */
-    public OffsetRange find(byte[] rowKey);
+    public OffsetRange find(RowKey rowKey);
 
 }

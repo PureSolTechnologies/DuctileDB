@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -22,7 +22,6 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 public class SSTableReader {
 
     private static final Logger logger = LoggerFactory.getLogger(SSTableReader.class);
-    private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
     private final Storage storage;
     private final File dataFile;
@@ -56,12 +55,12 @@ public class SSTableReader {
 	}
     }
 
-    public ColumnMap readColumnMap(byte[] rowKey) throws StorageException {
+    public ColumnMap readColumnMap(RowKey rowKey) throws StorageException {
 	try (SSTableIndexIterable index = readIndex()) {
 	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
 	    while (indexIterator.hasNext()) {
 		SSTableIndexEntry entry = indexIterator.next();
-		if (comparator.compare(entry.getRowKey(), rowKey) == 0) {
+		if (entry.getRowKey().compareTo(rowKey) == 0) {
 		    return readColumnMap(entry);
 		}
 	    }
@@ -74,16 +73,16 @@ public class SSTableReader {
 	}
     }
 
-    public ColumnMap readColumnMap(byte[] rowKey, IndexEntry startOffset, IndexEntry endOffset)
+    public ColumnMap readColumnMap(RowKey rowKey, IndexEntry startOffset, IndexEntry endOffset)
 	    throws StorageException {
 	try (SSTableIndexIterable index = readIndex()) {
 	    index.skip(startOffset.getOffset());
 	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
 	    while (indexIterator.hasNext()) {
 		SSTableIndexEntry indexEntry = indexIterator.next();
-		if (comparator.compare(indexEntry.getRowKey(), rowKey) == 0) {
+		if (indexEntry.getRowKey().compareTo(rowKey) == 0) {
 		    return readColumnMap(indexEntry);
-		} else if (comparator.compare(indexEntry.getRowKey(), endOffset.getRowKey()) > 0) {
+		} else if (indexEntry.getRowKey().compareTo(endOffset.getRowKey()) > 0) {
 		    return null;
 		}
 	    }

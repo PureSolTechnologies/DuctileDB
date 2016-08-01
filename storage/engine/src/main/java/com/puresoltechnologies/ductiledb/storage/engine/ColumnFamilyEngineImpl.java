@@ -7,9 +7,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.NavigableSet;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -18,8 +17,11 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
@@ -125,13 +127,13 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    ColumnFamilyRow row = dataStream.readRow();
 	    Memtable memtable = new Memtable();
 	    while (row != null) {
-		memtable.put(row.getRowKey(), offset);
+		memtable.put(new IndexEntry(row.getRowKey(), indexName, offset));
 		offset = dataStream.getOffset();
 		row = dataStream.readRow();
 	    }
 	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName), bufferSize)) {
-		for (Entry<byte[], Long> entry : memtable.getValues().entrySet()) {
-		    indexStream.writeIndexEntry(entry.getKey(), entry.getValue());
+		for (IndexEntry entry : memtable) {
+		    indexStream.writeIndexEntry(entry.getRowKey(), entry.getOffset());
 		}
 	    }
 	} catch (IOException e) {
@@ -170,14 +172,15 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    values = columnMap;
 	}
 	long offset = commitLogStream.getOffset();
-	writeCommitLog(rowKey, values);
-	writeMemtable(rowKey, offset);
+	RowKey rowKey2 = new RowKey(rowKey);
+	writeCommitLog(rowKey2, values);
+	writeMemtable(rowKey2, offset);
 	if (offset > maxCommitLogSize) {
 	    rolloverCommitLog();
 	}
     }
 
-    private void writeCommitLog(byte[] rowKey, ColumnMap values) throws StorageException {
+    private void writeCommitLog(RowKey rowKey, ColumnMap values) throws StorageException {
 	try {
 	    commitLogStream.writeRow(rowKey, values);
 	    commitLogStream.flush();
@@ -186,8 +189,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     }
 
-    private void writeMemtable(byte[] rowKey, long offset) {
-	memtable.put(rowKey, offset);
+    private void writeMemtable(RowKey rowKey, long offset) {
+	memtable.put(new IndexEntry(rowKey, null, offset));
     }
 
     private void rolloverCommitLog() throws StorageException {
@@ -225,9 +228,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	stopWatch.start();
 	File indexFile = SSTableSet.getIndexName(commitLogFile);
 	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize)) {
-	    TreeMap<byte[], Long> offsets = memtable.getValues();
-	    for (Entry<byte[], Long> row : offsets.entrySet()) {
-		indexStream.writeIndexEntry(row.getKey(), row.getValue());
+	    for (IndexEntry indexEntry : memtable) {
+		indexStream.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
 	    }
 	    indexStream.flush();
 	}
@@ -268,9 +270,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public ColumnMap get(byte[] rowKey) throws StorageException {
-	long offset = memtable.get(rowKey);
+	RowKey rowKey2 = new RowKey(rowKey);
+	IndexEntry indexEntry = memtable.get(rowKey2);
 	ColumnMap columnMap;
-	if (offset >= 0) {
+	if ((indexEntry != null) && (!indexEntry.wasDeleted())) {
+	    long offset = indexEntry.getOffset();
 	    try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
 		dataInputStream.skip(offset);
 		ColumnFamilyRow row = dataInputStream.readRow();
@@ -280,15 +284,16 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    } catch (IOException e) {
 		logger.warn("Could not read data from current commit log '" + commitLogFile + "'.", e);
 	    }
+
 	}
-	columnMap = readFromCommitLogs(rowKey);
+	columnMap = readFromCommitLogs(rowKey2);
 	if (columnMap != null) {
 	    return columnMap;
 	}
-	return readFromDataFiles(rowKey);
+	return readFromDataFiles(rowKey2);
     }
 
-    private ColumnMap readFromDataFiles(byte[] rowKey) throws StorageException {
+    private ColumnMap readFromDataFiles(RowKey rowKey) throws StorageException {
 	try {
 	    return dataSet.get(rowKey);
 	} catch (IOException e) {
@@ -296,7 +301,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     }
 
-    private ColumnMap readFromCommitLogs(byte[] rowKey) throws StorageException {
+    private ColumnMap readFromCommitLogs(RowKey rowKey) throws StorageException {
 	List<File> commitLogs = new ArrayList<>();
 	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
 	    if (commitLog.equals(commitLogFile)) {
@@ -318,9 +323,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public synchronized void delete(byte[] rowKey) throws StorageException {
-	writeMemtable(rowKey, -1);
+	writeMemtable(new RowKey(rowKey), -1);
     }
 
+    @Override
     public void delete(byte[] rowKey, Set<byte[]> columns) throws StorageException {
 	ColumnMap columnMap = get(rowKey);
 	if (columnMap != null) {
@@ -331,8 +337,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		delete(rowKey);
 	    } else {
 		long offset = commitLogStream.getOffset();
-		writeCommitLog(rowKey, columnMap);
-		writeMemtable(rowKey, offset);
+		RowKey rowKey2 = new RowKey(rowKey);
+		writeCommitLog(rowKey2, columnMap);
+		writeMemtable(rowKey2, offset);
 		if (offset > maxCommitLogSize) {
 		    rolloverCommitLog();
 		}
@@ -341,8 +348,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public ColumnFamilyScanner getScanner() {
-	// TODO Auto-generated method stub
-	return null;
+    public ColumnFamilyScanner getScanner(NavigableSet<byte[]> columns) {
+	return new ColumnFamilyScanner(this, columns);
+    }
+
+    public PeekingIterator<IndexEntry> getMemtableIterator() {
+	return memtable.iterator();
     }
 }

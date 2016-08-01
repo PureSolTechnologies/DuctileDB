@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBOutputStream;
 
@@ -12,9 +13,9 @@ public class IndexOutputStream extends DuctileDBOutputStream {
 	super(bufferedOutputStream, bufferSize);
     }
 
-    public void writeIndexEntry(byte[] rowKey, long offset) throws IOException {
-	writeData(Bytes.toBytes(rowKey.length));
-	writeData(rowKey);
+    public void writeIndexEntry(RowKey rowKey, long offset) throws IOException {
+	writeData(Bytes.toBytes(rowKey.getKey().length));
+	writeData(rowKey.getKey());
 	writeData(Bytes.toBytes(offset));
     }
 

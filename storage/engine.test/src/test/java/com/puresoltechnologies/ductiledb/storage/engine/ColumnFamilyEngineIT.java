@@ -17,6 +17,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
@@ -31,7 +32,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescript
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
@@ -199,24 +199,22 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	File indexFile = SSTableSet.getIndexName(dataFile);
 	assertNotNull(indexFile);
 
-	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 	SSTableReader reader = new SSTableReader(storage, dataFile, indexFile);
 	try (SSTableIndexIterable index = reader.readIndex(); ColumnFamilyRowIterable data = reader.readData()) {
-	    byte[] currentRowKey = null;
+	    RowKey currentRowKey = null;
 	    long currentOffset = -1;
 	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
 	    Iterator<ColumnFamilyRow> dataIterator = data.iterator();
 	    while (indexIterator.hasNext() && dataIterator.hasNext()) {
 		SSTableIndexEntry indexEntry = indexIterator.next();
 		ColumnFamilyRow dataEntry = dataIterator.next();
-		byte[] rowKey = indexEntry.getRowKey();
-		assertEquals(Bytes.toHumanReadableString(rowKey), Bytes.toHumanReadableString(dataEntry.getRowKey()));
+		RowKey rowKey = indexEntry.getRowKey();
+		assertEquals(rowKey, dataEntry.getRowKey());
 		long offset = indexEntry.getOffset();
 		assertTrue(currentOffset < offset);
 		if (currentRowKey != null) {
-		    if (comparator.compare(currentRowKey, rowKey) >= 0) {
-			fail("Wrong key order for '" + Bytes.toHumanReadableString(currentRowKey) + "' and '"
-				+ Bytes.toHumanReadableString(rowKey) + "'.");
+		    if (currentRowKey.compareTo(rowKey) >= 0) {
+			fail("Wrong key order for '" + currentRowKey + "' and '" + rowKey + "'.");
 		    }
 		}
 		currentOffset = offset;

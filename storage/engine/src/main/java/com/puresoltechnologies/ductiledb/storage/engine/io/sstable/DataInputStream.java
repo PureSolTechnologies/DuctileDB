@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
@@ -58,7 +59,7 @@ public class DataInputStream extends DuctileDBInputStream {
 	    }
 	    columns.put(columnKey, columnValue);
 	}
-	return new ColumnFamilyRow(rowKey, columns);
+	return new ColumnFamilyRow(new RowKey(rowKey), columns);
     }
 
 }

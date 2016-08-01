@@ -9,6 +9,7 @@ import java.security.MessageDigest;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -28,9 +29,9 @@ public class SSTableWriter implements Closeable {
     private final String baseFilename;
     private final DataOutputStream dataStream;
     private final IndexOutputStream indexStream;
-    private byte[] startRowKey = null;
+    private RowKey startRowKey = null;
     private long startOffset = 0;
-    private byte[] endRowKey = null;
+    private RowKey endRowKey = null;
     private long endOffset = 0;
 
     public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
@@ -77,7 +78,7 @@ public class SSTableWriter implements Closeable {
 	return dataStream.getOffset();
     }
 
-    public final byte[] getStartRowKey() {
+    public final RowKey getStartRowKey() {
 	return startRowKey;
     }
 
@@ -85,7 +86,7 @@ public class SSTableWriter implements Closeable {
 	return startOffset;
     }
 
-    public final byte[] getEndRowKey() {
+    public final RowKey getEndRowKey() {
 	return endRowKey;
     }
 
@@ -93,7 +94,7 @@ public class SSTableWriter implements Closeable {
 	return endOffset;
     }
 
-    public void write(byte[] rowKey, ColumnMap columns) throws IOException {
+    public void write(RowKey rowKey, ColumnMap columns) throws IOException {
 	if (startRowKey == null) {
 	    startRowKey = rowKey;
 	    startOffset = dataStream.getOffset();

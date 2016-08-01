@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
@@ -15,9 +16,9 @@ public class DataOutputStream extends DuctileDBOutputStream {
 	super(bufferedOutputStream, bufferSize);
     }
 
-    public void writeRow(byte[] rowKey, ColumnMap columns) throws IOException {
-	writeData(Bytes.toBytes(rowKey.length));
-	writeData(rowKey);
+    public void writeRow(RowKey rowKey, ColumnMap columns) throws IOException {
+	writeData(Bytes.toBytes(rowKey.getKey().length));
+	writeData(rowKey.getKey());
 	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();
 	writeData(Bytes.toBytes(entrySet.size()));
 	for (Entry<byte[], byte[]> column : entrySet) {
