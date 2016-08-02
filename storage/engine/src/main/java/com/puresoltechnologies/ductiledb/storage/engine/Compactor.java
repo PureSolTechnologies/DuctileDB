@@ -19,9 +19,8 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
@@ -117,7 +116,7 @@ public class Compactor {
 
     private void performCompaction(String baseFilename) throws StorageException, IOException {
 	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile);
-	try (SSTableIndexIterable commitLogIndex = commitLogReader.readIndex()) {
+	try (IndexEntryIterable commitLogIndex = commitLogReader.readIndex()) {
 	    Iterator<IndexEntry> commitLogIterator = commitLogIndex.iterator();
 	    List<File> dataFiles = findDataFiles();
 	    integrateCommitLog(commitLogIterator, commitLogReader, dataFiles, baseFilename);
@@ -126,8 +125,8 @@ public class Compactor {
 
     private void integrateCommitLog(Iterator<IndexEntry> commitLogIterator, SSTableReader commitLogReader,
 	    List<File> dataFiles, String baseFilename) throws StorageException, IOException {
-	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename + "-" + fileCount, bufferSize);
+	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename,
+		bufferSize);
 	try {
 	    IndexEntry commitLogNext = commitLogIterator.next();
 	    for (File dataFile : dataFiles) {
@@ -189,8 +188,7 @@ public class Compactor {
 	    writer.close();
 	    addToIndex(writer);
 	    fileCount++;
-	    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename + "-" + fileCount,
-		    bufferSize);
+	    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename, bufferSize);
 	}
 	return writer;
     }

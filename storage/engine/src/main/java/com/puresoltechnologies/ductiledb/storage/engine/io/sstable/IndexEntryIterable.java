@@ -12,13 +12,13 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
-public class SSTableIndexIterable extends InputStreamIterable<IndexEntry> {
+public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SSTableIndexIterable.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
 
     private final File indexFile;
 
-    public SSTableIndexIterable(File indexFile, IndexInputStream inputStream) {
+    public IndexEntryIterable(File indexFile, IndexInputStream inputStream) {
 	super(inputStream);
 	this.indexFile = indexFile;
     }

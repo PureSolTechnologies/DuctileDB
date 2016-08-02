@@ -54,4 +54,28 @@ public class Memtable implements Iterable<IndexEntry> {
 
 	};
     }
+
+    public PeekingIterator<IndexEntry> iterator(RowKey startKey, RowKey endKey) {
+	return new PeekingIterator<IndexEntry>() {
+
+	    private final PeekingIterator<RedBlackTreeNode<RowKey, IndexEntry>> iterator = values.iterator(startKey,
+		    endKey);
+
+	    @Override
+	    public boolean hasNext() {
+		return iterator.hasNext();
+	    }
+
+	    @Override
+	    public IndexEntry next() {
+		return iterator.next().getValue();
+	    }
+
+	    @Override
+	    public IndexEntry peek() {
+		return iterator.peek().getValue();
+	    }
+
+	};
+    }
 }

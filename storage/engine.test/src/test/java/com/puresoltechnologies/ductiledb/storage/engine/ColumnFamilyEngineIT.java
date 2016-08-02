@@ -21,9 +21,8 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
@@ -200,7 +199,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	assertNotNull(indexFile);
 
 	SSTableReader reader = new SSTableReader(storage, dataFile, indexFile);
-	try (SSTableIndexIterable index = reader.readIndex(); ColumnFamilyRowIterable data = reader.readData()) {
+	try (IndexEntryIterable index = reader.readIndex(); ColumnFamilyRowIterable data = reader.readData()) {
 	    RowKey currentRowKey = null;
 	    long currentOffset = -1;
 	    Iterator<IndexEntry> indexIterator = index.iterator();

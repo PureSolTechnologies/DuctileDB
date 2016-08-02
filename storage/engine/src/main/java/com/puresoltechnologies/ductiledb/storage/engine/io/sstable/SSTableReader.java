@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
@@ -27,18 +28,18 @@ public class SSTableReader {
     private final File dataFile;
     private final File indexFile;
 
-    public SSTableReader(Storage storage, File dataFile) {
+    public SSTableReader(Storage storage, File dataFile) throws FileNotFoundException {
 	this(storage, dataFile, SSTableSet.getIndexName(dataFile));
     }
 
-    public SSTableReader(Storage storage, File dataFile, File indexFile) {
+    public SSTableReader(Storage storage, File dataFile, File indexFile) throws FileNotFoundException {
 	this.storage = storage;
 	this.dataFile = dataFile;
 	this.indexFile = indexFile;
     }
 
-    public SSTableIndexIterable readIndex() throws FileNotFoundException {
-	return new SSTableIndexIterable(indexFile, new IndexInputStream(storage.open(indexFile)));
+    public IndexEntryIterable readIndex() throws FileNotFoundException {
+	return new IndexEntryIterable(indexFile, new IndexInputStream(indexFile, storage.open(indexFile)));
     }
 
     public ColumnFamilyRowIterable readData() throws FileNotFoundException {
@@ -56,7 +57,7 @@ public class SSTableReader {
     }
 
     public ColumnMap readColumnMap(RowKey rowKey) throws StorageException {
-	try (SSTableIndexIterable index = readIndex()) {
+	try (IndexEntryIterable index = readIndex()) {
 	    Iterator<IndexEntry> indexIterator = index.iterator();
 	    while (indexIterator.hasNext()) {
 		IndexEntry entry = indexIterator.next();
@@ -75,7 +76,7 @@ public class SSTableReader {
 
     public ColumnMap readColumnMap(RowKey rowKey, IndexEntry startOffset, IndexEntry endOffset)
 	    throws StorageException {
-	try (SSTableIndexIterable index = readIndex()) {
+	try (IndexEntryIterable index = readIndex()) {
 	    index.skip(startOffset.getOffset());
 	    Iterator<IndexEntry> indexIterator = index.iterator();
 	    while (indexIterator.hasNext()) {

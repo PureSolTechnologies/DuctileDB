@@ -7,6 +7,7 @@ import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
+import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 
 public class ColumnFamilyScanner implements PeekingIterator<IndexEntry> {
 
@@ -16,14 +17,15 @@ public class ColumnFamilyScanner implements PeekingIterator<IndexEntry> {
     private final RowKey startRowKey;
     private final RowKey endRowKey;
 
-    public ColumnFamilyScanner(PeekingIterator<IndexEntry> memtableIterator, List<File> commitLogs,
-	    SSTableSet dataFiles, RowKey startRowKey, RowKey endRowKey) {
+    public ColumnFamilyScanner(Memtable memtable, List<File> commitLogs, SSTableSet dataFiles, RowKey startRowKey,
+	    RowKey endRowKey) {
 	super();
-	this.memtableIterator = memtableIterator;
+	this.memtableIterator = memtable.iterator(startRowKey, endRowKey);
 	this.commitLogs = commitLogs;
 	this.dataFiles = dataFiles;
 	this.startRowKey = startRowKey;
 	this.endRowKey = endRowKey;
+
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
+package com.puresoltechnologies.ductiledb.storage.engine;
 
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;

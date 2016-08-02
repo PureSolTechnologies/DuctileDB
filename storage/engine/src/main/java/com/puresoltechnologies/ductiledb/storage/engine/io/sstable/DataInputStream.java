@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;

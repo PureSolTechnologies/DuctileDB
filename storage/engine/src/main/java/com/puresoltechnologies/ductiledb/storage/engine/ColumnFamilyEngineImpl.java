@@ -22,7 +22,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexOutputStream;
@@ -203,6 +202,25 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     }
 
+    public static String createFilename(String filePrefix, Instant timestamp, int number, String suffix) {
+	StringBuffer buffer = new StringBuffer(filePrefix);
+	buffer.append('-');
+	buffer.append(timestamp.getEpochSecond());
+	int millis = timestamp.getNano() / 1000000;
+	if (millis < 100) {
+	    if (millis < 10) {
+		buffer.append("00");
+	    } else {
+		buffer.append('0');
+	    }
+	}
+	buffer.append(millis);
+	buffer.append("-");
+	buffer.append(number);
+	buffer.append(suffix);
+	return buffer.toString();
+    }
+
     public static String createBaseFilename(String filePrefix) {
 	Instant timestamp = Instant.now();
 	StringBuffer buffer = new StringBuffer(filePrefix);
@@ -217,6 +235,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    }
 	}
 	buffer.append(millis);
+	return buffer.toString();
+    }
+
+    public static String createFilename(String baseFilename, int number, String suffix) {
+	StringBuffer buffer = new StringBuffer(baseFilename);
+	buffer.append("-");
+	buffer.append(number);
+	buffer.append(suffix);
 	return buffer.toString();
     }
 
@@ -300,15 +326,19 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private ColumnMap readFromCommitLogs(RowKey rowKey) throws StorageException {
-	List<File> commitLogs = getCurrentCommitLogs();
-	for (File commitLog : commitLogs) {
-	    SSTableReader reader = new SSTableReader(storage, commitLog);
-	    ColumnMap entry = reader.readColumnMap(rowKey);
-	    if (entry != null) {
-		return entry;
+	try {
+	    List<File> commitLogs = getCurrentCommitLogs();
+	    for (File commitLog : commitLogs) {
+		SSTableReader reader = new SSTableReader(storage, commitLog);
+		ColumnMap entry = reader.readColumnMap(rowKey);
+		if (entry != null) {
+		    return entry;
+		}
 	    }
+	    return null;
+	} catch (FileNotFoundException e) {
+	    throw new StorageException("Could not read commit log.", e);
 	}
-	return null;
     }
 
     private List<File> getCurrentCommitLogs() {
@@ -353,7 +383,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException {
 	try {
-	    return new ColumnFamilyScanner(memtable.iterator(), getCurrentCommitLogs(),
+	    return new ColumnFamilyScanner(memtable, getCurrentCommitLogs(),
 		    new SSTableSet(storage, columnFamilyDescriptor), startRowKey, endRowKey);
 	} catch (FileNotFoundException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);

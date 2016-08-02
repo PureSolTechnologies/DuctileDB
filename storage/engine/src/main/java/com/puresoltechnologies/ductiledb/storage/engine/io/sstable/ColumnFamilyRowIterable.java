@@ -5,11 +5,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
 public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SSTableIndexIterable.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
 
     public ColumnFamilyRowIterable(DataInputStream inputStream) {
 	super(inputStream);

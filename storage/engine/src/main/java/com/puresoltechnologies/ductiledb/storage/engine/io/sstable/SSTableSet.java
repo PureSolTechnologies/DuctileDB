@@ -50,8 +50,8 @@ public class SSTableSet implements Closeable {
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final String timestamp;
     private final Index index;
-    private final Map<File, IndexInputStream> indexStreams = new HashMap<>();
-    private final Map<File, DataInputStream> dataStreams = new HashMap<>();
+    private final Map<File, IndexFileReader> indexReaders = new HashMap<>();
+    private final Map<File, DataFileReader> dataReaders = new HashMap<>();
 
     public SSTableSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws FileNotFoundException {
 	this(storage, columnFamilyDescriptor, getLatestMetaDataFile(storage, columnFamilyDescriptor));
@@ -73,22 +73,22 @@ public class SSTableSet implements Closeable {
 
     @Override
     public void close() throws IOException {
-	dataStreams.values().forEach(stream -> {
+	dataReaders.values().forEach(stream -> {
 	    try {
 		stream.close();
 	    } catch (IOException e) {
 		logger.warn("Could not close data stream.", e);
 	    }
 	});
-	dataStreams.clear();
-	indexStreams.values().forEach(stream -> {
+	dataReaders.clear();
+	indexReaders.values().forEach(stream -> {
 	    try {
 		stream.close();
 	    } catch (IOException e) {
 		logger.warn("Could not close index stream.", e);
 	    }
 	});
-	indexStreams.clear();
+	indexReaders.clear();
     }
 
     public void check() {
@@ -110,20 +110,12 @@ public class SSTableSet implements Closeable {
 		    "File overlapping index range for key '" + rowKey + "':\n" + startOffset + "\n" + endOffset);
 	}
 
-	DataInputStream dataStream = dataStreams.get(dataFile);
-	if (dataStream == null) {
-	    dataStream = new DataInputStream(storage.open(dataFile));
-	    dataStream.skip(startOffset.getOffset());
-	} else {
-	    if (dataStream.getOffset() < startOffset.getOffset()) {
-		dataStream.goToOffset(startOffset.getOffset());
-	    } else {
-		dataStream.close();
-		dataStream = new DataInputStream(storage.open(dataFile));
-		dataStream.skip(startOffset.getOffset());
-	    }
+	DataFileReader dataReader = dataReaders.get(dataFile);
+	if (dataReader == null) {
+	    dataReader = new DataFileReader(storage, dataFile);
+	    dataReaders.put(dataFile, dataReader);
 	}
-	return dataStream.readRow().getColumnMap();
+	dataReader.goToOffset(startOffset.getOffset());
+	return dataReader.get();
     }
-
 }
