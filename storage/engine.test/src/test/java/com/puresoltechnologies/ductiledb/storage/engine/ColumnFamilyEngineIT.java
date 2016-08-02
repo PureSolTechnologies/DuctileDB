@@ -17,12 +17,12 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
@@ -203,10 +203,10 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	try (SSTableIndexIterable index = reader.readIndex(); ColumnFamilyRowIterable data = reader.readData()) {
 	    RowKey currentRowKey = null;
 	    long currentOffset = -1;
-	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
+	    Iterator<IndexEntry> indexIterator = index.iterator();
 	    Iterator<ColumnFamilyRow> dataIterator = data.iterator();
 	    while (indexIterator.hasNext() && dataIterator.hasNext()) {
-		SSTableIndexEntry indexEntry = indexIterator.next();
+		IndexEntry indexEntry = indexIterator.next();
 		ColumnFamilyRow dataEntry = dataIterator.next();
 		RowKey rowKey = indexEntry.getRowKey();
 		assertEquals(rowKey, dataEntry.getRowKey());

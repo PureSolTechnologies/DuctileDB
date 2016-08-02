@@ -1,10 +1,10 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.io.Closeable;
-import java.util.NavigableSet;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 
 /**
@@ -56,5 +56,5 @@ public interface ColumnFamilyEngine extends Closeable {
      * 
      * @return
      */
-    public ColumnFamilyScanner getScanner(NavigableSet<byte[]> columns);
+    public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException;
 }

@@ -1,25 +1,30 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
-public class SSTableIndexIterable extends InputStreamIterable<SSTableIndexEntry> {
+public class SSTableIndexIterable extends InputStreamIterable<IndexEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(SSTableIndexIterable.class);
 
-    public SSTableIndexIterable(IndexInputStream inputStream) {
+    private final File indexFile;
+
+    public SSTableIndexIterable(File indexFile, IndexInputStream inputStream) {
 	super(inputStream);
+	this.indexFile = indexFile;
     }
 
     @Override
-    protected SSTableIndexEntry readEntry() {
+    protected IndexEntry readEntry() {
 	DuctileDBInputStream inputStream = getInputStream();
 	try {
 	    byte[] buffer = new byte[8];
@@ -43,7 +48,7 @@ public class SSTableIndexIterable extends InputStreamIterable<SSTableIndexEntry>
 		return null;
 	    }
 	    long offset = Bytes.toLong(buffer);
-	    return new SSTableIndexEntry(new RowKey(rowKey), offset);
+	    return new IndexEntry(new RowKey(rowKey), indexFile, offset);
 	} catch (IOException e) {
 	    logger.error("Error reading index file.", e);
 	    return null;

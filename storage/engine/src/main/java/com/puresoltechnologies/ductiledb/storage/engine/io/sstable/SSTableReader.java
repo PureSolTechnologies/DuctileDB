@@ -38,14 +38,14 @@ public class SSTableReader {
     }
 
     public SSTableIndexIterable readIndex() throws FileNotFoundException {
-	return new SSTableIndexIterable(new IndexInputStream(storage.open(indexFile)));
+	return new SSTableIndexIterable(indexFile, new IndexInputStream(storage.open(indexFile)));
     }
 
     public ColumnFamilyRowIterable readData() throws FileNotFoundException {
 	return new ColumnFamilyRowIterable(new DataInputStream(storage.open(dataFile)));
     }
 
-    public ColumnMap readColumnMap(SSTableIndexEntry indexEntry) throws StorageException {
+    public ColumnMap readColumnMap(IndexEntry indexEntry) throws StorageException {
 	try (ColumnFamilyRowIterable data = readData()) {
 	    data.skip(indexEntry.getOffset());
 	    ColumnFamilyRow entry = data.iterator().next();
@@ -57,9 +57,9 @@ public class SSTableReader {
 
     public ColumnMap readColumnMap(RowKey rowKey) throws StorageException {
 	try (SSTableIndexIterable index = readIndex()) {
-	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
+	    Iterator<IndexEntry> indexIterator = index.iterator();
 	    while (indexIterator.hasNext()) {
-		SSTableIndexEntry entry = indexIterator.next();
+		IndexEntry entry = indexIterator.next();
 		if (entry.getRowKey().compareTo(rowKey) == 0) {
 		    return readColumnMap(entry);
 		}
@@ -77,9 +77,9 @@ public class SSTableReader {
 	    throws StorageException {
 	try (SSTableIndexIterable index = readIndex()) {
 	    index.skip(startOffset.getOffset());
-	    Iterator<SSTableIndexEntry> indexIterator = index.iterator();
+	    Iterator<IndexEntry> indexIterator = index.iterator();
 	    while (indexIterator.hasNext()) {
-		SSTableIndexEntry indexEntry = indexIterator.next();
+		IndexEntry indexEntry = indexIterator.next();
 		if (indexEntry.getRowKey().compareTo(rowKey) == 0) {
 		    return readColumnMap(indexEntry);
 		} else if (indexEntry.getRowKey().compareTo(endOffset.getRowKey()) > 0) {

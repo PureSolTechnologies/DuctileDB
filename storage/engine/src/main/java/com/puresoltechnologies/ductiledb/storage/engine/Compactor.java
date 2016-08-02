@@ -21,7 +21,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableIndexIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
@@ -119,18 +118,18 @@ public class Compactor {
     private void performCompaction(String baseFilename) throws StorageException, IOException {
 	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile);
 	try (SSTableIndexIterable commitLogIndex = commitLogReader.readIndex()) {
-	    Iterator<SSTableIndexEntry> commitLogIterator = commitLogIndex.iterator();
+	    Iterator<IndexEntry> commitLogIterator = commitLogIndex.iterator();
 	    List<File> dataFiles = findDataFiles();
 	    integrateCommitLog(commitLogIterator, commitLogReader, dataFiles, baseFilename);
 	}
     }
 
-    private void integrateCommitLog(Iterator<SSTableIndexEntry> commitLogIterator, SSTableReader commitLogReader,
+    private void integrateCommitLog(Iterator<IndexEntry> commitLogIterator, SSTableReader commitLogReader,
 	    List<File> dataFiles, String baseFilename) throws StorageException, IOException {
 	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
 		baseFilename + "-" + fileCount, bufferSize);
 	try {
-	    SSTableIndexEntry commitLogNext = commitLogIterator.next();
+	    IndexEntry commitLogNext = commitLogIterator.next();
 	    for (File dataFile : dataFiles) {
 		SSTableReader dataReader = new SSTableReader(storage, dataFile);
 		try (ColumnFamilyRowIterable data = dataReader.readData()) {
@@ -169,7 +168,7 @@ public class Compactor {
 	}
     }
 
-    private SSTableWriter writeCommitLogEntry(SSTableReader commitLogReader, SSTableIndexEntry commitLogNext,
+    private SSTableWriter writeCommitLogEntry(SSTableReader commitLogReader, IndexEntry commitLogNext,
 	    SSTableWriter writer, String baseFilename) throws IOException, StorageException {
 	if (commitLogNext.getOffset() >= 0) {
 	    /*

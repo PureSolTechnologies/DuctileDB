@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.NavigableSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
@@ -190,7 +188,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private void writeMemtable(RowKey rowKey, long offset) {
-	memtable.put(new IndexEntry(rowKey, null, offset));
+	memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
     }
 
     private void rolloverCommitLog() throws StorageException {
@@ -302,6 +300,18 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private ColumnMap readFromCommitLogs(RowKey rowKey) throws StorageException {
+	List<File> commitLogs = getCurrentCommitLogs();
+	for (File commitLog : commitLogs) {
+	    SSTableReader reader = new SSTableReader(storage, commitLog);
+	    ColumnMap entry = reader.readColumnMap(rowKey);
+	    if (entry != null) {
+		return entry;
+	    }
+	}
+	return null;
+    }
+
+    private List<File> getCurrentCommitLogs() {
 	List<File> commitLogs = new ArrayList<>();
 	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
 	    if (commitLog.equals(commitLogFile)) {
@@ -311,14 +321,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
 	Collections.sort(commitLogs);
 	Collections.reverse(commitLogs);
-	for (File commitLog : commitLogs) {
-	    SSTableReader reader = new SSTableReader(storage, commitLog);
-	    ColumnMap entry = reader.readColumnMap(rowKey);
-	    if (entry != null) {
-		return entry;
-	    }
-	}
-	return null;
+	return commitLogs;
     }
 
     @Override
@@ -348,11 +351,12 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public ColumnFamilyScanner getScanner(NavigableSet<byte[]> columns) {
-	return new ColumnFamilyScanner(this, columns);
-    }
-
-    public PeekingIterator<IndexEntry> getMemtableIterator() {
-	return memtable.iterator();
+    public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException {
+	try {
+	    return new ColumnFamilyScanner(memtable.iterator(), getCurrentCommitLogs(),
+		    new SSTableSet(storage, columnFamilyDescriptor), startRowKey, endRowKey);
+	} catch (FileNotFoundException e) {
+	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
+	}
     }
 }
