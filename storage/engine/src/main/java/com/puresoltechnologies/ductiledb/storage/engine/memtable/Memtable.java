@@ -1,7 +1,10 @@
 package com.puresoltechnologies.ductiledb.storage.engine.memtable;
 
+import java.io.IOException;
+
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.trees.RedBlackTree;
 import com.puresoltechnologies.trees.RedBlackTreeNode;
@@ -55,11 +58,21 @@ public class Memtable implements Iterable<IndexEntry> {
 	};
     }
 
-    public PeekingIterator<IndexEntry> iterator(RowKey startKey, RowKey endKey) {
-	return new PeekingIterator<IndexEntry>() {
+    public IndexIterator iterator(RowKey startKey, RowKey endKey) {
+	return new IndexIterator() {
 
 	    private final PeekingIterator<RedBlackTreeNode<RowKey, IndexEntry>> iterator = values.iterator(startKey,
 		    endKey);
+
+	    @Override
+	    public RowKey getStartRowKey() {
+		return startKey;
+	    }
+
+	    @Override
+	    public RowKey getEndRowKey() {
+		return endKey;
+	    }
 
 	    @Override
 	    public boolean hasNext() {
@@ -74,6 +87,11 @@ public class Memtable implements Iterable<IndexEntry> {
 	    @Override
 	    public IndexEntry peek() {
 		return iterator.peek().getValue();
+	    }
+
+	    @Override
+	    public void close() throws IOException {
+		// intentionally left empty
 	    }
 
 	};

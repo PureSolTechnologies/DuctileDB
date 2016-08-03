@@ -4,8 +4,10 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +16,10 @@ import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
@@ -50,8 +54,9 @@ public class SSTableSet implements Closeable {
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final String timestamp;
     private final Index index;
-    private final Map<File, IndexFileReader> indexReaders = new HashMap<>();
-    private final Map<File, DataFileReader> dataReaders = new HashMap<>();
+    private final NavigableSet<File> dataFiles = new TreeSet<>();
+    private final NavigableMap<File, IndexFileReader> indexReaders = new TreeMap<>();
+    private final NavigableMap<File, DataFileReader> dataReaders = new TreeMap<>();
 
     public SSTableSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws FileNotFoundException {
 	this(storage, columnFamilyDescriptor, getLatestMetaDataFile(storage, columnFamilyDescriptor));
@@ -69,6 +74,9 @@ public class SSTableSet implements Closeable {
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.timestamp = timestamp;
 	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
+	for (File dataFile : storage.list(columnFamilyDescriptor.getDirectory(), new DataFilenameFilter(timestamp))) {
+	    dataFiles.add(dataFile);
+	}
     }
 
     @Override
@@ -117,5 +125,65 @@ public class SSTableSet implements Closeable {
 	}
 	dataReader.goToOffset(startOffset.getOffset());
 	return dataReader.get();
+    }
+
+    private class SSTableIndexIterator implements IndexIterator {
+
+	private final RowKey start;
+	private final RowKey stop;
+	private File currentDataFile;
+	private File currentIndexFile;
+	private IndexEntryIterable indexIterable;
+	private IndexIterator indexIterator;
+
+	public SSTableIndexIterator(RowKey start, RowKey stop) throws FileNotFoundException {
+	    this.start = start;
+	    this.stop = stop;
+	    currentDataFile = index.floor(start).getDataFile();
+	    currentIndexFile = getIndexName(currentDataFile);
+	    indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
+	    indexIterator = indexIterable.iterator(start, stop);
+	    gotoStart(start);
+	}
+
+	@Override
+	public RowKey getStartRowKey() {
+	    return start;
+	}
+
+	@Override
+	public RowKey getEndRowKey() {
+	    return stop;
+	}
+
+	@Override
+	public IndexEntry peek() {
+	    return indexIterator.peek();
+	}
+
+	@Override
+	public boolean hasNext() {
+	    if (!indexIterator.hasNext()) {
+
+	    }
+	    return false;
+	}
+
+	@Override
+	public IndexEntry next() {
+	    return indexIterator.next();
+	}
+
+	@Override
+	public void close() throws IOException {
+	    if (indexIterable != null) {
+		indexIterable.close();
+	    }
+	}
+
+    }
+
+    public IndexIterator getIndexIterator(RowKey startRowKey, RowKey stopRowKey) throws FileNotFoundException {
+	return new SSTableIndexIterator(startRowKey, stopRowKey);
     }
 }

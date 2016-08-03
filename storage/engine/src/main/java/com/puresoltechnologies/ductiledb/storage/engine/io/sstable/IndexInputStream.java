@@ -18,6 +18,10 @@ public class IndexInputStream extends DuctileDBInputStream {
 	this.indexFile = indexFile;
     }
 
+    public File getIndexFile() {
+	return indexFile;
+    }
+
     public IndexEntry readEntry() throws IOException {
 	byte[] buffer = new byte[8];
 	int len = read(buffer, 0, 4);

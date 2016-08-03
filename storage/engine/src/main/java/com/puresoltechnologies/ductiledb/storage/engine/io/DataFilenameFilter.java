@@ -11,17 +11,17 @@ import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DbFilenameFilter implements FilenameFilter {
+public class DataFilenameFilter implements FilenameFilter {
 
     private static final String FILE_PREFIX = ColumnFamilyEngine.DB_FILE_PREFIX + "-";
 
     private final String timestamp;
 
-    public DbFilenameFilter() {
+    public DataFilenameFilter() {
 	this.timestamp = null;
     }
 
-    public DbFilenameFilter(String timestamp) {
+    public DataFilenameFilter(String timestamp) {
 	this.timestamp = timestamp;
     }
 

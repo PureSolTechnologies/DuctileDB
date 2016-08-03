@@ -20,7 +20,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.io.DbFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
@@ -187,7 +187,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    assertEquals(20l, Bytes.toLong(columnMap.get(Bytes.toBytes(20l))));
 	}
 	File dataFile = null;
-	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new DbFilenameFilter())) {
+	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new DataFilenameFilter())) {
 	    if (dataFile == null) {
 		dataFile = file;
 	    } else {

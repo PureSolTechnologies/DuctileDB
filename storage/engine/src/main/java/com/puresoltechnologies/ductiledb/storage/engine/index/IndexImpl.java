@@ -80,6 +80,16 @@ public class IndexImpl implements Index {
     }
 
     @Override
+    public IndexEntry ceiling(RowKey rowKey) {
+	return indexTree.ceilingNode(rowKey).getValue();
+    }
+
+    @Override
+    public IndexEntry floor(RowKey rowKey) {
+	return indexTree.floorNode(rowKey).getValue();
+    }
+
+    @Override
     public PeekingIterator<IndexEntry> iterator() {
 	return new PeekingIterator<IndexEntry>() {
 

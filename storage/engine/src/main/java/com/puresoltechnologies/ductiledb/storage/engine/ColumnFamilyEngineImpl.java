@@ -383,7 +383,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException {
 	try {
-	    return new ColumnFamilyScanner(memtable, getCurrentCommitLogs(),
+	    return new ColumnFamilyScanner(storage, memtable, getCurrentCommitLogs(),
 		    new SSTableSet(storage, columnFamilyDescriptor), startRowKey, endRowKey);
 	} catch (FileNotFoundException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);

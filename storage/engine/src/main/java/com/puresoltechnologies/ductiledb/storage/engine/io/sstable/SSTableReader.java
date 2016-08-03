@@ -39,7 +39,7 @@ public class SSTableReader {
     }
 
     public IndexEntryIterable readIndex() throws FileNotFoundException {
-	return new IndexEntryIterable(indexFile, new IndexInputStream(indexFile, storage.open(indexFile)));
+	return new IndexEntryIterable(indexFile, storage.open(indexFile));
     }
 
     public ColumnFamilyRowIterable readData() throws FileNotFoundException {

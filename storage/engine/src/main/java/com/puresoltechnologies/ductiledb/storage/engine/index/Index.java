@@ -55,4 +55,7 @@ public interface Index extends Iterable<IndexEntry> {
      */
     public OffsetRange find(RowKey rowKey);
 
+    public IndexEntry ceiling(RowKey rowKey);
+
+    public IndexEntry floor(RowKey rowKey);
 }
