@@ -66,7 +66,6 @@ public class Compactor {
 	    String baseFilename = ColumnFamilyEngineImpl.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
 	    performCompaction(baseFilename);
 	    writeMetaData(baseFilename);
-	    deleteCommitLogFiles();
 	    stopWatch.stop();
 	    logger.info("Compaction for '" + commitLogFile + "' finished in " + stopWatch.getMillis() + "ms.");
 	} catch (IOException e) {
@@ -223,12 +222,6 @@ public class Compactor {
 		}
 	    }
 	}
-    }
-
-    private void deleteCommitLogFiles() {
-	storage.delete(DataFileSet.getIndexName(commitLogFile));
-	storage.delete(DataFileSet.getMD5Name(commitLogFile));
-	storage.delete(commitLogFile);
     }
 
 }

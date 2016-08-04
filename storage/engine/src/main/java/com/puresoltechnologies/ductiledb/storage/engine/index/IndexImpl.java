@@ -19,7 +19,6 @@ public class IndexImpl implements Index {
 
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
-
     private final RedBlackTree<RowKey, IndexEntry> indexTree = new RedBlackTree<>();
 
     public IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
@@ -28,10 +27,17 @@ public class IndexImpl implements Index {
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
     }
 
+    public IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
+	    throws StorageException {
+	super();
+	this.storage = storage;
+	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	update(metadataFile);
+    }
+
     @Override
     public void update() throws StorageException {
-	File latestMetadata = DataFileSet.getLatestMetaDataFile(storage, columnFamilyDescriptor);
-	update(latestMetadata);
+	update(DataFileSet.getLatestMetaDataFile(storage, columnFamilyDescriptor));
     }
 
     @Override
@@ -47,8 +53,12 @@ public class IndexImpl implements Index {
 			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getStartOffset());
 		IndexEntry index2 = new IndexEntry(entry.getEndKey(),
 			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getEndOffset());
-		indexTree.put(index1.getRowKey(), index1);
-		indexTree.put(index2.getRowKey(), index2);
+		if (storage.exists(index1.getDataFile())) {
+		    indexTree.put(index1.getRowKey(), index1);
+		}
+		if (storage.exists(index2.getDataFile())) {
+		    indexTree.put(index2.getRowKey(), index2);
+		}
 	    }
 	} catch (IOException e) {
 	    throw new StorageException("Could not determine latest timestamp.");

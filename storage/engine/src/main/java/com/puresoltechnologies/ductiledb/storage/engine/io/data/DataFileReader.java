@@ -46,7 +46,7 @@ public class DataFileReader extends FileReader<DataInputStream> implements Close
     public ColumnMap get(RowKey rowKey) throws IOException {
 	do {
 	    ColumnFamilyRow row = getStream().readRow();
-	    if (row.getRowKey().equals(rowKey)) {
+	    if ((row != null) && (row.getRowKey().equals(rowKey))) {
 		return row.getColumnMap();
 	    }
 	} while (!getStream().isEof());
@@ -57,7 +57,7 @@ public class DataFileReader extends FileReader<DataInputStream> implements Close
 	goToOffset(startOffset);
 	do {
 	    ColumnFamilyRow row = getStream().readRow();
-	    if (row.getRowKey().equals(rowKey)) {
+	    if ((row != null) && (row.getRowKey().equals(rowKey))) {
 		return row.getColumnMap();
 	    }
 	} while ((getOffset() <= endOffset) & (!getStream().isEof()));

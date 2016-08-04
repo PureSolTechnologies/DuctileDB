@@ -53,7 +53,7 @@ public class DuctileDBInputStream implements Closeable {
     }
 
     public boolean isEof() throws IOException {
-	return stream.available() > 0;
+	return stream.available() <= 0;
     }
 
 }

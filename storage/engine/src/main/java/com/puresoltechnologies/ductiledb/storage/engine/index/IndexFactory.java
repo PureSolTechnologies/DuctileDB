@@ -1,5 +1,8 @@
 package com.puresoltechnologies.ductiledb.storage.engine.index;
 
+import java.io.File;
+
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -25,6 +28,11 @@ public class IndexFactory {
      */
     public static Index create(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
 	return new IndexImpl(storage, columnFamilyDescriptor);
+    }
+
+    public static Index create(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
+	    throws StorageException {
+	return new IndexImpl(storage, columnFamilyDescriptor, metadataFile);
     }
 
 }

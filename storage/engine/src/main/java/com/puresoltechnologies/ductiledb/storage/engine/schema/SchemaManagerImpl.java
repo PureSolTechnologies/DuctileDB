@@ -274,42 +274,37 @@ public class SchemaManagerImpl implements SchemaManager {
     public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName)
 	    throws SchemaException, StorageException {
 	if ((columnFamilyName == null) || (columnFamilyName.length == 0)) {
-	    throw new SchemaException("Column family name '" + columnFamilyName
+	    throw new SchemaException("Column family name '" + Bytes.toHumanReadableString(columnFamilyName)
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
-	logger.info("Creating column family '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "/"
-		+ columnFamilyName + "' in storage '" + getStoreName() + "'...");
+	File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), Bytes.toString(columnFamilyName));
+	ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName, tableDescriptor,
+		columnFamilyDirectory);
+	logger.info("Creating column family '" + columnFamilyDescriptor + "' in storage '" + getStoreName() + "'...");
 	NamespaceDescriptor presentDescriptor = namespaces.get(namespaceDescriptor.getName());
 	if (!namespaceDescriptor.equals(presentDescriptor)) {
-	    throw new StorageException("Namespace '" + namespaceDescriptor.getName() + "' is not present.");
+	    throw new StorageException("Namespace '" + namespaceDescriptor + "' is not present.");
 	}
 	TableDescriptor presentTable = presentDescriptor.getTable(tableDescriptor.getName());
 	if (presentTable == null) {
-	    throw new StorageException(
-		    "Table '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "' is not present.");
+	    throw new StorageException("Table '" + tableDescriptor + "' is not present.");
 	}
 	if (!presentTable.equals(tableDescriptor)) {
-	    throw new StorageException(
-		    "Table '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "' is not present.");
+	    throw new StorageException("Table '" + tableDescriptor + "' is not present.");
 	}
 	ColumnFamilyDescriptor columnFamily = presentTable.getColumnFamily(columnFamilyName);
 	if (columnFamily != null) {
-	    throw new StorageException(
-		    "Column family '" + namespaceDescriptor.getName() + "." + tableDescriptor.getName() + "/"
-			    + columnFamilyName + "' in storage '" + getStoreName() + "' is already present.");
+	    throw new StorageException("Column family '" + columnFamilyDescriptor + "' in storage '" + getStoreName()
+		    + "' is already present.");
 	}
 	try {
-	    File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), Bytes.toString(columnFamilyName));
 	    storage.createDirectory(columnFamilyDirectory);
-	    ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName,
-		    tableDescriptor, columnFamilyDirectory);
 	    tableDescriptor.addColumnFamily(columnFamilyDescriptor);
 	    databaseEngine.addColumnFamily(columnFamilyDescriptor);
 	    return columnFamilyDescriptor;
 	} catch (IOException e) {
-	    throw new SchemaException(
-		    "Could not create column family '" + tableDescriptor + "." + columnFamilyName + "'.", e);
+	    throw new SchemaException("Could not create column family '" + columnFamilyDescriptor + "'.", e);
 	}
     }
 

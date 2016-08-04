@@ -12,6 +12,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
@@ -40,6 +41,11 @@ public class DataFileSet implements Closeable {
 		ColumnFamilyEngineImpl.MD5_FILE_SUFFIX));
     }
 
+    private static File getMetadataFile(ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp) {
+	return new File(columnFamilyDescriptor.getDirectory(),
+		ColumnFamilyEngineImpl.DB_FILE_PREFIX + "-" + timestamp + ColumnFamilyEngineImpl.DATA_FILE_SUFFIX);
+    }
+
     public static File getLatestMetaDataFile(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
 	Iterable<File> listMetadata = storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter());
 	File latestMetadata = null;
@@ -53,31 +59,29 @@ public class DataFileSet implements Closeable {
 
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
-    private final String timestamp;
+    private final File metadataFile;
     private final Index index;
     private final NavigableSet<File> dataFiles = new TreeSet<>();
     private final NavigableMap<File, IndexFileReader> indexReaders = new TreeMap<>();
     private final NavigableMap<File, DataFileReader> dataReaders = new TreeMap<>();
 
-    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws FileNotFoundException {
+    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
 	this(storage, columnFamilyDescriptor, getLatestMetaDataFile(storage, columnFamilyDescriptor));
     }
 
     public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
-	    throws FileNotFoundException {
-	this(storage, columnFamilyDescriptor, metadataFile != null
-		? metadataFile.getName().replaceAll("DB-", "").replaceAll("\\.metadata", "") : null);
+	    throws StorageException {
+	super();
+	this.storage = storage;
+	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	this.metadataFile = metadataFile;
+	this.index = IndexFactory.create(storage, columnFamilyDescriptor, metadataFile);
+	index.forEach(indexEntry -> dataFiles.add(indexEntry.getDataFile()));
     }
 
     public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp)
-	    throws FileNotFoundException {
-	this.storage = storage;
-	this.columnFamilyDescriptor = columnFamilyDescriptor;
-	this.timestamp = timestamp;
-	this.index = IndexFactory.create(storage, columnFamilyDescriptor);
-	for (File dataFile : storage.list(columnFamilyDescriptor.getDirectory(), new DataFilenameFilter(timestamp))) {
-	    dataFiles.add(dataFile);
-	}
+	    throws StorageException {
+	this(storage, columnFamilyDescriptor, getMetadataFile(columnFamilyDescriptor, timestamp));
     }
 
     @Override
@@ -121,8 +125,14 @@ public class DataFileSet implements Closeable {
 
 	DataFileReader dataReader = dataReaders.get(dataFile);
 	if (dataReader == null) {
-	    dataReader = new DataFileReader(storage, dataFile);
-	    dataReaders.put(dataFile, dataReader);
+	    try {
+		dataReader = new DataFileReader(storage, dataFile);
+		dataReaders.put(dataFile, dataReader);
+	    } catch (FileNotFoundException e) {
+		logger.warn("Could not find data file.", e);
+		dataReaders.remove(dataFile);
+		return null;
+	    }
 	}
 	dataReader.goToOffset(startOffset.getOffset());
 	return dataReader.get();

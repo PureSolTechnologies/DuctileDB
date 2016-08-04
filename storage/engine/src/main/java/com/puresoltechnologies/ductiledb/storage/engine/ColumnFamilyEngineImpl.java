@@ -20,6 +20,7 @@ import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
@@ -30,6 +31,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexOutputStre
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -64,19 +66,25 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
 	super();
-	logger.info("Starting column family engine '" + columnFamilyDescriptor.getName() + "'...");
-	StopWatch stopWatch = new StopWatch();
-	stopWatch.start();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.maxCommitLogSize = configuration.getMaxCommitLogSize();
 	this.maxDataFileSize = configuration.getMaxDataFileSize();
 	this.bufferSize = configuration.getBufferSize();
 	this.maxGenerations = configuration.getMaxFileGenerations();
+	logger.info("Starting column family engine '" + toString() + "'...");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
 	open();
 	stopWatch.stop();
-	logger.info("Column family engine '" + columnFamilyDescriptor.getName() + "' started in "
-		+ stopWatch.getMillis() + "ms.");
+	logger.info("Column family engine '" + toString() + "' started in " + stopWatch.getMillis() + "ms.");
+    }
+
+    @Override
+    public String toString() {
+	TableDescriptor table = columnFamilyDescriptor.getTable();
+	return "engine:" + table.getNamespace().getName() + "." + table.getName() + "/"
+		+ Bytes.toHumanReadableString(columnFamilyDescriptor.getName());
     }
 
     public void setMaxCommitLogSize(int maxCommitLogSize) {
@@ -95,14 +103,23 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    processExistingCommitLog();
 	    createEmptyCommitLog();
 	    checkDataFiles();
-	    dataSet = new DataFileSet(storage, columnFamilyDescriptor);
+	    openDataFiles();
 	} catch (IOException e) {
-	    throw new StorageException("Could not initialize column family '" + columnFamilyDescriptor.getName() + "'.",
-		    e);
+	    throw new StorageException("Could not initialize column family '" + toString() + "'.", e);
 	}
     }
 
-    private void checkDataFiles() throws FileNotFoundException {
+    private synchronized void openDataFiles() throws StorageException {
+	dataSet = new DataFileSet(storage, columnFamilyDescriptor);
+    }
+
+    private void deleteCommitLogFiles(File commitLogFile) {
+	storage.delete(DataFileSet.getIndexName(commitLogFile));
+	storage.delete(DataFileSet.getMD5Name(commitLogFile));
+	storage.delete(commitLogFile);
+    }
+
+    private void checkDataFiles() throws StorageException {
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
 	    new DataFileSet(storage, columnFamilyDescriptor, file).check();
 	}
@@ -140,7 +157,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public void close() {
-	logger.info("Closing column family engine '" + columnFamilyDescriptor.getName() + "'...");
+	logger.info("Closing column family engine '" + toString() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	if (commitLogStream != null) {
@@ -157,8 +174,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    logger.warn("Shutdown of sstable creation executor took too long.", e);
 	}
 	stopWatch.stop();
-	logger.info("Column family engine '" + columnFamilyDescriptor.getName() + "' closed in " + stopWatch.getMillis()
-		+ "ms.");
+	logger.info("Column family engine '" + toString() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
     @Override
@@ -284,8 +300,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		    Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
 			    maxDataFileSize, maxGenerations);
 		    compactor.runCompaction();
-		    dataSet = new DataFileSet(storage, columnFamilyDescriptor);
-		} catch (StorageException | FileNotFoundException e) {
+		    openDataFiles();
+		    deleteCommitLogFiles(commitLogFile);
+		} catch (StorageException e) {
 		    logger.error("Could not run compaction.", e);
 		}
 	    }

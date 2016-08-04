@@ -174,6 +174,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    }
 
 	    ColumnMap columnMap = columnFamilyEngine.get(Bytes.toBytes(2l));
+	    assertNotNull("No column map loaded.", columnMap);
 	    assertEquals(2l, Bytes.toLong(columnMap.get(Bytes.toBytes(2l))));
 	    assertEquals(4l, Bytes.toLong(columnMap.get(Bytes.toBytes(4l))));
 	    assertEquals(6l, Bytes.toLong(columnMap.get(Bytes.toBytes(6l))));

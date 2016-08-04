@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import java.io.File;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+
 public class ColumnFamilyDescriptor {
 
     private final byte[] name;
@@ -28,7 +30,8 @@ public class ColumnFamilyDescriptor {
 
     @Override
     public String toString() {
-	return "column family:" + table.getNamespace().getName() + "." + table.getName() + "/" + name;
+	return "column family:" + table.getNamespace().getName() + "." + table.getName() + "/"
+		+ Bytes.toHumanReadableString(name);
     }
 
     @Override
