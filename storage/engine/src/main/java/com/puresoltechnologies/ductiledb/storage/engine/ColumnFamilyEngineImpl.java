@@ -22,6 +22,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexOutputStream;
@@ -42,12 +43,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyEngineImpl.class);
 
-    private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-	@Override
-	public Thread newThread(Runnable r) {
-	    return new Thread(r, "ductiledb-compaction");
-	}
-    });
+    private final ExecutorService compactionExecutor=Executors.newSingleThreadExecutor(new ThreadFactory(){@Override public Thread newThread(Runnable r){return new Thread(r,"ductiledb-compaction");}});
 
     private long maxCommitLogSize;
     private long maxDataFileSize;
@@ -329,8 +325,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	try {
 	    List<File> commitLogs = getCurrentCommitLogs();
 	    for (File commitLog : commitLogs) {
-		SSTableReader reader = new SSTableReader(storage, commitLog);
-		ColumnMap entry = reader.readColumnMap(rowKey);
+		try {DataFileReader reader = new DataFileReader(storage, commitLog);
+		ColumnMap entry = reader.get(rowKey);
 		if (entry != null) {
 		    return entry;
 		}

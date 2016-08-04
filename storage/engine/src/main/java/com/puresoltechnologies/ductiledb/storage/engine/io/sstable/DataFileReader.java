@@ -31,6 +31,16 @@ public class DataFileReader extends FileReader<DataInputStream> {
 	return getStream().readRow().getColumnMap();
     }
 
+    public ColumnMap get(RowKey rowKey) throws IOException {
+	do {
+	    ColumnFamilyRow row = getStream().readRow();
+	    if (row.getRowKey().equals(rowKey)) {
+		return row.getColumnMap();
+	    }
+	} while (!getStream().isEof());
+	return null;
+    }
+
     public ColumnMap get(RowKey rowKey, long startOffset, long endOffset) throws IOException {
 	goToOffset(startOffset);
 	do {
@@ -38,7 +48,7 @@ public class DataFileReader extends FileReader<DataInputStream> {
 	    if (row.getRowKey().equals(rowKey)) {
 		return row.getColumnMap();
 	    }
-	} while (getOffset() <= endOffset);
+	} while ((getOffset() <= endOffset) & (!getStream().isEof()));
 	return null;
     }
 }

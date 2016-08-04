@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -11,6 +12,10 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow> {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
+
+    public ColumnFamilyRowIterable(BufferedInputStream bufferedOutputStream) {
+	this(new DataInputStream(bufferedOutputStream));
+    }
 
     public ColumnFamilyRowIterable(DataInputStream inputStream) {
 	super(inputStream);

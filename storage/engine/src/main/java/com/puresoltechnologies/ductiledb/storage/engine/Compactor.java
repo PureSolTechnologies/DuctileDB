@@ -130,8 +130,7 @@ public class Compactor {
 	try {
 	    IndexEntry commitLogNext = commitLogIterator.next();
 	    for (File dataFile : dataFiles) {
-		SSTableReader dataReader = new SSTableReader(storage, dataFile);
-		try (ColumnFamilyRowIterable data = dataReader.readData()) {
+		try (ColumnFamilyRowIterable data = new ColumnFamilyRowIterable(storage.open(dataFile))) {
 		    for (ColumnFamilyRow dataEntry : data) {
 			RowKey dataRowKey = dataEntry.getRowKey();
 			if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
