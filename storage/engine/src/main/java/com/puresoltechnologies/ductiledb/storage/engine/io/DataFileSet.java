@@ -4,10 +4,14 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +33,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSet implements Closeable {
 
+    private static final Pattern pattern = Pattern.compile("DB-(\\d*)-(\\d+)\\.index");
     private static final Logger logger = LoggerFactory.getLogger(DataFileSet.class);
 
     public static File getIndexName(File dataFile) {
@@ -62,8 +67,12 @@ public class DataFileSet implements Closeable {
     private final File metadataFile;
     private final Index index;
     private final NavigableSet<File> dataFiles = new TreeSet<>();
+    private final NavigableSet<File> indexFiles = new TreeSet<>();
     private final NavigableMap<File, IndexFileReader> indexReaders = new TreeMap<>();
     private final NavigableMap<File, DataFileReader> dataReaders = new TreeMap<>();
+
+    private final Map<Integer, File> numToIndexFile = new HashMap<>();
+    private final Map<File, Integer> indexFileToNum = new HashMap<>();
 
     public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
 	this(storage, columnFamilyDescriptor, getLatestMetaDataFile(storage, columnFamilyDescriptor));
@@ -76,7 +85,17 @@ public class DataFileSet implements Closeable {
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.metadataFile = metadataFile;
 	this.index = IndexFactory.create(storage, columnFamilyDescriptor, metadataFile);
+
 	index.forEach(indexEntry -> dataFiles.add(indexEntry.getDataFile()));
+	dataFiles.forEach(file -> {
+	    Matcher matcher = pattern.matcher(file.getName());
+	    if (matcher.matches()) {
+		indexFiles.add(getIndexName(file));
+		int num = Integer.parseInt(matcher.group(2));
+		numToIndexFile.put(num, file);
+		indexFileToNum.put(file, num);
+	    }
+	});
     }
 
     public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp)
@@ -138,6 +157,14 @@ public class DataFileSet implements Closeable {
 	return dataReader.get();
     }
 
+    private File getNextIndexFile(File indexFile) {
+	if (indexFile == null) {
+	    return null;
+	}
+	Integer num = indexFileToNum.get(indexFile);
+	return numToIndexFile.get(num + 1);
+    }
+
     private class SSTableIndexIterator implements IndexIterator {
 
 	private final RowKey start;
@@ -146,6 +173,7 @@ public class DataFileSet implements Closeable {
 	private File currentIndexFile;
 	private IndexEntryIterable indexIterable;
 	private IndexIterator indexIterator;
+	private IndexEntry nextIndex = null;
 
 	public SSTableIndexIterator(RowKey start, RowKey stop) throws FileNotFoundException {
 	    this.start = start;
@@ -169,26 +197,54 @@ public class DataFileSet implements Closeable {
 
 	@Override
 	public IndexEntry peek() {
-	    return indexIterator.peek();
+	    if (nextIndex == null) {
+		readNext();
+	    }
+	    return nextIndex;
 	}
 
 	@Override
 	public boolean hasNext() {
-	    if (!indexIterator.hasNext()) {
-
+	    if (nextIndex == null) {
+		readNext();
 	    }
-	    return false;
+	    return nextIndex != null;
 	}
 
 	@Override
 	public IndexEntry next() {
-	    return indexIterator.next();
+	    if (nextIndex == null) {
+		readNext();
+	    }
+	    IndexEntry result = nextIndex;
+	    nextIndex = null;
+	    return result;
+	}
+
+	private void readNext() {
+	    if (indexIterator.hasNext()) {
+		nextIndex = indexIterator.next();
+	    } else {
+		try {
+		    indexIterable.close();
+		    currentIndexFile = getNextIndexFile(currentIndexFile);
+		    if (currentIndexFile != null) {
+			indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
+			indexIterator = indexIterable.iterator(start, stop);
+			nextIndex = indexIterator.next();
+		    }
+		} catch (IOException e) {
+		    logger.error("Could not find next index file.", e);
+		    nextIndex = null;
+		}
+	    }
 	}
 
 	@Override
 	public void close() throws IOException {
 	    if (indexIterable != null) {
 		indexIterable.close();
+		indexIterable = null;
 	    }
 	}
 

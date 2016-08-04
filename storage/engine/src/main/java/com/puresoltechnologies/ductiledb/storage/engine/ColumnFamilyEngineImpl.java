@@ -27,6 +27,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilte
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataOutputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
@@ -346,10 +347,20 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	try {
 	    List<File> commitLogs = getCurrentCommitLogs();
 	    for (File commitLog : commitLogs) {
-		try (DataFileReader reader = new DataFileReader(storage, commitLog)) {
-		    ColumnMap entry = reader.get(rowKey);
-		    if (entry != null) {
-			return entry;
+		IndexEntry indexEntry = null;
+		try (IndexFileReader reader = new IndexFileReader(storage, DataFileSet.getIndexName(commitLog))) {
+		    indexEntry = reader.get(rowKey);
+		} catch (FileNotFoundException e) {
+		    logger.warn("Could not find index file.", e);
+		}
+		if (indexEntry != null) {
+		    try (DataFileReader reader = new DataFileReader(storage, commitLog)) {
+			ColumnMap entry = reader.get(indexEntry);
+			if (entry != null) {
+			    return entry;
+			}
+		    } catch (FileNotFoundException e) {
+			logger.warn("Could not find commit log.", e);
 		    }
 		}
 	    }

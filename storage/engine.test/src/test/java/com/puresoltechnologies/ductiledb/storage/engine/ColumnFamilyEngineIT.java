@@ -34,6 +34,29 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 
+    private DatabaseEngineImpl engine;
+    private SchemaManager schemaManager;
+    private NamespaceDescriptor namespace;
+    private TableDescriptor tableDescriptor;
+    private ColumnFamilyDescriptor columnFamilyDescriptor;
+    private Storage storage;
+    private Table table;
+    private ColumnFamily columnFamily;
+
+    private ColumnFamilyEngineImpl createTestColumnFamily(String namespaceName, String tableName,
+	    String columnFamilyName) throws SchemaException, StorageException {
+	engine = getEngine();
+	schemaManager = engine.getSchemaManager();
+	namespace = schemaManager.createNamespaceIfNotPresent(namespaceName);
+	tableDescriptor = schemaManager.createTableIfNotPresent(namespace, tableName);
+	columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
+		Bytes.toBytes(columnFamilyName));
+	storage = engine.getStorage();
+	table = engine.getTable(tableDescriptor);
+	columnFamily = table.getColumnFamily(columnFamilyDescriptor);
+	return (ColumnFamilyEngineImpl) columnFamily.getEngine();
+    }
+
     /**
      * This test checks for a small amount of data in memory functionality like
      * put, get, re-put and delete.
@@ -43,13 +66,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
      */
     @Test
     public void testSmallDataAmount() throws StorageException, SchemaException {
-	DatabaseEngineImpl engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSmallDataAmount");
-	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		Bytes.toBytes("testcf"));
-
 	byte[] rowKey1 = Bytes.toBytes(1l);
 	byte[] rowKey2 = Bytes.toBytes(2l);
 	byte[] rowKey3 = Bytes.toBytes(3l);
@@ -67,71 +83,72 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	values3.put(Bytes.toBytes(31l), Bytes.toBytes(311l));
 
 	byte[] timestamp = Bytes.toBytes(Instant.now());
-	Table table = engine.getTable(tableDescriptor);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
 
-	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
-	columnFamilyEngine.put(timestamp, rowKey1, values1);
-	columnFamilyEngine.put(timestamp, rowKey2, values2);
-	columnFamilyEngine.put(timestamp, rowKey3, values3);
-	/*
-	 * Add all 3 rows
-	 */
-	ColumnMap returned1 = columnFamilyEngine.get(rowKey1);
-	assertEquals(3, returned1.size());
-	assertEquals(111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
-	assertEquals(112l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
-	assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
-	ColumnMap returned2 = columnFamilyEngine.get(rowKey2);
-	assertEquals(2, returned2.size());
-	assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l))));
-	assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l))));
-	ColumnMap returned3 = columnFamilyEngine.get(rowKey3);
-	assertEquals(1, returned3.size());
-	assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testSmallDataAmount", "test",
+		"testcf")) {
 
-	/*
-	 * Update row1
-	 */
-	values1 = new ColumnMap();
-	values1.put(Bytes.toBytes(11l), Bytes.toBytes(1111l));
-	values1.put(Bytes.toBytes(12l), Bytes.toBytes(1122l));
-	values1.put(Bytes.toBytes(14l), Bytes.toBytes(1144l));
-	columnFamilyEngine.put(timestamp, rowKey1, values1);
-	/*
-	 * Check for updates and not changed values
-	 */
-	returned1 = columnFamilyEngine.get(rowKey1);
-	assertEquals(4, returned1.size());
-	assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
-	assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
-	assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
-	assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
-	returned2 = columnFamilyEngine.get(rowKey2);
-	assertEquals(2, returned2.size());
-	assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l))));
-	assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l))));
-	returned3 = columnFamilyEngine.get(rowKey3);
-	assertEquals(1, returned3.size());
-	assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
-	/*
-	 * Delete row 2
-	 */
-	columnFamilyEngine.delete(rowKey2);
-	/*
-	 * Check for deleted row and unchanged values
-	 */
-	returned1 = columnFamilyEngine.get(rowKey1);
-	assertEquals(4, returned1.size());
-	assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
-	assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
-	assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
-	assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
-	returned2 = columnFamilyEngine.get(rowKey2);
-	assertNull(returned2);
-	returned3 = columnFamilyEngine.get(rowKey3);
-	assertEquals(1, returned3.size());
-	assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	    columnFamilyEngine.put(timestamp, rowKey1, values1);
+	    columnFamilyEngine.put(timestamp, rowKey2, values2);
+	    columnFamilyEngine.put(timestamp, rowKey3, values3);
+	    /*
+	     * Add all 3 rows
+	     */
+	    ColumnMap returned1 = columnFamilyEngine.get(rowKey1);
+	    assertEquals(3, returned1.size());
+	    assertEquals(111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
+	    assertEquals(112l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
+	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
+	    ColumnMap returned2 = columnFamilyEngine.get(rowKey2);
+	    assertEquals(2, returned2.size());
+	    assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l))));
+	    assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l))));
+	    ColumnMap returned3 = columnFamilyEngine.get(rowKey3);
+	    assertEquals(1, returned3.size());
+	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+
+	    /*
+	     * Update row1
+	     */
+	    values1 = new ColumnMap();
+	    values1.put(Bytes.toBytes(11l), Bytes.toBytes(1111l));
+	    values1.put(Bytes.toBytes(12l), Bytes.toBytes(1122l));
+	    values1.put(Bytes.toBytes(14l), Bytes.toBytes(1144l));
+	    columnFamilyEngine.put(timestamp, rowKey1, values1);
+	    /*
+	     * Check for updates and not changed values
+	     */
+	    returned1 = columnFamilyEngine.get(rowKey1);
+	    assertEquals(4, returned1.size());
+	    assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
+	    assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
+	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
+	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
+	    returned2 = columnFamilyEngine.get(rowKey2);
+	    assertEquals(2, returned2.size());
+	    assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l))));
+	    assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l))));
+	    returned3 = columnFamilyEngine.get(rowKey3);
+	    assertEquals(1, returned3.size());
+	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	    /*
+	     * Delete row 2
+	     */
+	    columnFamilyEngine.delete(rowKey2);
+	    /*
+	     * Check for deleted row and unchanged values
+	     */
+	    returned1 = columnFamilyEngine.get(rowKey1);
+	    assertEquals(4, returned1.size());
+	    assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
+	    assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
+	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
+	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
+	    returned2 = columnFamilyEngine.get(rowKey2);
+	    assertNull(returned2);
+	    returned3 = columnFamilyEngine.get(rowKey3);
+	    assertEquals(1, returned3.size());
+	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	}
     }
 
     /**
@@ -145,17 +162,9 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     @Test
     public void testSingleDataFileCreation()
 	    throws SchemaException, FileNotFoundException, IOException, StorageException {
-	DatabaseEngineImpl engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSSTableCreation");
-	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		Bytes.toBytes("testcf"));
-	Storage storage = engine.getStorage();
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testSingleDataFileCreation", "test",
+		"testcf")) {
 
-	Table table = engine.getTable(tableDescriptor);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
-	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
 	    assertEquals(1, commitLogs.size());
 	    File commitLogFile = commitLogs.iterator().next();
@@ -226,18 +235,8 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     @Test
     public void testMultiDataFileCreationWithCompaction()
 	    throws SchemaException, FileNotFoundException, IOException, StorageException {
-	DatabaseEngineImpl engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.createNamespaceIfNotPresent("testSSTableCreationWithCompaction");
-	TableDescriptor tableDescriptor = schemaManager.createTableIfNotPresent(namespace, "test");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		Bytes.toBytes("testcf"));
-
-	Storage storage = engine.getStorage();
-
-	Table table = engine.getTable(tableDescriptor);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyDescriptor);
-	try (ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine()) {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(
+		"testMultiDataFileCreationWithCompaction", "test", "testcf")) {
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
 	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);

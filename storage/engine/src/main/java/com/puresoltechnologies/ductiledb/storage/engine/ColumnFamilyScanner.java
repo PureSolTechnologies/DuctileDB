@@ -20,18 +20,20 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryItera
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class ColumnFamilyScanner implements PeekingIterator<IndexEntry>, Closeable {
+public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyScanner.class);
 
     private final IndexIterator memtableIterator;
     private final List<File> commitLogs;
     private final List<DataFileReader> dataFileReaders = new ArrayList<>();
-    private final List<IndexEntryIterable> indexIterables = new ArrayList<>();
-    private final List<IndexIterator> indexIterators = new ArrayList<>();
+    private final List<IndexEntryIterable> commitLogIndexIterables = new ArrayList<>();
+    private final List<IndexIterator> commitLogIndexIterators = new ArrayList<>();
     private final DataFileSet dataFiles;
+    private final IndexIterator dataFilesIndexIterator;
     private final RowKey startRowKey;
     private final RowKey endRowKey;
+    private ColumnFamilyRow nextRow = null;
 
     public ColumnFamilyScanner(Storage storage, Memtable memtable, List<File> commitLogs, DataFileSet dataFiles,
 	    RowKey startRowKey, RowKey endRowKey) throws FileNotFoundException {
@@ -41,13 +43,16 @@ public class ColumnFamilyScanner implements PeekingIterator<IndexEntry>, Closeab
 	this.dataFiles = dataFiles;
 	this.startRowKey = startRowKey;
 	this.endRowKey = endRowKey;
+	this.dataFilesIndexIterator = dataFiles.getIndexIterator(startRowKey, endRowKey);
 
 	for (File commitLog : commitLogs) {
 	    dataFileReaders.add(new DataFileReader(storage, commitLog));
 	    File indexFile = DataFileSet.getIndexName(commitLog);
 	    IndexEntryIterable indexIterable = new IndexEntryIterable(indexFile, storage.open(indexFile));
-	    indexIterables.add(indexIterable);
-	    indexIterators.add(indexIterable.iterator());
+	    commitLogIndexIterables.add(indexIterable);
+	    IndexIterator iterator = indexIterable.iterator();
+	    iterator.gotoStart(startRowKey);
+	    commitLogIndexIterators.add(iterator);
 	}
 
     }
@@ -61,7 +66,7 @@ public class ColumnFamilyScanner implements PeekingIterator<IndexEntry>, Closeab
 		logger.warn("Could not close reader.", e);
 	    }
 	});
-	indexIterables.forEach(iterable -> {
+	commitLogIndexIterables.forEach(iterable -> {
 	    try {
 		iterable.close();
 	    } catch (IOException e) {
@@ -72,20 +77,75 @@ public class ColumnFamilyScanner implements PeekingIterator<IndexEntry>, Closeab
 
     @Override
     public boolean hasNext() {
-	// TODO Auto-generated method stub
-	return false;
+	if (nextRow == null) {
+	    readNextRow();
+	}
+	return nextRow != null;
     }
 
     @Override
-    public IndexEntry next() {
-	// TODO Auto-generated method stub
-	return null;
+    public ColumnFamilyRow next() {
+	if (nextRow == null) {
+	    readNextRow();
+	}
+	ColumnFamilyRow result = nextRow;
+	nextRow = null;
+	return result;
     }
 
     @Override
-    public IndexEntry peek() {
-	// TODO Auto-generated method stub
-	return null;
+    public ColumnFamilyRow peek() {
+	if (nextRow == null) {
+	    readNextRow();
+	}
+	return nextRow;
     }
 
+    private void readNextRow() {
+	IndexEntry minimum = null;
+	if (memtableIterator.hasNext()) {
+	    minimum = memtableIterator.peek();
+	}
+	for (IndexIterator iterator : commitLogIndexIterators) {
+	    if (iterator.hasNext()) {
+		int compareResult = minimum.compareTo(iterator.peek());
+		if (compareResult == 0) {
+		    iterator.skip();
+		} else if (compareResult > 0) {
+		    minimum = iterator.peek();
+		}
+	    } else {
+		iterator.remove();
+	    }
+	}
+	if (dataFilesIndexIterator.hasNext()) {
+	    int compareResult = minimum.compareTo(dataFilesIndexIterator.peek());
+	    if (compareResult == 0) {
+		dataFilesIndexIterator.skip();
+	    } else if (compareResult > 0) {
+		minimum = dataFilesIndexIterator.peek();
+	    }
+	}
+
+	if (memtableIterator.hasNext()) {
+	    if (memtableIterator.peek().equals(minimum)) {
+		memtableIterator.skip();
+	    }
+	}
+	for (IndexIterator iterator : commitLogIndexIterators) {
+	    if (iterator.hasNext()) {
+		if (iterator.peek().equals(minimum)) {
+		    iterator.skip();
+		}
+	    }
+	}
+	if (dataFilesIndexIterator.hasNext()) {
+	    if (dataFilesIndexIterator.hasNext()) {
+		if (dataFilesIndexIterator.peek().equals(minimum)) {
+		    dataFilesIndexIterator.skip();
+		}
+	    }
+	}
+
+    }
 }

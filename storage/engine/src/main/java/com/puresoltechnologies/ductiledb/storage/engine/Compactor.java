@@ -125,8 +125,8 @@ public class Compactor {
 
     private void integrateCommitLog(IndexIterator commitLogIterator, DataFileReader commitLogReader,
 	    List<File> dataFiles, String baseFilename) throws StorageException, IOException {
-	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename,
-		bufferSize);
+	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
+		baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    IndexEntry commitLogNext = commitLogIterator.next();
 	    for (File dataFile : dataFiles) {
@@ -151,13 +151,6 @@ public class Compactor {
 		while (commitLogIterator.hasNext()) {
 		    commitLogNext = commitLogIterator.next();
 		    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
-		    if (writer.getDataFileSize() >= maxDataFileSize) {
-			writer.close();
-			addToIndex(writer);
-			fileCount++;
-			writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-				baseFilename + "-" + fileCount, bufferSize);
-		    }
 		}
 	    }
 	} finally {
@@ -187,7 +180,8 @@ public class Compactor {
 	    writer.close();
 	    addToIndex(writer);
 	    fileCount++;
-	    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename, bufferSize);
+	    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename + "-" + fileCount,
+		    bufferSize);
 	}
 	return writer;
     }
