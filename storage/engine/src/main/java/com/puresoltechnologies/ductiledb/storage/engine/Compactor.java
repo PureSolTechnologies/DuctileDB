@@ -6,7 +6,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -16,14 +15,15 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.ColumnFamilyRowIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.SSTableWriter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -115,15 +115,16 @@ public class Compactor {
     }
 
     private void performCompaction(String baseFilename) throws StorageException, IOException {
-	SSTableReader commitLogReader = new SSTableReader(storage, commitLogFile);
-	try (IndexEntryIterable commitLogIndex = commitLogReader.readIndex()) {
-	    Iterator<IndexEntry> commitLogIterator = commitLogIndex.iterator();
+	File indexFile = DataFileSet.getIndexName(commitLogFile);
+	try (DataFileReader commitLogReader = new DataFileReader(storage, commitLogFile);
+		IndexEntryIterable commitLogIndex = new IndexEntryIterable(indexFile, storage.open(indexFile))) {
+	    IndexIterator commitLogIndexIterator = commitLogIndex.iterator();
 	    List<File> dataFiles = findDataFiles();
-	    integrateCommitLog(commitLogIterator, commitLogReader, dataFiles, baseFilename);
+	    integrateCommitLog(commitLogIndexIterator, commitLogReader, dataFiles, baseFilename);
 	}
     }
 
-    private void integrateCommitLog(Iterator<IndexEntry> commitLogIterator, SSTableReader commitLogReader,
+    private void integrateCommitLog(IndexIterator commitLogIterator, DataFileReader commitLogReader,
 	    List<File> dataFiles, String baseFilename) throws StorageException, IOException {
 	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename,
 		bufferSize);
@@ -166,14 +167,14 @@ public class Compactor {
 	}
     }
 
-    private SSTableWriter writeCommitLogEntry(SSTableReader commitLogReader, IndexEntry commitLogNext,
+    private SSTableWriter writeCommitLogEntry(DataFileReader commitLogReader, IndexEntry commitLogNext,
 	    SSTableWriter writer, String baseFilename) throws IOException, StorageException {
 	if (commitLogNext.getOffset() >= 0) {
 	    /*
 	     * if index is smaller than zero, it is a delete marker, so we skip
 	     * the entry to delete it
 	     */
-	    ColumnMap columnMap = commitLogReader.readColumnMap(commitLogNext);
+	    ColumnMap columnMap = commitLogReader.get(commitLogNext);
 	    RowKey rowKey = commitLogNext.getRowKey();
 	    writer = writeDataEntry(writer, baseFilename, rowKey, columnMap);
 	}
@@ -225,8 +226,8 @@ public class Compactor {
     }
 
     private void deleteCommitLogFiles() {
-	storage.delete(SSTableSet.getIndexName(commitLogFile));
-	storage.delete(SSTableSet.getMD5Name(commitLogFile));
+	storage.delete(DataFileSet.getIndexName(commitLogFile));
+	storage.delete(DataFileSet.getMD5Name(commitLogFile));
 	storage.delete(commitLogFile);
     }
 

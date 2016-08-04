@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
+package com.puresoltechnologies.ductiledb.storage.engine.io;
 
 import java.io.Closeable;
 import java.io.File;
@@ -19,15 +19,16 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
-import com.puresoltechnologies.ductiledb.storage.engine.io.DataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class SSTableSet implements Closeable {
+public class DataFileSet implements Closeable {
 
-    private static final Logger logger = LoggerFactory.getLogger(SSTableSet.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataFileSet.class);
 
     public static File getIndexName(File dataFile) {
 	return new File(dataFile.getParent(), dataFile.getName().replace(ColumnFamilyEngineImpl.DATA_FILE_SUFFIX,
@@ -58,17 +59,17 @@ public class SSTableSet implements Closeable {
     private final NavigableMap<File, IndexFileReader> indexReaders = new TreeMap<>();
     private final NavigableMap<File, DataFileReader> dataReaders = new TreeMap<>();
 
-    public SSTableSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws FileNotFoundException {
+    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws FileNotFoundException {
 	this(storage, columnFamilyDescriptor, getLatestMetaDataFile(storage, columnFamilyDescriptor));
     }
 
-    public SSTableSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
+    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
 	    throws FileNotFoundException {
 	this(storage, columnFamilyDescriptor, metadataFile != null
 		? metadataFile.getName().replaceAll("DB-", "").replaceAll("\\.metadata", "") : null);
     }
 
-    public SSTableSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp)
+    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp)
 	    throws FileNotFoundException {
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;

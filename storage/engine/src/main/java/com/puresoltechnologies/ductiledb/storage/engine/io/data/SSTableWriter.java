@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
+package com.puresoltechnologies.ductiledb.storage.engine.io.data;
 
 import java.io.BufferedWriter;
 import java.io.Closeable;
@@ -12,6 +12,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

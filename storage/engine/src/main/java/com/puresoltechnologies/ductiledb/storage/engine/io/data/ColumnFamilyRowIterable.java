@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
+package com.puresoltechnologies.ductiledb.storage.engine.io.data;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
 
 public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow> {
 

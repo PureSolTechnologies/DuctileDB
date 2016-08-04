@@ -6,10 +6,10 @@ import java.util.NoSuchElementException;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.MetaDataEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.MetaDataEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.MetaDataEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.trees.RedBlackTree;
@@ -30,7 +30,7 @@ public class IndexImpl implements Index {
 
     @Override
     public void update() throws StorageException {
-	File latestMetadata = SSTableSet.getLatestMetaDataFile(storage, columnFamilyDescriptor);
+	File latestMetadata = DataFileSet.getLatestMetaDataFile(storage, columnFamilyDescriptor);
 	update(latestMetadata);
     }
 

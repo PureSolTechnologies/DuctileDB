@@ -21,13 +21,12 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataFileReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataInputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataOutputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexOutputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataInputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataOutputStream;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
@@ -43,7 +42,12 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyEngineImpl.class);
 
-    private final ExecutorService compactionExecutor=Executors.newSingleThreadExecutor(new ThreadFactory(){@Override public Thread newThread(Runnable r){return new Thread(r,"ductiledb-compaction");}});
+    private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+	@Override
+	public Thread newThread(Runnable r) {
+	    return new Thread(r, "ductiledb-compaction");
+	}
+    });
 
     private long maxCommitLogSize;
     private long maxDataFileSize;
@@ -55,7 +59,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private DataOutputStream commitLogStream;
     private final int bufferSize;
     private final int maxGenerations;
-    private SSTableSet dataSet = null;
+    private DataFileSet dataSet = null;
 
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
@@ -91,7 +95,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    processExistingCommitLog();
 	    createEmptyCommitLog();
 	    checkDataFiles();
-	    dataSet = new SSTableSet(storage, columnFamilyDescriptor);
+	    dataSet = new DataFileSet(storage, columnFamilyDescriptor);
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize column family '" + columnFamilyDescriptor.getName() + "'.",
 		    e);
@@ -100,13 +104,13 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void checkDataFiles() throws FileNotFoundException {
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
-	    new SSTableSet(storage, columnFamilyDescriptor, file).check();
+	    new DataFileSet(storage, columnFamilyDescriptor, file).check();
 	}
     }
 
     private void processExistingCommitLog() throws IOException, StorageException {
 	for (File commitLog : storage.list(columnFamilyDescriptor.getDirectory(), new CommitLogFilenameFilter())) {
-	    File indexName = SSTableSet.getIndexName(commitLog);
+	    File indexName = DataFileSet.getIndexName(commitLog);
 	    if (!storage.exists(indexName)) {
 		createIndex(commitLog, indexName);
 	    }
@@ -246,7 +250,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	logger.info("Creating new SSTtable index...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	File indexFile = SSTableSet.getIndexName(commitLogFile);
+	File indexFile = DataFileSet.getIndexName(commitLogFile);
 	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize)) {
 	    for (IndexEntry indexEntry : memtable) {
 		indexStream.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
@@ -280,7 +284,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		    Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
 			    maxDataFileSize, maxGenerations);
 		    compactor.runCompaction();
-		    dataSet = new SSTableSet(storage, columnFamilyDescriptor);
+		    dataSet = new DataFileSet(storage, columnFamilyDescriptor);
 		} catch (StorageException | FileNotFoundException e) {
 		    logger.error("Could not run compaction.", e);
 		}
@@ -325,14 +329,15 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	try {
 	    List<File> commitLogs = getCurrentCommitLogs();
 	    for (File commitLog : commitLogs) {
-		try {DataFileReader reader = new DataFileReader(storage, commitLog);
-		ColumnMap entry = reader.get(rowKey);
-		if (entry != null) {
-		    return entry;
+		try (DataFileReader reader = new DataFileReader(storage, commitLog)) {
+		    ColumnMap entry = reader.get(rowKey);
+		    if (entry != null) {
+			return entry;
+		    }
 		}
 	    }
 	    return null;
-	} catch (FileNotFoundException e) {
+	} catch (IOException e) {
 	    throw new StorageException("Could not read commit log.", e);
 	}
     }
@@ -380,7 +385,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException {
 	try {
 	    return new ColumnFamilyScanner(storage, memtable, getCurrentCommitLogs(),
-		    new SSTableSet(storage, columnFamilyDescriptor), startRowKey, endRowKey);
+		    new DataFileSet(storage, columnFamilyDescriptor), startRowKey, endRowKey);
 	} catch (FileNotFoundException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}

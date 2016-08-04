@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.sstable;
+package com.puresoltechnologies.ductiledb.storage.engine.io.data;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

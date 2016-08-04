@@ -14,9 +14,9 @@ import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.DataFileReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -29,11 +29,11 @@ public class ColumnFamilyScanner implements PeekingIterator<IndexEntry>, Closeab
     private final List<DataFileReader> dataFileReaders = new ArrayList<>();
     private final List<IndexEntryIterable> indexIterables = new ArrayList<>();
     private final List<IndexIterator> indexIterators = new ArrayList<>();
-    private final SSTableSet dataFiles;
+    private final DataFileSet dataFiles;
     private final RowKey startRowKey;
     private final RowKey endRowKey;
 
-    public ColumnFamilyScanner(Storage storage, Memtable memtable, List<File> commitLogs, SSTableSet dataFiles,
+    public ColumnFamilyScanner(Storage storage, Memtable memtable, List<File> commitLogs, DataFileSet dataFiles,
 	    RowKey startRowKey, RowKey endRowKey) throws FileNotFoundException {
 	super();
 	this.memtableIterator = memtable.iterator(startRowKey, endRowKey);
@@ -44,7 +44,7 @@ public class ColumnFamilyScanner implements PeekingIterator<IndexEntry>, Closeab
 
 	for (File commitLog : commitLogs) {
 	    dataFileReaders.add(new DataFileReader(storage, commitLog));
-	    File indexFile = SSTableSet.getIndexName(commitLog);
+	    File indexFile = DataFileSet.getIndexName(commitLog);
 	    IndexEntryIterable indexIterable = new IndexEntryIterable(indexFile, storage.open(indexFile));
 	    indexIterables.add(indexIterable);
 	    indexIterators.add(indexIterable.iterator());

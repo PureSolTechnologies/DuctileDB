@@ -20,11 +20,10 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.ColumnFamilyRowIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.sstable.SSTableSet;
+import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -195,15 +194,15 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    }
 	}
 	assertNotNull(dataFile);
-	File indexFile = SSTableSet.getIndexName(dataFile);
+	File indexFile = DataFileSet.getIndexName(dataFile);
 	assertNotNull(indexFile);
 
-	SSTableReader reader = new SSTableReader(storage, dataFile, indexFile);
-	try (IndexEntryIterable index = reader.readIndex(); ColumnFamilyRowIterable data = reader.readData()) {
+	try (IndexEntryIterable index = new IndexEntryIterable(indexFile, storage.open(indexFile));
+		DataFileReader reader = new DataFileReader(storage, dataFile)) {
 	    RowKey currentRowKey = null;
 	    long currentOffset = -1;
 	    Iterator<IndexEntry> indexIterator = index.iterator();
-	    Iterator<ColumnFamilyRow> dataIterator = data.iterator();
+	    Iterator<ColumnFamilyRow> dataIterator = reader.iterator();
 	    while (indexIterator.hasNext() && dataIterator.hasNext()) {
 		IndexEntry indexEntry = indexIterator.next();
 		ColumnFamilyRow dataEntry = dataIterator.next();
