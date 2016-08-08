@@ -21,13 +21,13 @@ public class IndexImpl implements Index {
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final RedBlackTree<RowKey, IndexEntry> indexTree = new RedBlackTree<>();
 
-    public IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
+    IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
 	super();
 	this.storage = storage;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
     }
 
-    public IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
+    IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
 	    throws StorageException {
 	super();
 	this.storage = storage;
@@ -66,8 +66,8 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public void put(byte[] rowKey, IndexEntry indexEntry) {
-	indexTree.put(new RowKey(rowKey), indexEntry);
+    public void put(IndexEntry indexEntry) {
+	indexTree.put(indexEntry.getRowKey(), indexEntry);
     }
 
     @Override
@@ -91,17 +91,19 @@ public class IndexImpl implements Index {
 
     @Override
     public IndexEntry ceiling(RowKey rowKey) {
-	return indexTree.ceilingNode(rowKey).getValue();
+	RedBlackTreeNode<RowKey, IndexEntry> ceilingNode = indexTree.ceilingNode(rowKey);
+	return ceilingNode != null ? ceilingNode.getValue() : null;
     }
 
     @Override
     public IndexEntry floor(RowKey rowKey) {
-	return indexTree.floorNode(rowKey).getValue();
+	RedBlackTreeNode<RowKey, IndexEntry> floorNode = indexTree.floorNode(rowKey);
+	return floorNode != null ? floorNode.getValue() : null;
     }
 
     @Override
-    public PeekingIterator<IndexEntry> iterator() {
-	return new PeekingIterator<IndexEntry>() {
+    public IndexIterator iterator() {
+	return new IndexIterator() {
 
 	    private PeekingIterator<RedBlackTreeNode<RowKey, IndexEntry>> iterator = indexTree.iterator();
 
@@ -123,6 +125,21 @@ public class IndexImpl implements Index {
 	    @Override
 	    public void remove() {
 		iterator.remove();
+	    }
+
+	    @Override
+	    public void close() throws IOException {
+		// intentionally left empty
+	    }
+
+	    @Override
+	    public RowKey getStartRowKey() {
+		return null;
+	    }
+
+	    @Override
+	    public RowKey getEndRowKey() {
+		return null;
 	    }
 	};
 

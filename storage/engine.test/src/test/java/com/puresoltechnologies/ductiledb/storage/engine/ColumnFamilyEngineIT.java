@@ -9,7 +9,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -24,7 +23,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -57,6 +55,76 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	return (ColumnFamilyEngineImpl) columnFamily.getEngine();
     }
 
+    @Test
+    public void testMemtableCRUD() throws SchemaException, StorageException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testMemtableCRUD", "test", "testcf")) {
+	    // Check behavior of empty Memtable
+	    ColumnMap entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNull(entry);
+	    columnFamilyEngine.delete(Bytes.toBytes(0l));
+	    assertNull(entry);
+	    // Check put
+	    ColumnMap columns = new ColumnMap();
+	    columns.put(Bytes.toBytes(123l), Bytes.toBytes(123l));
+	    columnFamilyEngine.put(Bytes.toBytes(0l), columns);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNotNull(entry);
+	    assertEquals(columns, entry);
+	    // Check put of new value does not change former
+	    ColumnMap columns2 = new ColumnMap();
+	    columns2.put(Bytes.toBytes(1234l), Bytes.toBytes(1234l));
+	    columnFamilyEngine.put(Bytes.toBytes(1l), columns2);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNotNull(entry);
+	    assertEquals(columns, entry);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(1l));
+	    assertNotNull(entry);
+	    assertEquals(columns2, entry);
+	    // Check put
+	    ColumnMap columns3 = new ColumnMap();
+	    columns3.put(Bytes.toBytes(12345l), Bytes.toBytes(12345l));
+	    columnFamilyEngine.put(Bytes.toBytes(0l), columns3);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNotNull(entry);
+	    columns3.put(Bytes.toBytes(123l), Bytes.toBytes(123l));
+	    assertEquals(columns3, entry);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(1l));
+	    assertNotNull(entry);
+	    assertEquals(columns2, entry);
+	    // Check put
+	    ColumnMap columns4 = new ColumnMap();
+	    columns4.put(Bytes.toBytes(12345l), Bytes.toBytes(123456l));
+	    columnFamilyEngine.put(Bytes.toBytes(0l), columns4);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNotNull(entry);
+	    columns4.put(Bytes.toBytes(123l), Bytes.toBytes(123l));
+	    assertEquals(columns4, entry);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(1l));
+	    assertNotNull(entry);
+	    assertEquals(columns2, entry);
+	    // Check delete
+	    HashSet<byte[]> columnsToDelete = new HashSet<>();
+	    columnsToDelete.add(Bytes.toBytes(123l));
+	    columnFamilyEngine.delete(Bytes.toBytes(0l), columnsToDelete);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNotNull(entry);
+	    ColumnMap columns5 = new ColumnMap();
+	    columns5.put(Bytes.toBytes(12345l), Bytes.toBytes(123456l));
+	    assertEquals(columns5, entry);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(1l));
+	    assertNotNull(entry);
+	    assertEquals(columns2, entry);
+	    // Check delete
+	    columnFamilyEngine.delete(Bytes.toBytes(0l));
+	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
+	    assertNull(entry);
+	    entry = columnFamilyEngine.get(Bytes.toBytes(1l));
+	    assertNotNull(entry);
+	    assertEquals(columns2, entry);
+
+	}
+    }
+
     /**
      * This test checks for a small amount of data in memory functionality like
      * put, get, re-put and delete.
@@ -82,14 +150,12 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	ColumnMap values3 = new ColumnMap();
 	values3.put(Bytes.toBytes(31l), Bytes.toBytes(311l));
 
-	byte[] timestamp = Bytes.toBytes(Instant.now());
-
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testSmallDataAmount", "test",
 		"testcf")) {
 
-	    columnFamilyEngine.put(timestamp, rowKey1, values1);
-	    columnFamilyEngine.put(timestamp, rowKey2, values2);
-	    columnFamilyEngine.put(timestamp, rowKey3, values3);
+	    columnFamilyEngine.put(rowKey1, values1);
+	    columnFamilyEngine.put(rowKey2, values2);
+	    columnFamilyEngine.put(rowKey3, values3);
 	    /*
 	     * Add all 3 rows
 	     */
@@ -113,7 +179,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    values1.put(Bytes.toBytes(11l), Bytes.toBytes(1111l));
 	    values1.put(Bytes.toBytes(12l), Bytes.toBytes(1122l));
 	    values1.put(Bytes.toBytes(14l), Bytes.toBytes(1144l));
-	    columnFamilyEngine.put(timestamp, rowKey1, values1);
+	    columnFamilyEngine.put(rowKey1, values1);
 	    /*
 	     * Check for updates and not changed values
 	     */
@@ -168,7 +234,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
 	    assertEquals(1, commitLogs.size());
 	    File commitLogFile = commitLogs.iterator().next();
-	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    long rowKey = 0;
 	    while ((commitLogs.size() == 1) && (storage.exists(commitLogFile))) {
@@ -178,7 +243,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		    byte[] value = Bytes.toBytes(rowKey * i);
 		    values.put(value, value);
 		}
-		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
+		columnFamilyEngine.put(Bytes.toBytes(rowKey), values);
 		commitLogs.addAll(getCommitLogs(storage, columnFamilyDescriptor.getDirectory()));
 	    }
 
@@ -238,7 +303,6 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(
 		"testMultiDataFileCreationWithCompaction", "test", "testcf")) {
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
-	    byte[] timestamp = Bytes.toBytes(Instant.now());
 	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(10 * 1024 * 1024);
 	    long rowKey = 0;
@@ -249,7 +313,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 		    byte[] value = Bytes.toBytes(rowKey * i);
 		    values.put(value, value);
 		}
-		columnFamilyEngine.put(timestamp, Bytes.toBytes(rowKey), values);
+		columnFamilyEngine.put(Bytes.toBytes(rowKey), values);
 		commitLogs.addAll(getCommitLogs(storage, columnFamilyDescriptor.getDirectory()));
 	    }
 	}
@@ -266,6 +330,28 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 
 	assertEquals(9, dataFiles.size());
 	assertEquals(8, indexFiles.size());
+    }
+
+    @Test
+    public void testResultScanner() throws StorageException, SchemaException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testResultScanner", "test",
+		"testcf")) {
+	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
+	    long key = 1;
+	    int step = 0;
+	    for (int i = 0; i < 1000; ++i) {
+		key += step;
+		++step;
+		ColumnMap columns = new ColumnMap();
+		columns.put(Bytes.toBytes(i), Bytes.toBytes(i));
+		columnFamilyEngine.put(Bytes.toBytes(key), columns);
+	    }
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(Bytes.toBytes(0l), Bytes.toBytes(key));
+	    while (scanner.hasNext()) {
+		System.out.println(Bytes.toHumanReadableString(scanner.next().getRowKey().getKey()));
+	    }
+	}
     }
 
 }

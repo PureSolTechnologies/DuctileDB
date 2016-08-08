@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.FileReader;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileReader extends FileReader<DataInputStream> implements CloseableIterable<ColumnFamilyRow> {

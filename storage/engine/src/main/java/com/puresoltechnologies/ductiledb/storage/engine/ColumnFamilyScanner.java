@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
+import com.puresoltechnologies.ductiledb.storage.engine.index.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Closeable {
@@ -126,6 +126,8 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		minimum = dataFilesIndexIterator.peek();
 	    }
 	}
+
+	// TODO read the row from the index!
 
 	if (memtableIterator.hasNext()) {
 	    if (memtableIterator.peek().equals(minimum)) {

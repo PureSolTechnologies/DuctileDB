@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
@@ -29,8 +30,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexOutputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.Memtable;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -179,7 +178,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public synchronized void put(byte[] timestamp, byte[] rowKey, ColumnMap values) throws StorageException {
+    public synchronized void put(byte[] rowKey, ColumnMap values) throws StorageException {
 	ColumnMap columnMap = get(rowKey);
 	if (columnMap != null) {
 	    columnMap.putAll(values);
@@ -385,7 +384,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public synchronized void delete(byte[] rowKey) throws StorageException {
-	writeMemtable(new RowKey(rowKey), -1);
+	memtable.delete(new RowKey(rowKey));
     }
 
     @Override
@@ -410,10 +409,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException {
+    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException {
 	try {
 	    return new ColumnFamilyScanner(storage, memtable, getCurrentCommitLogs(),
-		    new DataFileSet(storage, columnFamilyDescriptor), startRowKey, endRowKey);
+		    new DataFileSet(storage, columnFamilyDescriptor), new RowKey(startRowKey), new RowKey(endRowKey));
 	} catch (FileNotFoundException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}

@@ -9,25 +9,22 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class IndexImplTest {
-
-    private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
     @Test
     public void test() {
 	IndexImpl index = new IndexImpl(mock(Storage.class), mock(ColumnFamilyDescriptor.class));
 
-	index.put(Bytes.toBytes(0l), new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("File0"), 0l));
-	index.put(Bytes.toBytes(1l), new IndexEntry(new RowKey(Bytes.toBytes(1l)), new File("File1"), 1l));
+	index.put(new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("File0"), 0l));
+	index.put(new IndexEntry(new RowKey(Bytes.toBytes(1l)), new File("File1"), 1l));
 	long a = 0;
 	long b = 1;
 	for (int i = 2; i <= 25; ++i) {
 	    long f = a + b;
 	    byte[] rowKey = Bytes.toBytes(f);
-	    index.put(rowKey, new IndexEntry(new RowKey(rowKey), new File("File" + i), f));
+	    index.put(new IndexEntry(new RowKey(rowKey), new File("File" + i), f));
 	    a = b;
 	    b = f;
 	    System.out.println(f);

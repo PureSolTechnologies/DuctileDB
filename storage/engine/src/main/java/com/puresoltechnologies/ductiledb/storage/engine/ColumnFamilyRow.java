@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 
 /**
  * This class is used to keep the data of a single column family row.

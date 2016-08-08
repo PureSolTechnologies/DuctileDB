@@ -2,9 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.NavigableMap;
 
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnFamilyMap;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
-
 public class Result {
 
     private final byte[] key;

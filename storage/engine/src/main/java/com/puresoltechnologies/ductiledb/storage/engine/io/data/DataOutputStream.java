@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBOutputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 
 public class DataOutputStream extends DuctileDBOutputStream {
 

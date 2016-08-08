@@ -4,8 +4,6 @@ import java.io.Closeable;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 
 /**
  * This class handles the storage of a single column family.
@@ -25,12 +23,11 @@ public interface ColumnFamilyEngine extends Closeable {
     /**
      * This method is used to put additional columns to the given row.
      * 
-     * @param timestamp
      * @param rowKey
      * @param columnValues
      * @throws StorageException
      */
-    public void put(byte[] timestamp, byte[] rowKey, ColumnMap columnValues) throws StorageException;
+    public void put(byte[] rowKey, ColumnMap columnValues) throws StorageException;
 
     /**
      * This metho retrieves the columns from the given row.
@@ -56,5 +53,5 @@ public interface ColumnFamilyEngine extends Closeable {
      * 
      * @return
      */
-    public ColumnFamilyScanner getScanner(RowKey startRowKey, RowKey endRowKey) throws StorageException;
+    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException;
 }

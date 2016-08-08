@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
@@ -27,7 +28,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexFileReader;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -178,7 +178,13 @@ public class DataFileSet implements Closeable {
 	public SSTableIndexIterator(RowKey start, RowKey stop) throws FileNotFoundException {
 	    this.start = start;
 	    this.stop = stop;
-	    currentDataFile = index.floor(start).getDataFile();
+	    IndexEntry floor = index.floor(start);
+	    if (floor != null) {
+		currentDataFile = floor.getDataFile();
+	    } else {
+		IndexEntry ceiling = index.ceiling(start);
+		currentDataFile = ceiling.getDataFile();
+	    }
 	    currentIndexFile = getIndexName(currentDataFile);
 	    indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
 	    indexIterator = indexIterable.iterator(start, stop);

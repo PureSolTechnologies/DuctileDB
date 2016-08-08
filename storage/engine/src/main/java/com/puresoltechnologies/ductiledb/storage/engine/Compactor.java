@@ -24,7 +24,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.data.ColumnFamilyRowI
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.memtable.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
