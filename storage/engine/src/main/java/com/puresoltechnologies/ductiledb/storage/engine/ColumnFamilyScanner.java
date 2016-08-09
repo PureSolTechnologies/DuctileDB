@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +26,9 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyScanner.class);
 
+    private final Storage storage;
     private final IndexIterator memtableIterator;
-    private final List<File> commitLogs;
-    private final List<DataFileReader> dataFileReaders = new ArrayList<>();
+    private final Map<File, DataFileReader> dataFileReaders = new HashMap<>();
     private final List<IndexEntryIterable> commitLogIndexIterables = new ArrayList<>();
     private final List<IndexIterator> commitLogIndexIterators = new ArrayList<>();
     private final DataFileSet dataFiles;
@@ -38,15 +40,14 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
     public ColumnFamilyScanner(Storage storage, Memtable memtable, List<File> commitLogs, DataFileSet dataFiles,
 	    RowKey startRowKey, RowKey endRowKey) throws FileNotFoundException {
 	super();
+	this.storage = storage;
 	this.memtableIterator = memtable.iterator(startRowKey, endRowKey);
-	this.commitLogs = commitLogs;
 	this.dataFiles = dataFiles;
 	this.startRowKey = startRowKey;
 	this.endRowKey = endRowKey;
 	this.dataFilesIndexIterator = dataFiles.getIndexIterator(startRowKey, endRowKey);
 
 	for (File commitLog : commitLogs) {
-	    dataFileReaders.add(new DataFileReader(storage, commitLog));
 	    File indexFile = DataFileSet.getIndexName(commitLog);
 	    IndexEntryIterable indexIterable = new IndexEntryIterable(indexFile, storage.open(indexFile));
 	    commitLogIndexIterables.add(indexIterable);
@@ -59,13 +60,14 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 
     @Override
     public void close() throws IOException {
-	dataFileReaders.forEach(reader -> {
+	dataFileReaders.values().forEach(reader -> {
 	    try {
 		reader.close();
 	    } catch (IOException e) {
 		logger.warn("Could not close reader.", e);
 	    }
 	});
+	dataFileReaders.clear();
 	commitLogIndexIterables.forEach(iterable -> {
 	    try {
 		iterable.close();
@@ -73,6 +75,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		logger.warn("Could not close index iterable.", e);
 	    }
 	});
+	commitLogIndexIterables.clear();
     }
 
     @Override
@@ -126,28 +129,44 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		minimum = dataFilesIndexIterator.peek();
 	    }
 	}
-
-	// TODO read the row from the index!
-
-	if (memtableIterator.hasNext()) {
-	    if (memtableIterator.peek().equals(minimum)) {
-		memtableIterator.skip();
+	if (minimum != null) {
+	    DataFileReader fileReader = dataFileReaders.get(minimum.getDataFile());
+	    if (fileReader == null) {
+		try {
+		    fileReader = new DataFileReader(storage, minimum.getDataFile());
+		} catch (FileNotFoundException e) {
+		    logger.error("Could not read file.", e);
+		}
+		dataFileReaders.put(minimum.getDataFile(), fileReader);
 	    }
-	}
-	for (IndexIterator iterator : commitLogIndexIterators) {
-	    if (iterator.hasNext()) {
-		if (iterator.peek().equals(minimum)) {
-		    iterator.skip();
+	    if (fileReader != null) {
+		try {
+		    nextRow = fileReader.getRow(minimum);
+		} catch (IOException e) {
+		    logger.error("Could not read file.", e);
 		}
 	    }
-	}
-	if (dataFilesIndexIterator.hasNext()) {
+	    // TODO read the row from the index!
+
+	    if (memtableIterator.hasNext()) {
+		if (memtableIterator.peek().equals(minimum)) {
+		    memtableIterator.skip();
+		}
+	    }
+	    for (IndexIterator iterator : commitLogIndexIterators) {
+		if (iterator.hasNext()) {
+		    if (iterator.peek().equals(minimum)) {
+			iterator.skip();
+		    }
+		}
+	    }
 	    if (dataFilesIndexIterator.hasNext()) {
-		if (dataFilesIndexIterator.peek().equals(minimum)) {
-		    dataFilesIndexIterator.skip();
+		if (dataFilesIndexIterator.hasNext()) {
+		    if (dataFilesIndexIterator.peek().equals(minimum)) {
+			dataFilesIndexIterator.skip();
+		    }
 		}
 	    }
 	}
-
     }
 }

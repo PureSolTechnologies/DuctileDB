@@ -165,9 +165,9 @@ public class Compactor {
 	     * if index is smaller than zero, it is a delete marker, so we skip
 	     * the entry to delete it
 	     */
-	    ColumnMap columnMap = commitLogReader.get(commitLogNext);
+	    ColumnFamilyRow row = commitLogReader.getRow(commitLogNext);
 	    RowKey rowKey = commitLogNext.getRowKey();
-	    writer = writeDataEntry(writer, baseFilename, rowKey, columnMap);
+	    writer = writeDataEntry(writer, baseFilename, rowKey, row.getColumnMap());
 	}
 	return writer;
     }

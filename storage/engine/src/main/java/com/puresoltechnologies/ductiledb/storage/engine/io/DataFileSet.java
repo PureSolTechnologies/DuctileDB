@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnMap;
+import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
@@ -128,7 +128,7 @@ public class DataFileSet implements Closeable {
 
     }
 
-    public ColumnMap get(RowKey rowKey) throws IOException {
+    public ColumnFamilyRow getRow(RowKey rowKey) throws IOException {
 	OffsetRange offsetRange = index.find(rowKey);
 	if (offsetRange == null) {
 	    return null;
@@ -154,7 +154,7 @@ public class DataFileSet implements Closeable {
 	    }
 	}
 	dataReader.goToOffset(startOffset.getOffset());
-	return dataReader.get();
+	return dataReader.getRow();
     }
 
     private File getNextIndexFile(File indexFile) {
@@ -183,12 +183,16 @@ public class DataFileSet implements Closeable {
 		currentDataFile = floor.getDataFile();
 	    } else {
 		IndexEntry ceiling = index.ceiling(start);
-		currentDataFile = ceiling.getDataFile();
+		if (ceiling != null) {
+		    currentDataFile = ceiling.getDataFile();
+		}
 	    }
-	    currentIndexFile = getIndexName(currentDataFile);
-	    indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
-	    indexIterator = indexIterable.iterator(start, stop);
-	    gotoStart(start);
+	    if (currentDataFile != null) {
+		currentIndexFile = getIndexName(currentDataFile);
+		indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
+		indexIterator = indexIterable.iterator(start, stop);
+		gotoStart(start);
+	    }
 	}
 
 	@Override
@@ -228,6 +232,10 @@ public class DataFileSet implements Closeable {
 	}
 
 	private void readNext() {
+	    if (indexIterator == null) {
+		nextIndex = null;
+		return;
+	    }
 	    if (indexIterator.hasNext()) {
 		nextIndex = indexIterator.next();
 	    } else {

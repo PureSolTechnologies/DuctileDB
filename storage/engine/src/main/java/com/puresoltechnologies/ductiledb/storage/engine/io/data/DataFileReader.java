@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CloseableIterable;
@@ -30,35 +29,35 @@ public class DataFileReader extends FileReader<DataInputStream> implements Close
 	return new DataInputStream(bufferedInputStream);
     }
 
-    public ColumnMap get() throws IOException {
-	return getStream().readRow().getColumnMap();
+    public ColumnFamilyRow getRow() throws IOException {
+	return getStream().readRow();
     }
 
-    public ColumnMap get(IndexEntry indexEntry) throws IOException {
-	return get(indexEntry.getOffset());
+    public ColumnFamilyRow getRow(IndexEntry indexEntry) throws IOException {
+	return getRow(indexEntry.getOffset());
     }
 
-    public ColumnMap get(long offset) throws IOException {
+    public ColumnFamilyRow getRow(long offset) throws IOException {
 	goToOffset(offset);
-	return getStream().readRow().getColumnMap();
+	return getStream().readRow();
     }
 
-    public ColumnMap get(RowKey rowKey) throws IOException {
+    public ColumnFamilyRow getRow(RowKey rowKey) throws IOException {
 	do {
 	    ColumnFamilyRow row = getStream().readRow();
 	    if ((row != null) && (row.getRowKey().equals(rowKey))) {
-		return row.getColumnMap();
+		return row;
 	    }
 	} while (!getStream().isEof());
 	return null;
     }
 
-    public ColumnMap get(RowKey rowKey, long startOffset, long endOffset) throws IOException {
+    public ColumnFamilyRow getRow(RowKey rowKey, long startOffset, long endOffset) throws IOException {
 	goToOffset(startOffset);
 	do {
 	    ColumnFamilyRow row = getStream().readRow();
 	    if ((row != null) && (row.getRowKey().equals(rowKey))) {
-		return row.getColumnMap();
+		return row;
 	    }
 	} while ((getOffset() <= endOffset) & (!getStream().isEof()));
 	return null;

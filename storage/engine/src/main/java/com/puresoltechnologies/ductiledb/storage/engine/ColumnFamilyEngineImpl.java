@@ -313,12 +313,12 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     public ColumnMap get(byte[] rowKey) throws StorageException {
 	RowKey rowKey2 = new RowKey(rowKey);
 	IndexEntry indexEntry = memtable.get(rowKey2);
-	ColumnMap columnMap;
+	ColumnFamilyRow row;
 	if ((indexEntry != null) && (!indexEntry.wasDeleted())) {
 	    long offset = indexEntry.getOffset();
 	    try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
 		dataInputStream.skip(offset);
-		ColumnFamilyRow row = dataInputStream.readRow();
+		row = dataInputStream.readRow();
 		if (row != null) {
 		    return row.getColumnMap();
 		}
@@ -327,22 +327,23 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    }
 
 	}
-	columnMap = readFromCommitLogs(rowKey2);
-	if (columnMap != null) {
-	    return columnMap;
+	row = readFromCommitLogs(rowKey2);
+	if (row != null) {
+	    return row.getColumnMap();
 	}
-	return readFromDataFiles(rowKey2);
+	row = readFromDataFiles(rowKey2);
+	return row != null ? row.getColumnMap() : null;
     }
 
-    private ColumnMap readFromDataFiles(RowKey rowKey) throws StorageException {
+    private ColumnFamilyRow readFromDataFiles(RowKey rowKey) throws StorageException {
 	try {
-	    return dataSet.get(rowKey);
+	    return dataSet.getRow(rowKey);
 	} catch (IOException e) {
 	    throw new StorageException("Could not read data.", e);
 	}
     }
 
-    private ColumnMap readFromCommitLogs(RowKey rowKey) throws StorageException {
+    private ColumnFamilyRow readFromCommitLogs(RowKey rowKey) throws StorageException {
 	try {
 	    List<File> commitLogs = getCurrentCommitLogs();
 	    for (File commitLog : commitLogs) {
@@ -354,7 +355,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		}
 		if (indexEntry != null) {
 		    try (DataFileReader reader = new DataFileReader(storage, commitLog)) {
-			ColumnMap entry = reader.get(indexEntry);
+			ColumnFamilyRow entry = reader.getRow(indexEntry);
 			if (entry != null) {
 			    return entry;
 			}
