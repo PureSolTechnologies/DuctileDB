@@ -162,7 +162,7 @@ public class DataFileSet implements Closeable {
 	    return null;
 	}
 	Integer num = indexFileToNum.get(indexFile);
-	return numToIndexFile.get(num + 1);
+	return num != null ? numToIndexFile.get(num + 1) : null;
     }
 
     private class SSTableIndexIterator implements IndexIterator {
@@ -175,7 +175,7 @@ public class DataFileSet implements Closeable {
 	private IndexIterator indexIterator;
 	private IndexEntry nextIndex = null;
 
-	public SSTableIndexIterator(RowKey start, RowKey stop) throws FileNotFoundException {
+	public SSTableIndexIterator(RowKey start, RowKey stop) throws IOException {
 	    this.start = start;
 	    this.stop = stop;
 	    IndexEntry floor = index.floor(start);
@@ -189,7 +189,7 @@ public class DataFileSet implements Closeable {
 	    }
 	    if (currentDataFile != null) {
 		currentIndexFile = getIndexName(currentDataFile);
-		indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
+		indexIterable = new IndexEntryIterable(storage.open(currentIndexFile));
 		indexIterator = indexIterable.iterator(start, stop);
 		gotoStart(start);
 	    }
@@ -240,10 +240,15 @@ public class DataFileSet implements Closeable {
 		nextIndex = indexIterator.next();
 	    } else {
 		try {
-		    indexIterable.close();
+		    try {
+			indexIterable.close();
+		    } finally {
+			indexIterable = null;
+			indexIterator = null;
+		    }
 		    currentIndexFile = getNextIndexFile(currentIndexFile);
 		    if (currentIndexFile != null) {
-			indexIterable = new IndexEntryIterable(currentIndexFile, storage.open(currentIndexFile));
+			indexIterable = new IndexEntryIterable(storage.open(currentIndexFile));
 			indexIterator = indexIterable.iterator(start, stop);
 			nextIndex = indexIterator.next();
 		    }
@@ -264,7 +269,7 @@ public class DataFileSet implements Closeable {
 
     }
 
-    public IndexIterator getIndexIterator(RowKey startRowKey, RowKey stopRowKey) throws FileNotFoundException {
+    public IndexIterator getIndexIterator(RowKey startRowKey, RowKey stopRowKey) throws IOException {
 	return new SSTableIndexIterator(startRowKey, stopRowKey);
     }
 }

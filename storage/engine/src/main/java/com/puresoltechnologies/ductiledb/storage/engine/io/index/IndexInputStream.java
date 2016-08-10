@@ -11,15 +11,30 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 
 public class IndexInputStream extends DuctileDBInputStream {
 
-    private final File indexFile;
+    private final File dataFile;
 
-    public IndexInputStream(File indexFile, BufferedInputStream bufferedOutputStream) {
+    public IndexInputStream(BufferedInputStream bufferedOutputStream) throws IOException {
 	super(bufferedOutputStream);
-	this.indexFile = indexFile;
+	this.dataFile = new File(readDataFile());
+    }
+
+    private String readDataFile() throws IOException {
+	byte[] buffer = new byte[4];
+	int len = read(buffer, 0, 4);
+	if (len < 4) {
+	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken index file.");
+	}
+	int fileNameLength = Bytes.toInt(buffer);
+	byte[] fileName = new byte[fileNameLength];
+	len = read(fileName);
+	if (len < fileNameLength) {
+	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken index file.");
+	}
+	return Bytes.toString(fileName);
     }
 
     public File getIndexFile() {
-	return indexFile;
+	return dataFile;
     }
 
     public IndexEntry readEntry() throws IOException {
@@ -41,7 +56,7 @@ public class IndexInputStream extends DuctileDBInputStream {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken index file.");
 	}
 	long offset = Bytes.toLong(buffer);
-	return new IndexEntry(new RowKey(rowKey), indexFile, offset);
+	return new IndexEntry(new RowKey(rowKey), dataFile, offset);
     }
 
 }

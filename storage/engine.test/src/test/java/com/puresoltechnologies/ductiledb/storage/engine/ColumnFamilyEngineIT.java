@@ -272,7 +272,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	File indexFile = DataFileSet.getIndexName(dataFile);
 	assertNotNull(indexFile);
 
-	try (IndexEntryIterable index = new IndexEntryIterable(indexFile, storage.open(indexFile));
+	try (IndexEntryIterable index = new IndexEntryIterable(storage.open(indexFile));
 		DataFileReader reader = new DataFileReader(storage, dataFile)) {
 	    RowKey currentRowKey = null;
 	    long currentOffset = -1;
@@ -340,7 +340,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
 	    long key = 1;
 	    int step = 0;
-	    for (int i = 0; i < 1000; ++i) {
+	    for (int i = 0; i < 5000; ++i) {
 		key += step;
 		++step;
 		ColumnMap columns = new ColumnMap();

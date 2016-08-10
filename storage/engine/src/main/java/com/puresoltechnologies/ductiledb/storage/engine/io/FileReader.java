@@ -3,7 +3,6 @@ package com.puresoltechnologies.ductiledb.storage.engine.io;
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -14,7 +13,7 @@ public abstract class FileReader<Stream extends DuctileDBInputStream> implements
     private final File file;
     private Stream stream = null;
 
-    public FileReader(Storage storage, File file) throws FileNotFoundException {
+    public FileReader(Storage storage, File file) throws IOException {
 	super();
 	this.storage = storage;
 	this.file = file;
@@ -25,7 +24,7 @@ public abstract class FileReader<Stream extends DuctileDBInputStream> implements
 	return file;
     }
 
-    protected abstract Stream createStream(BufferedInputStream bufferedInputStream);
+    protected abstract Stream createStream(BufferedInputStream bufferedInputStream) throws IOException;
 
     protected Stream getStream() {
 	return stream;
@@ -45,14 +44,13 @@ public abstract class FileReader<Stream extends DuctileDBInputStream> implements
     }
 
     public long goToOffset(long offset) throws IOException {
-	if (stream.getOffset() < offset) {
-	    stream.goToOffset(offset);
+	if (stream.getOffset() <= offset) {
+	    return stream.goToOffset(offset);
 	} else {
 	    stream.close();
 	    stream = createStream(storage.open(file));
-	    stream.skip(offset);
+	    return stream.skip(offset);
 	}
-	return stream.goToOffset(offset);
     }
 
     public int read(byte[] buffer, int off, int len) throws IOException {

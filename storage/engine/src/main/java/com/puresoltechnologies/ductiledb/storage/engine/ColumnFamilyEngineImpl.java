@@ -145,7 +145,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		offset = dataStream.getOffset();
 		row = dataStream.readRow();
 	    }
-	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName), bufferSize)) {
+	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName), bufferSize,
+		    commitLog)) {
 		for (IndexEntry entry : memtable) {
 		    indexStream.writeIndexEntry(entry.getRowKey(), entry.getOffset());
 		}
@@ -267,7 +268,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
-	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize)) {
+	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize,
+		commitLogFile)) {
 	    for (IndexEntry indexEntry : memtable) {
 		indexStream.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
 	    }
@@ -414,7 +416,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	try {
 	    return new ColumnFamilyScanner(storage, memtable, getCurrentCommitLogs(),
 		    new DataFileSet(storage, columnFamilyDescriptor), new RowKey(startRowKey), new RowKey(endRowKey));
-	} catch (FileNotFoundException e) {
+	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}
     }

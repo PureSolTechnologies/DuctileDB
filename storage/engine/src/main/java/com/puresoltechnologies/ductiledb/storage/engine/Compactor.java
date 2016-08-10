@@ -115,7 +115,7 @@ public class Compactor {
     private void performCompaction(String baseFilename) throws StorageException, IOException {
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
 	try (DataFileReader commitLogReader = new DataFileReader(storage, commitLogFile);
-		IndexEntryIterable commitLogIndex = new IndexEntryIterable(indexFile, storage.open(indexFile))) {
+		IndexEntryIterable commitLogIndex = new IndexEntryIterable(storage.open(indexFile))) {
 	    IndexIterator commitLogIndexIterator = commitLogIndex.iterator();
 	    List<File> dataFiles = findDataFiles();
 	    integrateCommitLog(commitLogIndexIterator, commitLogReader, dataFiles, baseFilename);

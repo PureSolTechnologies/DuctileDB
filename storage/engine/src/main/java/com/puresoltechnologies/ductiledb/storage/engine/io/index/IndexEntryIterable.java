@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.index;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -21,8 +20,8 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 
     private final IndexInputStream indexInputStream;
 
-    public IndexEntryIterable(File indexFile, BufferedInputStream bufferedInputStream) {
-	this(new IndexInputStream(indexFile, bufferedInputStream));
+    public IndexEntryIterable(BufferedInputStream bufferedInputStream) throws IOException {
+	this(new IndexInputStream(bufferedInputStream));
     }
 
     public IndexEntryIterable(IndexInputStream indexInputStream) {

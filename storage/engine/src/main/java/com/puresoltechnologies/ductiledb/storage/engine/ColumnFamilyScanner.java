@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
     private ColumnFamilyRow nextRow = null;
 
     public ColumnFamilyScanner(Storage storage, Memtable memtable, List<File> commitLogs, DataFileSet dataFiles,
-	    RowKey startRowKey, RowKey endRowKey) throws FileNotFoundException {
+	    RowKey startRowKey, RowKey endRowKey) throws IOException {
 	super();
 	this.storage = storage;
 	this.memtableIterator = memtable.iterator(startRowKey, endRowKey);
@@ -49,7 +48,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 
 	for (File commitLog : commitLogs) {
 	    File indexFile = DataFileSet.getIndexName(commitLog);
-	    IndexEntryIterable indexIterable = new IndexEntryIterable(indexFile, storage.open(indexFile));
+	    IndexEntryIterable indexIterable = new IndexEntryIterable(storage.open(indexFile));
 	    commitLogIndexIterables.add(indexIterable);
 	    IndexIterator iterator = indexIterable.iterator();
 	    iterator.gotoStart(startRowKey);
@@ -111,10 +110,10 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	}
 	for (IndexIterator iterator : commitLogIndexIterators) {
 	    if (iterator.hasNext()) {
-		int compareResult = minimum.compareTo(iterator.peek());
+		int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : -1;
 		if (compareResult == 0) {
 		    iterator.skip();
-		} else if (compareResult > 0) {
+		} else if (compareResult < 0) {
 		    minimum = iterator.peek();
 		}
 	    } else {
@@ -122,32 +121,15 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	    }
 	}
 	if (dataFilesIndexIterator.hasNext()) {
-	    int compareResult = minimum.compareTo(dataFilesIndexIterator.peek());
+	    int compareResult = minimum != null ? minimum.compareTo(dataFilesIndexIterator.peek()) : -1;
 	    if (compareResult == 0) {
 		dataFilesIndexIterator.skip();
-	    } else if (compareResult > 0) {
+	    } else if (compareResult < 0) {
 		minimum = dataFilesIndexIterator.peek();
 	    }
 	}
 	if (minimum != null) {
-	    DataFileReader fileReader = dataFileReaders.get(minimum.getDataFile());
-	    if (fileReader == null) {
-		try {
-		    fileReader = new DataFileReader(storage, minimum.getDataFile());
-		} catch (FileNotFoundException e) {
-		    logger.error("Could not read file.", e);
-		}
-		dataFileReaders.put(minimum.getDataFile(), fileReader);
-	    }
-	    if (fileReader != null) {
-		try {
-		    nextRow = fileReader.getRow(minimum);
-		} catch (IOException e) {
-		    logger.error("Could not read file.", e);
-		}
-	    }
-	    // TODO read the row from the index!
-
+	    readNextEntryFromIndexEntry(minimum);
 	    if (memtableIterator.hasNext()) {
 		if (memtableIterator.peek().equals(minimum)) {
 		    memtableIterator.skip();
@@ -161,11 +143,28 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		}
 	    }
 	    if (dataFilesIndexIterator.hasNext()) {
-		if (dataFilesIndexIterator.hasNext()) {
-		    if (dataFilesIndexIterator.peek().equals(minimum)) {
-			dataFilesIndexIterator.skip();
-		    }
+		if (dataFilesIndexIterator.peek().equals(minimum)) {
+		    dataFilesIndexIterator.skip();
 		}
+	    }
+	}
+    }
+
+    private void readNextEntryFromIndexEntry(IndexEntry minimum) {
+	DataFileReader fileReader = dataFileReaders.get(minimum.getDataFile());
+	if (fileReader == null) {
+	    try {
+		fileReader = new DataFileReader(storage, minimum.getDataFile());
+	    } catch (IOException e) {
+		logger.error("Could not read file.", e);
+	    }
+	    dataFileReaders.put(minimum.getDataFile(), fileReader);
+	}
+	if (fileReader != null) {
+	    try {
+		nextRow = fileReader.getRow(minimum);
+	    } catch (IOException e) {
+		logger.error("Could not read file.", e);
 	    }
 	}
     }

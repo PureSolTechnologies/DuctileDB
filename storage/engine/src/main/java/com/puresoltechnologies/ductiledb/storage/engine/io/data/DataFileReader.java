@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine.io.data;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class DataFileReader extends FileReader<DataInputStream> implements Close
 
     private static final Logger logger = LoggerFactory.getLogger(DataFileReader.class);
 
-    public DataFileReader(Storage storage, File dataFile) throws FileNotFoundException {
+    public DataFileReader(Storage storage, File dataFile) throws IOException {
 	super(storage, dataFile);
     }
 

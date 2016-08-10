@@ -9,6 +9,8 @@ import com.puresoltechnologies.commons.misc.PeekingIterator;
  * This abstract class is used to create an {@link Iterable} out of an
  * {@link InputStream}.
  * 
+ * <b>This class is not thread-safe!</b>
+ * 
  * @author Rick-Rainer Ludwig
  *
  * @param <T>

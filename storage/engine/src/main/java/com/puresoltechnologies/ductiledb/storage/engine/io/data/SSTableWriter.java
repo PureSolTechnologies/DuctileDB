@@ -45,7 +45,7 @@ public class SSTableWriter implements Closeable {
 	    this.dataFile = new File(directory, baseFilename + ColumnFamilyEngine.DATA_FILE_SUFFIX);
 	    this.indexFile = new File(directory, baseFilename + ColumnFamilyEngine.INDEX_FILE_SUFFIX);
 	    this.dataStream = new DataOutputStream(storage.create(dataFile), bufferSize);
-	    this.indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize);
+	    this.indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize, dataFile);
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize sstable writer.", e);
 	}

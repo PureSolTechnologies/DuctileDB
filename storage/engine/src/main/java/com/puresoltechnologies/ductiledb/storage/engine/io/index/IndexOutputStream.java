@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io.index;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
@@ -9,8 +10,12 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBOutputStream
 
 public class IndexOutputStream extends DuctileDBOutputStream {
 
-    public IndexOutputStream(BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
+    public IndexOutputStream(BufferedOutputStream bufferedOutputStream, int bufferSize, File dataFile)
+	    throws IOException {
 	super(bufferedOutputStream, bufferSize);
+	String path = dataFile.getPath();
+	writeData(Bytes.toBytes(path.length()));
+	writeData(Bytes.toBytes(path));
     }
 
     public void writeIndexEntry(RowKey rowKey, long offset) throws IOException {
