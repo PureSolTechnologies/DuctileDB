@@ -61,7 +61,7 @@ public class IndexImpl implements Index {
 		}
 	    }
 	} catch (IOException e) {
-	    throw new StorageException("Could not determine latest timestamp.");
+	    throw new StorageException("Could not determine latest timestamp.", e);
 	}
     }
 

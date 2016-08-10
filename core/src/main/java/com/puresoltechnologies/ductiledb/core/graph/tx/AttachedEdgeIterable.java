@@ -51,7 +51,7 @@ public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBEdge edge = ResultDecoder.toCacheEdge(transaction, IdEncoder.decodeRowId(result.getRow()),
+		    DuctileDBEdge edge = ResultDecoder.toCacheEdge(transaction, IdEncoder.decodeRowId(result.getRowKey()),
 			    result);
 		    if (!transaction.wasEdgeRemoved(edge.getId())) {
 			next = new DuctileDBAttachedEdge(transaction, edge.getId());

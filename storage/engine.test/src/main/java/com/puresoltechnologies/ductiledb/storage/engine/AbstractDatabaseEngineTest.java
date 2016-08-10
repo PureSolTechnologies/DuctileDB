@@ -3,55 +3,60 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
+import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
-import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public abstract class AbstractDatabaseEngineTest {
 
+    private static final String DATABASE_ENGINE_NAME = "DatabaseEngineTest";
+
     private static DatabaseEngineConfiguration configuration;
 
-    private DatabaseEngineImpl storageEngine;
-    private String databaseEngineName;
+    private static Storage storage = null;
+    private static DatabaseEngineImpl storageEngine = null;
 
     @BeforeClass
-    public static void readConfiguration() throws IOException {
+    public static void readConfiguration() throws IOException, StorageFactoryServiceException, StorageException {
 	Yaml yaml = new Yaml();
 	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
 	    configuration = yaml.loadAs(inputStream, DatabaseEngineConfiguration.class);
 	    assertNotNull(configuration);
 	}
+	storage = StorageFactory.getStorageInstance(configuration.getStorage());
+	cleanTestStorageDirectory();
+	storageEngine = new DatabaseEngineImpl(storage, DATABASE_ENGINE_NAME, configuration);
     }
 
-    @Before
-    public void initializeStorageEngine() throws StorageException, IOException {
-	databaseEngineName = getClass().getSimpleName();
-	storageEngine = new DatabaseEngineImpl(StorageFactory.getStorageInstance(configuration.getStorage()),
-		databaseEngineName, configuration);
-    }
-
-    @After
-    public void cleanupStorageEngine() throws IOException {
-	if (storageEngine != null) {
-	    Storage storage = storageEngine.getStorage();
-	    storageEngine.close();
-	    storage.removeDirectory(new File(databaseEngineName), true);
+    private static void cleanTestStorageDirectory() throws FileNotFoundException, IOException {
+	for (File file : storage.list(new File("/"))) {
+	    FileStatus fileStatus = storage.getFileStatus(file);
+	    if (fileStatus.isDirectory()) {
+		storage.removeDirectory(file, true);
+	    } else {
+		storage.delete(file);
+	    }
 	}
-	File baseDirectory = new File(
-		configuration.getStorage().getProperties().getProperty(OSStorage.DIRECTORY_PROPERTY));
-	baseDirectory.delete();
+    }
+
+    @AfterClass
+    public static void cleanupStorageEngine() throws IOException {
+	if (storageEngine != null) {
+	    storageEngine.close();
+	}
     }
 
     public static DatabaseEngineConfiguration getConfiguration() {

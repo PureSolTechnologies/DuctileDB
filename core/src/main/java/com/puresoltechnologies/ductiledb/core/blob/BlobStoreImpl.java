@@ -36,7 +36,7 @@ public class BlobStoreImpl implements BlobStore {
     private final Storage storage;
 
     public BlobStoreImpl(DuctileDBConfiguration configuration) throws StorageFactoryServiceException {
-	this.storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
+	this(StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage()));
     }
 
     /**
@@ -54,7 +54,12 @@ public class BlobStoreImpl implements BlobStore {
     private void initialize() {
 	logger.info("Initialize Bloob service...");
 	if (!storage.exists(filePath)) {
-	    throw new RuntimeException("Could not initialize Bloob Service due to missing file directory in HDFS.");
+	    try {
+		storage.createDirectory(filePath);
+	    } catch (IOException e) {
+		throw new RuntimeException("Could not initialize Bloob Service due to missing file directory in HDFS.",
+			e);
+	    }
 	}
 	FileStatus fileStatus = storage.getFileStatus(filePath);
 	if (!fileStatus.isDirectory()) {
@@ -107,6 +112,12 @@ public class BlobStoreImpl implements BlobStore {
     @Override
     public void storeBlob(HashId hashId, InputStream inputStream) throws IOException {
 	File path = createPath(hashId);
+	File directory = path.getParentFile();
+	if (!storage.exists(directory)) {
+	    storage.createDirectory(directory);
+	} else if (!storage.isDirectory(directory)) {
+	    throw new IOException("'" + directory + "' was expected to be a directory.");
+	}
 	try (OutputStream outputStream = storage.create(path);) {
 	    ByteStreams.copy(inputStream, outputStream);
 	}

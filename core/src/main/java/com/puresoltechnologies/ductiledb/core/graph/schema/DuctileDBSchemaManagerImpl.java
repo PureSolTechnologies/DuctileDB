@@ -55,7 +55,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 		DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> propertyNames = new HashSet<>();
-	scanner.forEach((result) -> propertyNames.add(Bytes.toString(result.getRow())));
+	scanner.forEach((result) -> propertyNames.add(Bytes.toString(result.getRowKey())));
 	return propertyNames;
     }
 
@@ -171,7 +171,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 		DatabaseTable.TYPE_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> typeNames = new HashSet<>();
-	scanner.forEach((result) -> typeNames.add(Bytes.toString(result.getRow())));
+	scanner.forEach((result) -> typeNames.add(Bytes.toString(result.getRowKey())));
 	return typeNames;
     }
 

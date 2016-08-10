@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.core;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -11,12 +13,16 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class AbstractDuctileDBTest {
 
     private static DuctileDBConfiguration configuration = null;
     private static DuctileDB ductileDB = null;
+    private static Storage storage = null;
 
     /**
      * Initializes the database.
@@ -31,8 +37,21 @@ public class AbstractDuctileDBTest {
     @BeforeClass
     public static void initializeDuctileDB() throws StorageException, SchemaException, IOException {
 	configuration = readTestConfigration();
+	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
+	cleanTestStorageDirectory();
 	ductileDB = createDuctileDB();
 	assertNotNull("DuctileDB is null.", ductileDB);
+    }
+
+    private static void cleanTestStorageDirectory() throws FileNotFoundException, IOException {
+	for (File file : storage.list(new File("/"))) {
+	    FileStatus fileStatus = storage.getFileStatus(file);
+	    if (fileStatus.isDirectory()) {
+		storage.removeDirectory(file, true);
+	    } else {
+		storage.delete(file);
+	    }
+	}
     }
 
     public static DuctileDBConfiguration readTestConfigration() throws IOException {

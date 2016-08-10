@@ -60,6 +60,9 @@ public class OSStorage implements Storage {
     public Iterable<File> list(File directory) {
 	File[] files = new File(rootDirectory, directory.getPath()).listFiles();
 	List<File> list = new ArrayList<>();
+	if (files == null) {
+	    return list;
+	}
 	for (File file : files) {
 	    String directoryString = file.getPath().replace(rootDirectory.getPath(), "");
 	    if (directoryString.startsWith(File.separator)) {
@@ -181,5 +184,10 @@ public class OSStorage implements Storage {
 	    throw new IOException("File '" + file + "' does not exist.");
 	}
 	return new BufferedOutputStream(new FileOutputStream(path, true), blockSize);
+    }
+
+    @Override
+    public String toString() {
+	return rootDirectory.getPath();
     }
 }

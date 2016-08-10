@@ -39,11 +39,11 @@ public interface Storage extends Closeable {
     /**
      * This method creates a new directory.
      * 
-     * @param storageName
+     * @param directory
      *            is the name of the directory.
      * @throws IOException
      */
-    public void createDirectory(File storageName) throws IOException;
+    public void createDirectory(File directory) throws IOException;
 
     /**
      * This method removes the directory

@@ -2,6 +2,9 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
@@ -13,6 +16,8 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
  * @author Rick-Rainer Ludwig
  */
 public class Table {
+
+    private static final Logger logger = LoggerFactory.getLogger(Table.class);
 
     private final TableEngineImpl tableEngine;
     private final TableDescriptor tableDescriptor;
@@ -52,7 +57,12 @@ public class Table {
     }
 
     public ResultScanner getScanner(Scan scan) {
-	return new ResultScanner(this, scan);
+	try {
+	    return new ResultScanner(this, scan);
+	} catch (StorageException e) {
+	    logger.error("Could not create result scanner.", e);
+	    return null;
+	}
     }
 
     public long incrementColumnValue(byte[] rowKey, String tableName, byte[] key, long incrementValue) {

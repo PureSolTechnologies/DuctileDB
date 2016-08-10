@@ -4,11 +4,11 @@ import java.util.NavigableMap;
 
 public class Result {
 
-    private final byte[] key;
+    private final byte[] rowKey;
     private final ColumnFamilyMap columnFamilies = new ColumnFamilyMap();
 
     public Result(byte[] rowKey) {
-	this.key = rowKey;
+	this.rowKey = rowKey;
     }
 
     public NavigableMap<byte[], byte[]> getFamilyMap(byte[] columnFamily) {
@@ -19,8 +19,8 @@ public class Result {
 	return columnFamilies.isEmpty();
     }
 
-    public byte[] getRow() {
-	return key;
+    public byte[] getRowKey() {
+	return rowKey;
     }
 
     public void add(byte[] columnFamily, ColumnMap columns) {
