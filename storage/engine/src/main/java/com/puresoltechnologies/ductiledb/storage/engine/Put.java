@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 public class Put {
@@ -27,9 +25,9 @@ public class Put {
     }
 
     public final void addColumn(byte[] columnFamilyName, byte[] key, byte[] value) {
-	Map<byte[], byte[]> columnFamily = columnFamilies.get(columnFamilyName);
+	ColumnMap columnFamily = columnFamilies.get(columnFamilyName);
 	if (columnFamily == null) {
-	    columnFamily = new HashMap<>();
+	    columnFamily = new ColumnMap();
 	    columnFamilies.put(columnFamilyName, columnFamily);
 	}
 	columnFamily.put(key, value);

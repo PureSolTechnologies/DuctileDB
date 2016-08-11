@@ -68,8 +68,7 @@ public class Table {
     public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue)
 	    throws StorageException {
 	ColumnFamilyEngineImpl columnFamilyEngine = tableEngine.getColumnFamilyEngine(columnFamily);
-	columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
-	return 0;
+	return columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
     }
 
     public ColumnFamily getColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {

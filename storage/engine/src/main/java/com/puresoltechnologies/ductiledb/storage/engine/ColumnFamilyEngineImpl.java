@@ -410,16 +410,21 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public void incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException {
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException {
 	ColumnMap columnMap = get(rowKey);
-	long oldValue = 0;
+	long result = 1;
 	if (columnMap != null) {
 	    byte[] oldValueBytes = columnMap.get(column);
-	    oldValue = Bytes.toLong(oldValueBytes);
+	    long oldValue = Bytes.toLong(oldValueBytes);
+	    result = oldValue + incrementValue;
+	    columnMap.put(column, Bytes.toBytes(result));
+	} else {
+	    columnMap = new ColumnMap();
+	    result = 1;
+	    columnMap.put(column, Bytes.toBytes(result));
 	}
-	columnMap.put(column, Bytes.toBytes(oldValue + incrementValue));
 	writeNewColumns(rowKey, columnMap);
-
+	return result;
     }
 
     private void writeNewColumns(byte[] rowKey, ColumnMap columnMap) throws StorageException {

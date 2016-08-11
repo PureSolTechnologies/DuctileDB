@@ -18,7 +18,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 
     @Test
-    public void test() throws SchemaException, StorageException {
+    public void testSimpleCRUD() throws SchemaException, StorageException {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent("namespace_test");

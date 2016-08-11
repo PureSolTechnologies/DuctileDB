@@ -71,12 +71,12 @@ public class GraphSchema {
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getNameBytes());
 
 	    Table table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
-	    Put vertexIdPut = new Put(DatabaseColumn.VERTEX_ID.getNameBytes());
+	    Put vertexIdPut = new Put(ID_ROW_BYTES);
 	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.VERTEX_ID.getNameBytes(),
-		    Bytes.toBytes(0l));
-	    Put edgeIdPut = new Put(DatabaseColumn.EDGE_ID.getNameBytes());
+		    Bytes.toBytes(1l));
+	    Put edgeIdPut = new Put(ID_ROW_BYTES);
 	    edgeIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.EDGE_ID.getNameBytes(),
-		    Bytes.toBytes(0l));
+		    Bytes.toBytes(1l));
 	    Put schemaVersionPut = new Put(DatabaseColumn.SCHEMA_VERSION.getNameBytes());
 	    String version = BuildInformation.getVersion();
 	    if (version.startsWith("${")) {

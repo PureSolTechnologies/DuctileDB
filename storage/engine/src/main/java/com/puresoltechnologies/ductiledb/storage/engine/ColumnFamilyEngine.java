@@ -37,7 +37,7 @@ public interface ColumnFamilyEngine extends Closeable {
      * @param incrementValue
      * @throws StorageException
      */
-    public void incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException;
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException;
 
     /**
      * This metho retrieves the columns from the given row.

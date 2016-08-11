@@ -1,9 +1,10 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 public class ColumnFamilyMap {
@@ -18,11 +19,26 @@ public class ColumnFamilyMap {
 	return columnFamilies.keySet();
     }
 
-    public void put(byte[] columnFamilyName, Map<byte[], byte[]> columnFamily) {
-	columnFamilies.put(columnFamilyName, new ColumnMap(columnFamily));
+    public void put(byte[] columnFamilyName, ColumnMap columnMap) {
+	columnFamilies.put(columnFamilyName, columnMap);
     }
 
     public boolean isEmpty() {
 	return columnFamilies.isEmpty();
+    }
+
+    @Override
+    public String toString() {
+	StringBuilder buffer = new StringBuilder();
+	for (Entry<byte[], ColumnMap> columnFamily : columnFamilies.entrySet()) {
+	    if (buffer.length() > 0) {
+		buffer.append('\n');
+	    }
+	    buffer.append("family: ");
+	    buffer.append(Bytes.toHumanReadableString(columnFamily.getKey()));
+	    buffer.append("\n  ");
+	    buffer.append(columnFamily.getValue().toString().replaceAll("\\n", "\n    "));
+	}
+	return buffer.toString();
     }
 }

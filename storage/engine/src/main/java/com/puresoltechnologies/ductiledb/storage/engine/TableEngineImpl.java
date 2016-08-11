@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -88,13 +89,21 @@ public class TableEngineImpl implements TableEngine {
 
     public void delete(Delete delete) throws StorageException {
 	byte[] rowKey = delete.getKey();
-	for (byte[] columnFamily : delete.getColumnFamilies()) {
-	    Set<byte[]> columns = delete.getColumns(columnFamily);
-	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
-	    if (columns.size() == 0) {
+	Set<byte[]> columnFamilies = delete.getColumnFamilies();
+	if (!columnFamilies.isEmpty()) {
+	    for (byte[] columnFamily : columnFamilies) {
+		Set<byte[]> columns = delete.getColumns(columnFamily);
+		ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
+		if (columns.size() == 0) {
+		    columnFamilyEngine.delete(rowKey);
+		} else {
+		    columnFamilyEngine.delete(rowKey, columns);
+		}
+	    }
+	} else {
+	    for (Entry<byte[], ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
+		ColumnFamilyEngineImpl columnFamilyEngine = columnFamily.getValue();
 		columnFamilyEngine.delete(rowKey);
-	    } else {
-		columnFamilyEngine.delete(rowKey, columns);
 	    }
 	}
     }
@@ -102,9 +111,23 @@ public class TableEngineImpl implements TableEngine {
     public Result get(Get get) throws StorageException {
 	byte[] rowKey = get.getKey();
 	Result result = new Result(rowKey);
-	for (byte[] columnFamily : get.getColumnFamilies().keySet()) {
-	    ColumnMap columns = columnFamilyEngines.get(columnFamily).get(rowKey);
-	    result.add(columnFamily, columns);
+	if (!get.getColumnFamilies().isEmpty()) {
+	    for (byte[] columnFamily : get.getColumnFamilies().keySet()) {
+		ColumnMap columns = columnFamilyEngines.get(columnFamily).get(rowKey);
+		result.add(columnFamily, columns);
+	    }
+	} else {
+	    boolean foundSomething = false;
+	    for (Entry<byte[], ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
+		ColumnMap columns = columnFamily.getValue().get(rowKey);
+		if (!columns.isEmpty()) {
+		    result.add(columnFamily.getKey(), columns);
+		    foundSomething = true;
+		}
+	    }
+	    if (!foundSomething) {
+		result = null;
+	    }
 	}
 	return result;
     }
