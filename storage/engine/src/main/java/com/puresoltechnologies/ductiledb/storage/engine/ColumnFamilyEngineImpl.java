@@ -185,13 +185,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    columnMap.putAll(values);
 	    values = columnMap;
 	}
-	long offset = commitLogStream.getOffset();
-	RowKey rowKey2 = new RowKey(rowKey);
-	writeCommitLog(rowKey2, values);
-	writeMemtable(rowKey2, offset);
-	if (offset > maxCommitLogSize) {
-	    rolloverCommitLog();
-	}
+	writeNewColumns(rowKey, values);
     }
 
     private void writeCommitLog(RowKey rowKey, ColumnMap values) throws StorageException {
@@ -400,13 +394,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    if (columnMap.size() == 0) {
 		delete(rowKey);
 	    } else {
-		long offset = commitLogStream.getOffset();
-		RowKey rowKey2 = new RowKey(rowKey);
-		writeCommitLog(rowKey2, columnMap);
-		writeMemtable(rowKey2, offset);
-		if (offset > maxCommitLogSize) {
-		    rolloverCommitLog();
-		}
+		writeNewColumns(rowKey, columnMap);
 	    }
 	}
     }
@@ -420,4 +408,28 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}
     }
+
+    @Override
+    public void incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException {
+	ColumnMap columnMap = get(rowKey);
+	long oldValue = 0;
+	if (columnMap != null) {
+	    byte[] oldValueBytes = columnMap.get(column);
+	    oldValue = Bytes.toLong(oldValueBytes);
+	}
+	columnMap.put(column, Bytes.toBytes(oldValue + incrementValue));
+	writeNewColumns(rowKey, columnMap);
+
+    }
+
+    private void writeNewColumns(byte[] rowKey, ColumnMap columnMap) throws StorageException {
+	long offset = commitLogStream.getOffset();
+	RowKey rowKey2 = new RowKey(rowKey);
+	writeCommitLog(rowKey2, columnMap);
+	writeMemtable(rowKey2, offset);
+	if (offset > maxCommitLogSize) {
+	    rolloverCommitLog();
+	}
+    }
+
 }

@@ -1,6 +1,9 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -31,6 +34,10 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 
 	Result result = table.get(new Get(key));
 	assertNotNull(result);
+	assertFalse(result.isEmpty());
+	Set<byte[]> families = result.getFamilies();
+	assertNotNull(families);
+	assertFalse(families.isEmpty());
 
     }
 

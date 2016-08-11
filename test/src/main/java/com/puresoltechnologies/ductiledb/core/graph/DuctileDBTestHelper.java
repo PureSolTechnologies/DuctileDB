@@ -15,11 +15,9 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
-import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
@@ -59,15 +57,7 @@ public class DuctileDBTestHelper {
 	return count[0];
     }
 
-    public static void removeTables() throws StorageException, IOException, SchemaException {
-	DuctileDBConfiguration configration = AbstractDuctileDBTest.readTestConfigration();
-	try (DatabaseEngine storageEngine = DuctileDBGraphFactory
-		.createDatabaseEngine(configration.getDatabaseEngine())) {
-	    removeTables(storageEngine);
-	}
-    }
-
-    private static void removeTables(DatabaseEngine storageEngine) throws SchemaException {
+    private static void removeTables(DatabaseEngineImpl storageEngine) throws SchemaException {
 	logger.info("Remove DuctileDB namespace...");
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
 	NamespaceDescriptor ductileDBNamespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);

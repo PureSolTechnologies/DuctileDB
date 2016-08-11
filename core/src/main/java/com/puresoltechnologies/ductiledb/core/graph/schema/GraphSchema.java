@@ -1,7 +1,12 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
+import java.util.Arrays;
+
+import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.Put;
+import com.puresoltechnologies.ductiledb.storage.engine.Table;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -65,30 +70,22 @@ public class GraphSchema {
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.METADATA.getNameBytes());
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getNameBytes());
 
-	    // FIXME!!!
-	    // Table table =
-	    // storageEngine.getTable(HBaseTable.METADATA.getName());
-	    // Put vertexIdPut = new Put(HBaseColumn.VERTEX_ID.getNameBytes());
-	    // vertexIdPut.addColumn(HBaseColumnFamily.METADATA.getName(),
-	    // HBaseColumn.VERTEX_ID.getNameBytes(),
-	    // Bytes.empty());
-	    // Put edgeIdPut = new Put(HBaseColumn.EDGE_ID.getNameBytes());
-	    // edgeIdPut.addColumn(HBaseColumnFamily.METADATA.getName(),
-	    // HBaseColumn.EDGE_ID.getNameBytes(),
-	    // Bytes.empty());
-	    // Put schemaVersionPut = new
-	    // Put(HBaseColumn.SCHEMA_VERSION.getNameBytes());
-	    // String version = BuildInformation.getVersion();
-	    // if (version.startsWith("${")) {
-	    // // fallback for test environments, but backed up by test.
-	    // version = "0.1.0";
-	    // }
-	    // schemaVersionPut.addColumn(HBaseColumnFamily.METADATA.getName(),
-	    // HBaseColumn.SCHEMA_VERSION.getNameBytes(),
-	    // Bytes.toBytes(version));
-	    // table.put(Arrays.asList(vertexIdPut, edgeIdPut,
-	    // schemaVersionPut));
-
+	    Table table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
+	    Put vertexIdPut = new Put(DatabaseColumn.VERTEX_ID.getNameBytes());
+	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.VERTEX_ID.getNameBytes(),
+		    Bytes.toBytes(0l));
+	    Put edgeIdPut = new Put(DatabaseColumn.EDGE_ID.getNameBytes());
+	    edgeIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.EDGE_ID.getNameBytes(),
+		    Bytes.toBytes(0l));
+	    Put schemaVersionPut = new Put(DatabaseColumn.SCHEMA_VERSION.getNameBytes());
+	    String version = BuildInformation.getVersion();
+	    if (version.startsWith("${")) {
+		// fallback for test environments, but backed up by test.
+		version = "0.2.0";
+	    }
+	    schemaVersionPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(),
+		    DatabaseColumn.SCHEMA_VERSION.getNameBytes(), Bytes.toBytes(version));
+	    table.put(Arrays.asList(vertexIdPut, edgeIdPut, schemaVersionPut));
 	}
     }
 

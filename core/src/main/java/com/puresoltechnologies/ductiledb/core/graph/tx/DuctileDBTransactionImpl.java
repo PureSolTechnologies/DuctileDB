@@ -273,10 +273,11 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (vertexIdCounter >= ID_CACHE_SIZE) {
 	    try {
 		Table metaDataTable = openMetaDataTable();
-		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, DatabaseColumnFamily.METADATA.getName(),
-			DatabaseColumn.VERTEX_ID.getNameBytes(), ID_CACHE_SIZE);
+		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_BYTES,
+			DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.VERTEX_ID.getNameBytes(),
+			ID_CACHE_SIZE);
 		vertexIdCounter = 0;
-	    } catch (IOException e) {
+	    } catch (IOException | StorageException e) {
 		throw new DuctileDBException("Could not create vertex id.", e);
 	    }
 	}
@@ -290,10 +291,11 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (edgeIdCounter >= ID_CACHE_SIZE) {
 	    try {
 		Table metaDataTable = openMetaDataTable();
-		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_BYTES, DatabaseColumnFamily.METADATA.getName(),
-			DatabaseColumn.EDGE_ID.getNameBytes(), ID_CACHE_SIZE);
+		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_BYTES,
+			DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.EDGE_ID.getNameBytes(),
+			ID_CACHE_SIZE);
 		edgeIdCounter = 0;
-	    } catch (IOException e) {
+	    } catch (IOException | StorageException e) {
 		throw new DuctileDBException("Could not create edge id.", e);
 	    }
 	}

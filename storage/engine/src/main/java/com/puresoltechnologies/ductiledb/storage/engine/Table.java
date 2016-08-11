@@ -65,8 +65,10 @@ public class Table {
 	}
     }
 
-    public long incrementColumnValue(byte[] rowKey, String tableName, byte[] key, long incrementValue) {
-	// TODO Auto-generated method stub
+    public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue)
+	    throws StorageException {
+	ColumnFamilyEngineImpl columnFamilyEngine = tableEngine.getColumnFamilyEngine(columnFamily);
+	columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
 	return 0;
     }
 

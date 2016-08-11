@@ -93,7 +93,7 @@ public class BlobStoreImpl implements BlobStore {
     @Override
     public long getBlobSize(HashId hashId) throws FileNotFoundException, IOException {
 	File path = createPath(hashId);
-	Iterator<File> files = storage.list(path).iterator();
+	Iterator<File> files = storage.list(path.getParentFile()).iterator();
 	if (!files.hasNext()) {
 	    throw new FileNotFoundException("Could not find file with hash id '" + hashId + "'.");
 	}
