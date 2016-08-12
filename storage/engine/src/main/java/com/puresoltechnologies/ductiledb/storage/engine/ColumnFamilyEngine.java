@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 
 /**
  * This class handles the storage of a single column family.
@@ -19,6 +20,10 @@ public interface ColumnFamilyEngine extends Closeable {
     public static final String MD5_FILE_SUFFIX = ".md5";
     public static final String METADATA_SUFFIX = ".metadata";
     public static final String COMMIT_LOG_PREFIX = "CommitLog";
+
+    public byte[] getName();
+
+    public ColumnFamilyDescriptor getDescriptor();
 
     /**
      * This method is used to put additional columns to the given row.

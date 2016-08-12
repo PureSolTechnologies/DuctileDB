@@ -11,6 +11,10 @@ public class ColumnFamily {
 	this.columnFamilyEngine = columnFamilyEngine;
     }
 
+    public byte[] getName() {
+	return columnFamilyEngine.getName();
+    }
+
     public ColumnFamilyEngine getEngine() {
 	return columnFamilyEngine;
     }

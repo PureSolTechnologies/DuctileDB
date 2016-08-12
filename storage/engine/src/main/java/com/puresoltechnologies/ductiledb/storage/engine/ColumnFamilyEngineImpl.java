@@ -81,6 +81,16 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
+    public byte[] getName() {
+	return columnFamilyDescriptor.getName();
+    }
+
+    @Override
+    public ColumnFamilyDescriptor getDescriptor() {
+	return columnFamilyDescriptor;
+    }
+
+    @Override
     public String toString() {
 	TableDescriptor table = columnFamilyDescriptor.getTable();
 	return "engine:" + table.getNamespace().getName() + "." + table.getName() + "/"
@@ -328,7 +338,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    return row.getColumnMap();
 	}
 	row = readFromDataFiles(rowKey2);
-	return row != null ? row.getColumnMap() : null;
+	return row != null ? row.getColumnMap() : new ColumnMap();
     }
 
     private ColumnFamilyRow readFromDataFiles(RowKey rowKey) throws StorageException {
@@ -403,7 +413,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException {
 	try {
 	    return new ColumnFamilyScanner(storage, memtable, getCurrentCommitLogs(),
-		    new DataFileSet(storage, columnFamilyDescriptor), new RowKey(startRowKey), new RowKey(endRowKey));
+		    new DataFileSet(storage, columnFamilyDescriptor),
+		    startRowKey != null ? new RowKey(startRowKey) : null,
+		    endRowKey != null ? new RowKey(endRowKey) : null);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}

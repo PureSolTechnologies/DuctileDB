@@ -75,6 +75,10 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Table engine '" + tableDescriptor.getName() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
+    public Set<byte[]> getColumnFamilies() {
+	return columnFamilyEngines.keySet();
+    }
+
     public ColumnFamilyEngineImpl getColumnFamilyEngine(byte[] columnFamily) {
 	return columnFamilyEngines.get(columnFamily);
     }
@@ -117,16 +121,11 @@ public class TableEngineImpl implements TableEngine {
 		result.add(columnFamily, columns);
 	    }
 	} else {
-	    boolean foundSomething = false;
 	    for (Entry<byte[], ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
 		ColumnMap columns = columnFamily.getValue().get(rowKey);
 		if (!columns.isEmpty()) {
 		    result.add(columnFamily.getKey(), columns);
-		    foundSomething = true;
 		}
-	    }
-	    if (!foundSomething) {
-		result = null;
 	    }
 	}
 	return result;

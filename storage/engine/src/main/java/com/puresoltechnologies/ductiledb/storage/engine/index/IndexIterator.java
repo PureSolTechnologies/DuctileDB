@@ -32,8 +32,10 @@ public interface IndexIterator extends PeekingIterator<IndexEntry>, CloseableIte
      * @param rowKey
      */
     default public void gotoStart(RowKey startRowKey) {
-	while ((hasNext()) && (peek().getRowKey().compareTo(startRowKey) < 0)) {
-	    skip();
+	if (startRowKey != null) {
+	    while ((hasNext()) && (peek().getRowKey().compareTo(startRowKey) < 0)) {
+		skip();
+	    }
 	}
     }
 }

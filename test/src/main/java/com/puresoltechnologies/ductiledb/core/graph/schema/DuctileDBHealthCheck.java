@@ -81,9 +81,10 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.VERTEX_TYPES.getName());
+	    Table vertexTypesTable = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.VERTEX_TYPES.getName());
 	    for (String type : vertex.getTypes()) {
-		Result result = table.get(new Get(Bytes.toBytes(type)));
+		Result result = vertexTypesTable.get(new Get(Bytes.toBytes(type)));
 		assertFalse("Could not find row for type '" + type + "' in vertex type index.", result.isEmpty());
 		byte[] value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes())
 			.get(IdEncoder.encodeRowId(vertex.getId()));
@@ -91,10 +92,11 @@ public class DuctileDBHealthCheck {
 			+ vertex.getId() + "'", value);
 	    }
 
-	    table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.VERTEX_PROPERTIES.getName());
+	    Table vertexPropertiesTable = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE,
+		    DatabaseTable.VERTEX_PROPERTIES.getName());
 	    for (String key : vertex.getPropertyKeys()) {
 		Object value = vertex.getProperty(key);
-		Result result = table.get(new Get(Bytes.toBytes(key)));
+		Result result = vertexPropertiesTable.get(new Get(Bytes.toBytes(key)));
 		assertFalse("Could not find row for property '" + key + "' in vertex property index.",
 			result.isEmpty());
 		NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());

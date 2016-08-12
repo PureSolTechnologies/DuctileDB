@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +32,22 @@ public class Table {
 
     public TableDescriptor getTableDescriptor() {
 	return tableDescriptor;
+    }
+
+    public Set<ColumnFamily> getColumnFamilies() {
+	Set<ColumnFamily> columnFamilies = new HashSet<>();
+	for (byte[] columnFamilyName : tableEngine.getColumnFamilies()) {
+	    columnFamilies.add(getColumnFamily(columnFamilyName));
+	}
+	return columnFamilies;
+    }
+
+    public ColumnFamily getColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
+	return getColumnFamily(columnFamilyDescriptor.getName());
+    }
+
+    public ColumnFamily getColumnFamily(byte[] columnFamily) {
+	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamily));
     }
 
     public void put(Put put) throws StorageException {
@@ -69,14 +87,6 @@ public class Table {
 	    throws StorageException {
 	ColumnFamilyEngineImpl columnFamilyEngine = tableEngine.getColumnFamilyEngine(columnFamily);
 	return columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
-    }
-
-    public ColumnFamily getColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamilyDescriptor.getName()));
-    }
-
-    public ColumnFamily getColumnFamily(byte[] columnFamily) {
-	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamily));
     }
 
 }

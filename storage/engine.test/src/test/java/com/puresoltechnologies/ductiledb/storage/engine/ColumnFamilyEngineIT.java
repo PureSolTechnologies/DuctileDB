@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -60,9 +59,8 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testMemtableCRUD", "test", "testcf")) {
 	    // Check behavior of empty Memtable
 	    ColumnMap entry = columnFamilyEngine.get(Bytes.toBytes(0l));
-	    assertNull(entry);
+	    assertTrue(entry.isEmpty());
 	    columnFamilyEngine.delete(Bytes.toBytes(0l));
-	    assertNull(entry);
 	    // Check put
 	    ColumnMap columns = new ColumnMap();
 	    columns.put(Bytes.toBytes(123l), Bytes.toBytes(123l));
@@ -117,11 +115,31 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    // Check delete
 	    columnFamilyEngine.delete(Bytes.toBytes(0l));
 	    entry = columnFamilyEngine.get(Bytes.toBytes(0l));
-	    assertNull(entry);
+	    assertTrue(entry.isEmpty());
 	    entry = columnFamilyEngine.get(Bytes.toBytes(1l));
 	    assertNotNull(entry);
 	    assertEquals(columns2, entry);
 
+	}
+    }
+
+    @Test
+    public void testWideRow() throws SchemaException, StorageException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testWideRow", "test", "testcf")) {
+	    ColumnMap entry = columnFamilyEngine.get(Bytes.toBytes(12345l));
+	    assertTrue(entry.isEmpty());
+	    columnFamilyEngine.delete(Bytes.toBytes(12345l));
+
+	    ColumnMap columnMap = new ColumnMap();
+	    for (int i = 1; i <= 100000; i++) {
+		columnMap.put(Bytes.toBytes((long) i), Bytes.toBytes((long) i));
+	    }
+	    columnFamilyEngine.put(Bytes.toBytes(12345l), columnMap);
+
+	    // Check put
+	    entry = columnFamilyEngine.get(Bytes.toBytes(12345l));
+	    assertNotNull(entry);
+	    assertEquals(columnMap, entry);
 	}
     }
 
@@ -210,7 +228,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
 	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
 	    returned2 = columnFamilyEngine.get(rowKey2);
-	    assertNull(returned2);
+	    assertTrue(returned2.isEmpty());
 	    returned3 = columnFamilyEngine.get(rowKey3);
 	    assertEquals(1, returned3.size());
 	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));

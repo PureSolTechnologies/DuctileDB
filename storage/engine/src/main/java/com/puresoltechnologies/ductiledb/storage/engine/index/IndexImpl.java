@@ -91,12 +91,18 @@ public class IndexImpl implements Index {
 
     @Override
     public IndexEntry ceiling(RowKey rowKey) {
+	if (rowKey == null) {
+	    return indexTree.isEmpty() ? null : indexTree.get(indexTree.min());
+	}
 	RedBlackTreeNode<RowKey, IndexEntry> ceilingNode = indexTree.ceilingNode(rowKey);
 	return ceilingNode != null ? ceilingNode.getValue() : null;
     }
 
     @Override
     public IndexEntry floor(RowKey rowKey) {
+	if (rowKey == null) {
+	    return indexTree.isEmpty() ? null : indexTree.get(indexTree.min());
+	}
 	RedBlackTreeNode<RowKey, IndexEntry> floorNode = indexTree.floorNode(rowKey);
 	return floorNode != null ? floorNode.getValue() : null;
     }

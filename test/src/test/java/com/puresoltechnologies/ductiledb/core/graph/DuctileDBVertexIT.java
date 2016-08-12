@@ -23,7 +23,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
-    private static int NUMBER = 1000;
+    private static int NUMBER = 150;
     private static DuctileDBGraphImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 
@@ -46,24 +46,47 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void testCreateAndRemoveVertex() throws IOException {
+    public void testCreateAndRemoveSimpleVertex() throws IOException, StorageException {
 	DuctileDBVertex vertex = graph.addVertex();
 	graph.commit();
+	healthChecker.runCheck();
 
 	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
 	assertEquals(vertex, vertex2);
 
 	graph.removeVertex(vertex);
 	graph.commit();
+	healthChecker.runCheck();
 
 	assertNotInTransaction(vertex);
     }
 
     @Test
-    public void testSetAndRemoveVertexProperty() throws IOException {
+    public void testCreateAndRemoveFullVertex() throws IOException, StorageException {
+	DuctileDBVertex vertex = graph.addVertex();
+	vertex.addType("type");
+	for (int i = 0; i < 190; ++i) {
+	    vertex.setProperty("property" + i, "value" + i);
+	}
+	graph.commit();
+	healthChecker.runCheck();
+
+	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
+	assertEquals(vertex, vertex2);
+
+	vertex.remove();
+	graph.commit();
+	healthChecker.runCheck();
+
+	assertNotInTransaction(vertex);
+    }
+
+    @Test
+    public void testSetAndRemoveVertexProperty() throws IOException, StorageException {
 	DuctileDBVertex vertex = graph.addVertex();
 	vertex.setProperty("property1", "value1");
 	graph.commit();
+	healthChecker.runCheck();
 	assertEquals("value1", vertex.getProperty("property1"));
 
 	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
@@ -71,17 +94,20 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.removeProperty("property1");
 	graph.commit();
+	healthChecker.runCheck();
 	assertNull(graph.getVertex(vertex.getId()).getProperty("property1"));
 
 	vertex.remove();
 	graph.commit();
+	healthChecker.runCheck();
     }
 
     @Test
-    public void testSetAndRemoveVertexType() throws IOException {
+    public void testSetAndRemoveVertexType() throws IOException, StorageException {
 	DuctileDBVertex vertex = graph.addVertex();
 	vertex.addType("type");
 	graph.commit();
+	healthChecker.runCheck();
 	assertTrue(vertex.hasType("type"));
 
 	Iterator<String> iterator = vertex.getTypes().iterator();
@@ -99,19 +125,24 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.removeType("type");
 	graph.commit();
+	healthChecker.runCheck();
+
 	assertFalse(vertex.hasType("type"));
 	assertFalse(graph.getVertex(vertex.getId()).hasType("type"));
 	vertex.remove();
 	graph.commit();
+	healthChecker.runCheck();
     }
 
     @Test
-    public void testPropertyCRUD() {
+    public void testPropertyCRUD() throws IOException, StorageException {
 	DuctileDBGraphImpl graph = getGraph();
 	assertEquals(0, DuctileDBTestHelper.count(graph.getVertices()));
 
 	DuctileDBVertex vertex = graph.addVertex();
 	graph.commit();
+	healthChecker.runCheck();
+
 	assertEquals(1, DuctileDBTestHelper.count(graph.getVertices()));
 	DuctileDBVertex readVertex = graph.getVertices().iterator().next();
 	assertEquals(vertex, readVertex);
@@ -119,23 +150,29 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	vertex.setProperty("key", "value");
 	assertEquals("value", vertex.getProperty("key"));
 	graph.commit();
+	healthChecker.runCheck();
+
 	readVertex = graph.getVertices().iterator().next();
 	assertEquals("value", readVertex.getProperty("key"));
 
 	vertex.setProperty("key", "value2");
 	assertEquals("value2", vertex.getProperty("key"));
 	graph.commit();
+	healthChecker.runCheck();
+
 	readVertex = graph.getVertices().iterator().next();
 	assertEquals("value2", readVertex.getProperty("key"));
 
 	vertex.removeProperty("key");
 	graph.commit();
+	healthChecker.runCheck();
+
 	readVertex = graph.getVertices().iterator().next();
 	assertNull(readVertex.getProperty("key"));
     }
 
     @Test
-    public void testVertexCreationPerformance() throws IOException {
+    public void testVertexCreationPerformance() throws IOException, StorageException {
 	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -143,6 +180,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    vertices.add(vertex);
 	}
 	graph.commit();
+	healthChecker.runCheck();
+
 	long stop = System.currentTimeMillis();
 	long duration = stop - start;
 	double speed = (double) NUMBER / (double) duration * 1000.0;
@@ -154,10 +193,11 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    vertex.remove();
 	}
 	graph.commit();
+	healthChecker.runCheck();
     }
 
     @Test
-    public void testFullVertexCreationPerformance() throws IOException {
+    public void testFullVertexCreationPerformance() throws IOException, StorageException {
 	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -171,6 +211,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    vertices.add(vertex);
 	}
 	graph.commit();
+	healthChecker.runCheck();
+
 	long stop = System.currentTimeMillis();
 	long duration = stop - start;
 	double speed = (double) NUMBER / (double) duration * 1000.0;
@@ -182,10 +224,11 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    vertex.remove();
 	}
 	graph.commit();
+	healthChecker.runCheck();
     }
 
     @Test
-    public void testSetPropertyPerformance() throws IOException {
+    public void testSetPropertyPerformance() throws IOException, StorageException {
 	DuctileDBVertex vertex = graph.addVertex();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -193,6 +236,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    assertEquals(i, ((Integer) vertex.getProperty("key" + i)).intValue());
 	}
 	graph.commit();
+	healthChecker.runCheck();
+
 	long stop = System.currentTimeMillis();
 	long duration = stop - start;
 	double speed = (double) NUMBER / (double) duration * 1000.0;
@@ -202,10 +247,11 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	assertTrue(duration < 10000);
 	vertex.remove();
 	graph.commit();
+	healthChecker.runCheck();
     }
 
     @Test
-    public void testAddTypePerformance() throws IOException {
+    public void testAddTypePerformance() throws IOException, StorageException {
 	DuctileDBVertex vertex = graph.addVertex();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -213,6 +259,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    assertTrue(vertex.hasType("type" + i));
 	}
 	graph.commit();
+	healthChecker.runCheck();
+
 	long stop = System.currentTimeMillis();
 	long duration = stop - start;
 	double speed = (double) NUMBER / (double) duration * 1000.0;
@@ -222,5 +270,6 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	assertTrue(duration < 10000);
 	vertex.remove();
 	graph.commit();
+	healthChecker.runCheck();
     }
 }

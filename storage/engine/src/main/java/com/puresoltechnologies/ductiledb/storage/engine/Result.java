@@ -29,7 +29,9 @@ public class Result {
     }
 
     public void add(byte[] columnFamily, ColumnMap columns) {
-	columnFamilies.put(columnFamily, columns);
+	if (!columns.isEmpty()) {
+	    columnFamilies.put(columnFamily, columns);
+	}
     }
 
 }
