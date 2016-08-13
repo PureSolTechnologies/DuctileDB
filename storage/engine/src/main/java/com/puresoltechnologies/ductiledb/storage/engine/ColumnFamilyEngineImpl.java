@@ -151,7 +151,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    ColumnFamilyRow row = dataStream.readRow();
 	    Memtable memtable = new Memtable();
 	    while (row != null) {
-		memtable.put(new IndexEntry(row.getRowKey(), indexName, offset));
+		if (!row.getColumnMap().isEmpty()) {
+		    memtable.put(new IndexEntry(row.getRowKey(), indexName, offset));
+		}
 		offset = dataStream.getOffset();
 		row = dataStream.readRow();
 	    }
@@ -195,7 +197,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    columnMap.putAll(values);
 	    values = columnMap;
 	}
-	writeNewColumns(rowKey, values);
+	writeNewColumns(new RowKey(rowKey), values);
     }
 
     private void writeCommitLog(RowKey rowKey, ColumnMap values) throws StorageException {
@@ -212,6 +214,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private void rolloverCommitLog() throws StorageException {
+	if (commitLogStream.getOffset() < maxCommitLogSize) {
+	    return;
+	}
 	try {
 	    logger.info("Max " + commitLogFile.getName() + " size of " + maxCommitLogSize + "bytes reached.");
 	    File commitLogFileSave = this.commitLogFile;
@@ -320,7 +325,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	RowKey rowKey2 = new RowKey(rowKey);
 	IndexEntry indexEntry = memtable.get(rowKey2);
 	ColumnFamilyRow row;
-	if ((indexEntry != null) && (!indexEntry.wasDeleted())) {
+	if (indexEntry != null) {
+	    if (indexEntry.wasDeleted()) {
+		return new ColumnMap();
+	    }
 	    long offset = indexEntry.getOffset();
 	    try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
 		dataInputStream.skip(offset);
@@ -331,7 +339,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    } catch (IOException e) {
 		logger.warn("Could not read data from current commit log '" + commitLogFile + "'.", e);
 	    }
-
 	}
 	row = readFromCommitLogs(rowKey2);
 	if (row != null) {
@@ -391,7 +398,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public synchronized void delete(byte[] rowKey) throws StorageException {
-	memtable.delete(new RowKey(rowKey));
+	RowKey rowKey2 = new RowKey(rowKey);
+	writeMemtable(rowKey2, -1l);
+	writeCommitLog(rowKey2, new ColumnMap());
+	rolloverCommitLog();
     }
 
     @Override
@@ -404,7 +414,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    if (columnMap.size() == 0) {
 		delete(rowKey);
 	    } else {
-		writeNewColumns(rowKey, columnMap);
+		writeNewColumns(new RowKey(rowKey), columnMap);
 	    }
 	}
     }
@@ -435,18 +445,15 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    result = 1;
 	    columnMap.put(column, Bytes.toBytes(result));
 	}
-	writeNewColumns(rowKey, columnMap);
+	writeNewColumns(new RowKey(rowKey), columnMap);
 	return result;
     }
 
-    private void writeNewColumns(byte[] rowKey, ColumnMap columnMap) throws StorageException {
+    private void writeNewColumns(RowKey rowKey, ColumnMap columnMap) throws StorageException {
 	long offset = commitLogStream.getOffset();
-	RowKey rowKey2 = new RowKey(rowKey);
-	writeCommitLog(rowKey2, columnMap);
-	writeMemtable(rowKey2, offset);
-	if (offset > maxCommitLogSize) {
-	    rolloverCommitLog();
-	}
+	writeCommitLog(rowKey, columnMap);
+	writeMemtable(rowKey, offset);
+	rolloverCommitLog();
     }
 
 }

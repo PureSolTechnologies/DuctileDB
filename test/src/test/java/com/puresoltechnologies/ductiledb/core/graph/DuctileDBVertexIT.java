@@ -63,12 +63,19 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testCreateAndRemoveFullVertex() throws IOException, StorageException {
+	Iterable<DuctileDBVertex> vertices = graph.getVertices();
+	assertFalse(vertices.iterator().hasNext());
 	DuctileDBVertex vertex = graph.addVertex();
+	vertices = graph.getVertices();
+	assertTrue(vertices.iterator().hasNext());
+
 	vertex.addType("type");
-	for (int i = 0; i < 190; ++i) {
+	for (int i = 0; i < 195; ++i) {
 	    vertex.setProperty("property" + i, "value" + i);
 	}
 	graph.commit();
+	vertices = graph.getVertices();
+	assertTrue(vertices.iterator().hasNext());
 	healthChecker.runCheck();
 
 	DuctileDBVertex vertex2 = graph.getVertex(vertex.getId());
@@ -76,6 +83,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
 	vertex.remove();
 	graph.commit();
+	vertices = graph.getVertices();
+	assertFalse(vertices.iterator().hasNext());
 	healthChecker.runCheck();
 
 	assertNotInTransaction(vertex);

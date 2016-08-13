@@ -23,40 +23,17 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
+public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 
-    private DatabaseEngineImpl engine;
-    private SchemaManager schemaManager;
-    private NamespaceDescriptor namespace;
-    private TableDescriptor tableDescriptor;
-    private ColumnFamilyDescriptor columnFamilyDescriptor;
-    private Storage storage;
-    private Table table;
-    private ColumnFamily columnFamily;
-
-    private ColumnFamilyEngineImpl createTestColumnFamily(String namespaceName, String tableName,
-	    String columnFamilyName) throws SchemaException, StorageException {
-	engine = getEngine();
-	schemaManager = engine.getSchemaManager();
-	namespace = schemaManager.createNamespaceIfNotPresent(namespaceName);
-	tableDescriptor = schemaManager.createTableIfNotPresent(namespace, tableName);
-	columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		Bytes.toBytes(columnFamilyName));
-	storage = engine.getStorage();
-	table = engine.getTable(tableDescriptor);
-	columnFamily = table.getColumnFamily(columnFamilyDescriptor);
-	return (ColumnFamilyEngineImpl) columnFamily.getEngine();
-    }
+    private static String NAMESPACE = ColumnFamilyEngineIT.class.getSimpleName();
 
     @Test
     public void testMemtableCRUD() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testMemtableCRUD", "test", "testcf")) {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testMemtableCRUD",
+		"testcf")) {
 	    // Check behavior of empty Memtable
 	    ColumnMap entry = columnFamilyEngine.get(Bytes.toBytes(0l));
 	    assertTrue(entry.isEmpty());
@@ -125,7 +102,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 
     @Test
     public void testWideRow() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testWideRow", "test", "testcf")) {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testWideRow", "testcf")) {
 	    ColumnMap entry = columnFamilyEngine.get(Bytes.toBytes(12345l));
 	    assertTrue(entry.isEmpty());
 	    columnFamilyEngine.delete(Bytes.toBytes(12345l));
@@ -168,7 +145,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	ColumnMap values3 = new ColumnMap();
 	values3.put(Bytes.toBytes(31l), Bytes.toBytes(311l));
 
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testSmallDataAmount", "test",
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSmallDataAmount",
 		"testcf")) {
 
 	    columnFamilyEngine.put(rowKey1, values1);
@@ -246,9 +223,10 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     @Test
     public void testSingleDataFileCreation()
 	    throws SchemaException, FileNotFoundException, IOException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testSingleDataFileCreation", "test",
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSingleDataFileCreation",
 		"testcf")) {
-
+	    Storage storage = getStorage();
+	    ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
 	    assertEquals(1, commitLogs.size());
 	    File commitLogFile = commitLogs.iterator().next();
@@ -279,7 +257,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	    assertEquals(20l, Bytes.toLong(columnMap.get(Bytes.toBytes(20l))));
 	}
 	File dataFile = null;
-	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new DataFilenameFilter())) {
+	for (File file : getStorage().list(getColumnFamilyDescriptor().getDirectory(), new DataFilenameFilter())) {
 	    if (dataFile == null) {
 		dataFile = file;
 	    } else {
@@ -290,6 +268,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	File indexFile = DataFileSet.getIndexName(dataFile);
 	assertNotNull(indexFile);
 
+	Storage storage = getStorage();
 	try (IndexEntryIterable index = new IndexEntryIterable(storage.open(indexFile));
 		DataFileReader reader = new DataFileReader(storage, dataFile)) {
 	    RowKey currentRowKey = null;
@@ -318,11 +297,13 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
     @Test
     public void testMultiDataFileCreationWithCompaction()
 	    throws SchemaException, FileNotFoundException, IOException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(
-		"testMultiDataFileCreationWithCompaction", "test", "testcf")) {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+		"testMultiDataFileCreationWithCompaction", "testcf")) {
+	    Storage storage = getStorage();
+	    ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
-	    columnFamilyEngine.setMaxCommitLogSize(1024 * 1024);
-	    columnFamilyEngine.setMaxDataFileSize(10 * 1024 * 1024);
+	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
 	    long rowKey = 0;
 	    while (commitLogs.size() < 20) {
 		rowKey++;
@@ -337,6 +318,8 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 	}
 	Set<File> dataFiles = new HashSet<>();
 	Set<File> indexFiles = new HashSet<>();
+	Storage storage = getStorage();
+	ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory())) {
 	    if (file.getName().endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX)) {
 		dataFiles.add(file);
@@ -352,7 +335,7 @@ public class ColumnFamilyEngineIT extends AbstractDatabaseEngineTest {
 
     @Test
     public void testResultScanner() throws StorageException, SchemaException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily("testResultScanner", "test",
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testResultScanner",
 		"testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);

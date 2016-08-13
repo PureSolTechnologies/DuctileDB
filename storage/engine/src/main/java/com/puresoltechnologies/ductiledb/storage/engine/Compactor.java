@@ -166,8 +166,10 @@ public class Compactor {
 	     * the entry to delete it
 	     */
 	    ColumnFamilyRow row = commitLogReader.getRow(commitLogNext);
-	    RowKey rowKey = commitLogNext.getRowKey();
-	    writer = writeDataEntry(writer, baseFilename, rowKey, row.getColumnMap());
+	    ColumnMap columnMap = row.getColumnMap();
+	    if (!columnMap.isEmpty()) {
+		writer = writeDataEntry(writer, baseFilename, row.getRowKey(), columnMap);
+	    }
 	}
 	return writer;
     }

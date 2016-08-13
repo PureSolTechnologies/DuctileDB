@@ -17,14 +17,17 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 
+    private static final String NAMESPACE = DatabaseEngineIT.class.getSimpleName();
+
     @Test
     public void testSimpleCRUD() throws SchemaException, StorageException {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent("namespace_test");
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription, "table_test");
+	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
+	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
+		"testSimpleCRUD");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		Bytes.toBytes("columnfamily_test"));
+		Bytes.toBytes("testcf"));
 	Table table = engine.getTable(tableDescription);
 
 	byte[] key = new byte[] { 1 };

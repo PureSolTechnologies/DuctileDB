@@ -105,49 +105,52 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 
     private void readNextRow() {
 	IndexEntry minimum = null;
-	if (memtableIterator.hasNext()) {
-	    minimum = memtableIterator.peek();
-	}
-	for (IndexIterator iterator : commitLogIndexIterators) {
-	    if (iterator.hasNext()) {
-		int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : -1;
-		if (compareResult == 0) {
-		    iterator.skip();
-		} else if (compareResult < 0) {
-		    minimum = iterator.peek();
-		}
-	    } else {
-		iterator.remove();
-	    }
-	}
-	if (dataFilesIndexIterator.hasNext()) {
-	    int compareResult = minimum != null ? minimum.compareTo(dataFilesIndexIterator.peek()) : -1;
-	    if (compareResult == 0) {
-		dataFilesIndexIterator.skip();
-	    } else if (compareResult < 0) {
-		minimum = dataFilesIndexIterator.peek();
-	    }
-	}
-	if (minimum != null) {
-	    readNextEntryFromIndexEntry(minimum);
+	do {
+	    minimum = null;
 	    if (memtableIterator.hasNext()) {
-		if (memtableIterator.peek().equals(minimum)) {
-		    memtableIterator.skip();
-		}
+		minimum = memtableIterator.peek();
 	    }
 	    for (IndexIterator iterator : commitLogIndexIterators) {
 		if (iterator.hasNext()) {
-		    if (iterator.peek().equals(minimum)) {
+		    int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : -1;
+		    if (compareResult == 0) {
 			iterator.skip();
+		    } else if (compareResult < 0) {
+			minimum = iterator.peek();
 		    }
+		} else {
+		    iterator.remove();
 		}
 	    }
 	    if (dataFilesIndexIterator.hasNext()) {
-		if (dataFilesIndexIterator.peek().equals(minimum)) {
+		int compareResult = minimum != null ? minimum.compareTo(dataFilesIndexIterator.peek()) : -1;
+		if (compareResult == 0) {
 		    dataFilesIndexIterator.skip();
+		} else if (compareResult < 0) {
+		    minimum = dataFilesIndexIterator.peek();
 		}
 	    }
-	}
+	    if (minimum != null) {
+		readNextEntryFromIndexEntry(minimum);
+		if (memtableIterator.hasNext()) {
+		    if (memtableIterator.peek().equals(minimum)) {
+			memtableIterator.skip();
+		    }
+		}
+		for (IndexIterator iterator : commitLogIndexIterators) {
+		    if (iterator.hasNext()) {
+			if (iterator.peek().equals(minimum)) {
+			    iterator.skip();
+			}
+		    }
+		}
+		if (dataFilesIndexIterator.hasNext()) {
+		    if (dataFilesIndexIterator.peek().equals(minimum)) {
+			dataFilesIndexIterator.skip();
+		    }
+		}
+	    }
+	} while ((minimum != null) && (minimum.getOffset() < 0));
     }
 
     private void readNextEntryFromIndexEntry(IndexEntry minimum) {
