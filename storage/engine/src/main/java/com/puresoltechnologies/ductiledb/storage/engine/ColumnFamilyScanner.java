@@ -104,6 +104,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
     }
 
     private void readNextRow() {
+	nextRow = null;
 	IndexEntry minimum = null;
 	do {
 	    minimum = null;
@@ -150,10 +151,14 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		    }
 		}
 	    }
-	} while ((minimum != null) && (minimum.getOffset() < 0));
+	} while ((minimum != null) && (minimum.wasDeleted()));
     }
 
     private void readNextEntryFromIndexEntry(IndexEntry minimum) {
+	if (minimum.wasDeleted()) {
+	    nextRow = null;
+	    return;
+	}
 	DataFileReader fileReader = dataFileReaders.get(minimum.getDataFile());
 	if (fileReader == null) {
 	    try {

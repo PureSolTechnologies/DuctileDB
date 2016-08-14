@@ -88,6 +88,7 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	    }
 	}
 	if (minimum == null) {
+	    nextResult = null;
 	    return;
 	}
 	Result result = new Result(minimum.getKey());

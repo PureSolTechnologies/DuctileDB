@@ -46,18 +46,21 @@ public class IndexImpl implements Index {
 	if (latestMetadata == null) {
 	    return;
 	}
-	try {
-	    for (MetaDataEntry entry : new MetaDataEntryIterable(
-		    new DuctileDBInputStream(storage.open(latestMetadata)))) {
+	try (MetaDataEntryIterable metaDataEntryIterable = new MetaDataEntryIterable(
+		new DuctileDBInputStream(storage.open(latestMetadata)));) {
+	    for (MetaDataEntry entry : metaDataEntryIterable) {
 		IndexEntry index1 = new IndexEntry(entry.getStartKey(),
 			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getStartOffset());
 		IndexEntry index2 = new IndexEntry(entry.getEndKey(),
 			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getEndOffset());
-		if (storage.exists(index1.getDataFile())) {
-		    indexTree.put(index1.getRowKey(), index1);
-		}
-		if (storage.exists(index2.getDataFile())) {
-		    indexTree.put(index2.getRowKey(), index2);
+		if (!entry.isEmptyDataFile()) {
+		    // We avoid empty data files here.
+		    if (storage.exists(index1.getDataFile())) {
+			indexTree.put(index1.getRowKey(), index1);
+		    }
+		    if (storage.exists(index2.getDataFile())) {
+			indexTree.put(index2.getRowKey(), index2);
+		    }
 		}
 	    }
 	} catch (IOException e) {

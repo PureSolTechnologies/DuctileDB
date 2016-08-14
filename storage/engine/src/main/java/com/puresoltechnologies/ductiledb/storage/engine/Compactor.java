@@ -59,14 +59,15 @@ public class Compactor {
 
     public void runCompaction() throws StorageException {
 	try {
-	    logger.info("Start compaction for '" + commitLogFile + "'...");
+	    String baseFilename = ColumnFamilyEngineImpl.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
+	    logger.info("Start compaction for '" + commitLogFile + "' (new: " + baseFilename + ")...");
 	    StopWatch stopWatch = new StopWatch();
 	    stopWatch.start();
-	    String baseFilename = ColumnFamilyEngineImpl.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
 	    performCompaction(baseFilename);
 	    writeMetaData(baseFilename);
 	    stopWatch.stop();
-	    logger.info("Compaction for '" + commitLogFile + "' finished in " + stopWatch.getMillis() + "ms.");
+	    logger.info("Compaction for '" + commitLogFile + "' (new: " + baseFilename + ") finished in "
+		    + stopWatch.getMillis() + "ms.");
 	} catch (IOException e) {
 	    throw new StorageException("Could not run compaction.", e);
 	}
@@ -113,6 +114,7 @@ public class Compactor {
     }
 
     private void performCompaction(String baseFilename) throws StorageException, IOException {
+	logger.info("Compacting " + commitLogFile + "' (new: " + baseFilename + ")...");
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
 	try (DataFileReader commitLogReader = new DataFileReader(storage, commitLogFile);
 		IndexEntryIterable commitLogIndex = new IndexEntryIterable(storage.open(indexFile))) {
@@ -131,15 +133,18 @@ public class Compactor {
 	    for (File dataFile : dataFiles) {
 		try (ColumnFamilyRowIterable data = new ColumnFamilyRowIterable(storage.open(dataFile))) {
 		    for (ColumnFamilyRow dataEntry : data) {
-			RowKey dataRowKey = dataEntry.getRowKey();
-			if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
-			    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
-			} else if (dataRowKey.compareTo(commitLogNext.getRowKey()) < 0) {
-			    writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
-			} else {
-			    while (dataRowKey.compareTo(commitLogNext.getRowKey()) > 0) {
+			if (commitLogNext != null) {
+			    RowKey dataRowKey = dataEntry.getRowKey();
+			    if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
 				writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
-				commitLogNext = commitLogIterator.next();
+			    } else if (dataRowKey.compareTo(commitLogNext.getRowKey()) < 0) {
+				writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
+			    } else {
+				while ((commitLogNext != null)
+					&& (dataRowKey.compareTo(commitLogNext.getRowKey()) > 0)) {
+				    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
+				    commitLogNext = commitLogIterator.next();
+				}
 			    }
 			}
 		    }
@@ -152,6 +157,9 @@ public class Compactor {
 		    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
 		}
 	    }
+	} catch (Exception e) {
+	    logger.error("Could not integrate commit log.", e);
+	    throw e;
 	} finally {
 	    writer.close();
 	    addToIndex(writer);
@@ -160,7 +168,7 @@ public class Compactor {
 
     private SSTableWriter writeCommitLogEntry(DataFileReader commitLogReader, IndexEntry commitLogNext,
 	    SSTableWriter writer, String baseFilename) throws IOException, StorageException {
-	if (commitLogNext.getOffset() >= 0) {
+	if (!commitLogNext.wasDeleted()) {
 	    /*
 	     * if index is smaller than zero, it is a delete marker, so we skip
 	     * the entry to delete it
@@ -193,11 +201,14 @@ public class Compactor {
 	    indizes = new ArrayList<>();
 	    index.put(writer.getDataFile(), indizes);
 	}
-	indizes.add(new IndexEntry(writer.getStartRowKey(), writer.getDataFile(), writer.getStartOffset()));
-	indizes.add(new IndexEntry(writer.getEndRowKey(), writer.getDataFile(), writer.getEndOffset()));
+	if (writer.hasIndexInformation()) {
+	    indizes.add(new IndexEntry(writer.getStartRowKey(), writer.getDataFile(), writer.getStartOffset()));
+	    indizes.add(new IndexEntry(writer.getEndRowKey(), writer.getDataFile(), writer.getEndOffset()));
+	}
     }
 
     private void writeMetaData(String baseFilename) throws IOException {
+	logger.info("Creating meta data for " + commitLogFile + "' (new: " + baseFilename + ")...");
 	try (BufferedOutputStream stream = storage.create(
 		new File(columnFamilyDescriptor.getDirectory(), baseFilename + ColumnFamilyEngine.METADATA_SUFFIX))) {
 	    stream.write(Bytes.toBytes(fileCount + 1)); // Number of files
@@ -216,6 +227,9 @@ public class Compactor {
 		    stream.write(Bytes.toBytes(offset));
 		}
 	    }
+	} catch (Exception e) {
+	    logger.error("Could not write meta data.", e);
+	    throw e;
 	}
     }
 

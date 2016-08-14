@@ -39,4 +39,8 @@ public class MetaDataEntry {
 	return endOffset;
     }
 
+    public boolean isEmptyDataFile() {
+	return (startOffset < 0) && (endOffset < 0);
+    }
+
 }

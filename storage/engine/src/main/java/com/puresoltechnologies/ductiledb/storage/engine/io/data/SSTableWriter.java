@@ -32,9 +32,9 @@ public class SSTableWriter implements Closeable {
     private final DataOutputStream dataStream;
     private final IndexOutputStream indexStream;
     private RowKey startRowKey = null;
-    private long startOffset = 0;
+    private long startOffset = -1;
     private RowKey endRowKey = null;
-    private long endOffset = 0;
+    private long endOffset = -1;
 
     public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
 	super();
@@ -94,6 +94,10 @@ public class SSTableWriter implements Closeable {
 
     public final long getEndOffset() {
 	return endOffset;
+    }
+
+    public final boolean hasIndexInformation() {
+	return (startOffset >= 0) && (endOffset >= 0) && (startRowKey != null) && (endRowKey != null);
     }
 
     public void write(RowKey rowKey, ColumnMap columns) throws IOException {

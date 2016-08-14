@@ -54,7 +54,11 @@ public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
 	    String fileName = Bytes.toString(fileNameBuffer);
 
 	    len = inputStream.read(buffer, 0, 4);
-	    if (len < 4) {
+	    if (len < 0) {
+		// We found an empty data file and return an meta data enty with
+		// it.
+		return new MetaDataEntry(fileName, null, -1, null, -1);
+	    } else if (len < 4) {
 		logger.warn("Could not read full number of bytes needed. It is maybe a broken metadata file.");
 		return null;
 	    }

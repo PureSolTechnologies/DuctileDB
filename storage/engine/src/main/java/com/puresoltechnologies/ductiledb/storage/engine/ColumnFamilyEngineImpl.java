@@ -313,7 +313,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		    compactor.runCompaction();
 		    openDataFiles();
 		    deleteCommitLogFiles(commitLogFile);
-		} catch (StorageException e) {
+		} catch (Exception e) {
 		    logger.error("Could not run compaction.", e);
 		}
 	    }
