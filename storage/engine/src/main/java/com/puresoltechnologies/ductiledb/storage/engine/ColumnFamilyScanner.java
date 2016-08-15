@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	this.dataFilesIndexIterator = dataFiles.getIndexIterator(startRowKey, endRowKey);
 
 	for (File commitLog : commitLogs) {
+	    System.out.println("CommitLog:" + commitLog);
 	    File indexFile = DataFileSet.getIndexName(commitLog);
 	    IndexEntryIterable indexIterable = new IndexEntryIterable(storage.open(indexFile));
 	    commitLogIndexIterables.add(indexIterable);
@@ -111,18 +114,20 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	    if (memtableIterator.hasNext()) {
 		minimum = memtableIterator.peek();
 	    }
+	    Set<IndexIterator> toBeDeleted = new HashSet<>();
 	    for (IndexIterator iterator : commitLogIndexIterators) {
 		if (iterator.hasNext()) {
 		    int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : -1;
 		    if (compareResult == 0) {
 			iterator.skip();
-		    } else if (compareResult < 0) {
+		    } else if (compareResult > 0) {
 			minimum = iterator.peek();
 		    }
 		} else {
-		    iterator.remove();
+		    toBeDeleted.add(iterator);
 		}
 	    }
+	    toBeDeleted.forEach(entry -> commitLogIndexIterators.remove(entry));
 	    if (dataFilesIndexIterator.hasNext()) {
 		int compareResult = minimum != null ? minimum.compareTo(dataFilesIndexIterator.peek()) : -1;
 		if (compareResult == 0) {

@@ -73,7 +73,7 @@ public abstract class AbstractDatabaseEngineTest {
 
     protected Set<File> getCommitLogs(Storage storage, File directory) {
 	Set<File> commitLogs = new HashSet<>();
-	for (File commitLog : storage.list(directory, new CommitLogFilenameFilter())) {
+	for (File commitLog : storage.list(directory, new CommitLogFilenameFilter(storage))) {
 	    commitLogs.add(commitLog);
 	}
 	return commitLogs;

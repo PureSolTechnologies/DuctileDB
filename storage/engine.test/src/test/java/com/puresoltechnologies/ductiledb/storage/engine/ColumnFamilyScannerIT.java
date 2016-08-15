@@ -178,8 +178,9 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     public void testEmptyScannerAfterDeletionWithCompaction() throws SchemaException, StorageException {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testEmptyScannerAfterDeletionWithCompaction", "testcf")) {
-	    columnFamilyEngine.setMaxCommitLogSize(10 * 1024);
-	    for (long i = 1; i <= 1000; ++i) {
+	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	    for (long i = 1; i <= 200; ++i) {
 		ColumnMap values = new ColumnMap();
 		values.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
 		byte[] rowKey = Bytes.toBytes(i);
@@ -190,7 +191,39 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 
-	    for (long i = 1; i <= 1000; ++i) {
+	    for (long i = 1; i <= 200; ++i) {
+		byte[] rowKey = Bytes.toBytes(i);
+		columnFamilyEngine.delete(rowKey);
+	    }
+
+	    scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertFalse(scanner.hasNext());
+	    assertNull(scanner.peek());
+	    assertNull(scanner.next());
+	    scanner.skip();
+	}
+    }
+
+    @Test
+    public void testEmptyScannerAfterDeletionWithoutCompactionAfterRollover() throws SchemaException, StorageException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+		"testEmptyScannerAfterDeletionWithoutCompactionAfterRollover", "testcf")) {
+	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	    columnFamilyEngine.setRunCompactions(false);
+	    for (long i = 1; i <= 100; ++i) {
+		ColumnMap values = new ColumnMap();
+		values.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
+		byte[] rowKey = Bytes.toBytes(i);
+		columnFamilyEngine.put(rowKey, values);
+	    }
+
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+
+	    for (long i = 1; i <= 100; ++i) {
 		byte[] rowKey = Bytes.toBytes(i);
 		columnFamilyEngine.delete(rowKey);
 	    }

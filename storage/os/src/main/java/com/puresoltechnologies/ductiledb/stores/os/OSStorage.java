@@ -75,7 +75,13 @@ public class OSStorage implements Storage {
 
     @Override
     public Iterable<File> list(File directory, FilenameFilter filter) {
-	File[] files = new File(rootDirectory, directory.getPath()).listFiles(filter);
+	File[] files = new File(rootDirectory, directory.getPath()).listFiles(new FilenameFilter() {
+
+	    @Override
+	    public boolean accept(File directory, String name) {
+		return filter.accept(new File(directory.getPath().replace(rootDirectory.getPath(), "")), name);
+	    }
+	});
 	List<File> list = new ArrayList<>();
 	for (File file : files) {
 	    String directoryString = file.getPath().replace(rootDirectory.getPath(), "");

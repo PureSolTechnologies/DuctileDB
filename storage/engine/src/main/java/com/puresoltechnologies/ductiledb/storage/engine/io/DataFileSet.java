@@ -33,12 +33,17 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSet implements Closeable {
 
-    private static final Pattern pattern = Pattern.compile("DB-(\\d*)-(\\d+)\\.index");
+    private static final Pattern pattern = Pattern.compile("DB-(\\d*)-(\\d+)\\.data");
     private static final Logger logger = LoggerFactory.getLogger(DataFileSet.class);
 
     public static File getIndexName(File dataFile) {
 	return new File(dataFile.getParent(), dataFile.getName().replace(ColumnFamilyEngineImpl.DATA_FILE_SUFFIX,
 		ColumnFamilyEngineImpl.INDEX_FILE_SUFFIX));
+    }
+
+    public static File getDeletedName(File dataFile) {
+	return new File(dataFile.getParent(), dataFile.getName().replace(ColumnFamilyEngineImpl.DATA_FILE_SUFFIX,
+		ColumnFamilyEngineImpl.DELETED_FILE_SUFFIX));
     }
 
     public static File getMD5Name(File dataFile) {
@@ -55,7 +60,9 @@ public class DataFileSet implements Closeable {
 	Iterable<File> listMetadata = storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter());
 	File latestMetadata = null;
 	for (File metadata : listMetadata) {
+	    System.out.println("MetaData:" + metadata);
 	    if ((latestMetadata == null) || (latestMetadata.compareTo(metadata) < 0)) {
+		System.out.println("new:" + metadata);
 		latestMetadata = metadata;
 	    }
 	}
@@ -94,6 +101,8 @@ public class DataFileSet implements Closeable {
 		int num = Integer.parseInt(matcher.group(2));
 		numToIndexFile.put(num, file);
 		indexFileToNum.put(file, num);
+	    } else {
+		logger.error("Invalid data file found: " + file);
 	    }
 	});
     }
@@ -101,6 +110,10 @@ public class DataFileSet implements Closeable {
     public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp)
 	    throws StorageException {
 	this(storage, columnFamilyDescriptor, getMetadataFile(columnFamilyDescriptor, timestamp));
+    }
+
+    public ColumnFamilyDescriptor getColumnFamilyDescriptor() {
+	return columnFamilyDescriptor;
     }
 
     @Override

@@ -23,7 +23,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
-    private static int NUMBER = 150;
+    private static int NUMBER = 1000;
     private static DuctileDBGraphImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 

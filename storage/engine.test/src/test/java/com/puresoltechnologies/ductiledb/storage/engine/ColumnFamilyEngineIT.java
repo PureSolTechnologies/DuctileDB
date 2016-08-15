@@ -302,8 +302,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	    Storage storage = getStorage();
 	    ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
 	    Set<File> commitLogs = getCommitLogs(storage, columnFamilyDescriptor.getDirectory());
-	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024);
-	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
+	    columnFamilyEngine.setMaxCommitLogSize(10 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(100 * 1024);
 	    long rowKey = 0;
 	    while (commitLogs.size() < 20) {
 		rowKey++;
@@ -329,8 +329,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	    }
 	}
 
-	assertEquals(9, dataFiles.size());
-	assertEquals(8, indexFiles.size());
+	assertEquals(28, dataFiles.size());
+	assertEquals(27, indexFiles.size());
     }
 
     @Test

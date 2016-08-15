@@ -17,6 +17,8 @@ public interface ColumnFamilyEngine extends Closeable {
     public static final String DB_FILE_PREFIX = "DB";
     public static final String DATA_FILE_SUFFIX = ".data";
     public static final String INDEX_FILE_SUFFIX = ".index";
+    public static final String DELETED_FILE_SUFFIX = ".delete";
+    public static final String COMPACTED_FILE_SUFFIX = ".compacted";
     public static final String MD5_FILE_SUFFIX = ".md5";
     public static final String METADATA_SUFFIX = ".metadata";
     public static final String COMMIT_LOG_PREFIX = "CommitLog";

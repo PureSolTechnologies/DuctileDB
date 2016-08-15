@@ -37,10 +37,6 @@ public class IndexEntry implements Comparable<IndexEntry> {
 
     @Override
     public int compareTo(IndexEntry o) {
-	int cmp = this.dataFile.compareTo(o.dataFile);
-	if (cmp != 0) {
-	    return cmp;
-	}
 	return this.rowKey.compareTo(o.rowKey);
     }
 
