@@ -26,8 +26,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
 		"testEmptyScanner");
-	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		Bytes.toBytes("testcf"));
+	schemaManager.createColumnFamilyIfNotPresent(tableDescription, Bytes.toBytes("testcf"));
 	Table table = engine.getTable(tableDescription);
 
 	ResultScanner scanner = table.getScanner(new Scan());
@@ -43,7 +42,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScanner");
+		"testEmptyScannerAfterDeletion");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		Bytes.toBytes("testcf"));
 	Table table = engine.getTable(tableDescription);
@@ -72,4 +71,91 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	assertNull(scanner.next());
     }
 
+    @Test
+    public void testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property()
+	    throws SchemaException, StorageException {
+	DatabaseEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
+	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
+		"testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property");
+	byte[] columnFamilyName = Bytes.toBytes("testcf");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
+		columnFamilyName);
+	Table table = engine.getTable(tableDescription);
+	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyName);
+	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+
+	ResultScanner scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertFalse(scanner.hasNext());
+	assertNull(scanner.peek());
+	assertNull(scanner.next());
+
+	for (long i = 1; i <= 1000; ++i) {
+	    Put put = new Put(Bytes.toBytes(i));
+	    put.addColumn(columnFamilyDescriptor.getName(), Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
+	    table.put(put);
+	}
+
+	scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertTrue(scanner.hasNext());
+	assertNotNull(scanner.peek());
+
+	for (long i = 1; i <= 1000; ++i) {
+	    table.delete(new Delete(Bytes.toBytes(i)));
+	}
+
+	scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertFalse(scanner.hasNext());
+	assertNull(scanner.peek());
+	assertNull(scanner.next());
+    }
+
+    @Test
+    public void testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns()
+	    throws SchemaException, StorageException {
+	DatabaseEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
+	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
+		"testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns");
+	byte[] columnFamilyName = Bytes.toBytes("testcf");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
+		columnFamilyName);
+	Table table = engine.getTable(tableDescription);
+	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyName);
+	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+
+	ResultScanner scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertFalse(scanner.hasNext());
+	assertNull(scanner.peek());
+	assertNull(scanner.next());
+
+	for (long i = 1; i <= 1000; ++i) {
+	    Put put = new Put(Bytes.toBytes(1l));
+	    put.addColumn(columnFamilyDescriptor.getName(), Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
+	    table.put(put);
+	}
+
+	scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertTrue(scanner.hasNext());
+	assertNotNull(scanner.peek());
+
+	table.delete(new Delete(Bytes.toBytes(1l)));
+
+	scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertFalse(scanner.hasNext());
+	assertNull(scanner.peek());
+	assertNull(scanner.next());
+    }
 }

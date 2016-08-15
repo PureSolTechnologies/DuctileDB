@@ -237,4 +237,52 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	}
     }
 
+    @Test
+    public void testRowUpdateWithScanner() throws SchemaException, StorageException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testMemtableCRUD",
+		"testcf")) {
+	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	    // Check behavior of empty Memtable
+	    byte[] rowKey = Bytes.toBytes(1l);
+	    ColumnMap entry = columnFamilyEngine.get(rowKey);
+	    assertTrue(entry.isEmpty());
+
+	    // Check put
+	    ColumnMap columns = new ColumnMap();
+	    columns.put(Bytes.toBytes(10l), Bytes.toBytes(100l));
+	    columnFamilyEngine.put(rowKey, columns);
+
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+	    assertEquals(Bytes.toLong(rowKey), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertFalse(scanner.hasNext());
+
+	    // Check put with column extension
+	    columns = new ColumnMap();
+	    columns.put(Bytes.toBytes(20l), Bytes.toBytes(200l));
+	    columnFamilyEngine.put(rowKey, columns);
+
+	    scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+	    assertEquals(Bytes.toLong(rowKey), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertFalse(scanner.hasNext());
+
+	    // Check put with column extensions with compaction
+	    for (long i = 3; i <= 100; ++i) {
+		columns = new ColumnMap();
+		columns.put(Bytes.toBytes((i + 1) * 10), Bytes.toBytes((i + 1) * 100));
+		columnFamilyEngine.put(rowKey, columns);
+	    }
+
+	    scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+	    assertEquals(Bytes.toLong(rowKey), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertFalse(scanner.hasNext());
+	}
+    }
+
 }

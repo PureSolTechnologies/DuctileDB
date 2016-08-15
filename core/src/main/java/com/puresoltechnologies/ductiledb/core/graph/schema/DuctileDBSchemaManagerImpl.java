@@ -180,8 +180,8 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	if (elementType == null) {
 	    throw new IllegalArgumentException("elementType must not be null.");
 	}
-	if (typeName == null) {
-	    throw new IllegalArgumentException("typeName must not be null.");
+	if ((typeName == null) || (typeName.isEmpty())) {
+	    throw new IllegalArgumentException("typeName must not be null or empty.");
 	}
 	if ((propertyKeys == null) || (propertyKeys.isEmpty())) {
 	    throw new IllegalArgumentException("propertyKeys must not be null or empty.");

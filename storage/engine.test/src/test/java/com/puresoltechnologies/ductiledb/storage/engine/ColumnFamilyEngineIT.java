@@ -333,26 +333,4 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	assertEquals(27, indexFiles.size());
     }
 
-    @Test
-    public void testResultScanner() throws StorageException, SchemaException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testResultScanner",
-		"testcf")) {
-	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024);
-	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024);
-	    long key = 1;
-	    int step = 0;
-	    for (int i = 0; i < 5000; ++i) {
-		key += step;
-		++step;
-		ColumnMap columns = new ColumnMap();
-		columns.put(Bytes.toBytes(i), Bytes.toBytes(i));
-		columnFamilyEngine.put(Bytes.toBytes(key), columns);
-	    }
-	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(Bytes.toBytes(0l), Bytes.toBytes(key));
-	    while (scanner.hasNext()) {
-		System.out.println(Bytes.toHumanReadableString(scanner.next().getRowKey().getKey()));
-	    }
-	}
-    }
-
 }

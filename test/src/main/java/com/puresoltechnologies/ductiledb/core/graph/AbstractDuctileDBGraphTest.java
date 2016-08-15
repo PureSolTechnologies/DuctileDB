@@ -22,6 +22,7 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -36,8 +37,9 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
     public static void connect() throws StorageException, IOException, SchemaException {
 	ductileDB = getDuctileDB();
 	graph = (DuctileDBGraphImpl) ductileDB.getGraph();
-	// DuctileDBTestHelper.removeGraph(graph);
-	// DuctileDBHealthCheck.runCheckForEmpty(graph);
+	// Normally meaningless, but we do nevertheless, if tests change...
+	DuctileDBTestHelper.removeGraph(graph);
+	DuctileDBHealthCheck.runCheckForEmpty(graph);
 
 	String version = BuildInformation.getVersion();
 	if (!version.startsWith("${")) {
@@ -56,6 +58,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
     @Before
     public final void cleanup() throws IOException, StorageException {
 	DuctileDBTestHelper.removeGraph(graph);
+	DuctileDBHealthCheck.runCheckForEmpty(graph);
     }
 
     protected static DuctileDBGraphImpl getGraph() {

@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.graph;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -12,7 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,15 +35,13 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
     }
 
     @Before
-    public void checkHealth() throws IOException, StorageException {
+    public void checkHealthBefore() throws IOException, StorageException {
 	healthChecker.runCheck();
     }
 
-    @AfterClass
-    public static void checkFinalHealth() throws IOException, StorageException {
-	if (healthChecker != null) {
-	    healthChecker.runCheck();
-	}
+    @After
+    public void checkHealthAfterwards() throws IOException, StorageException {
+	healthChecker.runCheck();
     }
 
     @Test
@@ -238,6 +237,12 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testSetPropertyPerformance() throws IOException, StorageException {
+	Iterable<DuctileDBVertex> vertices = graph.getVertices();
+	assertNotNull(vertices);
+	Iterator<DuctileDBVertex> verticesIterator = vertices.iterator();
+	assertNotNull(verticesIterator);
+	assertFalse(verticesIterator.hasNext());
+
 	DuctileDBVertex vertex = graph.addVertex();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -246,6 +251,18 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	}
 	graph.commit();
 	healthChecker.runCheck();
+
+	DuctileDBVertex readVertex = graph.getVertex(vertex.getId());
+	assertNotNull(readVertex);
+	assertEquals(vertex, readVertex);
+
+	vertices = graph.getVertices();
+	assertNotNull(vertices);
+	verticesIterator = vertices.iterator();
+	assertNotNull(verticesIterator);
+	assertTrue(verticesIterator.hasNext());
+	assertEquals(vertex, verticesIterator.next());
+	assertFalse(verticesIterator.hasNext());
 
 	long stop = System.currentTimeMillis();
 	long duration = stop - start;
