@@ -63,6 +63,10 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
+    public void runCompaction() {
+	columnFamilyEngines.values().forEach(engine -> engine.runCompaction());
+    }
+
     @Override
     public void close() {
 	logger.info("Closing table engine '" + tableDescriptor.getName() + "'...");

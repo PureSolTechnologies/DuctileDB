@@ -53,6 +53,10 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 	}
     }
 
+    public void runCompaction() {
+	tableEngines.values().forEach(engine -> engine.runCompaction());
+    }
+
     @Override
     public void close() {
 	logger.info("Closing namespace engine '" + namespaceDescriptor.getName() + "'...");

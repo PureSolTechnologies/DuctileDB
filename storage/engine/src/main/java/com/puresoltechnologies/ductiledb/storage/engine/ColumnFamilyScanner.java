@@ -117,7 +117,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	    Set<IndexIterator> toBeDeleted = new HashSet<>();
 	    for (IndexIterator iterator : commitLogIndexIterators) {
 		if (iterator.hasNext()) {
-		    int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : -1;
+		    int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : 1;
 		    if (compareResult == 0) {
 			iterator.skip();
 		    } else if (compareResult > 0) {

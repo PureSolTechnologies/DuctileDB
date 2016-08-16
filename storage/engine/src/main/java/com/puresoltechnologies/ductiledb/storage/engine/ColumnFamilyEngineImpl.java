@@ -286,9 +286,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     private void rolloverCommitLog() throws StorageException {
-	if (commitLogStream.getOffset() < maxCommitLogSize) {
-	    return;
-	}
 	try {
 	    logger.info("Max " + commitLogFile.getName() + " size of " + maxCommitLogSize + "bytes reached.");
 	    File commitLogFileSave = this.commitLogFile;
@@ -328,6 +325,17 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create empty " + commitLogFile.getName() + ".", e);
+	}
+    }
+
+    public void runCompaction() {
+	try {
+	    for (File commitLog : getCurrentCommitLogs()) {
+		runCompaction(commitLog);
+	    }
+	    rolloverCommitLog();
+	} catch (StorageException | IOException e) {
+	    logger.warn("Could not run compaction", e);
 	}
     }
 
@@ -439,7 +447,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    RowKey rowKey2 = new RowKey(rowKey);
 	    writeMemtable(rowKey2, -1l);
 	    writeCommitLog(rowKey2, new ColumnMap());
-	    rolloverCommitLog();
+	    if (commitLogStream.getOffset() >= maxCommitLogSize) {
+		rolloverCommitLog();
+	    }
 	} finally {
 	    writeLock.unlock();
 	}
@@ -485,18 +495,25 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException {
+	return incrementColumnValue(rowKey, column, 1l, incrementValue);
+    }
+
+    @Override
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
+	    throws StorageException {
 	writeLock.lock();
 	try {
 	    ColumnMap columnMap = get(rowKey);
-	    long result = 1;
+	    long result = startValue;
 	    if (columnMap != null) {
 		byte[] oldValueBytes = columnMap.get(column);
-		long oldValue = Bytes.toLong(oldValueBytes);
-		result = oldValue + incrementValue;
+		if (oldValueBytes != null) {
+		    long oldValue = Bytes.toLong(oldValueBytes);
+		    result = oldValue + incrementValue;
+		}
 		columnMap.put(column, Bytes.toBytes(result));
 	    } else {
 		columnMap = new ColumnMap();
-		result = 1;
 		columnMap.put(column, Bytes.toBytes(result));
 	    }
 	    writeNewColumns(new RowKey(rowKey), columnMap);
@@ -510,7 +527,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	long offset = commitLogStream.getOffset();
 	writeCommitLog(rowKey, columnMap);
 	writeMemtable(rowKey, offset);
-	rolloverCommitLog();
+	if (commitLogStream.getOffset() >= maxCommitLogSize) {
+	    rolloverCommitLog();
+	}
     }
 
 }

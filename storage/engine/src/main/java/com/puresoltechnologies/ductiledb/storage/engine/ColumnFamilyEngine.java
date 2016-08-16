@@ -47,6 +47,18 @@ public interface ColumnFamilyEngine extends Closeable {
     public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException;
 
     /**
+     * Increments (or decrements) a value in atomic way.
+     * 
+     * @param rowKey
+     * @param column
+     * @param startValue
+     * @param incrementValue
+     * @throws StorageException
+     */
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
+	    throws StorageException;
+
+    /**
      * This metho retrieves the columns from the given row.
      * 
      * @param rowKey

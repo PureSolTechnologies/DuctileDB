@@ -133,8 +133,8 @@ public class Compactor {
 	    for (File dataFile : dataFiles) {
 		try (ColumnFamilyRowIterable data = new ColumnFamilyRowIterable(storage.open(dataFile))) {
 		    for (ColumnFamilyRow dataEntry : data) {
+			RowKey dataRowKey = dataEntry.getRowKey();
 			if (commitLogNext != null) {
-			    RowKey dataRowKey = dataEntry.getRowKey();
 			    if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
 				writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
 				commitLogNext = commitLogIterator.next();
@@ -146,6 +146,8 @@ public class Compactor {
 				    commitLogNext = commitLogIterator.next();
 				}
 			    }
+			} else {
+			    writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
 			}
 		    }
 		}

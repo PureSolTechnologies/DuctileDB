@@ -28,6 +28,7 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class DuctileDBGraphImpl implements DuctileDBGraph {
@@ -41,15 +42,15 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private final DuctileDBSchema schema;
 
     private final BlobStoreImpl blobStore;
-    private final DatabaseEngine storageEngine;
+    private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
 
-    public DuctileDBGraphImpl(BlobStoreImpl blobStore, DatabaseEngine storageEngine)
+    public DuctileDBGraphImpl(BlobStoreImpl blobStore, DatabaseEngineImpl storageEngine)
 	    throws SchemaException, StorageException {
 	this(blobStore, storageEngine, false);
     }
 
-    public DuctileDBGraphImpl(BlobStoreImpl blobStore, DatabaseEngine storageEngine, boolean autoCloseConnection)
+    public DuctileDBGraphImpl(BlobStoreImpl blobStore, DatabaseEngineImpl storageEngine, boolean autoCloseConnection)
 	    throws SchemaException, StorageException {
 	this.blobStore = blobStore;
 	this.storageEngine = storageEngine;
@@ -61,6 +62,10 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 
     public final DatabaseEngine getStorageEngine() {
 	return storageEngine;
+    }
+
+    public void runCompaction() {
+	storageEngine.runCompaction();
     }
 
     @Override

@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -26,7 +26,7 @@ public class DuctileDBFactory {
 
     public static DuctileDB connect(DuctileDBConfiguration configuration) throws StorageException, SchemaException {
 	BlobStoreImpl blobStore = new BlobStoreImpl(configuration);
-	DuctileDBGraph graph = DuctileDBGraphFactory.createGraph(blobStore, configuration);
+	DuctileDBGraphImpl graph = DuctileDBGraphFactory.createGraph(blobStore, configuration);
 	return new DuctileDBImpl(blobStore, graph);
     }
 

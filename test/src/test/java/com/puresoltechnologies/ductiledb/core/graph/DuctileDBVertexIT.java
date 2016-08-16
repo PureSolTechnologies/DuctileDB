@@ -24,7 +24,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
-    private static int NUMBER = 1000;
+    private static int NUMBER = 100;
     private static DuctileDBGraphImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 
@@ -116,6 +116,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	vertex.addType("type");
 	graph.commit();
 	healthChecker.runCheck();
+	graph.runCompaction();
+	healthChecker.runCheck();
 	assertTrue(vertex.hasType("type"));
 
 	Iterator<String> iterator = vertex.getTypes().iterator();
@@ -134,11 +136,16 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	vertex.removeType("type");
 	graph.commit();
 	healthChecker.runCheck();
+	graph.runCompaction();
+	healthChecker.runCheck();
 
 	assertFalse(vertex.hasType("type"));
 	assertFalse(graph.getVertex(vertex.getId()).hasType("type"));
 	vertex.remove();
 	graph.commit();
+	DuctileDBHealthCheck.runCheckForEmpty(graph);
+	healthChecker.runCheck();
+	graph.runCompaction();
 	healthChecker.runCheck();
     }
 
@@ -196,7 +203,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("time: " + duration + "ms");
 	System.out.println("speed: " + speed + " vertices/s");
 	System.out.println("speed: " + 1000 / speed + " ms/vertex");
-	assertTrue(duration < 10000);
+	assertTrue(speed > 1000);
 	for (DuctileDBVertex vertex : vertices) {
 	    vertex.remove();
 	}
@@ -227,11 +234,11 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("time: " + duration + "ms");
 	System.out.println("speed: " + speed + " full_vertices/s");
 	System.out.println("speed: " + 1000 / speed + " ms/full_vertex");
-	assertTrue(duration < 10000);
 	for (DuctileDBVertex vertex : vertices) {
 	    vertex.remove();
 	}
 	graph.commit();
+	assertTrue(speed > 150);
 	healthChecker.runCheck();
     }
 
@@ -270,7 +277,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("time: " + duration + "ms");
 	System.out.println("speed: " + speed + " properties/s");
 	System.out.println("speed: " + 1000 / speed + " ms/property");
-	assertTrue(duration < 10000);
+	assertTrue(speed > 1000);
 	vertex.remove();
 	graph.commit();
 	healthChecker.runCheck();
@@ -293,7 +300,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("time: " + duration + "ms");
 	System.out.println("speed: " + speed + " types/s");
 	System.out.println("speed: " + 1000 / speed + " ms/type");
-	assertTrue(duration < 10000);
+	assertTrue(speed > 1000);
 	vertex.remove();
 	graph.commit();
 	healthChecker.runCheck();

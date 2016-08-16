@@ -6,15 +6,17 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 
 public class DuctileDBImpl implements DuctileDB {
 
     private final Logger logger = LoggerFactory.getLogger(DuctileDBImpl.class);
 
-    private final BlobStore blobStore;
-    private final DuctileDBGraph graph;
+    private final BlobStoreImpl blobStore;
+    private final DuctileDBGraphImpl graph;
 
-    public DuctileDBImpl(BlobStore blobStore, DuctileDBGraph graph) {
+    public DuctileDBImpl(BlobStoreImpl blobStore, DuctileDBGraphImpl graph) {
 	this.blobStore = blobStore;
 	this.graph = graph;
 	logger.info("DuctileDB initialized.");
@@ -44,5 +46,9 @@ public class DuctileDBImpl implements DuctileDB {
 	    logger.warn("Could not close graph.", e);
 	}
 	logger.info("DuctileDB closed.");
+    }
+
+    public void runCompaction() {
+	graph.runCompaction();
     }
 }

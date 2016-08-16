@@ -58,6 +58,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
     @Before
     public final void cleanup() throws IOException, StorageException {
 	DuctileDBTestHelper.removeGraph(graph);
+	graph.runCompaction();
 	DuctileDBHealthCheck.runCheckForEmpty(graph);
     }
 

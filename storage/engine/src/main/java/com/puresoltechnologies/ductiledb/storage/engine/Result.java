@@ -3,6 +3,8 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.util.NavigableMap;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+
 public class Result {
 
     private final byte[] rowKey;
@@ -34,4 +36,13 @@ public class Result {
 	}
     }
 
+    @Override
+    public String toString() {
+	StringBuilder buffer = new StringBuilder();
+	buffer.append("Key: ");
+	buffer.append(Bytes.toHumanReadableString(rowKey));
+	buffer.append("\n");
+	buffer.append(columnFamilies.toString());
+	return buffer.toString();
+    }
 }
