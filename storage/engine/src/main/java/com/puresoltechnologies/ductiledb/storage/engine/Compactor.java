@@ -137,11 +137,11 @@ public class Compactor {
 			    RowKey dataRowKey = dataEntry.getRowKey();
 			    if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
 				writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
+				commitLogNext = commitLogIterator.next();
 			    } else if (dataRowKey.compareTo(commitLogNext.getRowKey()) < 0) {
 				writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
 			    } else {
-				while ((commitLogNext != null)
-					&& (dataRowKey.compareTo(commitLogNext.getRowKey()) > 0)) {
+				if (commitLogNext != null) {
 				    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
 				    commitLogNext = commitLogIterator.next();
 				}

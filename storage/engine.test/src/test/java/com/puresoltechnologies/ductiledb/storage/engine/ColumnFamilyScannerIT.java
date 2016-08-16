@@ -239,7 +239,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 
     @Test
     public void testRowUpdateWithScanner() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testMemtableCRUD",
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRowUpdateWithScanner",
 		"testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
