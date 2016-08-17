@@ -12,11 +12,14 @@ public class RowKey implements Comparable<RowKey> {
     private final int hashCode;
     private final byte[] key;
 
-    public RowKey(byte[] rowKey) {
+    public RowKey(byte[] key) {
 	super();
-	this.key = rowKey;
+	if ((key == null) || (key.length == 0)) {
+	    throw new IllegalArgumentException("Row keys must not be null or empty.");
+	}
+	this.key = key;
 	int result = 1;
-	for (byte element : rowKey) {
+	for (byte element : key) {
 	    result = 31 * result + element;
 	}
 	hashCode = result;

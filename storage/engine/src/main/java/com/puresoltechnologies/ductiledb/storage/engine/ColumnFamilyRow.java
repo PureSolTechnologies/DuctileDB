@@ -25,6 +25,10 @@ public class ColumnFamilyRow {
 	return columnMap;
     }
 
+    public boolean isEmpty() {
+	return columnMap.isEmpty();
+    }
+
     public ColumnMap update(ColumnMap columnMap) {
 	this.columnMap.putAll(columnMap);
 	return columnMap;

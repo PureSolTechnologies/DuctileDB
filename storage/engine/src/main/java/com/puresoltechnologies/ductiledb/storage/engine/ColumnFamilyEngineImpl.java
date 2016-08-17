@@ -287,7 +287,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void rolloverCommitLog() throws StorageException {
 	try {
-	    logger.info("Max " + commitLogFile.getName() + " size of " + maxCommitLogSize + "bytes reached.");
+	    logger.info("Roll over " + commitLogFile.getName() + " with " + maxCommitLogSize + " bytes.");
+	    if (commitLogStream.getOffset() == 0) {
+		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
+		return;
+	    }
 	    File commitLogFileSave = this.commitLogFile;
 	    createIndexFile();
 	    createEmptyCommitLog();
@@ -329,6 +333,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     public void runCompaction() {
+	writeLock.lock();
 	try {
 	    for (File commitLog : getCurrentCommitLogs()) {
 		runCompaction(commitLog);
@@ -336,25 +341,27 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    rolloverCommitLog();
 	} catch (StorageException | IOException e) {
 	    logger.warn("Could not run compaction", e);
+	} finally {
+	    writeLock.unlock();
 	}
     }
 
     private void runCompaction(File commitLogFile) throws StorageException, IOException {
 	if (runCompactions) {
-	    compactionExecutor.submit(new Runnable() {
-		@Override
-		public void run() {
-		    try {
-			Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
-				maxDataFileSize, maxGenerations);
-			compactor.runCompaction();
-			openDataFiles();
-			deleteCommitLogFiles(commitLogFile);
-		    } catch (Exception e) {
-			logger.error("Could not run compaction.", e);
-		    }
-		}
-	    });
+	    // compactionExecutor.submit(new Runnable() {
+	    // @Override
+	    // public void run() {
+	    // try {
+	    Compactor compactor = new Compactor(storage, columnFamilyDescriptor, commitLogFile, bufferSize,
+		    maxDataFileSize, maxGenerations);
+	    compactor.runCompaction();
+	    openDataFiles();
+	    deleteCommitLogFiles(commitLogFile);
+	    // } catch (Exception e) {
+	    // logger.error("Could not run compaction.", e);
+	    // }
+	    // }
+	    // });
 	}
     }
 
@@ -377,7 +384,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 			return row.getColumnMap();
 		    }
 		} catch (IOException e) {
-		    logger.warn("Could not read data from current commit log '" + commitLogFile + "'.", e);
+		    throw new StorageException("Could not read data from current commit log '" + commitLogFile + "'.",
+			    e);
 		}
 	    }
 	    row = readFromCommitLogs(rowKey2);

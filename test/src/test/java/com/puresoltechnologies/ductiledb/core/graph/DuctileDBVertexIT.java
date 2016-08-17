@@ -21,10 +21,11 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
-    private static int NUMBER = 100;
+    private static int NUMBER = 110;
     private static DuctileDBGraphImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 
@@ -213,6 +214,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testFullVertexCreationPerformance() throws IOException, StorageException {
+	DatabaseEngineImpl storageEngine = graph.getStorageEngine();
+	storageEngine.setRunCompactions(true);
 	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();
 	for (int i = 0; i < NUMBER; ++i) {
@@ -238,8 +241,8 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	    vertex.remove();
 	}
 	graph.commit();
-	assertTrue(speed > 150);
 	healthChecker.runCheck();
+	assertTrue(speed > 100);
     }
 
     @Test

@@ -155,6 +155,20 @@ public class DataFileSet implements Closeable {
 		    "File overlapping index range for key '" + rowKey + "':\n" + startOffset + "\n" + endOffset);
 	}
 
+	File indexFile = getIndexName(dataFile);
+	IndexFileReader indexReader = indexReaders.get(indexFile);
+	if (indexReader == null) {
+	    try {
+		indexReader = new IndexFileReader(storage, indexFile);
+		indexReaders.put(indexFile, indexReader);
+	    } catch (FileNotFoundException e) {
+		logger.warn("Could not find index file.", e);
+		dataReaders.remove(indexFile);
+		return null;
+	    }
+	}
+	IndexEntry indexEntry = indexReader.get(rowKey);
+
 	DataFileReader dataReader = dataReaders.get(dataFile);
 	if (dataReader == null) {
 	    try {
@@ -166,7 +180,7 @@ public class DataFileSet implements Closeable {
 		return null;
 	    }
 	}
-	dataReader.goToOffset(startOffset.getOffset());
+	dataReader.goToOffset(indexEntry.getOffset());
 	return dataReader.getRow();
     }
 

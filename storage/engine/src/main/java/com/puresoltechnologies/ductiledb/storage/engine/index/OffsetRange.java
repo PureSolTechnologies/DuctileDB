@@ -27,4 +27,8 @@ public class OffsetRange {
 	return endOffset;
     }
 
+    @Override
+    public String toString() {
+	return startOffset.toString() + " -> " + endOffset.toString();
+    }
 }

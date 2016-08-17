@@ -63,6 +63,10 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
+    public void setRunCompactions(boolean runCompaction) {
+	columnFamilyEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
+    }
+
     public void runCompaction() {
 	columnFamilyEngines.values().forEach(engine -> engine.runCompaction());
     }

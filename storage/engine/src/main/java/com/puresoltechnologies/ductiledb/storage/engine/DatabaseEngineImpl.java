@@ -71,6 +71,10 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 		new NamespaceEngineImpl(storage, namespaceDescriptor, configuration));
     }
 
+    public void setRunCompactions(boolean runCompaction) {
+	namespaceEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
+    }
+
     public void runCompaction() {
 	namespaceEngines.values().forEach(engine -> engine.runCompaction());
     }

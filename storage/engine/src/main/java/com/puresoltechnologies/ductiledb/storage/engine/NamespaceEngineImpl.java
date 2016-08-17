@@ -41,6 +41,10 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 	}
     }
 
+    public void setRunCompactions(boolean runCompaction) {
+	tableEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
+    }
+
     public void addTable(TableDescriptor tableDescriptor) throws StorageException {
 	tableEngines.put(tableDescriptor.getName(), new TableEngineImpl(storage, tableDescriptor, configuration));
     }

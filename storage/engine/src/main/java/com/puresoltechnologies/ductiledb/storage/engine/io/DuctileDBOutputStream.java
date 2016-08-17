@@ -57,7 +57,7 @@ public class DuctileDBOutputStream implements Closeable {
 	return offset;
     }
 
-    public void writeData(byte[] bytes) throws IOException {
+    public synchronized void writeData(byte[] bytes) throws IOException {
 	if (bytes.length > bufferSize - bufferPos) {
 	    flush();
 	    if (bytes.length > bufferSize) {
@@ -71,7 +71,7 @@ public class DuctileDBOutputStream implements Closeable {
 	offset += bytes.length;
     }
 
-    public void flush() throws IOException {
+    public synchronized void flush() throws IOException {
 	if (bufferPos > 0) {
 	    stream.write(buffer, 0, bufferPos);
 	    stream.flush();

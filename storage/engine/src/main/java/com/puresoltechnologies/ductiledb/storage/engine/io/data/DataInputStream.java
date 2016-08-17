@@ -17,6 +17,7 @@ public class DataInputStream extends DuctileDBInputStream {
 
     public ColumnFamilyRow readRow() throws IOException {
 	byte[] buffer = new byte[4];
+	// Read row key
 	int len = read(buffer, 0, 4);
 	if (len == -1) {
 	    return null;
@@ -29,14 +30,16 @@ public class DataInputStream extends DuctileDBInputStream {
 	if (len < length) {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	}
+	// Read column count
 	len = read(buffer, 0, 4);
 	if (len < 4) {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	}
 	int columnCount = Bytes.toInt(buffer);
+	// Read columns
 	ColumnMap columns = new ColumnMap();
 	for (int i = 0; i < columnCount; ++i) {
-	    // Column key...
+	    // Read column key...
 	    len = read(buffer, 0, 4);
 	    if (len < 4) {
 		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
@@ -47,16 +50,19 @@ public class DataInputStream extends DuctileDBInputStream {
 	    if (len < length) {
 		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	    }
-	    // Column value...
+	    // Read column value...
 	    len = read(buffer, 0, 4);
 	    if (len < 4) {
 		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	    }
 	    length = Bytes.toInt(buffer);
 	    byte[] columnValue = new byte[length];
-	    len = read(columnValue);
-	    if (len < length) {
-		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
+	    if (length != 0) {
+		len = read(columnValue);
+		if (len < length) {
+		    throw new IOException(
+			    "Could not read full number of bytes needed. It is maybe a broken data file.");
+		}
 	    }
 	    columns.put(columnKey, columnValue);
 	}

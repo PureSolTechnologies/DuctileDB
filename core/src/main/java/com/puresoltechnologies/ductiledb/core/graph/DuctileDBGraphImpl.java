@@ -27,7 +27,6 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManage
 import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -60,7 +59,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	schema = new DuctileDBSchema(this);
     }
 
-    public final DatabaseEngine getStorageEngine() {
+    public final DatabaseEngineImpl getStorageEngine() {
 	return storageEngine;
     }
 

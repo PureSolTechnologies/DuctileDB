@@ -16,18 +16,26 @@ public class DataOutputStream extends DuctileDBOutputStream {
 	super(bufferedOutputStream, bufferSize);
     }
 
-    public void writeRow(RowKey rowKey, ColumnMap columns) throws IOException {
-	writeData(Bytes.toBytes(rowKey.getKey().length));
-	writeData(rowKey.getKey());
+    public synchronized void writeRow(RowKey rowKey, ColumnMap columns) throws IOException {
+	byte[] key = rowKey.getKey();
+	// Row key
+	writeData(Bytes.toBytes(key.length));
+	writeData(key);
+	// Column number
 	Set<Entry<byte[], byte[]>> entrySet = columns.entrySet();
 	writeData(Bytes.toBytes(entrySet.size()));
+	// Columns
 	for (Entry<byte[], byte[]> column : entrySet) {
-	    byte[] key = column.getKey();
-	    byte[] value = column.getValue();
-	    writeData(Bytes.toBytes(key.length));
-	    writeData(key);
-	    writeData(Bytes.toBytes(value.length));
-	    writeData(value);
+	    // Column key
+	    byte[] columnKey = column.getKey();
+	    writeData(Bytes.toBytes(columnKey.length));
+	    writeData(columnKey);
+	    // Column value
+	    byte[] columnValue = column.getValue();
+	    writeData(Bytes.toBytes(columnValue.length));
+	    if (columnValue.length > 0) {
+		writeData(columnValue);
+	    }
 	}
     }
 
