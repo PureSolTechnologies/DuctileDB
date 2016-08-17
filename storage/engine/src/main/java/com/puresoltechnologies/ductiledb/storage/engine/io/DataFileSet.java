@@ -167,7 +167,11 @@ public class DataFileSet implements Closeable {
 		return null;
 	    }
 	}
+	indexReader.goToOffset(0);
 	IndexEntry indexEntry = indexReader.get(rowKey);
+	if (indexEntry == null) {
+	    return null;
+	}
 
 	DataFileReader dataReader = dataReaders.get(dataFile);
 	if (dataReader == null) {

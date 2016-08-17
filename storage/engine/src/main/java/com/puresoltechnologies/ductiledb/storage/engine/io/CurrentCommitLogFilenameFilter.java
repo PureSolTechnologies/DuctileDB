@@ -12,11 +12,11 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class CommitLogFilenameFilter implements FilenameFilter {
+public class CurrentCommitLogFilenameFilter implements FilenameFilter {
 
     private final Storage storage;
 
-    public CommitLogFilenameFilter(Storage storage) {
+    public CurrentCommitLogFilenameFilter(Storage storage) {
 	this.storage = storage;
     }
 
@@ -24,9 +24,13 @@ public class CommitLogFilenameFilter implements FilenameFilter {
     public boolean accept(File dir, String name) {
 	if (name.startsWith(ColumnFamilyEngine.COMMIT_LOG_PREFIX)
 		&& name.endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX)) {
-	    File compactedName = ColumnFamilyEngineImpl.getCompactedName(new File(dir, name));
-	    boolean exists = storage.exists(compactedName);
-	    return !exists;
+	    File dataFile = new File(dir, name);
+	    File compactedName = ColumnFamilyEngineImpl.getCompactedName(dataFile);
+	    if (storage.exists(compactedName)) {
+		return false;
+	    }
+	    File indexFile = DataFileSet.getIndexName(dataFile);
+	    return !storage.exists(indexFile);
 	}
 	return false;
     }

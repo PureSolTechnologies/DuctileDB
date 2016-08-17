@@ -25,7 +25,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
-    private static int NUMBER = 110;
+    private static int NUMBER = 90;
     private static DuctileDBGraphImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 

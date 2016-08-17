@@ -16,7 +16,7 @@ import org.yaml.snakeyaml.Yaml;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CurrentCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -73,7 +73,7 @@ public abstract class AbstractDatabaseEngineTest {
 
     protected Set<File> getCommitLogs(Storage storage, File directory) {
 	Set<File> commitLogs = new HashSet<>();
-	for (File commitLog : storage.list(directory, new CommitLogFilenameFilter(storage))) {
+	for (File commitLog : storage.list(directory, new CurrentCommitLogFilenameFilter(storage))) {
 	    commitLogs.add(commitLog);
 	}
 	return commitLogs;
