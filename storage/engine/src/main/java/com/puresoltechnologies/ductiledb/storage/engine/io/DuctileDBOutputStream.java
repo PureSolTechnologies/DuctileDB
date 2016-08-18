@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 
 /**
  * This is a special output stream to increase the buffer size, calculate MD5
@@ -69,6 +70,10 @@ public class DuctileDBOutputStream implements Closeable {
 	    bufferPos += Bytes.putBytes(buffer, bytes, bufferPos);
 	}
 	offset += bytes.length;
+    }
+
+    public synchronized void write(Instant instant) throws IOException {
+	writeData(Bytes.toBytes(instant));
     }
 
     public synchronized void flush() throws IOException {

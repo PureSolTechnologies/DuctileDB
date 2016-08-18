@@ -76,7 +76,4 @@ public class IndexEntry implements Comparable<IndexEntry> {
 	return rowKey + " -> " + dataFile + ":" + offset;
     }
 
-    public boolean wasDeleted() {
-	return offset < 0;
-    }
 }

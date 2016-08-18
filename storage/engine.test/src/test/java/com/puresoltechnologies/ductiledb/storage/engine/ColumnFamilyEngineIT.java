@@ -156,16 +156,16 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	     */
 	    ColumnMap returned1 = columnFamilyEngine.get(rowKey1);
 	    assertEquals(3, returned1.size());
-	    assertEquals(111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
-	    assertEquals(112l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
-	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
+	    assertEquals(111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l)).getValue()));
+	    assertEquals(112l, Bytes.toLong(returned1.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l)).getValue()));
 	    ColumnMap returned2 = columnFamilyEngine.get(rowKey2);
 	    assertEquals(2, returned2.size());
-	    assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l))));
-	    assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l))));
+	    assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l)).getValue()));
+	    assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l)).getValue()));
 	    ColumnMap returned3 = columnFamilyEngine.get(rowKey3);
 	    assertEquals(1, returned3.size());
-	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l)).getValue()));
 
 	    /*
 	     * Update row1
@@ -180,17 +180,17 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	     */
 	    returned1 = columnFamilyEngine.get(rowKey1);
 	    assertEquals(4, returned1.size());
-	    assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
-	    assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
-	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
-	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
+	    assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l)).getValue()));
+	    assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l)).getValue()));
+	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l)).getValue()));
 	    returned2 = columnFamilyEngine.get(rowKey2);
 	    assertEquals(2, returned2.size());
-	    assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l))));
-	    assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l))));
+	    assertEquals(211l, Bytes.toLong(returned2.get(Bytes.toBytes(21l)).getValue()));
+	    assertEquals(212l, Bytes.toLong(returned2.get(Bytes.toBytes(22l)).getValue()));
 	    returned3 = columnFamilyEngine.get(rowKey3);
 	    assertEquals(1, returned3.size());
-	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l)).getValue()));
 	    /*
 	     * Delete row 2
 	     */
@@ -200,15 +200,15 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	     */
 	    returned1 = columnFamilyEngine.get(rowKey1);
 	    assertEquals(4, returned1.size());
-	    assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l))));
-	    assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l))));
-	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l))));
-	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l))));
+	    assertEquals(1111l, Bytes.toLong(returned1.get(Bytes.toBytes(11l)).getValue()));
+	    assertEquals(1122l, Bytes.toLong(returned1.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(113l, Bytes.toLong(returned1.get(Bytes.toBytes(13l)).getValue()));
+	    assertEquals(1144l, Bytes.toLong(returned1.get(Bytes.toBytes(14l)).getValue()));
 	    returned2 = columnFamilyEngine.get(rowKey2);
 	    assertTrue(returned2.isEmpty());
 	    returned3 = columnFamilyEngine.get(rowKey3);
 	    assertEquals(1, returned3.size());
-	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l))));
+	    assertEquals(311l, Bytes.toLong(returned3.get(Bytes.toBytes(31l)).getValue()));
 	}
     }
 
@@ -245,16 +245,16 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 
 	    ColumnMap columnMap = columnFamilyEngine.get(Bytes.toBytes(2l));
 	    assertNotNull("No column map loaded.", columnMap);
-	    assertEquals(2l, Bytes.toLong(columnMap.get(Bytes.toBytes(2l))));
-	    assertEquals(4l, Bytes.toLong(columnMap.get(Bytes.toBytes(4l))));
-	    assertEquals(6l, Bytes.toLong(columnMap.get(Bytes.toBytes(6l))));
-	    assertEquals(8l, Bytes.toLong(columnMap.get(Bytes.toBytes(8l))));
-	    assertEquals(10l, Bytes.toLong(columnMap.get(Bytes.toBytes(10l))));
-	    assertEquals(12l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l))));
-	    assertEquals(14l, Bytes.toLong(columnMap.get(Bytes.toBytes(14l))));
-	    assertEquals(16l, Bytes.toLong(columnMap.get(Bytes.toBytes(16l))));
-	    assertEquals(18l, Bytes.toLong(columnMap.get(Bytes.toBytes(18l))));
-	    assertEquals(20l, Bytes.toLong(columnMap.get(Bytes.toBytes(20l))));
+	    assertEquals(2l, Bytes.toLong(columnMap.get(Bytes.toBytes(2l)).getValue()));
+	    assertEquals(4l, Bytes.toLong(columnMap.get(Bytes.toBytes(4l)).getValue()));
+	    assertEquals(6l, Bytes.toLong(columnMap.get(Bytes.toBytes(6l)).getValue()));
+	    assertEquals(8l, Bytes.toLong(columnMap.get(Bytes.toBytes(8l)).getValue()));
+	    assertEquals(10l, Bytes.toLong(columnMap.get(Bytes.toBytes(10l)).getValue()));
+	    assertEquals(12l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(14l, Bytes.toLong(columnMap.get(Bytes.toBytes(14l)).getValue()));
+	    assertEquals(16l, Bytes.toLong(columnMap.get(Bytes.toBytes(16l)).getValue()));
+	    assertEquals(18l, Bytes.toLong(columnMap.get(Bytes.toBytes(18l)).getValue()));
+	    assertEquals(20l, Bytes.toLong(columnMap.get(Bytes.toBytes(20l)).getValue()));
 	}
 	File dataFile = null;
 	for (File file : getStorage().list(getColumnFamilyDescriptor().getDirectory(), new DataFilenameFilter())) {

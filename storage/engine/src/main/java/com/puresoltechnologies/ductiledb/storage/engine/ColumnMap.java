@@ -20,9 +20,9 @@ import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparato
  * 
  * @author Rick-Rainer Ludwig
  */
-public class ColumnMap implements NavigableMap<byte[], byte[]> {
+public final class ColumnMap implements NavigableMap<byte[], ColumnValue> {
 
-    private final TreeMap<byte[], byte[]> values = new TreeMap<>(ByteArrayComparator.getInstance());
+    private final TreeMap<byte[], ColumnValue> values = new TreeMap<>(ByteArrayComparator.getInstance());
 
     public ColumnMap() {
 	super();
@@ -31,10 +31,10 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     @Override
     public String toString() {
 	StringBuffer buffer = new StringBuffer();
-	for (java.util.Map.Entry<byte[], byte[]> entry : entrySet()) {
+	for (java.util.Map.Entry<byte[], ColumnValue> entry : values.entrySet()) {
 	    buffer.append(Bytes.toHumanReadableString(entry.getKey()));
 	    buffer.append("=");
-	    buffer.append(Bytes.toHumanReadableString(entry.getValue()));
+	    buffer.append(Bytes.toHumanReadableString(entry.getValue().getValue()));
 	    buffer.append("\n");
 	}
 	return buffer.toString();
@@ -57,15 +57,11 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
 	if (getClass() != obj.getClass())
 	    return false;
 	ColumnMap other = (ColumnMap) obj;
-	if (size() != other.size()) {
-	    return false;
-	}
-	ByteArrayComparator comparator = ByteArrayComparator.getInstance();
-	for (java.util.Map.Entry<byte[], byte[]> entry : entrySet()) {
-	    if (comparator.compare(entry.getValue(), other.get(entry.getKey())) != 0) {
+	if (values == null) {
+	    if (other.values != null)
 		return false;
-	    }
-	}
+	} else if (!values.equals(other.values))
+	    return false;
 	return true;
     }
 
@@ -90,25 +86,32 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public byte[] get(Object key) {
+    public ColumnValue get(Object key) {
 	return values.get(key);
     }
 
+    public ColumnValue put(byte[] key, byte[] value) {
+	return put(key, new ColumnValue(value, null));
+    }
+
     @Override
-    public byte[] put(byte[] key, byte[] value) {
+    public ColumnValue put(byte[] key, ColumnValue value) {
 	if ((key == null) || (key.length == 0)) {
 	    throw new IllegalArgumentException("Column keys must not be null or empty.");
+	}
+	if (value == null) {
+	    throw new IllegalArgumentException("Column values must not be null.");
 	}
 	return values.put(key, value);
     }
 
     @Override
-    public byte[] remove(Object key) {
+    public ColumnValue remove(Object key) {
 	return values.remove(key);
     }
 
     @Override
-    public void putAll(Map<? extends byte[], ? extends byte[]> m) {
+    public void putAll(Map<? extends byte[], ? extends ColumnValue> m) {
 	values.putAll(m);
     }
 
@@ -123,12 +126,12 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public Collection<byte[]> values() {
+    public Collection<ColumnValue> values() {
 	return values.values();
     }
 
     @Override
-    public Set<java.util.Map.Entry<byte[], byte[]>> entrySet() {
+    public Set<java.util.Map.Entry<byte[], ColumnValue>> entrySet() {
 	return values.entrySet();
     }
 
@@ -148,7 +151,7 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> lowerEntry(byte[] key) {
+    public java.util.Map.Entry<byte[], ColumnValue> lowerEntry(byte[] key) {
 	return values.lowerEntry(key);
     }
 
@@ -158,7 +161,7 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> floorEntry(byte[] key) {
+    public java.util.Map.Entry<byte[], ColumnValue> floorEntry(byte[] key) {
 	return values.floorEntry(key);
     }
 
@@ -168,22 +171,22 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> firstEntry() {
+    public java.util.Map.Entry<byte[], ColumnValue> firstEntry() {
 	return values.firstEntry();
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> lastEntry() {
+    public java.util.Map.Entry<byte[], ColumnValue> lastEntry() {
 	return values.lastEntry();
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> pollFirstEntry() {
+    public java.util.Map.Entry<byte[], ColumnValue> pollFirstEntry() {
 	return values.pollFirstEntry();
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> pollLastEntry() {
+    public java.util.Map.Entry<byte[], ColumnValue> pollLastEntry() {
 	return values.pollLastEntry();
     }
 
@@ -193,7 +196,7 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> ceilingEntry(byte[] key) {
+    public java.util.Map.Entry<byte[], ColumnValue> ceilingEntry(byte[] key) {
 	return values.ceilingEntry(key);
     }
 
@@ -203,7 +206,7 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public java.util.Map.Entry<byte[], byte[]> higherEntry(byte[] key) {
+    public java.util.Map.Entry<byte[], ColumnValue> higherEntry(byte[] key) {
 	return values.higherEntry(key);
     }
 
@@ -223,58 +226,58 @@ public class ColumnMap implements NavigableMap<byte[], byte[]> {
     }
 
     @Override
-    public NavigableMap<byte[], byte[]> descendingMap() {
+    public NavigableMap<byte[], ColumnValue> descendingMap() {
 	return values.descendingMap();
     }
 
     @Override
-    public NavigableMap<byte[], byte[]> subMap(byte[] fromKey, boolean fromInclusive, byte[] toKey,
+    public NavigableMap<byte[], ColumnValue> subMap(byte[] fromKey, boolean fromInclusive, byte[] toKey,
 	    boolean toInclusive) {
 	return values.subMap(fromKey, fromInclusive, toKey, toInclusive);
     }
 
     @Override
-    public NavigableMap<byte[], byte[]> headMap(byte[] toKey, boolean inclusive) {
+    public NavigableMap<byte[], ColumnValue> headMap(byte[] toKey, boolean inclusive) {
 	return values.headMap(toKey, inclusive);
     }
 
     @Override
-    public NavigableMap<byte[], byte[]> tailMap(byte[] fromKey, boolean inclusive) {
+    public NavigableMap<byte[], ColumnValue> tailMap(byte[] fromKey, boolean inclusive) {
 	return values.tailMap(fromKey, inclusive);
     }
 
     @Override
-    public SortedMap<byte[], byte[]> subMap(byte[] fromKey, byte[] toKey) {
+    public SortedMap<byte[], ColumnValue> subMap(byte[] fromKey, byte[] toKey) {
 	return values.subMap(fromKey, toKey);
     }
 
     @Override
-    public SortedMap<byte[], byte[]> headMap(byte[] toKey) {
+    public SortedMap<byte[], ColumnValue> headMap(byte[] toKey) {
 	return values.headMap(toKey);
     }
 
     @Override
-    public SortedMap<byte[], byte[]> tailMap(byte[] fromKey) {
+    public SortedMap<byte[], ColumnValue> tailMap(byte[] fromKey) {
 	return values.tailMap(fromKey);
     }
 
     @Override
-    public boolean replace(byte[] key, byte[] oldValue, byte[] newValue) {
+    public boolean replace(byte[] key, ColumnValue oldValue, ColumnValue newValue) {
 	return values.replace(key, oldValue, newValue);
     }
 
     @Override
-    public byte[] replace(byte[] key, byte[] value) {
+    public ColumnValue replace(byte[] key, ColumnValue value) {
 	return values.replace(key, value);
     }
 
     @Override
-    public void forEach(BiConsumer<? super byte[], ? super byte[]> action) {
+    public void forEach(BiConsumer<? super byte[], ? super ColumnValue> action) {
 	values.forEach(action);
     }
 
     @Override
-    public void replaceAll(BiFunction<? super byte[], ? super byte[], ? extends byte[]> function) {
+    public void replaceAll(BiFunction<? super byte[], ? super ColumnValue, ? extends ColumnValue> function) {
 	values.replaceAll(function);
     }
 }

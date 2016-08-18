@@ -30,7 +30,7 @@ public class Put {
 	    columnFamily = new ColumnMap();
 	    columnFamilies.put(columnFamilyName, columnFamily);
 	}
-	columnFamily.put(key, value);
+	columnFamily.put(key, new ColumnValue(value, null));
     }
 
 }

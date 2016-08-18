@@ -2,8 +2,10 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.NavigableMap;
 import java.util.Set;
+import java.util.TreeMap;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 public class Result {
 
@@ -19,7 +21,13 @@ public class Result {
     }
 
     public NavigableMap<byte[], byte[]> getFamilyMap(byte[] columnFamily) {
-	return columnFamilies.get(columnFamily);
+	TreeMap<byte[], byte[]> resultMap = new TreeMap<>(ByteArrayComparator.getInstance());
+	ColumnMap columnMap = columnFamilies.get(columnFamily);
+	if (columnMap == null) {
+	    return null;
+	}
+	columnMap.forEach((key, value) -> resultMap.put(key, value.getValue()));
+	return resultMap;
     }
 
     public boolean isEmpty() {

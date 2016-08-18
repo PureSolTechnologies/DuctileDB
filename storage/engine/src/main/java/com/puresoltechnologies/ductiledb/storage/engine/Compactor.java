@@ -4,9 +4,12 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -139,7 +142,8 @@ public class Compactor {
 				writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
 				commitLogNext = commitLogIterator.next();
 			    } else if (dataRowKey.compareTo(commitLogNext.getRowKey()) < 0) {
-				writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
+				writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getTombstone(),
+					dataEntry.getColumnMap());
 			    } else {
 				if (commitLogNext != null) {
 				    writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
@@ -147,7 +151,8 @@ public class Compactor {
 				}
 			    }
 			} else {
-			    writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getColumnMap());
+			    writer = writeDataEntry(writer, baseFilename, dataRowKey, dataEntry.getTombstone(),
+				    dataEntry.getColumnMap());
 			}
 		    }
 		}
@@ -170,23 +175,32 @@ public class Compactor {
 
     private SSTableWriter writeCommitLogEntry(DataFileReader commitLogReader, IndexEntry commitLogNext,
 	    SSTableWriter writer, String baseFilename) throws IOException, StorageException {
-	if (!commitLogNext.wasDeleted()) {
-	    /*
-	     * if index is smaller than zero, it is a delete marker, so we skip
-	     * the entry to delete it
-	     */
-	    ColumnFamilyRow row = commitLogReader.getRow(commitLogNext);
+	/*
+	 * if index is smaller than zero, it is a delete marker, so we skip the
+	 * entry to delete it
+	 */
+	ColumnFamilyRow row = commitLogReader.getRow(commitLogNext);
+	if ((!row.isEmpty()) && (!row.wasDeleted())) {
 	    ColumnMap columnMap = row.getColumnMap();
-	    if (!columnMap.isEmpty()) {
-		writer = writeDataEntry(writer, baseFilename, row.getRowKey(), columnMap);
+	    Iterator<Entry<byte[], ColumnValue>> iterator = columnMap.entrySet().iterator();
+	    while (iterator.hasNext()) {
+		Entry<byte[], ColumnValue> entry = iterator.next();
+		ColumnValue value = entry.getValue();
+		if (value.wasDeleted()) {
+		    iterator.remove();
+		}
 	    }
+	    if (!columnMap.isEmpty()) {
+		writer = writeDataEntry(writer, baseFilename, row.getRowKey(), null, columnMap);
+	    }
+
 	}
 	return writer;
     }
 
-    private SSTableWriter writeDataEntry(SSTableWriter writer, String baseFilename, RowKey rowKey, ColumnMap columnMap)
-	    throws IOException, StorageException {
-	writer.write(rowKey, columnMap);
+    private SSTableWriter writeDataEntry(SSTableWriter writer, String baseFilename, RowKey rowKey, Instant tombstone,
+	    ColumnMap columnMap) throws IOException, StorageException {
+	writer.write(rowKey, tombstone, columnMap);
 	if (writer.getDataFileSize() >= maxDataFileSize) {
 	    writer.close();
 	    addToIndex(writer);

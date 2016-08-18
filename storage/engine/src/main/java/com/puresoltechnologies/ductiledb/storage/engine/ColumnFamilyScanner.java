@@ -156,14 +156,10 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		    }
 		}
 	    }
-	} while ((minimum != null) && (minimum.wasDeleted()));
+	} while ((nextRow != null) && (nextRow.wasDeleted()));
     }
 
     private void readNextEntryFromIndexEntry(IndexEntry minimum) {
-	if (minimum.wasDeleted()) {
-	    nextRow = null;
-	    return;
-	}
 	DataFileReader fileReader = dataFileReaders.get(minimum.getDataFile());
 	if (fileReader == null) {
 	    try {
@@ -175,7 +171,10 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	}
 	if (fileReader != null) {
 	    try {
-		nextRow = fileReader.getRow(minimum);
+		ColumnFamilyRow row = fileReader.getRow(minimum);
+		if (!row.wasDeleted()) {
+		    nextRow = row;
+		}
 	    } catch (IOException e) {
 		logger.error("Could not read file.", e);
 	    }

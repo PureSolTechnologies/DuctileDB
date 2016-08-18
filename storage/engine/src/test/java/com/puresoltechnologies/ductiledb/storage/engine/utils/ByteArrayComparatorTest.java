@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -51,11 +52,11 @@ public class ByteArrayComparatorTest {
 		    assertEquals("Invalid comparison result for l1=" + l1 + " and l2=" + l2, 0,
 			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)));
 		} else if (l1 < l2) {
-		    assertEquals("Invalid comparison result for l1=" + l1 + " and l2=" + l2, -1,
-			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)));
+		    assertTrue("Invalid comparison result for l1=" + l1 + " and l2=" + l2,
+			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)) < 0);
 		} else {
-		    assertEquals("Invalid comparison result for l1=" + l1 + " and l2=" + l2, 1,
-			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)));
+		    assertTrue("Invalid comparison result for l1=" + l1 + " and l2=" + l2,
+			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)) > 0);
 		}
 	    }
 	}

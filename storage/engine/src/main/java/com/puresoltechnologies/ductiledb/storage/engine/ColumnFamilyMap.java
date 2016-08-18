@@ -20,6 +20,9 @@ public class ColumnFamilyMap {
     }
 
     public void put(byte[] columnFamilyName, ColumnMap columnMap) {
+	if (columnMap == null) {
+	    throw new IllegalArgumentException("columnMap must not be null.");
+	}
 	columnFamilies.put(columnFamilyName, columnMap);
     }
 

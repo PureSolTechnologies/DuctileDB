@@ -266,22 +266,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		columnMap.putAll(values);
 		values = columnMap;
 	    }
-	    writeNewColumns(new RowKey(rowKey), values);
+	    writeCommitLog(new RowKey(rowKey), null, values);
 	} finally {
 	    writeLock.unlock();
-	}
-    }
-
-    private void writeCommitLog(RowKey rowKey, ColumnMap values, long offset) throws StorageException {
-	try {
-	    commitLogStream.writeRow(rowKey, values);
-	    commitLogStream.flush();
-	    memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
-	    if (commitLogStream.getOffset() >= maxCommitLogSize) {
-		rolloverCommitLog();
-	    }
-	} catch (IOException e) {
-	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);
 	}
     }
 
@@ -373,15 +360,12 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    IndexEntry indexEntry = memtable.get(rowKey2);
 	    ColumnFamilyRow row;
 	    if (indexEntry != null) {
-		if (indexEntry.wasDeleted()) {
-		    return new ColumnMap();
-		}
 		long offset = indexEntry.getOffset();
 		try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
 		    dataInputStream.skip(offset);
 		    row = dataInputStream.readRow();
 		    if (row != null) {
-			return row.getColumnMap();
+			return row.wasDeleted() ? new ColumnMap() : row.getColumnMap();
 		    }
 		} catch (IOException e) {
 		    throw new StorageException("Could not read data from current commit log '" + commitLogFile + "'.",
@@ -453,7 +437,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	writeLock.lock();
 	try {
 	    RowKey rowKey2 = new RowKey(rowKey);
-	    writeCommitLog(rowKey2, new ColumnMap(), -1);
+	    writeCommitLog(rowKey2, Instant.now(), new ColumnMap());
 	} finally {
 	    writeLock.unlock();
 	}
@@ -471,7 +455,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		if (columnMap.size() == 0) {
 		    delete(rowKey);
 		} else {
-		    writeNewColumns(new RowKey(rowKey), columnMap);
+		    writeCommitLog(new RowKey(rowKey), null, columnMap);
 		}
 	    }
 	} finally {
@@ -510,26 +494,34 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    ColumnMap columnMap = get(rowKey);
 	    long result = startValue;
 	    if (columnMap != null) {
-		byte[] oldValueBytes = columnMap.get(column);
+		ColumnValue oldValueBytes = columnMap.get(column);
 		if (oldValueBytes != null) {
-		    long oldValue = Bytes.toLong(oldValueBytes);
+		    long oldValue = Bytes.toLong(oldValueBytes.getValue());
 		    result = oldValue + incrementValue;
 		}
-		columnMap.put(column, Bytes.toBytes(result));
+		columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
 	    } else {
 		columnMap = new ColumnMap();
-		columnMap.put(column, Bytes.toBytes(result));
+		columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
 	    }
-	    writeNewColumns(new RowKey(rowKey), columnMap);
+	    writeCommitLog(new RowKey(rowKey), null, columnMap);
 	    return result;
 	} finally {
 	    writeLock.unlock();
 	}
     }
 
-    private void writeNewColumns(RowKey rowKey, ColumnMap columnMap) throws StorageException {
-	long offset = commitLogStream.getOffset();
-	writeCommitLog(rowKey, columnMap, offset);
+    private void writeCommitLog(RowKey rowKey, Instant tombstone, ColumnMap values) throws StorageException {
+	try {
+	    long offset = commitLogStream.getOffset();
+	    commitLogStream.writeRow(rowKey, tombstone, values);
+	    commitLogStream.flush();
+	    memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
+	    if (commitLogStream.getOffset() >= maxCommitLogSize) {
+		rolloverCommitLog();
+	    }
+	} catch (IOException e) {
+	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);
+	}
     }
-
 }

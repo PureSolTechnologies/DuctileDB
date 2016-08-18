@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.security.MessageDigest;
+import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
@@ -100,19 +101,19 @@ public class SSTableWriter implements Closeable {
 	return (startOffset >= 0) && (endOffset >= 0) && (startRowKey != null) && (endRowKey != null);
     }
 
-    public void write(RowKey rowKey, ColumnMap columns) throws IOException {
+    public void write(RowKey rowKey, Instant tombstone, ColumnMap columns) throws IOException {
 	if (startRowKey == null) {
 	    startRowKey = rowKey;
 	    startOffset = dataStream.getOffset();
 	}
 	endRowKey = rowKey;
 	endOffset = dataStream.getOffset();
-	dataStream.writeRow(rowKey, columns);
+	dataStream.writeRow(rowKey, tombstone, columns);
 	indexStream.writeIndexEntry(rowKey, endOffset);
     }
 
     public void write(ColumnFamilyRow entry) throws IOException {
-	write(entry.getRowKey(), entry.getColumnMap());
+	write(entry.getRowKey(), entry.getTombstone(), entry.getColumnMap());
     }
 
 }

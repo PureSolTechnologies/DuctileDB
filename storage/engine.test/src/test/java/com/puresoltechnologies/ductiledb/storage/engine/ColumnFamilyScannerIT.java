@@ -47,7 +47,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(new RowKey(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l))));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -71,7 +71,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(new RowKey(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l))));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -95,7 +95,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(new RowKey(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l))));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -119,7 +119,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(new RowKey(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l))));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -143,7 +143,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(new RowKey(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l))));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());

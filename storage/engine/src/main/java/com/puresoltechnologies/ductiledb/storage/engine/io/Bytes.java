@@ -165,6 +165,26 @@ public class Bytes {
 	return Instant.ofEpochSecond(seconds, nano);
     }
 
+    public static Instant toTombstone(byte[] bytes) {
+	boolean isEmpty = true;
+	for (byte b : bytes) {
+	    if (b != 0) {
+		isEmpty = false;
+		break;
+	    }
+	}
+	if (isEmpty) {
+	    return null;
+	}
+	boolean isTombstone = false;
+	for (byte b : bytes) {
+	    if (b > 0) {
+		isTombstone = true;
+	    }
+	}
+	return isTombstone ? toInstant(bytes) : null;
+    }
+
     /**
      * This method converts byte array into a readable hex number string.
      * 
