@@ -62,16 +62,16 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     @Override
     public void perform() throws IOException {
 	try {
+	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    Table table = getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
 		    DatabaseTable.VERTICES.getName());
-	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
 	    }
 	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
 		    .getFamilyMap(DatabaseColumnFamily.EDGES.getNameBytes());
+	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
 	    EdgeValue startVertexEdgeValue = EdgeValue.decode(startVertexPropertyBytes);
 	    startVertexEdgeValue.getProperties().put(key, value);

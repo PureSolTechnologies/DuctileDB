@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -92,10 +94,9 @@ public class TableEngineImpl implements TableEngine {
     }
 
     public void put(Put put) throws StorageException {
-	byte[] rowKey = put.getKey();
 	for (byte[] columnFamily : put.getColumnFamilies()) {
 	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
-	    columnFamilyEngine.put(rowKey, put.getColumnValues(columnFamily));
+	    columnFamilyEngine.put(put.getKey(), put.getColumnValues(columnFamily));
 	}
     }
 
@@ -123,17 +124,16 @@ public class TableEngineImpl implements TableEngine {
     public Result get(Get get) throws StorageException {
 	byte[] rowKey = get.getKey();
 	Result result = new Result(rowKey);
-	if (!get.getColumnFamilies().isEmpty()) {
-	    for (byte[] columnFamily : get.getColumnFamilies().keySet()) {
+	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = get.getColumnFamilies();
+	if (!columnFamilies.isEmpty()) {
+	    for (byte[] columnFamily : columnFamilies.keySet()) {
 		ColumnMap columns = columnFamilyEngines.get(columnFamily).get(rowKey);
 		result.add(columnFamily, columns);
 	    }
 	} else {
 	    for (Entry<byte[], ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
 		ColumnMap columns = columnFamily.getValue().get(rowKey);
-		if (!columns.isEmpty()) {
-		    result.add(columnFamily.getKey(), columns);
-		}
+		result.add(columnFamily.getKey(), columns);
 	    }
 	}
 	return result;

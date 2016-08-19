@@ -121,7 +121,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
     private final Lock readLock = readWriteLock.readLock();
-    private final Lock writeLock = readWriteLock.readLock();
+    private final Lock writeLock = readWriteLock.writeLock();
 
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
@@ -263,9 +263,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public void put(byte[] rowKey, ColumnMap values) throws StorageException {
+	ColumnMap columnMap = get(rowKey);
 	writeLock.lock();
 	try {
-	    ColumnMap columnMap = get(rowKey);
 	    if (columnMap != null) {
 		columnMap.putAll(values);
 		values = columnMap;
@@ -453,9 +453,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public void delete(byte[] rowKey, Set<byte[]> columns) throws StorageException {
+	ColumnMap columnMap = get(rowKey);
 	writeLock.lock();
 	try {
-	    ColumnMap columnMap = get(rowKey);
 	    if (columnMap != null) {
 		for (byte[] columnKey : columns) {
 		    columnMap.remove(columnKey);
@@ -497,9 +497,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
 	    throws StorageException {
+	ColumnMap columnMap = get(rowKey);
 	writeLock.lock();
 	try {
-	    ColumnMap columnMap = get(rowKey);
 	    long result = startValue;
 	    if (columnMap != null) {
 		ColumnValue oldValueBytes = columnMap.get(column);

@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -272,13 +274,15 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
     }
 
     @Test
-    public void shouldExecuteWithCompetingThreads() {
+    public void shouldExecuteWithCompetingThreads() throws InterruptedException {
 	int totalThreads = 250;
 	final AtomicInteger vertices = new AtomicInteger(0);
 	final AtomicInteger edges = new AtomicInteger(0);
 	final AtomicInteger completedThreads = new AtomicInteger(0);
+
+	ForkJoinPool forkJoinPool = new ForkJoinPool();
 	for (int i = 0; i < totalThreads; i++) {
-	    new Thread() {
+	    Thread thread = new Thread() {
 		@Override
 		public void run() {
 		    final Random random = new Random();
@@ -288,10 +292,10 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 			final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
 
 			vertices.getAndAdd(2);
+			edges.getAndAdd(1);
 			a.setProperty("test", this.getId());
 			b.setProperty("blah", random.nextDouble());
 			e.setProperty("bloop", random.nextInt());
-			edges.getAndAdd(1);
 			graph.commit();
 		    } else {
 			final DuctileDBVertex a = graph.addVertex();
@@ -312,13 +316,13 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 		    }
 		    completedThreads.getAndAdd(1);
 		}
-	    }.start();
+	    };
+	    forkJoinPool.submit(thread);
 	}
+	forkJoinPool.shutdown();
+	forkJoinPool.awaitTermination(60, TimeUnit.SECONDS);
 
-	while (completedThreads.get() < totalThreads) {
-	}
-
-	assertEquals(completedThreads.get(), 250);
+	assertEquals(totalThreads, completedThreads.get());
 	assertVertexEdgeCounts(vertices.get(), edges.get());
     }
 
