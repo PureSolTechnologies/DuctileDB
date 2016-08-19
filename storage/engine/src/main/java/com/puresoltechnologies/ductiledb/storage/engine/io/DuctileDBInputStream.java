@@ -26,6 +26,9 @@ public class DuctileDBInputStream implements Closeable {
 
     public long skip(long n) throws IOException {
 	long skipped = stream.skip(n);
+	while (skipped < n) {
+	    skipped += stream.skip(n - skipped);
+	}
 	offset += skipped;
 	return skipped;
     }

@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 /**
  * This class is used to keep the data of a single column family row.
@@ -52,4 +53,10 @@ public final class ColumnFamilyRow {
 	return columnMap;
     }
 
+    @Override
+    public String toString() {
+	// TODO Auto-generated method stub
+	return Bytes.toHumanReadableString(rowKey.getKey()) + " " + (wasDeleted() ? "(deleted)" : "") + ":\n"
+		+ columnMap.toString();
+    }
 }

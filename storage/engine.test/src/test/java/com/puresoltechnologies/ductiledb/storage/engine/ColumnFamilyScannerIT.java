@@ -285,4 +285,66 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	}
     }
 
+    @Test
+    public void testRowDeleteWithScanner() throws SchemaException, StorageException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRowDeleteWithScanner",
+		"testcf")) {
+	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	    // Check behavior of empty Memtable
+	    byte[] rowKey1 = Bytes.toBytes(1l);
+	    ColumnMap entry1 = columnFamilyEngine.get(rowKey1);
+	    assertTrue(entry1.isEmpty());
+
+	    byte[] rowKey2 = Bytes.toBytes(2l);
+	    ColumnMap entry2 = columnFamilyEngine.get(rowKey2);
+	    assertTrue(entry2.isEmpty());
+
+	    byte[] rowKey3 = Bytes.toBytes(3l);
+	    ColumnMap entry3 = columnFamilyEngine.get(rowKey3);
+	    assertTrue(entry3.isEmpty());
+
+	    // Check put
+	    ColumnMap columns = new ColumnMap();
+	    columns.put(Bytes.toBytes(10l), Bytes.toBytes(100l));
+	    columnFamilyEngine.put(rowKey1, columns);
+
+	    ColumnMap columns2 = new ColumnMap();
+	    columns2.put(Bytes.toBytes(20l), Bytes.toBytes(200l));
+	    columnFamilyEngine.put(rowKey2, columns2);
+
+	    ColumnMap columns3 = new ColumnMap();
+	    columns3.put(Bytes.toBytes(30l), Bytes.toBytes(300l));
+	    columnFamilyEngine.put(rowKey3, columns3);
+
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+	    assertEquals(Bytes.toLong(rowKey1), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(Bytes.toLong(rowKey2), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(Bytes.toLong(rowKey3), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertFalse(scanner.hasNext());
+
+	    // Check put with column extension
+	    columnFamilyEngine.delete(rowKey2);
+
+	    scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+	    assertEquals(Bytes.toLong(rowKey1), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(Bytes.toLong(rowKey3), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertFalse(scanner.hasNext());
+
+	    // Check after compaction
+	    columnFamilyEngine.runCompaction();
+
+	    scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertTrue(scanner.hasNext());
+	    assertEquals(Bytes.toLong(rowKey1), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(Bytes.toLong(rowKey3), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertFalse(scanner.hasNext());
+	}
+    }
+
 }

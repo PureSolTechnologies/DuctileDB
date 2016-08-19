@@ -61,4 +61,8 @@ public abstract class FileReader<Stream extends DuctileDBInputStream> implements
 	return stream.read(buffer);
     }
 
+    @Override
+    public String toString() {
+	return file.toString() + " (position: " + getOffset() + ")";
+    }
 }

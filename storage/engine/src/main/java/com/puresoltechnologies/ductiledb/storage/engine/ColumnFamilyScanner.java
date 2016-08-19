@@ -156,7 +156,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 		    }
 		}
 	    }
-	} while ((nextRow != null) && (nextRow.wasDeleted()));
+	} while ((minimum != null) && ((nextRow == null) || ((nextRow != null) && (nextRow.wasDeleted()))));
     }
 
     private void readNextEntryFromIndexEntry(IndexEntry minimum) {
@@ -171,6 +171,7 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
 	}
 	if (fileReader != null) {
 	    try {
+		fileReader.goToOffset(minimum.getOffset());
 		ColumnFamilyRow row = fileReader.getRow(minimum);
 		if (!row.wasDeleted()) {
 		    nextRow = row;

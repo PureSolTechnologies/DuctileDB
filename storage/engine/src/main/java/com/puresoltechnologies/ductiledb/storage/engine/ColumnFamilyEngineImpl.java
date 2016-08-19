@@ -104,6 +104,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     });
 
+    private final Object commitLogLock = new Object();
+
     private long maxCommitLogSize;
     private long maxDataFileSize;
     private boolean runCompactions = true;
@@ -240,11 +242,13 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	logger.info("Closing column family engine '" + toString() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	if (commitLogStream != null) {
-	    try {
-		commitLogStream.close();
-	    } catch (IOException e) {
-		logger.warn("Could not cleanly close commit log.", e);
+	synchronized (commitLogLock) {
+	    if (commitLogStream != null) {
+		try {
+		    commitLogStream.close();
+		} catch (IOException e) {
+		    logger.warn("Could not cleanly close commit log.", e);
+		}
 	    }
 	}
 	compactionExecutor.shutdown();
@@ -275,14 +279,16 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private void rolloverCommitLog() throws StorageException {
 	try {
 	    logger.info("Roll over " + commitLogFile.getName() + " with " + maxCommitLogSize + " bytes.");
-	    if (commitLogStream.getOffset() == 0) {
-		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
-		return;
+	    synchronized (commitLogLock) {
+		if (commitLogStream.getOffset() == 0) {
+		    logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
+		    return;
+		}
+		File commitLogFileSave = this.commitLogFile;
+		createIndexFile();
+		createEmptyCommitLog();
+		runCompaction(commitLogFileSave);
 	    }
-	    File commitLogFileSave = this.commitLogFile;
-	    createIndexFile();
-	    createEmptyCommitLog();
-	    runCompaction(commitLogFileSave);
 	} catch (IOException e) {
 	    throw new StorageException("Could not rollover " + commitLogFile.getName(), e);
 	}
@@ -306,14 +312,16 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void createEmptyCommitLog() throws StorageException {
 	try {
-	    if (commitLogStream != null) {
-		commitLogStream.close();
-		commitLogStream = null;
+	    synchronized (commitLogLock) {
+		if (commitLogStream != null) {
+		    commitLogStream.close();
+		    commitLogStream = null;
+		}
+		memtable.clear();
+		commitLogFile = new File(columnFamilyDescriptor.getDirectory(),
+			createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
+		commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
 	    }
-	    memtable.clear();
-	    commitLogFile = new File(columnFamilyDescriptor.getDirectory(),
-		    createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
-	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create empty " + commitLogFile.getName() + ".", e);
 	}
@@ -513,12 +521,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void writeCommitLog(RowKey rowKey, Instant tombstone, ColumnMap values) throws StorageException {
 	try {
-	    long offset = commitLogStream.getOffset();
-	    commitLogStream.writeRow(rowKey, tombstone, values);
-	    commitLogStream.flush();
-	    memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
-	    if (commitLogStream.getOffset() >= maxCommitLogSize) {
-		rolloverCommitLog();
+	    synchronized (commitLogLock) {
+		long offset = commitLogStream.getOffset();
+		commitLogStream.writeRow(rowKey, tombstone, values);
+		commitLogStream.flush();
+		memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
+		if (commitLogStream.getOffset() >= maxCommitLogSize) {
+		    rolloverCommitLog();
+		}
 	    }
 	} catch (IOException e) {
 	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);

@@ -27,11 +27,12 @@ public class DataInputStream extends DuctileDBInputStream {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	}
 	int length = Bytes.toInt(buffer);
-	byte[] rowKey = new byte[length];
-	len = read(rowKey);
+	byte[] rowKeyBytes = new byte[length];
+	len = read(rowKeyBytes);
 	if (len < length) {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	}
+	RowKey rowKey = new RowKey(rowKeyBytes);
 	// Read tombstone
 	len = read(buffer, 0, 12);
 	if (len < 12) {
@@ -80,7 +81,7 @@ public class DataInputStream extends DuctileDBInputStream {
 	    }
 	    columns.put(columnKey, new ColumnValue(columnValue, columnTombstone));
 	}
-	return new ColumnFamilyRow(new RowKey(rowKey), columns, tombstone);
+	return new ColumnFamilyRow(rowKey, columns, tombstone);
     }
 
 }

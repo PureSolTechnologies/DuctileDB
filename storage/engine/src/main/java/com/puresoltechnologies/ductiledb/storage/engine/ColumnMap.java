@@ -34,7 +34,11 @@ public final class ColumnMap implements NavigableMap<byte[], ColumnValue> {
 	for (java.util.Map.Entry<byte[], ColumnValue> entry : values.entrySet()) {
 	    buffer.append(Bytes.toHumanReadableString(entry.getKey()));
 	    buffer.append("=");
-	    buffer.append(Bytes.toHumanReadableString(entry.getValue().getValue()));
+	    ColumnValue value = entry.getValue();
+	    buffer.append(Bytes.toHumanReadableString(value.getValue()));
+	    if (value.wasDeleted()) {
+		buffer.append(" (deleted)");
+	    }
 	    buffer.append("\n");
 	}
 	return buffer.toString();

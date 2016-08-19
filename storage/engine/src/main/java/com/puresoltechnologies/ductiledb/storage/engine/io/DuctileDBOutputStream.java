@@ -35,14 +35,12 @@ public class DuctileDBOutputStream implements Closeable {
 	} catch (NoSuchAlgorithmException e) {
 	    throw new IOException("Could not initialize DuctileDBOutputStream.", e);
 	}
-
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
 	flush();
 	digest = stream.getMessageDigest();
-
 	stream.close();
     }
 
@@ -54,7 +52,7 @@ public class DuctileDBOutputStream implements Closeable {
 	return Bytes.toHexString(digest.digest());
     }
 
-    public long getOffset() {
+    public synchronized long getOffset() {
 	return offset;
     }
 
@@ -72,7 +70,7 @@ public class DuctileDBOutputStream implements Closeable {
 	offset += bytes.length;
     }
 
-    public synchronized void write(Instant instant) throws IOException {
+    public void write(Instant instant) throws IOException {
 	writeData(Bytes.toBytes(instant));
     }
 
