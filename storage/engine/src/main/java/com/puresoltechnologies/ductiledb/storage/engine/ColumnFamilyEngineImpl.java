@@ -13,9 +13,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,11 +104,13 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     });
 
-    private final Object commitLogLock = new Object();
-
     private long maxCommitLogSize;
     private long maxDataFileSize;
     private boolean runCompactions = true;
+
+    private final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock(true);
+    private final ReadLock readLock = reentrantReadWriteLock.readLock();
+    private final WriteLock writeLock = reentrantReadWriteLock.writeLock();
 
     private final Memtable memtable = new Memtable();
     private final Storage storage;
@@ -118,10 +120,6 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private final int bufferSize;
     private final int maxGenerations;
     private DataFileSet dataSet = null;
-
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private final Lock readLock = readWriteLock.readLock();
-    private final Lock writeLock = readWriteLock.writeLock();
 
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
@@ -242,13 +240,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	logger.info("Closing column family engine '" + toString() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	synchronized (commitLogLock) {
-	    if (commitLogStream != null) {
-		try {
-		    commitLogStream.close();
-		} catch (IOException e) {
-		    logger.warn("Could not cleanly close commit log.", e);
-		}
+	if (commitLogStream != null) {
+	    try {
+		commitLogStream.close();
+	    } catch (IOException e) {
+		logger.warn("Could not cleanly close commit log.", e);
 	    }
 	}
 	compactionExecutor.shutdown();
@@ -263,9 +259,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public void put(byte[] rowKey, ColumnMap values) throws StorageException {
-	ColumnMap columnMap = get(rowKey);
 	writeLock.lock();
 	try {
+	    ColumnMap columnMap = get(rowKey);
 	    if (columnMap != null) {
 		columnMap.putAll(values);
 		values = columnMap;
@@ -279,16 +275,15 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private void rolloverCommitLog() throws StorageException {
 	try {
 	    logger.info("Roll over " + commitLogFile.getName() + " with " + maxCommitLogSize + " bytes.");
-	    synchronized (commitLogLock) {
-		if (commitLogStream.getOffset() == 0) {
-		    logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
-		    return;
-		}
-		File commitLogFileSave = this.commitLogFile;
-		createIndexFile();
-		createEmptyCommitLog();
-		runCompaction(commitLogFileSave);
+	    if (commitLogStream.getOffset() == 0) {
+		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
+		return;
 	    }
+	    File commitLogFileSave;
+	    commitLogFileSave = this.commitLogFile;
+	    createIndexFile();
+	    createEmptyCommitLog();
+	    runCompaction(commitLogFileSave);
 	} catch (IOException e) {
 	    throw new StorageException("Could not rollover " + commitLogFile.getName(), e);
 	}
@@ -312,36 +307,31 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void createEmptyCommitLog() throws StorageException {
 	try {
-	    synchronized (commitLogLock) {
-		if (commitLogStream != null) {
-		    commitLogStream.close();
-		    commitLogStream = null;
-		}
-		memtable.clear();
-		commitLogFile = new File(columnFamilyDescriptor.getDirectory(),
-			createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
-		commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
+	    if (commitLogStream != null) {
+		commitLogStream.close();
+		commitLogStream = null;
 	    }
+	    memtable.clear();
+	    commitLogFile = new File(columnFamilyDescriptor.getDirectory(),
+		    createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
+	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create empty " + commitLogFile.getName() + ".", e);
 	}
     }
 
     public void runCompaction() {
-	writeLock.lock();
+	for (File commitLog : getCurrentCommitLogs()) {
+	    runCompaction(commitLog);
+	}
 	try {
-	    for (File commitLog : getCurrentCommitLogs()) {
-		runCompaction(commitLog);
-	    }
 	    rolloverCommitLog();
-	} catch (StorageException | IOException e) {
+	} catch (StorageException e) {
 	    logger.warn("Could not run compaction", e);
-	} finally {
-	    writeLock.unlock();
 	}
     }
 
-    private void runCompaction(File commitLogFile) throws StorageException, IOException {
+    private void runCompaction(File commitLogFile) {
 	if (runCompactions) {
 	    compactionExecutor.submit(new Runnable() {
 		@Override
@@ -362,11 +352,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public ColumnMap get(byte[] rowKey) throws StorageException {
+	RowKey rowKey2 = new RowKey(rowKey);
+	ColumnFamilyRow row;
 	readLock.lock();
 	try {
-	    RowKey rowKey2 = new RowKey(rowKey);
 	    IndexEntry indexEntry = memtable.get(rowKey2);
-	    ColumnFamilyRow row;
 	    if (indexEntry != null) {
 		long offset = indexEntry.getOffset();
 		try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
@@ -382,13 +372,13 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    }
 	    row = readFromCommitLogs(rowKey2);
 	    if (row != null) {
-		return row.getColumnMap();
+		return row.wasDeleted() ? new ColumnMap() : row.getColumnMap();
 	    }
 	    row = readFromDataFiles(rowKey2);
-	    return row != null ? row.getColumnMap() : new ColumnMap();
 	} finally {
 	    readLock.unlock();
 	}
+	return row != null ? row.getColumnMap() : new ColumnMap();
     }
 
     private ColumnFamilyRow readFromDataFiles(RowKey rowKey) throws StorageException {
@@ -444,8 +434,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     public void delete(byte[] rowKey) throws StorageException {
 	writeLock.lock();
 	try {
-	    RowKey rowKey2 = new RowKey(rowKey);
-	    writeCommitLog(rowKey2, Instant.now(), new ColumnMap());
+	    writeCommitLog(new RowKey(rowKey), Instant.now(), new ColumnMap());
 	} finally {
 	    writeLock.unlock();
 	}
@@ -453,9 +442,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public void delete(byte[] rowKey, Set<byte[]> columns) throws StorageException {
-	ColumnMap columnMap = get(rowKey);
 	writeLock.lock();
 	try {
+	    ColumnMap columnMap = get(rowKey);
 	    if (columnMap != null) {
 		for (byte[] columnKey : columns) {
 		    columnMap.remove(columnKey);
@@ -473,19 +462,23 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException {
-	readLock.lock();
 	try {
 	    Memtable memtableCopy = new Memtable();
-	    memtable.forEach(entry -> memtableCopy.put(entry));
-	    List<File> currentCommitLogs = getCurrentCommitLogs();
-	    DataFileSet dataFiles = new DataFileSet(storage, columnFamilyDescriptor);
+	    List<File> currentCommitLogs;
+	    DataFileSet dataFiles;
+	    readLock.lock();
+	    try {
+		currentCommitLogs = getCurrentCommitLogs();
+		dataFiles = new DataFileSet(storage, columnFamilyDescriptor);
+		memtable.forEach(entry -> memtableCopy.put(entry));
+	    } finally {
+		readLock.unlock();
+	    }
 	    return new ColumnFamilyScanner(storage, memtableCopy, currentCommitLogs, dataFiles,
 		    startRowKey != null ? new RowKey(startRowKey) : null,
 		    endRowKey != null ? new RowKey(endRowKey) : null);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
-	} finally {
-	    readLock.lock();
 	}
     }
 
@@ -497,9 +490,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
 	    throws StorageException {
-	ColumnMap columnMap = get(rowKey);
 	writeLock.lock();
 	try {
+	    ColumnMap columnMap = get(rowKey);
 	    long result = startValue;
 	    if (columnMap != null) {
 		ColumnValue oldValueBytes = columnMap.get(column);
@@ -521,14 +514,12 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void writeCommitLog(RowKey rowKey, Instant tombstone, ColumnMap values) throws StorageException {
 	try {
-	    synchronized (commitLogLock) {
-		long offset = commitLogStream.getOffset();
-		commitLogStream.writeRow(rowKey, tombstone, values);
-		commitLogStream.flush();
-		memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
-		if (commitLogStream.getOffset() >= maxCommitLogSize) {
-		    rolloverCommitLog();
-		}
+	    long offset = commitLogStream.getOffset();
+	    commitLogStream.writeRow(rowKey, tombstone, values);
+	    commitLogStream.flush();
+	    memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
+	    if (commitLogStream.getOffset() >= maxCommitLogSize) {
+		rolloverCommitLog();
 	    }
 	} catch (IOException e) {
 	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);

@@ -285,36 +285,40 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	    Thread thread = new Thread() {
 		@Override
 		public void run() {
-		    final Random random = new Random();
-		    if (random.nextBoolean()) {
-			final DuctileDBVertex a = graph.addVertex();
-			final DuctileDBVertex b = graph.addVertex();
-			final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
-
-			vertices.getAndAdd(2);
-			edges.getAndAdd(1);
-			a.setProperty("test", this.getId());
-			b.setProperty("blah", random.nextDouble());
-			e.setProperty("bloop", random.nextInt());
-			graph.commit();
-		    } else {
-			final DuctileDBVertex a = graph.addVertex();
-			final DuctileDBVertex b = graph.addVertex();
-			final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
-
-			a.setProperty("test", this.getId());
-			b.setProperty("blah", random.nextDouble());
-			e.setProperty("bloop", random.nextInt());
-
+		    try {
+			final Random random = new Random();
 			if (random.nextBoolean()) {
-			    graph.commit();
+			    final DuctileDBVertex a = graph.addVertex();
+			    final DuctileDBVertex b = graph.addVertex();
+			    final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
+
 			    vertices.getAndAdd(2);
 			    edges.getAndAdd(1);
+			    a.setProperty("test", this.getId());
+			    b.setProperty("blah", random.nextDouble());
+			    e.setProperty("bloop", random.nextInt());
+			    graph.commit();
 			} else {
-			    graph.rollback();
+			    final DuctileDBVertex a = graph.addVertex();
+			    final DuctileDBVertex b = graph.addVertex();
+			    final DuctileDBEdge e = a.addEdge("friend", b, Collections.emptyMap());
+
+			    a.setProperty("test", this.getId());
+			    b.setProperty("blah", random.nextDouble());
+			    e.setProperty("bloop", random.nextInt());
+
+			    if (random.nextBoolean()) {
+				graph.commit();
+				vertices.getAndAdd(2);
+				edges.getAndAdd(1);
+			    } else {
+				graph.rollback();
+			    }
 			}
+			completedThreads.getAndAdd(1);
+		    } catch (Exception e) {
+			e.printStackTrace();
 		    }
-		    completedThreads.getAndAdd(1);
 		}
 	    };
 	    forkJoinPool.submit(thread);
