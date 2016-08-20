@@ -14,13 +14,9 @@ import java.util.Properties;
 import com.buschmais.xo.api.ConcurrencyMode;
 import com.buschmais.xo.api.Transaction;
 import com.buschmais.xo.api.ValidationMode;
-import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.impl.bootstrap.XOUnitFactory;
-import com.google.protobuf.ServiceException;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
-import com.puresoltechnologies.ductiledb.core.graph.StarWarsGraph;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider;
 
 /**
@@ -32,20 +28,16 @@ import com.puresoltechnologies.ductiledb.xo.api.DuctileXOProvider;
  */
 public class DuctileDBTestUtils {
 
-    private static final String XO_CONFIGURATION_RESOURCE = "/META-INF/xo.xml";
-
-    /**
-     * This is the default local URI for testing.
-     */
     private static final URI DEFAULT_LOCAL_URI;
-
     static {
 	try {
-	    DEFAULT_LOCAL_URI = new URI("ductiledb:/opt/hbase/conf/hbase-site.xml");
+	    DEFAULT_LOCAL_URI = AbstractDuctileDBTest.DEFAULT_TEST_CONFIG_URL.toURI();
 	} catch (URISyntaxException e) {
-	    throw new RuntimeException(e);
+	    throw new IllegalStateException(e);
 	}
     }
+
+    private static final String XO_CONFIGURATION_RESOURCE = "/META-INF/xo.xml";
 
     public static Collection<XOUnit[]> configuredXOUnits() throws IOException {
 	List<XOUnit[]> xoUnits = new ArrayList<>();
@@ -58,18 +50,18 @@ public class DuctileDBTestUtils {
     }
 
     public static Collection<XOUnit[]> xoUnits() {
-	return xoUnits(Arrays.asList(DEFAULT_LOCAL_URI), Collections.<Class<?>> emptyList(),
-		Collections.<Class<?>> emptyList(), ValidationMode.AUTO, ConcurrencyMode.SINGLETHREADED,
+	return xoUnits(Arrays.asList(DEFAULT_LOCAL_URI), Collections.<Class<?>>emptyList(),
+		Collections.<Class<?>>emptyList(), ValidationMode.AUTO, ConcurrencyMode.SINGLETHREADED,
 		Transaction.TransactionAttribute.MANDATORY);
     }
 
     public static Collection<XOUnit[]> xoUnits(Class<?>... types) {
-	return xoUnits(Arrays.asList(DEFAULT_LOCAL_URI), Arrays.asList(types), Collections.<Class<?>> emptyList(),
+	return xoUnits(Arrays.asList(DEFAULT_LOCAL_URI), Arrays.asList(types), Collections.<Class<?>>emptyList(),
 		ValidationMode.AUTO, ConcurrencyMode.SINGLETHREADED, Transaction.TransactionAttribute.MANDATORY);
     }
 
     public static Collection<XOUnit[]> xoUnits(List<URI> uris, List<? extends Class<?>> types) {
-	return xoUnits(uris, types, Collections.<Class<?>> emptyList(), ValidationMode.AUTO,
+	return xoUnits(uris, types, Collections.<Class<?>>emptyList(), ValidationMode.AUTO,
 		ConcurrencyMode.SINGLETHREADED, Transaction.TransactionAttribute.MANDATORY);
     }
 
@@ -92,21 +84,4 @@ public class DuctileDBTestUtils {
 	return xoUnits;
     }
 
-    /**
-     * This method adds the Starwars characters data into the DuctileDB database
-     * for testing purposes.
-     * 
-     * @param xoManager
-     *            is the {@link XOManager} to be used.
-     * @throws IOException
-     *             is thrown in case of IO issues.
-     * @throws ServiceException
-     *             is thrown in case HBase is not ready.
-     */
-    public static void addStarwarsData(XOManager xoManager) throws IOException, ServiceException {
-	try (DuctileDBGraph graph = DuctileDBGraphFactory.createGraph("localhost",
-		DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT, "localhost", DuctileDBGraphFactory.DEFAULT_MASTER_PORT)) {
-	    StarWarsGraph.addStarWarsFiguresData(graph);
-	}
-    }
 }

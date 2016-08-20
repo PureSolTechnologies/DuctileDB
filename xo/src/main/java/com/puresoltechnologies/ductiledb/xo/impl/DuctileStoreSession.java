@@ -2,9 +2,9 @@ package com.puresoltechnologies.ductiledb.xo.impl;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.sql.Connection;
 
 import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.hadoop.hbase.client.Connection;
 
 import com.buschmais.xo.spi.datastore.DatastoreEntityManager;
 import com.buschmais.xo.spi.datastore.DatastoreQuery;
@@ -49,8 +49,8 @@ public class DuctileStoreSession implements
      * @throws IOException
      *             is thrown in case of IO issues.
      */
-    public DuctileStoreSession(Connection connection, BaseConfiguration configuration) throws IOException {
-	this.graph = DuctileGraphFactory.createGraph(connection, configuration);
+    public DuctileStoreSession(DuctileDBGraph baseGraph, BaseConfiguration configuration) throws IOException {
+	this.graph = DuctileGraphFactory.createGraph(baseGraph, configuration);
 	this.transaction = new DuctileStoreTransaction(graph);
 	this.vertexManager = new DucileStoreVertexManager(graph);
 	this.edgeManager = new DucileStoreEdgeManager(graph);

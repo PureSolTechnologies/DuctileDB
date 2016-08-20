@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,6 +20,8 @@ import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class AbstractDuctileDBTest {
+
+    public static final URL DEFAULT_TEST_CONFIG_URL = AbstractDuctileDBTest.class.getResource("/ductiledb-test.yml");
 
     private static DuctileDBConfiguration configuration = null;
     private static DuctileDB ductileDB = null;
@@ -38,12 +41,12 @@ public class AbstractDuctileDBTest {
     public static void initializeDuctileDB() throws StorageException, SchemaException, IOException {
 	configuration = readTestConfigration();
 	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
-	cleanTestStorageDirectory();
+	cleanTestStorageDirectory(storage);
 	ductileDB = createDuctileDB();
 	assertNotNull("DuctileDB is null.", ductileDB);
     }
 
-    private static void cleanTestStorageDirectory() throws FileNotFoundException, IOException {
+    public static void cleanTestStorageDirectory(Storage storage) throws FileNotFoundException, IOException {
 	for (File file : storage.list(new File("/"))) {
 	    FileStatus fileStatus = storage.getFileStatus(file);
 	    if (fileStatus.isDirectory()) {
@@ -56,7 +59,7 @@ public class AbstractDuctileDBTest {
 
     public static DuctileDBConfiguration readTestConfigration() throws IOException {
 	Yaml yaml = new Yaml();
-	try (InputStream inputStream = AbstractDuctileDBTest.class.getResourceAsStream("/ductiledb-test.yml")) {
+	try (InputStream inputStream = DEFAULT_TEST_CONFIG_URL.openStream()) {
 	    return yaml.loadAs(inputStream, DuctileDBConfiguration.class);
 	}
     }

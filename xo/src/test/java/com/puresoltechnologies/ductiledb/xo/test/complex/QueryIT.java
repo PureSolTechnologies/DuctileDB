@@ -17,7 +17,7 @@ import com.buschmais.xo.api.Query.Result;
 import com.buschmais.xo.api.ResultIterable;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.google.protobuf.ServiceException;
+import com.puresoltechnologies.ductiledb.core.graph.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 import com.puresoltechnologies.ductiledb.xo.test.data.Person;
@@ -35,8 +35,8 @@ public class QueryIT extends AbstractXODuctileDBTest {
     }
 
     @Before
-    public void setupData() throws IOException, ServiceException {
-	DuctileDBTestUtils.addStarwarsData(getXOManager());
+    public void setupData() throws IOException {
+	StarWarsGraph.addStarWarsFiguresData(getGraph());
     }
 
     @Test

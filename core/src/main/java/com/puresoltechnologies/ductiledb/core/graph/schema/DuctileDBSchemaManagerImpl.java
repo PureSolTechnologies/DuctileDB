@@ -5,9 +5,6 @@ import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBSchemaManagerException;
@@ -34,25 +31,24 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(DuctileDBSchemaManagerImpl.class);
-
     private final DuctileDBGraphImpl graph;
-    private final NamespaceDescriptor namespace;
+    private final String namespace;
+    private final NamespaceDescriptor namespaceDescriptor;
     private final TableDescriptor propertyDefinitionsTable;
 
     public DuctileDBSchemaManagerImpl(DuctileDBGraphImpl graph) {
 	super();
 	this.graph = graph;
+	this.namespace = graph.getConfiguration().getNamespace();
 	DatabaseEngine storageEngine = graph.getStorageEngine();
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	namespace = schemaManager.getNamespace(GraphSchema.DUCTILEDB_NAMESPACE);
-	propertyDefinitionsTable = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	namespaceDescriptor = schemaManager.getNamespace(namespace);
+	propertyDefinitionsTable = namespaceDescriptor.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
     }
 
     @Override
     public Iterable<String> getDefinedProperties() {
-	Table table = graph.getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	Table table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> propertyNames = new HashSet<>();
 	scanner.forEach((result) -> propertyNames.add(Bytes.toString(result.getRowKey())));
@@ -68,8 +64,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    throw new DuctileDBPropertyAlreadyDefinedException(definition);
 	}
 
-	Table table = graph.getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	Table table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	Put put = new Put(Bytes.toBytes(definition.getPropertyKey()));
 	switch (definition.getElementType()) {
 	case VERTEX:
@@ -104,8 +99,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(ElementType elementType,
 	    String propertyKey) {
 	try {
-	    Table table = graph.getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		    DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	    Table table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	    Get get = new Get(Bytes.toBytes(propertyKey));
 	    byte[] columnFamily = null;
 	    switch (elementType) {
@@ -143,8 +137,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public void removePropertyDefinition(ElementType elementType, String propertyKey) {
-	Table table = graph.getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	Table table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	Delete delete = new Delete(Bytes.toBytes(propertyKey));
 	switch (elementType) {
 	case VERTEX:
@@ -167,8 +160,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Iterable<String> getDefinedTypes() {
-	Table table = graph.getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		DatabaseTable.TYPE_DEFINITIONS.getName());
+	Table table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> typeNames = new HashSet<>();
 	scanner.forEach((result) -> typeNames.add(Bytes.toString(result.getRowKey())));
@@ -196,7 +188,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    }
 	}
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.TYPE_DEFINITIONS.getName());
+	Table table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	Put put = new Put(Bytes.toBytes(typeName));
 	switch (elementType) {
 	case VERTEX:
@@ -224,8 +216,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Set<String> getTypeDefinition(ElementType elementType, String typeName) {
-	Table table = graph.getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		DatabaseTable.TYPE_DEFINITIONS.getName());
+	Table table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	Get get = new Get(Bytes.toBytes(typeName));
 	byte[] columnFamily = null;
 	switch (elementType) {
@@ -262,7 +253,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     @Override
     public void removeTypeDefinition(ElementType elementType, String typeName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.TYPE_DEFINITIONS.getName());
+	Table table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	Delete delete = new Delete(Bytes.toBytes(typeName));
 	switch (elementType) {
 	case VERTEX:

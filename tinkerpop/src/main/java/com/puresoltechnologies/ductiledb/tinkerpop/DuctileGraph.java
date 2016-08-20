@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -8,8 +10,6 @@ import java.util.Set;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
-import org.apache.hadoop.hbase.MasterNotRunningException;
-import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
@@ -18,11 +18,13 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedGraph;
 
-import com.google.protobuf.ServiceException;
+import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.DuctileDBFactory;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
@@ -39,20 +41,13 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
 public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph> {
 
-    public static final String ZOOKEEPER_HOST_PROPERTY = DuctileDBGraphFactory.ZOOKEEPER_HOST_PROPERTY;
-    public static final String ZOOKEEPER_PORT_PROPERTY = DuctileDBGraphFactory.ZOOKEEPER_PORT_PROPERTY;
-    public static final String HBASE_MASTER_HOST_PROPERTY = DuctileDBGraphFactory.HBASE_MASTER_HOST_PROPERTY;
-    public static final String HBASE_MASTER_PORT_PROPERTY = DuctileDBGraphFactory.HBASE_MASTER_PORT_PROPERTY;
+    public static final String DUCTILEDB_CONFIG_FILE_PROPERTY = "ductiledb.configuration.file";
 
     public static DuctileGraph open(Configuration configuration)
-	    throws MasterNotRunningException, ZooKeeperConnectionException, ServiceException, IOException {
-	String zookeeperHost = configuration.getString("zookeeper.host");
-	int zookeeperPort = configuration.getInt("zookeeper.port");
-	String masterHost = configuration.getString("hbase.master.host");
-	int masterPort = configuration.getInt("hbase.master.port");
-	new DuctileDBGraphFactory();
-	DuctileDBGraph baseGraph = DuctileDBGraphFactory.createGraph(zookeeperHost, zookeeperPort, masterHost,
-		masterPort);
+	    throws FileNotFoundException, StorageException, SchemaException, IOException {
+	URL ductileDBConfigFile = new URL(configuration.getString(DUCTILEDB_CONFIG_FILE_PROPERTY));
+	DuctileDB ductileDB = DuctileDBFactory.connect(ductileDBConfigFile);
+	DuctileDBGraph baseGraph = ductileDB.getGraph();
 	return new DuctileGraph(baseGraph, configuration);
     }
 

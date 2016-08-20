@@ -11,7 +11,7 @@ public class DuctileDBConfigurationTest {
     @Test
     public void test() throws IOException {
 	Yaml yaml = new Yaml();
-	try (InputStream inputStream = getClass().getResourceAsStream("/ductiledb-test.yml")) {
+	try (InputStream inputStream = AbstractDuctileDBTest.DEFAULT_TEST_CONFIG_URL.openStream()) {
 	    yaml.loadAs(inputStream, DuctileDBConfiguration.class);
 	}
     }

@@ -4,6 +4,7 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 
 import org.apache.tinkerpop.gremlin.process.computer.MapReduce;
@@ -11,11 +12,7 @@ import org.apache.tinkerpop.gremlin.process.computer.VertexProgram;
 import org.apache.tinkerpop.gremlin.process.computer.util.MapReducePool;
 import org.apache.tinkerpop.gremlin.process.computer.util.VertexProgramPool;
 
-import io.netty.util.concurrent.DefaultThreadFactory;
-
 public class DuctileWorkerPool<R, M> implements AutoCloseable {
-
-    private static final DefaultThreadFactory THREAD_FACTORY_WORKER = new DefaultThreadFactory("ductile-worker-%d");
 
     private final int numberOfWorkers;
     private final ExecutorService workerPool;
@@ -26,7 +23,17 @@ public class DuctileWorkerPool<R, M> implements AutoCloseable {
 
     public DuctileWorkerPool(int numberOfWorkers) {
 	this.numberOfWorkers = numberOfWorkers;
-	workerPool = Executors.newFixedThreadPool(numberOfWorkers, THREAD_FACTORY_WORKER);
+	workerPool = Executors.newFixedThreadPool(numberOfWorkers, new ThreadFactory() {
+
+	    private long count = 1;
+
+	    @Override
+	    public Thread newThread(Runnable r) {
+		Thread thread = new Thread(r, "ductile-worker-" + count);
+		++count;
+		return thread;
+	    }
+	});
 	completionService = new ExecutorCompletionService<>(workerPool);
     }
 

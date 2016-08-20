@@ -13,7 +13,6 @@ import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
-import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
@@ -28,10 +27,12 @@ import com.puresoltechnologies.versioning.Version;
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     private final DuctileDBGraphImpl graph;
+    private final String namespace;
 
     public DuctileDBGraphManagerImpl(DuctileDBGraphImpl graph) {
 	super();
 	this.graph = graph;
+	this.namespace = graph.getConfiguration().getNamespace();
     }
 
     @Override
@@ -42,7 +43,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public Version getVersion() {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Result result;
 	try {
 	    result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getNameBytes()));
@@ -57,7 +58,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public Iterable<String> getVariableNames() {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Set<String> variableNames = new HashSet<>();
 	Result result;
 	try {
@@ -79,7 +80,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     public <T extends Serializable> void setVariable(String variableName, T value) {
 	try {
 	    DatabaseEngine storageEngine = graph.getStorageEngine();
-	    Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	    Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	    Put put = new Put(DatabaseColumnFamily.VARIABLES.getNameBytes());
 	    put.addColumn(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName),
 		    Serializer.serializePropertyValue(value));
@@ -93,7 +94,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public <T> T getVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Result result;
 	try {
 	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
@@ -114,7 +115,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public void removeVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getNameBytes());
 	delete.addColumns(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
 	try {

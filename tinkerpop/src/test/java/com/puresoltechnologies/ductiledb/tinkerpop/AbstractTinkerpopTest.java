@@ -12,12 +12,13 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
-public abstract class AbstractTinkerpopTest {
+public abstract class AbstractTinkerpopTest extends AbstractDuctileDBTest {
 
     private static DuctileGraph graph;
 
@@ -38,12 +39,8 @@ public abstract class AbstractTinkerpopTest {
     public static Map<String, String> createDefaultConfiguration() {
 	Map<String, String> configuration = new HashMap<>();
 	configuration.put(Graph.GRAPH, DuctileGraph.class.getName());
-	configuration.put(DuctileGraph.ZOOKEEPER_HOST_PROPERTY, "localhost");
-	configuration.put(DuctileGraph.ZOOKEEPER_PORT_PROPERTY,
-		String.valueOf(DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT));
-	configuration.put(DuctileGraph.HBASE_MASTER_HOST_PROPERTY, "localhost");
-	configuration.put(DuctileGraph.HBASE_MASTER_PORT_PROPERTY,
-		String.valueOf(DuctileDBGraphFactory.DEFAULT_MASTER_PORT));
+	configuration.put(DuctileGraph.DUCTILEDB_CONFIG_FILE_PROPERTY,
+		AbstractDuctileDBTest.DEFAULT_TEST_CONFIG_URL.toString());
 	return configuration;
     }
 
@@ -53,7 +50,7 @@ public abstract class AbstractTinkerpopTest {
     }
 
     @Before
-    public final void cleanup() throws IOException {
+    public final void cleanup() throws IOException, StorageException {
 	DuctileDBTestHelper.removeGraph(graph.getBaseGraph());
 	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph.getBaseGraph());
     }

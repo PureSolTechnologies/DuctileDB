@@ -32,7 +32,6 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchema;
-import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
@@ -76,6 +75,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     private final BlobStoreImpl blobStore;
     private final DuctileDBGraphImpl graph;
     private final TransactionType type;
+    private final String namespace;
     private final long threadId;
     private final DatabaseEngine storageEngine;
     private boolean closed = false;
@@ -86,6 +86,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	this.storageEngine = graph.getStorageEngine();
 	this.threadId = Thread.currentThread().getId();
 	this.type = type;
+	this.namespace = graph.getConfiguration().getNamespace();
     }
 
     public DuctileDBGraphImpl getGraph() {
@@ -99,6 +100,10 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 
     public final DatabaseEngine getStorageEngine() {
 	return storageEngine;
+    }
+
+    public final String getNamespace() {
+	return namespace;
     }
 
     @Override
@@ -242,31 +247,31 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     }
 
     Table openMetaDataTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.METADATA.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
     }
 
     Table openVertexTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.VERTICES.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.VERTICES.getName());
     }
 
     Table openEdgeTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.EDGES.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.EDGES.getName());
     }
 
     Table openVertexPropertyTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.VERTEX_PROPERTIES.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName());
     }
 
     Table openVertexTypesTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.VERTEX_TYPES.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
     }
 
     Table openEdgePropertyTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.EDGE_PROPERTIES.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName());
     }
 
     Table openEdgeTypesTable() throws IOException {
-	return storageEngine.getTable(GraphSchema.DUCTILEDB_NAMESPACE, DatabaseTable.EDGE_TYPES.getName());
+	return storageEngine.getTable(namespace, DatabaseTable.EDGE_TYPES.getName());
     }
 
     final long createVertexId() {

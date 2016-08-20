@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.graph.schema;
 
 import java.util.Arrays;
 
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
@@ -14,8 +15,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 public class GraphSchema {
-
-    public static final String DUCTILEDB_NAMESPACE = "ductiledb";
 
     public static final String PROPERTY_TYPE_COLUMN = "PropertyType";
     public static final byte[] PROPERTY_TYPE_COLUMN_BYTES = Bytes.toBytes(PROPERTY_TYPE_COLUMN);
@@ -33,10 +32,12 @@ public class GraphSchema {
     public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
 
     private final DatabaseEngine storageEngine;
+    private final String namespace;
 
-    public GraphSchema(DatabaseEngine storageEngine) {
+    public GraphSchema(DatabaseEngine storageEngine, DuctileDBGraphConfiguration configuration) {
 	super();
 	this.storageEngine = storageEngine;
+	this.namespace = configuration.getNamespace();
     }
 
     public void checkAndCreateEnvironment() throws SchemaException, StorageException {
@@ -56,11 +57,11 @@ public class GraphSchema {
 
     private NamespaceDescriptor assureNamespacePresence(SchemaManager schemaManager)
 	    throws SchemaException, StorageException {
-	NamespaceDescriptor namespace = schemaManager.getNamespace(DUCTILEDB_NAMESPACE);
-	if (namespace == null) {
-	    namespace = schemaManager.createNamespace(DUCTILEDB_NAMESPACE);
+	NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
+	if (namespaceDescriptor == null) {
+	    namespaceDescriptor = schemaManager.createNamespace(namespace);
 	}
-	return namespace;
+	return namespaceDescriptor;
     }
 
     private void assureMetaDataTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)

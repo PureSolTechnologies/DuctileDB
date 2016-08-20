@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
+import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
@@ -29,6 +29,7 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 	    for (DuctileDBEdge edge : ductileGraph.getEdges()) {
 		edge.remove();
 	    }
+	    ductileGraph.commit();
 	    for (DuctileDBVertex vertex : ductileGraph.getVertices()) {
 		vertex.remove();
 	    }
@@ -54,18 +55,10 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
     @Override
     public Map<String, Object> getBaseConfiguration(final String graphName, final Class<?> test,
 	    final String testMethodName, final LoadGraphWith.GraphData loadGraphWith) {
-	return getBaseConfiguration();
-    }
-
-    public Map<String, Object> getBaseConfiguration() {
 	HashMap<String, Object> baseConfiguration = new HashMap<>();
 	baseConfiguration.put(Graph.GRAPH, DuctileGraph.class.getName());
-	baseConfiguration.put(DuctileGraph.ZOOKEEPER_HOST_PROPERTY, "localhost");
-	baseConfiguration.put(DuctileGraph.ZOOKEEPER_PORT_PROPERTY,
-		String.valueOf(DuctileDBGraphFactory.DEFAULT_ZOOKEEPER_PORT));
-	baseConfiguration.put(DuctileGraph.HBASE_MASTER_HOST_PROPERTY, "localhost");
-	baseConfiguration.put(DuctileGraph.HBASE_MASTER_PORT_PROPERTY,
-		String.valueOf(DuctileDBGraphFactory.DEFAULT_MASTER_PORT));
+	baseConfiguration.put(DuctileGraph.DUCTILEDB_CONFIG_FILE_PROPERTY,
+		AbstractDuctileDBTest.DEFAULT_TEST_CONFIG_URL.toString());
 	return baseConfiguration;
     }
 

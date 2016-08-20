@@ -23,9 +23,7 @@ import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.XOManagerFactory;
 import com.buschmais.xo.api.bootstrap.XO;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreSession;
@@ -70,7 +68,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
     @BeforeClass
     public static void initialize() {
 	Collection<XOUnit[]> xoUnits = DuctileDBTestUtils.xoUnits(
-		Arrays.<Class<?>> asList(TreeNode.class, TreeNodeRelation.class), Collections.<Class<?>> emptyList(),
+		Arrays.<Class<?>>asList(TreeNode.class, TreeNodeRelation.class), Collections.<Class<?>>emptyList(),
 		ValidationMode.NONE, ConcurrencyMode.MULTITHREADED, Transaction.TransactionAttribute.MANDATORY);
 	assertThat(xoUnits, hasSize(1));
 	XOUnit[] xoUnit = xoUnits.iterator().next();
@@ -96,7 +94,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
     private final List<Measurement> nativeMeasurements = new ArrayList<>();
 
     @Test
-    public void test() throws IOException, ServiceException {
+    public void test() throws IOException {
 	for (int i = 0; i < NUMBER_OF_RUNS; i++) {
 	    runWithXO();
 	}
@@ -106,8 +104,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
 	printResults();
     }
 
-    public void runWithXO() throws IOException, ServiceException {
-	DuctileDBTestHelper.removeTables();
+    public void runWithXO() throws IOException {
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 
 	    long start = System.currentTimeMillis();
@@ -150,8 +147,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
 	return counter;
     }
 
-    public void runNative() throws IOException, ServiceException {
-	DuctileDBTestHelper.removeTables();
+    public void runNative() throws IOException {
 	try (XOManager xoManager = xoManagerFactory.createXOManager()) {
 	    DuctileStoreSession datastoreSession = xoManager.getDatastoreSession(DuctileStoreSession.class);
 	    DuctileGraph graph = datastoreSession.getGraph();
@@ -227,7 +223,7 @@ public class XOVsDuctileDBNativePerformanceIT extends AbstractDuctileDBGraphTest
 	System.out.println(MessageFormat.format("average speed={0,number,#.##} vertices/s", speedAvg));
     }
 
-    public static void main(String[] args) throws InterruptedException, IOException, ServiceException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 	Thread.sleep(3000);
 	initialize();
 	try {

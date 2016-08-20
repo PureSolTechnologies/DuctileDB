@@ -10,7 +10,6 @@ import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
-import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -57,8 +56,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
     @Override
     public void perform() throws IOException {
 	try {
-	    Table table = getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		    DatabaseTable.VERTICES.getName());
+	    Table table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(startVertexRowId));

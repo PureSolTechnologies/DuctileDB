@@ -1,12 +1,12 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Map;
 
 import org.apache.commons.configuration.BaseConfiguration;
-import org.apache.hadoop.hbase.client.Connection;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
@@ -17,14 +17,15 @@ import com.buschmais.xo.spi.datastore.Datastore;
 import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.method.IndexedPropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
-import com.google.protobuf.ServiceException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphFactory;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
+import com.puresoltechnologies.ductiledb.core.DuctileDBFactory;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
@@ -51,11 +52,11 @@ public class DuctileStore
     public static final String DEFAULT_DUCTILEDB_NAMESPACE = "ductiledb";
 
     /**
-     * This field contains the connection to HBase. This {@link Connection}
-     * object is thread-safe an can be reused for multiple session, because
-     * opening a connection is quite expensive.
+     * This field contains the {@link DuctileDBGraph}. This object is
+     * thread-safe an can be reused for multiple session, because opening a new
+     * graph is quite expensive.
      */
-    private Connection connection = null;
+    private DuctileDBGraph graph = null;
 
     /**
      * Contains the metadata factory for this XO implementation.
@@ -66,7 +67,7 @@ public class DuctileStore
      * This field contains the path to hbase-site.xml to connect to HBase client
      * for DuctileDB.
      */
-    private final File hbaseSitePath;
+    private final URL ductileDBConfigFile;
     /**
      * This is the name of the namespace to use for DuctileDB.
      */
@@ -75,21 +76,22 @@ public class DuctileStore
     /**
      * This is the initial value constructor.
      * 
-     * @param hbaseSitePath
+     * @param ductileDBConfigFile
      *            is the path to the HBase site file.
      * @param namespace
      *            is the name of the namespace to connect to.
+     * @throws IOException
      */
-    public DuctileStore(File hbaseSitePath, String namespace) {
-	if (hbaseSitePath == null) {
-	    throw new IllegalArgumentException("The host must not be null or empty.");
+    public DuctileStore(URL ductileDBConfigFile) throws IOException {
+	if (ductileDBConfigFile == null) {
+	    throw new IllegalArgumentException("The config file URL must not be null or empty.");
 	}
-	this.hbaseSitePath = hbaseSitePath;
-	if ((namespace == null) || (namespace.isEmpty())) {
-	    this.namespace = DEFAULT_DUCTILEDB_NAMESPACE;
-	} else {
-	    this.namespace = namespace;
+	this.ductileDBConfigFile = ductileDBConfigFile;
+	DuctileDBConfiguration configuration;
+	try (InputStream configStream = ductileDBConfigFile.openStream()) {
+	    configuration = DuctileDBFactory.readConfiguration(configStream);
 	}
+	this.namespace = configuration.getGraph().getNamespace();
     }
 
     /**
@@ -97,8 +99,8 @@ public class DuctileStore
      * 
      * @return A {@link String} with the host name is returned.
      */
-    public File getHBaseSitePath() {
-	return hbaseSitePath;
+    public URL getDuctileDBConfigFile() {
+	return ductileDBConfigFile;
     }
 
     /**
@@ -119,9 +121,9 @@ public class DuctileStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    connection = DuctileDBGraphFactory.createDatabaseEngine(hbaseSitePath);
+	    graph = DuctileDBFactory.connect(ductileDBConfigFile).getGraph();
 	    checkAndInitializePropertyIndizes(registeredMetadata);
-	} catch (IOException | ServiceException e) {
+	} catch (IOException | StorageException | SchemaException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
 	}
     }
@@ -153,17 +155,13 @@ public class DuctileStore
 
     private <T extends Serializable> void checkAndCreatePropertyIndex(String name, Class<T> dataType, ElementType type,
 	    boolean unique) {
-	try (DuctileDBGraph graph = new DuctileDBGraphImpl(connection)) {
-	    DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
-	    PropertyDefinition<T> propertyDefinition = schemaManager.getPropertyDefinition(type, name);
-	    if (propertyDefinition == null) {
-		logger.info("Create index for property '" + name + "'.");
-		propertyDefinition = new PropertyDefinition<>(type, name, dataType,
-			unique ? UniqueConstraint.TYPE : UniqueConstraint.NONE);
-		schemaManager.defineProperty(propertyDefinition);
-	    }
-	} catch (IOException e) {
-	    throw new XOException("Could not create property defintion.", e);
+	DuctileDBSchemaManager schemaManager = graph.createSchemaManager();
+	PropertyDefinition<T> propertyDefinition = schemaManager.getPropertyDefinition(type, name);
+	if (propertyDefinition == null) {
+	    logger.info("Create index for property '" + name + "'.");
+	    propertyDefinition = new PropertyDefinition<>(type, name, dataType,
+		    unique ? UniqueConstraint.TYPE : UniqueConstraint.NONE);
+	    schemaManager.defineProperty(propertyDefinition);
 	}
     }
 
@@ -172,7 +170,7 @@ public class DuctileStore
 	try {
 	    BaseConfiguration configuration = new BaseConfiguration();
 	    configuration.setProperty(Graph.GRAPH, DuctileGraph.class.getName());
-	    return new DuctileStoreSession(connection, configuration);
+	    return new DuctileStoreSession(graph, configuration);
 	} catch (IOException e) {
 	    throw new XOException("Could not create graph.", e);
 	}
@@ -181,13 +179,13 @@ public class DuctileStore
     @Override
     public void close() {
 	logger.info("Shutting down eXtended Objects for DuctileDB...");
-	if (connection != null) {
+	if (graph != null) {
 	    try {
-		connection.close();
+		graph.close();
 	    } catch (Exception e) {
 		throw new XOException("Could not close graph.", e);
 	    }
-	    connection = null;
+	    graph = null;
 	}
     }
 }

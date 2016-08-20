@@ -1,12 +1,12 @@
 package com.puresoltechnologies.ductiledb.xo.api;
 
+import java.io.IOException;
 import java.net.URI;
 
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.api.bootstrap.XOUnit;
 import com.buschmais.xo.spi.bootstrap.XODatastoreProvider;
 import com.buschmais.xo.spi.datastore.Datastore;
-import com.puresoltechnologies.ductiledb.xo.impl.DecodedURI;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileStore;
 import com.puresoltechnologies.ductiledb.xo.impl.DuctileStoreSession;
 import com.puresoltechnologies.ductiledb.xo.impl.metadata.DuctileEdgeMetadata;
@@ -30,7 +30,10 @@ public class DuctileXOProvider
 	if (uri == null) {
 	    throw new XOException("No URI is specified for the store.");
 	}
-	DecodedURI decodedURI = new DecodedURI(uri);
-	return new DuctileStore(decodedURI.getPath(), decodedURI.getNamespace());
+	try {
+	    return new DuctileStore(uri.toURL());
+	} catch (IOException e) {
+	    throw new XOException("Could not initialize store.", e);
+	}
     }
 }

@@ -11,7 +11,6 @@ import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
-import com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -63,8 +62,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	try {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    Table table = getStorageEngine().getTable(GraphSchema.DUCTILEDB_NAMESPACE,
-		    DatabaseTable.VERTICES.getName());
+	    Table table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");

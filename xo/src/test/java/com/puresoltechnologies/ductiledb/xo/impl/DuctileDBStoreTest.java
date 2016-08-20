@@ -1,11 +1,8 @@
 package com.puresoltechnologies.ductiledb.xo.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -26,14 +23,8 @@ public class DuctileDBStoreTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testNullHBaseSitePath() {
-	assertNotNull(new DuctileStore(null, "keyspace"));
+    public void testNullConfigFilePath() throws IOException {
+	assertNotNull(new DuctileStore(null));
     }
 
-    @Test
-    public void testEmptyNamespace() throws MalformedURLException {
-	try (DuctileStore store = new DuctileStore(new File("/opt/hbase/conf/hbase-site.xml"), "")) {
-	    assertThat(store.getKeyspace(), is(DuctileStore.DEFAULT_DUCTILEDB_NAMESPACE));
-	}
-    }
 }

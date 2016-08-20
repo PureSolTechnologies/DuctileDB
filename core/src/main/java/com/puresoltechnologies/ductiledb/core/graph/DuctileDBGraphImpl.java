@@ -40,23 +40,29 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private final GraphSchema hbaseSchema;
     private final DuctileDBSchema schema;
 
+    private final DuctileDBGraphConfiguration configuration;
     private final BlobStoreImpl blobStore;
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
 
-    public DuctileDBGraphImpl(BlobStoreImpl blobStore, DatabaseEngineImpl storageEngine)
-	    throws SchemaException, StorageException {
-	this(blobStore, storageEngine, false);
+    public DuctileDBGraphImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
+	    DatabaseEngineImpl storageEngine) throws SchemaException, StorageException {
+	this(configuration, blobStore, storageEngine, false);
     }
 
-    public DuctileDBGraphImpl(BlobStoreImpl blobStore, DatabaseEngineImpl storageEngine, boolean autoCloseConnection)
-	    throws SchemaException, StorageException {
+    public DuctileDBGraphImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
+	    DatabaseEngineImpl storageEngine, boolean autoCloseConnection) throws SchemaException, StorageException {
+	this.configuration = configuration;
 	this.blobStore = blobStore;
 	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
-	hbaseSchema = new GraphSchema(storageEngine);
+	hbaseSchema = new GraphSchema(storageEngine, configuration);
 	hbaseSchema.checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
+    }
+
+    public final DuctileDBGraphConfiguration getConfiguration() {
+	return configuration;
     }
 
     public final DatabaseEngineImpl getStorageEngine() {
@@ -70,12 +76,11 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     @Override
     public void close() throws IOException {
 	if (autoCloseConnection) {
-	    if (storageEngine.isClosed()) {
-		throw new IllegalStateException("Connection was already closed.");
+	    if (!storageEngine.isClosed()) {
+		logger.info("Closes connection '" + storageEngine.toString() + "'...");
+		storageEngine.close();
+		logger.info("Connection '" + storageEngine.toString() + "' closed.");
 	    }
-	    logger.info("Closes connection '" + storageEngine.toString() + "'...");
-	    storageEngine.close();
-	    logger.info("Connection '" + storageEngine.toString() + "' closed.");
 	}
     }
 

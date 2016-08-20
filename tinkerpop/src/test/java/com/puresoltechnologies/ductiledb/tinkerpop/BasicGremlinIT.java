@@ -15,12 +15,10 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.junit.Test;
 
-import com.google.protobuf.ServiceException;
-
 public class BasicGremlinIT extends AbstractTinkerpopTest {
 
     @Test
-    public void test() throws IOException, ScriptException, ServiceException {
+    public void test() throws IOException, ScriptException {
 	DuctileGraph graph = getGraph();
 	assertNotNull(graph);
 	assertEquals(DuctileGraph.class.getName(), graph.configuration().getString(Graph.GRAPH));
