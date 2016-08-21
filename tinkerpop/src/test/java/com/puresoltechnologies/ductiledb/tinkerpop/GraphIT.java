@@ -14,4 +14,11 @@ public class GraphIT extends AbstractTinkerpopTest {
 		DuctileGraph.class.isAssignableFrom(graph.getClass()));
     }
 
+    @Test
+    public void test() {
+	Graph graph = getGraph();
+	assertTrue("The provided implementation is not the expected implementation for DuctileDB!",
+		DuctileGraph.class.isAssignableFrom(graph.getClass()));
+    }
+
 }

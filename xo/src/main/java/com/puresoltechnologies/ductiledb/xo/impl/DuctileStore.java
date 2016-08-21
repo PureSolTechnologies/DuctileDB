@@ -17,6 +17,7 @@ import com.buschmais.xo.spi.datastore.Datastore;
 import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.method.IndexedPropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
+import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
@@ -51,6 +52,10 @@ public class DuctileStore
      */
     public static final String DEFAULT_DUCTILEDB_NAMESPACE = "ductiledb";
 
+    /**
+     * This field contains the reference to the DuctileDB runtime.
+     */
+    private DuctileDB ductileDB = null;
     /**
      * This field contains the {@link DuctileDBGraph}. This object is
      * thread-safe an can be reused for multiple session, because opening a new
@@ -108,7 +113,7 @@ public class DuctileStore
      * 
      * @return A {@link String} is returned with the name of the keyspace.
      */
-    public String getKeyspace() {
+    public String getNamespace() {
 	return namespace;
     }
 
@@ -121,7 +126,8 @@ public class DuctileStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    graph = DuctileDBFactory.connect(ductileDBConfigFile).getGraph();
+	    ductileDB = DuctileDBFactory.connect(ductileDBConfigFile);
+	    graph = ductileDB.getGraph();
 	    checkAndInitializePropertyIndizes(registeredMetadata);
 	} catch (IOException | StorageException | SchemaException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
@@ -179,12 +185,13 @@ public class DuctileStore
     @Override
     public void close() {
 	logger.info("Shutting down eXtended Objects for DuctileDB...");
-	if (graph != null) {
+	if (ductileDB != null) {
 	    try {
-		graph.close();
+		ductileDB.close();
 	    } catch (Exception e) {
 		throw new XOException("Could not close graph.", e);
 	    }
+	    ductileDB = null;
 	    graph = null;
 	}
     }

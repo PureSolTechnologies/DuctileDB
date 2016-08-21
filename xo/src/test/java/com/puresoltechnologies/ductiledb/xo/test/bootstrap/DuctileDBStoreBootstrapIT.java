@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -29,7 +28,6 @@ public class DuctileDBStoreBootstrapIT extends AbstractXODuctileDBTest {
     }
 
     @Test
-    @Ignore("Queries are not implemented, yet.")
     public void bootstrap() {
 	XOManager xoManager = getXOManager();
 

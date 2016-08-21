@@ -13,7 +13,7 @@ public class StorageConfiguration {
     public static final int DEFAULT_BLOCKSIZE = 8192;
 
     private int blockSize = DEFAULT_BLOCKSIZE;
-    private Properties properties;
+    private Properties properties = new Properties();
 
     public int getBlockSize() {
 	return blockSize;

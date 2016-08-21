@@ -29,6 +29,7 @@ public class OSStorageIT {
     public void testIllegalDirectory() throws IOException {
 	exception.expect(IOException.class);
 	exception.expectMessage("Could not create directory '/test'.");
+	configuration.getProperties().setProperty(OSStorage.DIRECTORY_PROPERTY, "/test");
 	try (OSStorage storage = new OSStorage(configuration)) {
 	    storage.initialize();
 	}

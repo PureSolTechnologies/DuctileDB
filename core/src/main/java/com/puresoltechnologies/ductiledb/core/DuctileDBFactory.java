@@ -30,6 +30,12 @@ public class DuctileDBFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBFactory.class);
 
+    public static DuctileDBConfiguration readConfiguration(URL configurationFile) throws IOException {
+	try (InputStream fileInputStream = configurationFile.openStream()) {
+	    return readConfiguration(fileInputStream);
+	}
+    }
+
     /**
      * Reads the Yaml configuration out of the provided input stream.
      * 

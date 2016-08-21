@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -12,10 +13,11 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {
 
@@ -24,16 +26,17 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
     @Override
     public void clear(Graph graph, Configuration configuration) throws Exception {
 	if (graph != null) {
-	    DuctileDBGraph ductileGraph = ((DuctileGraph) graph).getBaseGraph();
 	    logger.info("Delete ductile graph...");
-	    for (DuctileDBEdge edge : ductileGraph.getEdges()) {
-		edge.remove();
+	    DuctileDBGraphImpl ductileGraph = (DuctileDBGraphImpl) ((DuctileGraph) graph).getBaseGraph();
+	    // DuctileDBTestHelper.removeGraph(ductileGraph);
+	    DatabaseEngineImpl storageEngine = ductileGraph.getStorageEngine();
+	    graph.close();
+	    DuctileDBGraphConfiguration ductileDBConfiguration = ductileGraph.getConfiguration();
+	    Storage storage = storageEngine.getStorage();
+	    File graphDirectory = new File(ductileDBConfiguration.getNamespace());
+	    if (storage.exists(graphDirectory)) {
+		storage.removeDirectory(graphDirectory, true);
 	    }
-	    ductileGraph.commit();
-	    for (DuctileDBVertex vertex : ductileGraph.getVertices()) {
-		vertex.remove();
-	    }
-	    ductileGraph.commit();
 	    logger.info("Ductile graph deleted.");
 	}
     }
@@ -59,6 +62,7 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 	baseConfiguration.put(Graph.GRAPH, DuctileGraph.class.getName());
 	baseConfiguration.put(DuctileGraph.DUCTILEDB_CONFIG_FILE_PROPERTY,
 		AbstractDuctileDBTest.DEFAULT_TEST_CONFIG_URL.toString());
+	baseConfiguration.put(DuctileGraph.DUCTILEDB_NAMESPACE_PROPERTY, graphName);
 	return baseConfiguration;
     }
 

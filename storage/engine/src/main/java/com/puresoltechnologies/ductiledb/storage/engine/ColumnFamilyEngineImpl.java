@@ -243,6 +243,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	if (commitLogStream != null) {
 	    try {
 		commitLogStream.close();
+		commitLogStream = null;
 	    } catch (IOException e) {
 		logger.warn("Could not cleanly close commit log.", e);
 	    }
@@ -490,26 +491,25 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
 	    throws StorageException {
+	long result = startValue;
 	writeLock.lock();
 	try {
 	    ColumnMap columnMap = get(rowKey);
-	    long result = startValue;
 	    if (columnMap != null) {
 		ColumnValue oldValueBytes = columnMap.get(column);
 		if (oldValueBytes != null) {
 		    long oldValue = Bytes.toLong(oldValueBytes.getValue());
 		    result = oldValue + incrementValue;
 		}
-		columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
 	    } else {
 		columnMap = new ColumnMap();
-		columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
 	    }
+	    columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
 	    writeCommitLog(new RowKey(rowKey), null, columnMap);
-	    return result;
 	} finally {
 	    writeLock.unlock();
 	}
+	return result;
     }
 
     private void writeCommitLog(RowKey rowKey, Instant tombstone, ColumnMap values) throws StorageException {

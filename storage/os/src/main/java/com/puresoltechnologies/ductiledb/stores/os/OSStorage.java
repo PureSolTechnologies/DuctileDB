@@ -28,7 +28,7 @@ public class OSStorage implements Storage {
 	super();
 	this.configuration = configuration;
 	this.blockSize = configuration.getBlockSize();
-	String directory = configuration.getProperties().get(DIRECTORY_PROPERTY).toString();
+	String directory = (String) configuration.getProperties().get(DIRECTORY_PROPERTY);
 	if (directory == null) {
 	    throw new IllegalArgumentException("Directory was not set via property '" + DIRECTORY_PROPERTY + "'.");
 	}

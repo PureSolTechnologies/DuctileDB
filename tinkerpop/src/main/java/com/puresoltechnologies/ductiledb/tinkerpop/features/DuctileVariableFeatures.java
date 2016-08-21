@@ -11,32 +11,32 @@ public class DuctileVariableFeatures implements VariableFeatures {
 
     @Override
     public boolean supportsBooleanValues() {
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsByteValues() {
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsDoubleValues() {
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsFloatValues() {
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsIntegerValues() {
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsLongValues() {
-	return false;
+	return true;
     }
 
     @Override
@@ -86,12 +86,12 @@ public class DuctileVariableFeatures implements VariableFeatures {
 
     @Override
     public boolean supportsSerializableValues() {
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsStringValues() {
-	return false;
+	return true;
     }
 
     @Override

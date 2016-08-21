@@ -9,10 +9,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<gremlin.version>3.2.0-incubating</gremlin.version>
+		<gremlin.version>3.2.1</gremlin.version>
 		<hadoop.version>2.7.2</hadoop.version>
 		<slf4j.version>1.7.21</slf4j.version>
-		<xo.version>0.6.0</xo.version>
+		<xo.version>0.6.1</xo.version>
 		<commons.version>0.7.0-SNAPSHOT</commons.version>
 		<graphs.version>0.7.0-SNAPSHOT</graphs.version>
 		<versioning.version>1.1.0</versioning.version>

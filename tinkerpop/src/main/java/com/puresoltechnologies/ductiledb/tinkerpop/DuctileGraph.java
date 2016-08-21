@@ -22,6 +22,7 @@ import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
 import com.puresoltechnologies.ductiledb.core.DuctileDBFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -42,11 +43,16 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph> {
 
     public static final String DUCTILEDB_CONFIG_FILE_PROPERTY = "ductiledb.configuration.file";
+    public static final String DUCTILEDB_NAMESPACE_PROPERTY = "ductiledb.configuration.namespace";
 
     public static DuctileGraph open(Configuration configuration)
 	    throws FileNotFoundException, StorageException, SchemaException, IOException {
 	URL ductileDBConfigFile = new URL(configuration.getString(DUCTILEDB_CONFIG_FILE_PROPERTY));
-	DuctileDB ductileDB = DuctileDBFactory.connect(ductileDBConfigFile);
+	DuctileDBConfiguration ductileDBConfiguration = DuctileDBFactory.readConfiguration(ductileDBConfigFile);
+	if (configuration.getString(DUCTILEDB_NAMESPACE_PROPERTY) != null) {
+	    ductileDBConfiguration.getGraph().setNamespace(configuration.getString(DUCTILEDB_NAMESPACE_PROPERTY));
+	}
+	DuctileDB ductileDB = DuctileDBFactory.connect(ductileDBConfiguration);
 	DuctileDBGraph baseGraph = ductileDB.getGraph();
 	return new DuctileGraph(baseGraph, configuration);
     }

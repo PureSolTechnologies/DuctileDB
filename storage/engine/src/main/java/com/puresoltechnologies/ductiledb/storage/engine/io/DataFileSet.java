@@ -60,9 +60,7 @@ public class DataFileSet implements Closeable {
 	Iterable<File> listMetadata = storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter());
 	File latestMetadata = null;
 	for (File metadata : listMetadata) {
-	    System.out.println("MetaData:" + metadata);
 	    if ((latestMetadata == null) || (latestMetadata.compareTo(metadata) < 0)) {
-		System.out.println("new:" + metadata);
 		latestMetadata = metadata;
 	    }
 	}

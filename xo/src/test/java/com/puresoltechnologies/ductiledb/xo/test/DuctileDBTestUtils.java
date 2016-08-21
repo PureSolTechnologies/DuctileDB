@@ -44,7 +44,14 @@ public class DuctileDBTestUtils {
 	List<XOUnit> readXOUnits = XOUnitFactory.getInstance()
 		.getXOUnits(AbstractXODuctileDBTest.class.getResource(XO_CONFIGURATION_RESOURCE));
 	for (XOUnit xoUnit : readXOUnits) {
-	    xoUnits.add(new XOUnit[] { xoUnit });
+	    try {
+		xoUnits.add(new XOUnit[] { new XOUnit(xoUnit.getName(), xoUnit.getDescription(),
+			AbstractDuctileDBTest.DEFAULT_TEST_CONFIG_URL.toURI(), xoUnit.getProvider(), xoUnit.getTypes(),
+			xoUnit.getInstanceListeners(), xoUnit.getValidationMode(), xoUnit.getConcurrencyMode(),
+			xoUnit.getDefaultTransactionAttribute(), xoUnit.getProperties()) });
+	    } catch (URISyntaxException e) {
+		throw new IllegalStateException(e);
+	    }
 	}
 	return xoUnits;
     }
