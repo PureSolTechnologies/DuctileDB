@@ -83,12 +83,14 @@ public class OSStorage implements Storage {
 	    }
 	});
 	List<File> list = new ArrayList<>();
-	for (File file : files) {
-	    String directoryString = file.getPath().replace(rootDirectory.getPath(), "");
-	    if (directoryString.startsWith(File.separator)) {
-		directoryString = directoryString.substring(1);
+	if (files != null) {
+	    for (File file : files) {
+		String directoryString = file.getPath().replace(rootDirectory.getPath(), "");
+		if (directoryString.startsWith(File.separator)) {
+		    directoryString = directoryString.substring(1);
+		}
+		list.add(new File(directoryString));
 	    }
-	    list.add(new File(directoryString));
 	}
 	return list;
     }

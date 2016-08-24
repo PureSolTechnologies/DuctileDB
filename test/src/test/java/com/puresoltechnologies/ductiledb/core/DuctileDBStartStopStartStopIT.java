@@ -59,14 +59,16 @@ public class DuctileDBStartStopStartStopIT {
     @Test
     public void test() throws StorageException, SchemaException, IOException {
 	System.out.println("===== 1st start of database =====");
-	DuctileDB ductileDB1 = DuctileDBFactory.connect(configuration);
+	DuctileDBBootstrap.start(configuration);
+	DuctileDB ductileDB1 = DuctileDBBootstrap.getInstance();
 	assertNotNull("DuctileDB is null.", ductileDB1);
-	ductileDB1.close();
+	DuctileDBBootstrap.stop();
 
 	System.out.println("===== 2nd start of database =====");
-	DuctileDB ductileDB2 = DuctileDBFactory.connect(configuration);
+	DuctileDBBootstrap.start(configuration);
+	DuctileDB ductileDB2 = DuctileDBBootstrap.getInstance();
 	assertNotNull("DuctileDB is null.", ductileDB2);
-	ductileDB2.close();
+	DuctileDBBootstrap.stop();
     }
 
 }

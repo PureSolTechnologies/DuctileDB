@@ -116,7 +116,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private File commitLogFile = null;
-    private DataOutputStream commitLogStream;
+    private DataOutputStream commitLogStream = null;
     private final int bufferSize;
     private final int maxGenerations;
     private DataFileSet dataSet = null;
@@ -275,6 +275,9 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private void rolloverCommitLog() throws StorageException {
 	try {
+	    if (commitLogStream == null) {
+		return;
+	    }
 	    logger.info("Roll over " + commitLogFile.getName() + " with " + maxCommitLogSize + " bytes.");
 	    if (commitLogStream.getOffset() == 0) {
 		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");

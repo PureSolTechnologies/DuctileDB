@@ -12,6 +12,8 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
  */
 public interface DuctileDB extends Closeable {
 
+    public boolean isClosed();
+
     /**
      * This method returns the {@link DuctileDBGraph} of DuctileDB.
      * 

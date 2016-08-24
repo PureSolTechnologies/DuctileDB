@@ -12,8 +12,8 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
  */
 public class DuctileGraphFactory {
 
-    public static DuctileGraph createGraph(DuctileDBGraph graph, Configuration configuration) {
-	return new DuctileGraph(graph, configuration);
+    public static DuctileGraph createGraph(DuctileDBGraph ductileDB, Configuration configuration) {
+	return new DuctileGraph(ductileDB, configuration);
     }
 
 }

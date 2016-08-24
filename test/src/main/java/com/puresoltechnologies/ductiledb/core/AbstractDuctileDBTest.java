@@ -68,7 +68,8 @@ public class AbstractDuctileDBTest {
 	if (configuration == null) {
 	    configuration = readTestConfigration();
 	}
-	return DuctileDBFactory.connect(configuration);
+	DuctileDBBootstrap.start(configuration);
+	return DuctileDBBootstrap.getInstance();
     }
 
     /**
@@ -80,9 +81,7 @@ public class AbstractDuctileDBTest {
     @AfterClass
     public static void shutdownDuctileDB() throws IOException {
 	try {
-	    if (ductileDB != null) {
-		ductileDB.close();
-	    }
+	    DuctileDBBootstrap.stop();
 	} finally {
 	    ductileDB = null;
 	}

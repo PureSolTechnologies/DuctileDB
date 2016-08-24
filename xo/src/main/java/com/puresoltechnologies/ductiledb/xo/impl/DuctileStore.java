@@ -23,10 +23,9 @@ import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
+import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
 import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
-import com.puresoltechnologies.ductiledb.core.DuctileDBFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileVertex;
@@ -94,7 +93,7 @@ public class DuctileStore
 	this.ductileDBConfigFile = ductileDBConfigFile;
 	DuctileDBConfiguration configuration;
 	try (InputStream configStream = ductileDBConfigFile.openStream()) {
-	    configuration = DuctileDBFactory.readConfiguration(configStream);
+	    configuration = DuctileDBBootstrap.readConfiguration(configStream);
 	}
 	this.namespace = configuration.getGraph().getNamespace();
     }
@@ -126,10 +125,12 @@ public class DuctileStore
     public void init(Map<Class<?>, TypeMetadata> registeredMetadata) {
 	try {
 	    logger.info("Initializing eXtended Objects for DuctileDB...");
-	    ductileDB = DuctileDBFactory.connect(ductileDBConfigFile);
+	    DuctileDBConfiguration configuration = DuctileDBBootstrap.readConfiguration(ductileDBConfigFile);
+	    DuctileDBBootstrap.start(configuration);
+	    ductileDB = DuctileDBBootstrap.getInstance();
 	    graph = ductileDB.getGraph();
 	    checkAndInitializePropertyIndizes(registeredMetadata);
-	} catch (IOException | StorageException | SchemaException e) {
+	} catch (IOException | StorageException e) {
 	    throw new XOException("Could not initialize eXtended Objects for DuctileDB.", e);
 	}
     }

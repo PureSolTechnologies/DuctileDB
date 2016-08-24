@@ -49,8 +49,8 @@ public class DuctileStoreSession implements
      * @throws IOException
      *             is thrown in case of IO issues.
      */
-    public DuctileStoreSession(DuctileDBGraph baseGraph, BaseConfiguration configuration) throws IOException {
-	this.graph = DuctileGraphFactory.createGraph(baseGraph, configuration);
+    public DuctileStoreSession(DuctileDBGraph ductileDB, BaseConfiguration configuration) throws IOException {
+	this.graph = DuctileGraphFactory.createGraph(ductileDB, configuration);
 	this.transaction = new DuctileStoreTransaction(graph);
 	this.vertexManager = new DucileStoreVertexManager(graph);
 	this.edgeManager = new DucileStoreEdgeManager(graph);

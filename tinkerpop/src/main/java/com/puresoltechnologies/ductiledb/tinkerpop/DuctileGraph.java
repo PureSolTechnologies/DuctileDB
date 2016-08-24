@@ -22,8 +22,8 @@ import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
 import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
-import com.puresoltechnologies.ductiledb.core.DuctileDBFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
@@ -48,13 +48,14 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     public static DuctileGraph open(Configuration configuration)
 	    throws FileNotFoundException, StorageException, SchemaException, IOException {
 	URL ductileDBConfigFile = new URL(configuration.getString(DUCTILEDB_CONFIG_FILE_PROPERTY));
-	DuctileDBConfiguration ductileDBConfiguration = DuctileDBFactory.readConfiguration(ductileDBConfigFile);
-	if (configuration.getString(DUCTILEDB_NAMESPACE_PROPERTY) != null) {
-	    ductileDBConfiguration.getGraph().setNamespace(configuration.getString(DUCTILEDB_NAMESPACE_PROPERTY));
+	DuctileDBConfiguration ductileDBConfiguration = DuctileDBBootstrap.readConfiguration(ductileDBConfigFile);
+	String namespace = configuration.getString(DUCTILEDB_NAMESPACE_PROPERTY);
+	if (namespace != null) {
+	    ductileDBConfiguration.getGraph().setNamespace(namespace);
 	}
-	DuctileDB ductileDB = DuctileDBFactory.connect(ductileDBConfiguration);
-	DuctileDBGraph baseGraph = ductileDB.getGraph();
-	return new DuctileGraph(baseGraph, configuration);
+	DuctileDBBootstrap.start(ductileDBConfiguration);
+	DuctileDB ductileDB = DuctileDBBootstrap.getInstance();
+	return new DuctileGraph(ductileDB.getGraph(), configuration);
     }
 
     private DuctileGraphComputerView graphComputerView = null;
@@ -194,9 +195,6 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     @Override
     public void close() throws IOException {
 	tx().close();
-	if (baseGraph != null) {
-	    baseGraph.close();
-	}
     }
 
     @Override
