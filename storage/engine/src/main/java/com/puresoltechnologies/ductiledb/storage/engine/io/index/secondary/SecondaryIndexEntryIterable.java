@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.storage.engine.io.index;
+package com.puresoltechnologies.ductiledb.storage.engine.io.index.secondary;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -7,28 +7,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.index.secondary.SecondaryIndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.index.secondary.SecondaryIndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
-public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
+public class SecondaryIndexEntryIterable extends InputStreamIterable<SecondaryIndexEntry> {
 
-    private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecondaryIndexEntryIterable.class);
 
-    private final IndexInputStream indexInputStream;
+    private final SecondaryIndexInputStream indexInputStream;
 
-    public IndexEntryIterable(BufferedInputStream bufferedInputStream) throws IOException {
-	this(new IndexInputStream(bufferedInputStream));
+    public SecondaryIndexEntryIterable(BufferedInputStream bufferedInputStream) throws IOException {
+	this(new SecondaryIndexInputStream(bufferedInputStream));
     }
 
-    public IndexEntryIterable(IndexInputStream indexInputStream) {
+    public SecondaryIndexEntryIterable(SecondaryIndexInputStream indexInputStream) {
 	super(indexInputStream);
 	this.indexInputStream = indexInputStream;
     }
 
     @Override
-    protected IndexEntry readEntry() {
+    protected SecondaryIndexEntry readEntry() {
 	try {
 	    return indexInputStream.readEntry();
 	} catch (IOException e) {
@@ -38,10 +38,10 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
     }
 
     @Override
-    public IndexIterator iterator() {
-	return new IndexIterator() {
+    public SecondaryIndexIterator iterator() {
+	return new SecondaryIndexIterator() {
 
-	    private final PeekingIterator<IndexEntry> iterator = IndexEntryIterable.super.iterator();
+	    private final PeekingIterator<SecondaryIndexEntry> iterator = SecondaryIndexEntryIterable.super.iterator();
 
 	    @Override
 	    public RowKey getStartRowKey() {
@@ -59,12 +59,12 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 	    }
 
 	    @Override
-	    public IndexEntry next() {
+	    public SecondaryIndexEntry next() {
 		return iterator.next();
 	    }
 
 	    @Override
-	    public IndexEntry peek() {
+	    public SecondaryIndexEntry peek() {
 		return iterator.peek();
 	    }
 
@@ -77,9 +77,9 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 	};
     }
 
-    public IndexIterator iterator(RowKey startRowKey, RowKey stopRowKey) {
-	return new IndexIterator() {
-	    private final PeekingIterator<IndexEntry> iterator = IndexEntryIterable.super.iterator();
+    public SecondaryIndexIterator iterator(RowKey startRowKey, RowKey stopRowKey) {
+	return new SecondaryIndexIterator() {
+	    private final PeekingIterator<SecondaryIndexEntry> iterator = SecondaryIndexEntryIterable.super.iterator();
 
 	    @Override
 	    public RowKey getStartRowKey() {
@@ -97,12 +97,12 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 	    }
 
 	    @Override
-	    public IndexEntry next() {
+	    public SecondaryIndexEntry next() {
 		return iterator.next();
 	    }
 
 	    @Override
-	    public IndexEntry peek() {
+	    public SecondaryIndexEntry peek() {
 		return iterator.peek();
 	    }
 

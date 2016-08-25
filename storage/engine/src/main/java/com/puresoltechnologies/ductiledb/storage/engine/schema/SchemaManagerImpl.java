@@ -330,4 +330,47 @@ public class SchemaManagerImpl implements SchemaManager {
 	}
     }
 
+    @Override
+    public boolean hasFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) {
+	// TODO Auto-generated method stub
+	return false;
+    }
+
+    @Override
+    public void createFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void dropFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Iterable<SecondaryIndexDescriptor> getIndizes(ColumnFamilyDescriptor columnFamilyDescriptor) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public SecondaryIndexDescriptor getIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public void createIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor,
+	    SecondaryIndexDescriptor indexDescriptor) throws SchemaException {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) {
+	// TODO Auto-generated method stub
+
+    }
+
 }

@@ -44,4 +44,19 @@ public interface SchemaManager {
 
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException;
 
+    public boolean hasFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor);
+
+    public void createFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException;
+
+    public void dropFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor);
+
+    public Iterable<SecondaryIndexDescriptor> getIndizes(ColumnFamilyDescriptor columnFamilyDescriptor);
+
+    public SecondaryIndexDescriptor getIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor);
+
+    public void createIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor,
+	    SecondaryIndexDescriptor indexDescriptor) throws SchemaException;
+
+    public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor);
+
 }
