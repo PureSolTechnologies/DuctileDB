@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;

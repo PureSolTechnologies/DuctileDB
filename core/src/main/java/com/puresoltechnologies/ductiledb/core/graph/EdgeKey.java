@@ -134,7 +134,7 @@ public class EdgeKey implements Serializable {
 
     @Override
     public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(direction.name());
 	buffer.append(":");
 	buffer.append(type);

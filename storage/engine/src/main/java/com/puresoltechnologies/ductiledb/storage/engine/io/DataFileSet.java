@@ -17,17 +17,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.storage.engine.index.Index;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexFactory;
-import com.puresoltechnologies.ductiledb.storage.engine.index.IndexIterator;
-import com.puresoltechnologies.ductiledb.storage.engine.index.OffsetRange;
-import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
-import com.puresoltechnologies.ductiledb.storage.engine.io.data.DataFileReader;
-import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.io.index.IndexFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.Index;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexFactory;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexIterator;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.OffsetRange;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexFileReader;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

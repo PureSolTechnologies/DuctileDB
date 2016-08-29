@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1471725526178
+Bnd-LastModified: 1472323553999
 Build-Jdk: 1.8.0_71
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
@@ -54,17 +54,16 @@ Import-Package: com.buschmais.xo.api;version="[0.6,1)",com.buschmais.xo.
  .puresoltechnologies.ductiledb.api.graph,com.puresoltechnologies.ductil
  edb.api.graph.schema,com.puresoltechnologies.ductiledb.core,com.puresol
  technologies.ductiledb.core.graph,com.puresoltechnologies.ductiledb.sto
- rage.api,com.puresoltechnologies.ductiledb.storage.engine.schema,com.pu
- resoltechnologies.ductiledb.tinkerpop,com.puresoltechnologies.ductiledb
- .tinkerpop.gremlin,com.puresoltechnologies.ductiledb.xo.api.annotation;
- version="[0.2,1)",com.puresoltechnologies.ductiledb.xo.impl;version="[0
- .2,1)",com.puresoltechnologies.ductiledb.xo.impl.metadata;version="[0.2
- ,1)",com.puresoltechnologies.ductiledb.xo.impl.query.gremlin;version="[
- 0.2,1)",org.apache.commons.configuration;version="[1.10,2)",org.apache.
- commons.lang;version="[2.6,3)",org.apache.tinkerpop.gremlin.process.tra
- versal.dsl.graph,org.apache.tinkerpop.gremlin.structure,org.apache.tink
- erpop.gremlin.util,org.osgi.framework;version="[1.7,2)",org.slf4j;versi
- on="[1.7,2)"
+ rage.api,com.puresoltechnologies.ductiledb.tinkerpop,com.puresoltechnol
+ ogies.ductiledb.tinkerpop.gremlin,com.puresoltechnologies.ductiledb.xo.
+ api.annotation;version="[0.2,1)",com.puresoltechnologies.ductiledb.xo.i
+ mpl;version="[0.2,1)",com.puresoltechnologies.ductiledb.xo.impl.metadat
+ a;version="[0.2,1)",com.puresoltechnologies.ductiledb.xo.impl.query.gre
+ mlin;version="[0.2,1)",org.apache.commons.configuration;version="[1.10,
+ 2)",org.apache.commons.lang;version="[2.6,3)",org.apache.tinkerpop.grem
+ lin.process.traversal.dsl.graph,org.apache.tinkerpop.gremlin.structure,
+ org.apache.tinkerpop.gremlin.util,org.osgi.framework;version="[1.7,2)",
+ org.slf4j;version="[1.7,2)"
 Project-URL: http://ductiledb.com/xo.bundle
 Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
 Specification-Title: eXtended Objects for DuctileDB: xo.bundle

@@ -9,7 +9,10 @@ import java.util.TreeMap;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.index.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 /**
@@ -21,8 +24,7 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 
     private static final ByteArrayComparator BYTE_ARRAY_COMPARATOR = ByteArrayComparator.getInstance();
 
-    private final NavigableMap<byte[], ColumnFamilyScanner> cfScanners = new TreeMap<>(
-	    ByteArrayComparator.getInstance());
+    private final NavigableMap<byte[], ColumnFamilyScanner> cfScanners = new TreeMap<>(BYTE_ARRAY_COMPARATOR);
 
     private final Table table;
     private final Scan scan;

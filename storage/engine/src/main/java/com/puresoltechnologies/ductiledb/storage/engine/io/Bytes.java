@@ -195,7 +195,7 @@ public class Bytes {
 	if (bytes == null) {
 	    throw new IllegalArgumentException("Byte array must not be null!");
 	}
-	StringBuffer hexString = new StringBuffer();
+	StringBuilder hexString = new StringBuilder();
 	for (int i = 0; i < bytes.length; i++) {
 	    if (hexString.length() > 0) {
 		hexString.append(' ');
@@ -220,7 +220,7 @@ public class Bytes {
 	if (bytes == null) {
 	    throw new IllegalArgumentException("Byte array must not be null!");
 	}
-	StringBuffer hexString = new StringBuffer();
+	StringBuilder hexString = new StringBuilder();
 	for (int i = 0; i < bytes.length; i++) {
 	    int digit = 0xFF & bytes[i];
 	    String hexDigits = Integer.toHexString(digit);

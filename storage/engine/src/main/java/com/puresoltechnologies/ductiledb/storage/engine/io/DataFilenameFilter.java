@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.io;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 
 /**
  * This class is used to filter database files. The database files are compacted

@@ -4,6 +4,8 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyMap;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 

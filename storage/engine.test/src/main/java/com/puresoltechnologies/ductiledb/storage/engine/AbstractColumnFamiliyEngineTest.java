@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;

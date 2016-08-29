@@ -71,7 +71,7 @@ public class BlobStoreImpl implements BlobStore {
 
     private File createPath(HashId hashId) {
 	String hash = hashId.getHash();
-	StringBuffer child = new StringBuffer();
+	StringBuilder child = new StringBuilder();
 	child.append(hash.substring(0, 2));
 	child.append("/");
 	child.append(hash.substring(2, 4));

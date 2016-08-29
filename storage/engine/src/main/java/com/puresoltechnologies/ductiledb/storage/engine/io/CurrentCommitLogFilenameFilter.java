@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.storage.engine.io;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
