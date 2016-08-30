@@ -4,8 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 
@@ -56,7 +56,7 @@ public class IndexInputStream extends DuctileDBInputStream {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken index file.");
 	}
 	long offset = Bytes.toLong(buffer);
-	return new IndexEntry(new RowKey(rowKey), dataFile, offset);
+	return new IndexEntry(new Key(rowKey), dataFile, offset);
     }
 
 }

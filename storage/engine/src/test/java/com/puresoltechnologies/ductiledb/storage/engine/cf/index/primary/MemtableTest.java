@@ -11,9 +11,9 @@ import java.time.Duration;
 import org.junit.Test;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.Memtable;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class MemtableTest {
@@ -22,43 +22,43 @@ public class MemtableTest {
     public void testCRUD() {
 	Memtable memtable = new Memtable();
 	// Check behavior of empty Memtable
-	IndexEntry entry = memtable.get(new RowKey(Bytes.toBytes(0l)));
+	IndexEntry entry = memtable.get(new Key(Bytes.toBytes(0l)));
 	assertNull(entry);
-	memtable.delete(new RowKey(Bytes.toBytes(0l)));
+	memtable.delete(new Key(Bytes.toBytes(0l)));
 	assertNull(entry);
 	assertEquals(0, memtable.size());
 	// Check put
-	memtable.put(new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("file"), 123l));
+	memtable.put(new IndexEntry(new Key(Bytes.toBytes(0l)), new File("file"), 123l));
 	assertEquals(1, memtable.size());
-	entry = memtable.get(new RowKey(Bytes.toBytes(0l)));
+	entry = memtable.get(new Key(Bytes.toBytes(0l)));
 	assertNotNull(entry);
-	assertEquals(new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("file"), 123l), entry);
+	assertEquals(new IndexEntry(new Key(Bytes.toBytes(0l)), new File("file"), 123l), entry);
 	// Check put of new value does not change former
-	memtable.put(new IndexEntry(new RowKey(Bytes.toBytes(1l)), new File("file2"), 1234l));
+	memtable.put(new IndexEntry(new Key(Bytes.toBytes(1l)), new File("file2"), 1234l));
 	assertEquals(2, memtable.size());
-	entry = memtable.get(new RowKey(Bytes.toBytes(0l)));
+	entry = memtable.get(new Key(Bytes.toBytes(0l)));
 	assertNotNull(entry);
-	assertEquals(new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("file"), 123l), entry);
-	entry = memtable.get(new RowKey(Bytes.toBytes(1l)));
+	assertEquals(new IndexEntry(new Key(Bytes.toBytes(0l)), new File("file"), 123l), entry);
+	entry = memtable.get(new Key(Bytes.toBytes(1l)));
 	assertNotNull(entry);
-	assertEquals(new IndexEntry(new RowKey(Bytes.toBytes(1l)), new File("file2"), 1234l), entry);
+	assertEquals(new IndexEntry(new Key(Bytes.toBytes(1l)), new File("file2"), 1234l), entry);
 	// Check put
-	memtable.put(new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("file3"), 12345l));
+	memtable.put(new IndexEntry(new Key(Bytes.toBytes(0l)), new File("file3"), 12345l));
 	assertEquals(2, memtable.size());
-	entry = memtable.get(new RowKey(Bytes.toBytes(0l)));
+	entry = memtable.get(new Key(Bytes.toBytes(0l)));
 	assertNotNull(entry);
-	assertEquals(new IndexEntry(new RowKey(Bytes.toBytes(0l)), new File("file3"), 12345l), entry);
-	entry = memtable.get(new RowKey(Bytes.toBytes(1l)));
+	assertEquals(new IndexEntry(new Key(Bytes.toBytes(0l)), new File("file3"), 12345l), entry);
+	entry = memtable.get(new Key(Bytes.toBytes(1l)));
 	assertNotNull(entry);
-	assertEquals(new IndexEntry(new RowKey(Bytes.toBytes(1l)), new File("file2"), 1234l), entry);
+	assertEquals(new IndexEntry(new Key(Bytes.toBytes(1l)), new File("file2"), 1234l), entry);
 	// Check delete
-	memtable.delete(new RowKey(Bytes.toBytes(0l)));
+	memtable.delete(new Key(Bytes.toBytes(0l)));
 	assertEquals(1, memtable.size());
-	entry = memtable.get(new RowKey(Bytes.toBytes(0l)));
+	entry = memtable.get(new Key(Bytes.toBytes(0l)));
 	assertNull(entry);
-	entry = memtable.get(new RowKey(Bytes.toBytes(1l)));
+	entry = memtable.get(new Key(Bytes.toBytes(1l)));
 	assertNotNull(entry);
-	assertEquals(new IndexEntry(new RowKey(Bytes.toBytes(1l)), new File("file2"), 1234l), entry);
+	assertEquals(new IndexEntry(new Key(Bytes.toBytes(1l)), new File("file2"), 1234l), entry);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class MemtableTest {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	for (int i = 0; i < 10000; ++i) {
-	    memtable.put(new IndexEntry(new RowKey(Bytes.toBytes((long) i)), file, i));
+	    memtable.put(new IndexEntry(new Key(Bytes.toBytes((long) i)), file, i));
 	}
 	stopWatch.stop();
 	System.out.println(stopWatch);

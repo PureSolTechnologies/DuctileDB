@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 
@@ -46,7 +46,7 @@ public class SecondaryIndexInputStream extends DuctileDBInputStream {
 	    logger.warn("Could not read full number of bytes needed. It is maybe a broken index file.");
 	    return null;
 	}
-	return new SecondaryIndexEntry(value, new RowKey(key));
+	return new SecondaryIndexEntry(value, new Key(key));
     }
 
 }

@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.Index;
@@ -24,7 +25,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEn
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.OffsetRange;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
@@ -139,7 +139,7 @@ public class DataFileSet implements Closeable {
 
     }
 
-    public ColumnFamilyRow getRow(RowKey rowKey) throws IOException {
+    public ColumnFamilyRow getRow(Key rowKey) throws IOException {
 	OffsetRange offsetRange = index.find(rowKey);
 	if (offsetRange == null) {
 	    return null;
@@ -196,15 +196,15 @@ public class DataFileSet implements Closeable {
 
     private class SSTableIndexIterator implements IndexIterator {
 
-	private final RowKey start;
-	private final RowKey stop;
+	private final Key start;
+	private final Key stop;
 	private File currentDataFile;
 	private File currentIndexFile;
 	private IndexEntryIterable indexIterable;
 	private IndexIterator indexIterator;
 	private IndexEntry nextIndex = null;
 
-	public SSTableIndexIterator(RowKey start, RowKey stop) throws IOException {
+	public SSTableIndexIterator(Key start, Key stop) throws IOException {
 	    this.start = start;
 	    this.stop = stop;
 	    IndexEntry floor = index.floor(start);
@@ -225,12 +225,12 @@ public class DataFileSet implements Closeable {
 	}
 
 	@Override
-	public RowKey getStartRowKey() {
+	public Key getStartRowKey() {
 	    return start;
 	}
 
 	@Override
-	public RowKey getEndRowKey() {
+	public Key getEndRowKey() {
 	    return stop;
 	}
 
@@ -298,7 +298,7 @@ public class DataFileSet implements Closeable {
 
     }
 
-    public IndexIterator getIndexIterator(RowKey startRowKey, RowKey stopRowKey) throws IOException {
+    public IndexIterator getIndexIterator(Key startRowKey, Key stopRowKey) throws IOException {
 	return new SSTableIndexIterator(startRowKey, stopRowKey);
     }
 }

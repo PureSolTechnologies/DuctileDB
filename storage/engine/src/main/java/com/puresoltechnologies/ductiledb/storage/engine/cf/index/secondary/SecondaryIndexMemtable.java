@@ -1,22 +1,19 @@
-package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
+package com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary;
 
 import java.io.IOException;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.io.SecondaryIndexEntry;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.io.SecondaryIndexIterator;
 import com.puresoltechnologies.trees.RedBlackTree;
 import com.puresoltechnologies.trees.RedBlackTreeNode;
 
-/**
- * Basic Memtable implementation.
- * 
- * @author Rick-Rainer Ludwig
- */
-public class Memtable implements Iterable<IndexEntry> {
+public class SecondaryIndexMemtable implements Iterable<SecondaryIndexEntry> {
 
-    private final RedBlackTree<Key, IndexEntry> values = new RedBlackTree<>();
+    private final RedBlackTree<Key, SecondaryIndexEntry> values = new RedBlackTree<>();
 
-    public Memtable() {
+    public SecondaryIndexMemtable() {
 	super();
     }
 
@@ -28,11 +25,11 @@ public class Memtable implements Iterable<IndexEntry> {
 	return values.size();
     }
 
-    public void put(IndexEntry indexEntry) {
+    public void put(SecondaryIndexEntry indexEntry) {
 	values.put(indexEntry.getRowKey(), indexEntry);
     }
 
-    public IndexEntry get(Key rowKey) {
+    public SecondaryIndexEntry get(Key rowKey) {
 	return values.get(rowKey);
     }
 
@@ -41,10 +38,10 @@ public class Memtable implements Iterable<IndexEntry> {
     }
 
     @Override
-    public IndexIterator iterator() {
-	return new IndexIterator() {
+    public SecondaryIndexIterator iterator() {
+	return new SecondaryIndexIterator() {
 
-	    private final PeekingIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator();
+	    private final PeekingIterator<RedBlackTreeNode<Key, SecondaryIndexEntry>> iterator = values.iterator();
 
 	    @Override
 	    public boolean hasNext() {
@@ -52,12 +49,12 @@ public class Memtable implements Iterable<IndexEntry> {
 	    }
 
 	    @Override
-	    public IndexEntry next() {
+	    public SecondaryIndexEntry next() {
 		return iterator.next().getValue();
 	    }
 
 	    @Override
-	    public IndexEntry peek() {
+	    public SecondaryIndexEntry peek() {
 		return iterator.peek().getValue();
 	    }
 
@@ -79,11 +76,11 @@ public class Memtable implements Iterable<IndexEntry> {
 	};
     }
 
-    public IndexIterator iterator(Key startKey, Key endKey) {
-	return new IndexIterator() {
+    public SecondaryIndexIterator iterator(Key startKey, Key endKey) {
+	return new SecondaryIndexIterator() {
 
-	    private final PeekingIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator(startKey,
-		    endKey);
+	    private final PeekingIterator<RedBlackTreeNode<Key, SecondaryIndexEntry>> iterator = values
+		    .iterator(startKey, endKey);
 
 	    @Override
 	    public Key getStartRowKey() {
@@ -101,12 +98,12 @@ public class Memtable implements Iterable<IndexEntry> {
 	    }
 
 	    @Override
-	    public IndexEntry next() {
+	    public SecondaryIndexEntry next() {
 		return iterator.next().getValue();
 	    }
 
 	    @Override
-	    public IndexEntry peek() {
+	    public SecondaryIndexEntry peek() {
 		return iterator.peek().getValue();
 	    }
 
@@ -117,4 +114,5 @@ public class Memtable implements Iterable<IndexEntry> {
 
 	};
     }
+
 }

@@ -2,11 +2,14 @@ package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import static com.puresoltechnologies.ductiledb.storage.engine.EngineChecks.checkIdentifier;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,11 +170,21 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
-	    NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(namespaceName, storage,
-		    namespaceDirectory);
-	    databaseEngine.addNamespace(namespaceDescriptor);
-	    namespaces.put(namespaceDescriptor.getName(), namespaceDescriptor);
-	    return namespaceDescriptor;
+	    try (BufferedOutputStream metadataFile = storage
+		    .create(new File(namespaceDirectory, "metadata.properties"))) {
+		Properties properties = new Properties();
+		properties.put("namespace.creation.time", new Date().toString());
+		properties.put("namespace.name", namespaceName);
+		properties.put("namespace.storage.directory", storageDirectory.toString());
+		properties.put("namespace.storage.name", getStoreName());
+		properties.store(metadataFile, "Meta data for namespace.");
+
+		NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(namespaceName, storage,
+			namespaceDirectory);
+		databaseEngine.addNamespace(namespaceDescriptor);
+		namespaces.put(namespaceDescriptor.getName(), namespaceDescriptor);
+		return namespaceDescriptor;
+	    }
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create schema '" + namespaceName + "'.", e);
 	}
@@ -229,10 +242,20 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File tableDirectory = new File(namespaceDescriptor.getDirectory(), tableName);
 	    storage.createDirectory(tableDirectory);
-	    TableDescriptor tableDescriptor = new TableDescriptor(tableName, namespaceDescriptor, tableDirectory);
-	    namespaceDescriptor.addTable(tableDescriptor);
-	    databaseEngine.addTable(tableDescriptor);
-	    return tableDescriptor;
+	    try (BufferedOutputStream metadataFile = storage.create(new File(tableDirectory, "metadata.properties"))) {
+		Properties properties = new Properties();
+		properties.put("table.creation.time", new Date().toString());
+		properties.put("table.name", tableName);
+		properties.put("table.namespace.name", namespaceDescriptor.getName());
+		properties.put("table.storage.directory", storageDirectory.toString());
+		properties.put("table.storage.name", getStoreName());
+		properties.store(metadataFile, "Meta data for table.");
+
+		TableDescriptor tableDescriptor = new TableDescriptor(tableName, namespaceDescriptor, tableDirectory);
+		namespaceDescriptor.addTable(tableDescriptor);
+		databaseEngine.addTable(tableDescriptor);
+		return tableDescriptor;
+	    }
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create table '" + namespaceDescriptor + "." + tableName + "'.", e);
 	}
@@ -300,9 +323,21 @@ public class SchemaManagerImpl implements SchemaManager {
 	}
 	try {
 	    storage.createDirectory(columnFamilyDirectory);
-	    tableDescriptor.addColumnFamily(columnFamilyDescriptor);
-	    databaseEngine.addColumnFamily(columnFamilyDescriptor);
-	    return columnFamilyDescriptor;
+	    try (BufferedOutputStream metadataFile = storage
+		    .create(new File(columnFamilyDirectory, "metadata.properties"))) {
+		Properties properties = new Properties();
+		properties.put("cf.creation.time", new Date().toString());
+		properties.put("cf.name", Bytes.toHumanReadableString(columnFamilyName));
+		properties.put("cf.namespace.name", namespaceDescriptor.getName());
+		properties.put("cf.table.name", tableDescriptor.getName());
+		properties.put("cf.storage.directory", storageDirectory.toString());
+		properties.put("cf.storage.name", getStoreName());
+		properties.store(metadataFile, "Meta data for column family.");
+
+		tableDescriptor.addColumnFamily(columnFamilyDescriptor);
+		databaseEngine.addColumnFamily(columnFamilyDescriptor);
+		return columnFamilyDescriptor;
+	    }
 	} catch (IOException e) {
 	    throw new SchemaException("Could not create column family '" + columnFamilyDescriptor + "'.", e);
 	}

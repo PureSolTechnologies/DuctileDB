@@ -10,11 +10,11 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -49,7 +49,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new RowKey(rowKey), result.getRowKey());
+	    assertEquals(new Key(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
 	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
@@ -73,7 +73,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new RowKey(rowKey), result.getRowKey());
+	    assertEquals(new Key(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
 	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
@@ -97,7 +97,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new RowKey(rowKey), result.getRowKey());
+	    assertEquals(new Key(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
 	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
@@ -121,7 +121,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new RowKey(rowKey), result.getRowKey());
+	    assertEquals(new Key(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
 	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
@@ -145,7 +145,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new RowKey(rowKey), result.getRowKey());
+	    assertEquals(new Key(rowKey), result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
 	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));

@@ -4,8 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.FileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -29,7 +29,7 @@ public class IndexFileReader extends FileReader<IndexInputStream> {
 	return getStream().readEntry();
     }
 
-    public IndexEntry get(RowKey rowKey) throws IOException {
+    public IndexEntry get(Key rowKey) throws IOException {
 	while (!getStream().isEof()) {
 	    IndexEntry indexEntry = getStream().readEntry();
 	    int compareResult = indexEntry.getRowKey().compareTo(rowKey);

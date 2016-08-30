@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
 import java.time.Instant;
 
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 /**
@@ -12,23 +12,23 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
  */
 public final class ColumnFamilyRow {
 
-    private final RowKey rowKey;
+    private final Key rowKey;
     private final Instant tombstone;
     private final ColumnMap columnMap;
 
-    public ColumnFamilyRow(RowKey rowKey, ColumnMap columnMap) {
+    public ColumnFamilyRow(Key rowKey, ColumnMap columnMap) {
 	this.rowKey = rowKey;
 	this.columnMap = columnMap;
 	this.tombstone = null;
     }
 
-    public ColumnFamilyRow(RowKey rowKey, ColumnMap columnMap, Instant tombstone) {
+    public ColumnFamilyRow(Key rowKey, ColumnMap columnMap, Instant tombstone) {
 	this.rowKey = rowKey;
 	this.columnMap = columnMap;
 	this.tombstone = tombstone;
     }
 
-    public RowKey getRowKey() {
+    public Key getRowKey() {
 	return rowKey;
     }
 

@@ -3,6 +3,8 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
 import java.io.File;
 import java.util.Objects;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
+
 /**
  * This class provides the index result.
  * 
@@ -10,12 +12,12 @@ import java.util.Objects;
  */
 public class IndexEntry implements Comparable<IndexEntry> {
 
-    private final RowKey rowKey;
+    private final Key rowKey;
     private final File dataFile;
     private final long offset;
     private final int hashCode;
 
-    public IndexEntry(RowKey rowKey, File dataFile, long offset) {
+    public IndexEntry(Key rowKey, File dataFile, long offset) {
 	super();
 	this.rowKey = rowKey;
 	this.dataFile = dataFile;
@@ -23,7 +25,7 @@ public class IndexEntry implements Comparable<IndexEntry> {
 	this.hashCode = Objects.hash(rowKey, dataFile, offset);
     }
 
-    public RowKey getRowKey() {
+    public Key getRowKey() {
 	return rowKey;
     }
 

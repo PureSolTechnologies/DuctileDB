@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
@@ -97,7 +97,7 @@ public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
 	    }
 	    long endOffset = Bytes.toLong(buffer);
 
-	    return new MetaDataEntry(fileName, new RowKey(startKey), startOffset, new RowKey(endKey), endOffset);
+	    return new MetaDataEntry(fileName, new Key(startKey), startOffset, new Key(endKey), endOffset);
 	} catch (IOException e) {
 	    logger.error("Error reading metadata file", e);
 	    return null;

@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexIterator;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.ColumnFamilyRowIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
@@ -136,7 +136,7 @@ public class Compactor {
 	    for (File dataFile : dataFiles) {
 		try (ColumnFamilyRowIterable data = new ColumnFamilyRowIterable(storage.open(dataFile))) {
 		    for (ColumnFamilyRow dataEntry : data) {
-			RowKey dataRowKey = dataEntry.getRowKey();
+			Key dataRowKey = dataEntry.getRowKey();
 			if (commitLogNext != null) {
 			    if (dataRowKey.compareTo(commitLogNext.getRowKey()) == 0) {
 				writer = writeCommitLogEntry(commitLogReader, commitLogNext, writer, baseFilename);
@@ -198,7 +198,7 @@ public class Compactor {
 	return writer;
     }
 
-    private SSTableWriter writeDataEntry(SSTableWriter writer, String baseFilename, RowKey rowKey, Instant tombstone,
+    private SSTableWriter writeDataEntry(SSTableWriter writer, String baseFilename, Key rowKey, Instant tombstone,
 	    ColumnMap columnMap) throws IOException, StorageException {
 	writer.write(rowKey, tombstone, columnMap);
 	if (writer.getDataFileSize() >= maxDataFileSize) {
@@ -235,7 +235,7 @@ public class Compactor {
 		List<IndexEntry> indexEntries = index.get(file);
 		Collections.sort(indexEntries);
 		for (IndexEntry entry : indexEntries) {
-		    RowKey rowKey = entry.getRowKey();
+		    Key rowKey = entry.getRowKey();
 		    stream.write(Bytes.toBytes(rowKey.getKey().length));
 		    stream.write(rowKey.getKey());
 

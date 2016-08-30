@@ -1,16 +1,16 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf.io;
 
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 
 public class MetaDataEntry {
 
     private final String fileName;
-    private final RowKey startKey;
+    private final Key startKey;
     private final long startOffset;
-    private final RowKey endKey;
+    private final Key endKey;
     private final long endOffset;
 
-    public MetaDataEntry(String fileName, RowKey startKey, long startOffset, RowKey endKey, long endOffset) {
+    public MetaDataEntry(String fileName, Key startKey, long startOffset, Key endKey, long endOffset) {
 	super();
 	this.fileName = fileName;
 	this.startKey = startKey;
@@ -23,7 +23,7 @@ public class MetaDataEntry {
 	return fileName;
     }
 
-    public RowKey getStartKey() {
+    public Key getStartKey() {
 	return startKey;
     }
 
@@ -31,7 +31,7 @@ public class MetaDataEntry {
 	return startOffset;
     }
 
-    public RowKey getEndKey() {
+    public Key getEndKey() {
 	return endKey;
     }
 

@@ -4,7 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBOutputStream;
 
@@ -18,7 +18,7 @@ public class IndexOutputStream extends DuctileDBOutputStream {
 	writeData(Bytes.toBytes(path));
     }
 
-    public synchronized void writeIndexEntry(RowKey rowKey, long offset) throws IOException {
+    public synchronized void writeIndexEntry(Key rowKey, long offset) throws IOException {
 	writeData(Bytes.toBytes(rowKey.getKey().length));
 	writeData(rowKey.getKey());
 	writeData(Bytes.toBytes(offset));

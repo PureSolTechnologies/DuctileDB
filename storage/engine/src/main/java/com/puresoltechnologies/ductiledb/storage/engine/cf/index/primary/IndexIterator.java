@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.CloseableIterator;
 
 /**
@@ -16,14 +17,14 @@ public interface IndexIterator extends PeekingIterator<IndexEntry>, CloseableIte
      * 
      * @return
      */
-    public RowKey getStartRowKey();
+    public Key getStartRowKey();
 
     /**
      * Returns the end row key.
      * 
      * @return
      */
-    public RowKey getEndRowKey();
+    public Key getEndRowKey();
 
     /**
      * This method moves the iterator to the element before the given element or
@@ -31,7 +32,7 @@ public interface IndexIterator extends PeekingIterator<IndexEntry>, CloseableIte
      * 
      * @param rowKey
      */
-    default public void gotoStart(RowKey startRowKey) {
+    default public void gotoStart(Key startRowKey) {
 	if (startRowKey != null) {
 	    while ((hasNext()) && (peek().getRowKey().compareTo(startRowKey) < 0)) {
 		skip();

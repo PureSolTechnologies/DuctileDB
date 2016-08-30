@@ -1,18 +1,18 @@
-package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
+package com.puresoltechnologies.ductiledb.storage.engine;
 
 import java.util.Arrays;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
-public class RowKey implements Comparable<RowKey> {
+public class Key implements Comparable<Key> {
 
     private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
     private final int hashCode;
     private final byte[] key;
 
-    public RowKey(byte[] key) {
+    public Key(byte[] key) {
 	super();
 	if ((key == null) || (key.length == 0)) {
 	    throw new IllegalArgumentException("Row keys must not be null or empty.");
@@ -42,7 +42,7 @@ public class RowKey implements Comparable<RowKey> {
 	    return false;
 	if (getClass() != obj.getClass())
 	    return false;
-	RowKey other = (RowKey) obj;
+	Key other = (Key) obj;
 	if (hashCode != other.hashCode)
 	    return false;
 	if (!Arrays.equals(key, other.key))
@@ -51,7 +51,7 @@ public class RowKey implements Comparable<RowKey> {
     }
 
     @Override
-    public int compareTo(RowKey o) {
+    public int compareTo(Key o) {
 	return comparator.compare(key, o.key);
     }
 

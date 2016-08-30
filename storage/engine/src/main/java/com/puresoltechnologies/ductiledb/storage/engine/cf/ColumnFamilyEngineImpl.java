@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.Memtable;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
@@ -268,7 +268,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		columnMap.putAll(values);
 		values = columnMap;
 	    }
-	    writeCommitLog(new RowKey(rowKey), null, values);
+	    writeCommitLog(new Key(rowKey), null, values);
 	} finally {
 	    writeLock.unlock();
 	}
@@ -357,7 +357,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public ColumnMap get(byte[] rowKey) throws StorageException {
-	RowKey rowKey2 = new RowKey(rowKey);
+	Key rowKey2 = new Key(rowKey);
 	ColumnFamilyRow row;
 	readLock.lock();
 	try {
@@ -386,7 +386,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	return row != null ? row.getColumnMap() : new ColumnMap();
     }
 
-    private ColumnFamilyRow readFromDataFiles(RowKey rowKey) throws StorageException {
+    private ColumnFamilyRow readFromDataFiles(Key rowKey) throws StorageException {
 	try {
 	    return dataSet.getRow(rowKey);
 	} catch (IOException e) {
@@ -394,7 +394,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     }
 
-    private ColumnFamilyRow readFromCommitLogs(RowKey rowKey) throws StorageException {
+    private ColumnFamilyRow readFromCommitLogs(Key rowKey) throws StorageException {
 	try {
 	    List<File> commitLogs = getCurrentCommitLogs();
 	    for (File commitLog : commitLogs) {
@@ -439,7 +439,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     public void delete(byte[] rowKey) throws StorageException {
 	writeLock.lock();
 	try {
-	    writeCommitLog(new RowKey(rowKey), Instant.now(), new ColumnMap());
+	    writeCommitLog(new Key(rowKey), Instant.now(), new ColumnMap());
 	} finally {
 	    writeLock.unlock();
 	}
@@ -457,7 +457,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		if (columnMap.size() == 0) {
 		    delete(rowKey);
 		} else {
-		    writeCommitLog(new RowKey(rowKey), null, columnMap);
+		    writeCommitLog(new Key(rowKey), null, columnMap);
 		}
 	    }
 	} finally {
@@ -480,8 +480,8 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		readLock.unlock();
 	    }
 	    return new ColumnFamilyScanner(storage, memtableCopy, currentCommitLogs, dataFiles,
-		    startRowKey != null ? new RowKey(startRowKey) : null,
-		    endRowKey != null ? new RowKey(endRowKey) : null);
+		    startRowKey != null ? new Key(startRowKey) : null,
+		    endRowKey != null ? new Key(endRowKey) : null);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}
@@ -509,14 +509,14 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		columnMap = new ColumnMap();
 	    }
 	    columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
-	    writeCommitLog(new RowKey(rowKey), null, columnMap);
+	    writeCommitLog(new Key(rowKey), null, columnMap);
 	} finally {
 	    writeLock.unlock();
 	}
 	return result;
     }
 
-    private void writeCommitLog(RowKey rowKey, Instant tombstone, ColumnMap values) throws StorageException {
+    private void writeCommitLog(Key rowKey, Instant tombstone, ColumnMap values) throws StorageException {
 	try {
 	    long offset = commitLogStream.getOffset();
 	    commitLogStream.writeRow(rowKey, tombstone, values);

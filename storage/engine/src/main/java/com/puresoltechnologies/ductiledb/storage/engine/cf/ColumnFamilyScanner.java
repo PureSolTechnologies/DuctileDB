@@ -14,10 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.Memtable;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
@@ -34,12 +34,12 @@ public class ColumnFamilyScanner implements PeekingIterator<ColumnFamilyRow>, Cl
     private final List<IndexIterator> commitLogIndexIterators = new ArrayList<>();
     private final DataFileSet dataFiles;
     private final IndexIterator dataFilesIndexIterator;
-    private final RowKey startRowKey;
-    private final RowKey endRowKey;
+    private final Key startRowKey;
+    private final Key endRowKey;
     private ColumnFamilyRow nextRow = null;
 
     public ColumnFamilyScanner(Storage storage, Memtable memtable, List<File> commitLogs, DataFileSet dataFiles,
-	    RowKey startRowKey, RowKey endRowKey) throws IOException {
+	    Key startRowKey, Key endRowKey) throws IOException {
 	super();
 	this.storage = storage;
 	this.memtableIterator = memtable.iterator(startRowKey, endRowKey);

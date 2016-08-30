@@ -4,10 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.Instant;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
 
@@ -32,7 +32,7 @@ public class DataInputStream extends DuctileDBInputStream {
 	if (len < length) {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
 	}
-	RowKey rowKey = new RowKey(rowKeyBytes);
+	Key rowKey = new Key(rowKeyBytes);
 	// Read tombstone
 	len = read(buffer, 0, 12);
 	if (len < 12) {

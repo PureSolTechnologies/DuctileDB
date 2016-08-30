@@ -16,12 +16,12 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -276,14 +276,14 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	Storage storage = getStorage();
 	try (IndexEntryIterable index = new IndexEntryIterable(storage.open(indexFile));
 		DataFileReader reader = new DataFileReader(storage, dataFile)) {
-	    RowKey currentRowKey = null;
+	    Key currentRowKey = null;
 	    long currentOffset = -1;
 	    Iterator<IndexEntry> indexIterator = index.iterator();
 	    Iterator<ColumnFamilyRow> dataIterator = reader.iterator();
 	    while (indexIterator.hasNext() && dataIterator.hasNext()) {
 		IndexEntry indexEntry = indexIterator.next();
 		ColumnFamilyRow dataEntry = dataIterator.next();
-		RowKey rowKey = indexEntry.getRowKey();
+		Key rowKey = indexEntry.getRowKey();
 		assertEquals(rowKey, dataEntry.getRowKey());
 		long offset = indexEntry.getOffset();
 		assertTrue(currentOffset < offset);

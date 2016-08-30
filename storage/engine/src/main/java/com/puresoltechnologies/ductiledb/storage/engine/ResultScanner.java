@@ -12,7 +12,6 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 /**
@@ -78,12 +77,12 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
     }
 
     private void readNextResult() {
-	RowKey minimum = null;
+	Key minimum = null;
 	for (Entry<byte[], ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
 	    ColumnFamilyScanner scanner = scannerEntry.getValue();
 	    ColumnFamilyRow row = scanner.peek();
 	    if (row != null) {
-		RowKey rowKey = row.getRowKey();
+		Key rowKey = row.getRowKey();
 		if ((minimum == null) || (BYTE_ARRAY_COMPARATOR.compare(rowKey.getKey(), minimum.getKey()) < 0)) {
 		    minimum = rowKey;
 		}
@@ -98,7 +97,7 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	    ColumnFamilyScanner scanner = scannerEntry.getValue();
 	    ColumnFamilyRow row = scanner.peek();
 	    if (row != null) {
-		RowKey rowKey = row.getRowKey();
+		Key rowKey = row.getRowKey();
 		if (BYTE_ARRAY_COMPARATOR.compare(rowKey.getKey(), minimum.getKey()) == 0) {
 		    result.add(scannerEntry.getKey(), row.getColumnMap());
 		    scanner.skip();

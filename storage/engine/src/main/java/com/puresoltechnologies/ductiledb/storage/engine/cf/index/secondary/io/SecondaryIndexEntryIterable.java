@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.InputStreamIterable;
 
 public class SecondaryIndexEntryIterable extends InputStreamIterable<SecondaryIndexEntry> {
@@ -42,12 +42,12 @@ public class SecondaryIndexEntryIterable extends InputStreamIterable<SecondaryIn
 	    private final PeekingIterator<SecondaryIndexEntry> iterator = SecondaryIndexEntryIterable.super.iterator();
 
 	    @Override
-	    public RowKey getStartRowKey() {
+	    public Key getStartRowKey() {
 		return null;
 	    }
 
 	    @Override
-	    public RowKey getEndRowKey() {
+	    public Key getEndRowKey() {
 		return null;
 	    }
 
@@ -75,17 +75,17 @@ public class SecondaryIndexEntryIterable extends InputStreamIterable<SecondaryIn
 	};
     }
 
-    public SecondaryIndexIterator iterator(RowKey startRowKey, RowKey stopRowKey) {
+    public SecondaryIndexIterator iterator(Key startRowKey, Key stopRowKey) {
 	return new SecondaryIndexIterator() {
 	    private final PeekingIterator<SecondaryIndexEntry> iterator = SecondaryIndexEntryIterable.super.iterator();
 
 	    @Override
-	    public RowKey getStartRowKey() {
+	    public Key getStartRowKey() {
 		return startRowKey;
 	    }
 
 	    @Override
-	    public RowKey getEndRowKey() {
+	    public Key getEndRowKey() {
 		return stopRowKey;
 	    }
 

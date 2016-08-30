@@ -9,10 +9,10 @@ import java.security.MessageDigest;
 import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -32,9 +32,9 @@ public class SSTableWriter implements Closeable {
     private final String baseFilename;
     private final DataOutputStream dataStream;
     private final IndexOutputStream indexStream;
-    private RowKey startRowKey = null;
+    private Key startRowKey = null;
     private long startOffset = -1;
-    private RowKey endRowKey = null;
+    private Key endRowKey = null;
     private long endOffset = -1;
 
     public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
@@ -81,7 +81,7 @@ public class SSTableWriter implements Closeable {
 	return dataStream.getOffset();
     }
 
-    public final RowKey getStartRowKey() {
+    public final Key getStartRowKey() {
 	return startRowKey;
     }
 
@@ -89,7 +89,7 @@ public class SSTableWriter implements Closeable {
 	return startOffset;
     }
 
-    public final RowKey getEndRowKey() {
+    public final Key getEndRowKey() {
 	return endRowKey;
     }
 
@@ -101,7 +101,7 @@ public class SSTableWriter implements Closeable {
 	return (startOffset >= 0) && (endOffset >= 0) && (startRowKey != null) && (endRowKey != null);
     }
 
-    public void write(RowKey rowKey, Instant tombstone, ColumnMap columns) throws IOException {
+    public void write(Key rowKey, Instant tombstone, ColumnMap columns) throws IOException {
 	if (startRowKey == null) {
 	    startRowKey = rowKey;
 	    startOffset = dataStream.getOffset();

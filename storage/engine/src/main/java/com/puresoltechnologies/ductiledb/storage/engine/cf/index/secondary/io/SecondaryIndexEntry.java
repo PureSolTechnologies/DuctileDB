@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.io;
 import java.util.Arrays;
 import java.util.Objects;
 
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.RowKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 /**
@@ -14,10 +14,10 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class SecondaryIndexEntry implements Comparable<SecondaryIndexEntry> {
 
     private final byte[] value;
-    private final RowKey rowKey;
+    private final Key rowKey;
     private final int hashCode;
 
-    public SecondaryIndexEntry(byte[] value, RowKey rowKey) {
+    public SecondaryIndexEntry(byte[] value, Key rowKey) {
 	super();
 	this.value = value;
 	this.rowKey = rowKey;
@@ -28,7 +28,7 @@ public class SecondaryIndexEntry implements Comparable<SecondaryIndexEntry> {
 	return value;
     }
 
-    public RowKey getRowKey() {
+    public Key getRowKey() {
 	return rowKey;
     }
 

@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.MetaDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.MetaDataEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
@@ -19,7 +20,7 @@ public class IndexImpl implements Index {
 
     private final Storage storage;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
-    private final RedBlackTree<RowKey, IndexEntry> indexTree = new RedBlackTree<>();
+    private final RedBlackTree<Key, IndexEntry> indexTree = new RedBlackTree<>();
 
     IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
 	super();
@@ -75,14 +76,14 @@ public class IndexImpl implements Index {
 
     @Override
     public IndexEntry get(byte[] rowKey) {
-	return indexTree.get(new RowKey(rowKey));
+	return indexTree.get(new Key(rowKey));
     }
 
     @Override
-    public OffsetRange find(RowKey rowKey) {
+    public OffsetRange find(Key rowKey) {
 	try {
-	    RedBlackTreeNode<RowKey, IndexEntry> floorNode = indexTree.floorNode(rowKey);
-	    RedBlackTreeNode<RowKey, IndexEntry> ceilingNode = indexTree.ceilingNode(rowKey);
+	    RedBlackTreeNode<Key, IndexEntry> floorNode = indexTree.floorNode(rowKey);
+	    RedBlackTreeNode<Key, IndexEntry> ceilingNode = indexTree.ceilingNode(rowKey);
 	    if ((floorNode == null) || (ceilingNode == null)) {
 		return null;
 	    }
@@ -93,20 +94,20 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public IndexEntry ceiling(RowKey rowKey) {
+    public IndexEntry ceiling(Key rowKey) {
 	if (rowKey == null) {
 	    return indexTree.isEmpty() ? null : indexTree.get(indexTree.min());
 	}
-	RedBlackTreeNode<RowKey, IndexEntry> ceilingNode = indexTree.ceilingNode(rowKey);
+	RedBlackTreeNode<Key, IndexEntry> ceilingNode = indexTree.ceilingNode(rowKey);
 	return ceilingNode != null ? ceilingNode.getValue() : null;
     }
 
     @Override
-    public IndexEntry floor(RowKey rowKey) {
+    public IndexEntry floor(Key rowKey) {
 	if (rowKey == null) {
 	    return indexTree.isEmpty() ? null : indexTree.get(indexTree.min());
 	}
-	RedBlackTreeNode<RowKey, IndexEntry> floorNode = indexTree.floorNode(rowKey);
+	RedBlackTreeNode<Key, IndexEntry> floorNode = indexTree.floorNode(rowKey);
 	return floorNode != null ? floorNode.getValue() : null;
     }
 
@@ -114,7 +115,7 @@ public class IndexImpl implements Index {
     public IndexIterator iterator() {
 	return new IndexIterator() {
 
-	    private PeekingIterator<RedBlackTreeNode<RowKey, IndexEntry>> iterator = indexTree.iterator();
+	    private PeekingIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = indexTree.iterator();
 
 	    @Override
 	    public boolean hasNext() {
@@ -142,12 +143,12 @@ public class IndexImpl implements Index {
 	    }
 
 	    @Override
-	    public RowKey getStartRowKey() {
+	    public Key getStartRowKey() {
 		return null;
 	    }
 
 	    @Override
-	    public RowKey getEndRowKey() {
+	    public Key getEndRowKey() {
 		return null;
 	    }
 	};

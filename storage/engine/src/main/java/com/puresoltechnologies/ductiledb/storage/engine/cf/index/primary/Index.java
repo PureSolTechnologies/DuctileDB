@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
 import java.io.File;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 
 /**
  * This method is used to provide an in-memory index.
@@ -52,9 +53,9 @@ public interface Index extends Iterable<IndexEntry> {
      *         range in which the entry can be found. <code>null</code> is
      *         returned to indicate that the key is not available.
      */
-    public OffsetRange find(RowKey rowKey);
+    public OffsetRange find(Key rowKey);
 
-    public IndexEntry ceiling(RowKey rowKey);
+    public IndexEntry ceiling(Key rowKey);
 
-    public IndexEntry floor(RowKey rowKey);
+    public IndexEntry floor(Key rowKey);
 }
