@@ -11,7 +11,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.io.MetaDataEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.MetaDataEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DuctileDBInputStream;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.trees.RedBlackTree;
 import com.puresoltechnologies.trees.RedBlackTreeNode;
@@ -19,26 +18,25 @@ import com.puresoltechnologies.trees.RedBlackTreeNode;
 public class IndexImpl implements Index {
 
     private final Storage storage;
-    private final ColumnFamilyDescriptor columnFamilyDescriptor;
+    private final File directory;
     private final RedBlackTree<Key, IndexEntry> indexTree = new RedBlackTree<>();
 
-    IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
+    IndexImpl(Storage storage, File directory) {
 	super();
 	this.storage = storage;
-	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	this.directory = directory;
     }
 
-    IndexImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
-	    throws StorageException {
+    IndexImpl(Storage storage, File directory, File metadataFile) throws StorageException {
 	super();
 	this.storage = storage;
-	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	this.directory = directory;
 	update(metadataFile);
     }
 
     @Override
     public void update() throws StorageException {
-	update(DataFileSet.getLatestMetaDataFile(storage, columnFamilyDescriptor));
+	update(DataFileSet.getLatestMetaDataFile(storage, directory));
     }
 
     @Override
@@ -50,10 +48,10 @@ public class IndexImpl implements Index {
 	try (MetaDataEntryIterable metaDataEntryIterable = new MetaDataEntryIterable(
 		new DuctileDBInputStream(storage.open(latestMetadata)));) {
 	    for (MetaDataEntry entry : metaDataEntryIterable) {
-		IndexEntry index1 = new IndexEntry(entry.getStartKey(),
-			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getStartOffset());
-		IndexEntry index2 = new IndexEntry(entry.getEndKey(),
-			new File(columnFamilyDescriptor.getDirectory(), entry.getFileName()), entry.getEndOffset());
+		IndexEntry index1 = new IndexEntry(entry.getStartKey(), new File(directory, entry.getFileName()),
+			entry.getStartOffset());
+		IndexEntry index2 = new IndexEntry(entry.getEndKey(), new File(directory, entry.getFileName()),
+			entry.getEndOffset());
 		if (!entry.isEmptyDataFile()) {
 		    // We avoid empty data files here.
 		    if (storage.exists(index1.getDataFile())) {

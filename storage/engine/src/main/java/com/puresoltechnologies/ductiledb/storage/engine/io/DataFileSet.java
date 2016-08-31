@@ -28,7 +28,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.OffsetR
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSet implements Closeable {
@@ -51,13 +50,13 @@ public class DataFileSet implements Closeable {
 		ColumnFamilyEngineImpl.MD5_FILE_SUFFIX));
     }
 
-    private static File getMetadataFile(ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp) {
-	return new File(columnFamilyDescriptor.getDirectory(),
+    private static File getMetadataFile(File directory, String timestamp) {
+	return new File(directory,
 		ColumnFamilyEngineImpl.DB_FILE_PREFIX + "-" + timestamp + ColumnFamilyEngineImpl.DATA_FILE_SUFFIX);
     }
 
-    public static File getLatestMetaDataFile(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) {
-	Iterable<File> listMetadata = storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter());
+    public static File getLatestMetaDataFile(Storage storage, File directory) {
+	Iterable<File> listMetadata = storage.list(directory, new MetadataFilenameFilter());
 	File latestMetadata = null;
 	for (File metadata : listMetadata) {
 	    if ((latestMetadata == null) || (latestMetadata.compareTo(metadata) < 0)) {
@@ -68,7 +67,6 @@ public class DataFileSet implements Closeable {
     }
 
     private final Storage storage;
-    private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File metadataFile;
     private final Index index;
     private final NavigableSet<File> dataFiles = new TreeSet<>();
@@ -79,17 +77,15 @@ public class DataFileSet implements Closeable {
     private final Map<Integer, File> numToIndexFile = new HashMap<>();
     private final Map<File, Integer> indexFileToNum = new HashMap<>();
 
-    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
-	this(storage, columnFamilyDescriptor, getLatestMetaDataFile(storage, columnFamilyDescriptor));
+    public DataFileSet(Storage storage, File directory) throws StorageException {
+	this(storage, directory, getLatestMetaDataFile(storage, directory));
     }
 
-    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File metadataFile)
-	    throws StorageException {
+    public DataFileSet(Storage storage, File directory, File metadataFile) throws StorageException {
 	super();
 	this.storage = storage;
-	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.metadataFile = metadataFile;
-	this.index = IndexFactory.create(storage, columnFamilyDescriptor, metadataFile);
+	this.index = IndexFactory.create(storage, directory, metadataFile);
 
 	index.forEach(indexEntry -> dataFiles.add(indexEntry.getDataFile()));
 	dataFiles.forEach(file -> {
@@ -105,13 +101,8 @@ public class DataFileSet implements Closeable {
 	});
     }
 
-    public DataFileSet(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, String timestamp)
-	    throws StorageException {
-	this(storage, columnFamilyDescriptor, getMetadataFile(columnFamilyDescriptor, timestamp));
-    }
-
-    public ColumnFamilyDescriptor getColumnFamilyDescriptor() {
-	return columnFamilyDescriptor;
+    public DataFileSet(Storage storage, File directory, String timestamp) throws StorageException {
+	this(storage, directory, getMetadataFile(directory, timestamp));
     }
 
     @Override

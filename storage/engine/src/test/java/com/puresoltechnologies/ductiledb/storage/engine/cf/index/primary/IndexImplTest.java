@@ -8,18 +8,14 @@ import java.io.File;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.OffsetRange;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class IndexImplTest {
 
     @Test
     public void test() {
-	IndexImpl index = new IndexImpl(mock(Storage.class), mock(ColumnFamilyDescriptor.class));
+	IndexImpl index = new IndexImpl(mock(Storage.class), mock(File.class));
 
 	index.put(new IndexEntry(new Key(Bytes.toBytes(0l)), new File("File0"), 0l));
 	index.put(new IndexEntry(new Key(Bytes.toBytes(1l)), new File("File1"), 1l));

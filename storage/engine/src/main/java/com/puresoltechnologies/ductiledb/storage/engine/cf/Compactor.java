@@ -27,7 +27,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.io.SSTableWriter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.lss.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -40,7 +40,7 @@ public class Compactor {
     private static final Logger logger = LoggerFactory.getLogger(Compactor.class);
 
     private final Storage storage;
-    private final ColumnFamilyDescriptor columnFamilyDescriptor;
+    private final File directory;
     private final File commitLogFile;
     private final int bufferSize;
     private final long maxDataFileSize;
@@ -49,11 +49,11 @@ public class Compactor {
     private int fileCount = 0;
     private final TreeMap<File, List<IndexEntry>> index = new TreeMap<>();
 
-    public Compactor(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor, File commitLogFile, int bufferSize,
-	    long maxDataFileSize, int maxGenerations) {
+    public Compactor(Storage storage, File directory, File commitLogFile, int bufferSize, long maxDataFileSize,
+	    int maxGenerations) {
 	super();
 	this.storage = storage;
-	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	this.directory = directory;
 	this.commitLogFile = commitLogFile;
 	this.bufferSize = bufferSize;
 	this.maxDataFileSize = maxDataFileSize;
@@ -62,7 +62,7 @@ public class Compactor {
 
     public void runCompaction() throws StorageException {
 	try {
-	    String baseFilename = ColumnFamilyEngineImpl.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
+	    String baseFilename = LogStructuredStore.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
 	    logger.info("Start compaction for '" + commitLogFile + "' (new: " + baseFilename + ")...");
 	    StopWatch stopWatch = new StopWatch();
 	    stopWatch.start();
@@ -78,7 +78,7 @@ public class Compactor {
 
     private List<File> findDataFiles() throws IOException {
 	List<String> timestamps = new ArrayList<>();
-	for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new MetadataFilenameFilter())) {
+	for (File file : storage.list(directory, new MetadataFilenameFilter())) {
 	    timestamps.add(ColumnFamilyEngineUtils.extractTimestampForMetadataFile(file.getName()));
 	}
 	List<File> dataFiles = new ArrayList<>();
@@ -87,7 +87,7 @@ public class Compactor {
 	    deleteObsoleteStorageFiles(timestamps);
 	    Collections.reverse(timestamps);
 	    String lastTimestamp = timestamps.get(0);
-	    for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
+	    for (File file : storage.list(directory, new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
 		    return name.startsWith(ColumnFamilyEngine.DB_FILE_PREFIX + "-" + lastTimestamp)
@@ -104,7 +104,7 @@ public class Compactor {
     private void deleteObsoleteStorageFiles(List<String> timestamps) {
 	while (timestamps.size() > maxGenerations) {
 	    String timestamp = timestamps.get(0);
-	    for (File file : storage.list(columnFamilyDescriptor.getDirectory(), new FilenameFilter() {
+	    for (File file : storage.list(directory, new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
 		    return name.startsWith(ColumnFamilyEngine.DB_FILE_PREFIX + "-" + timestamp);
@@ -129,8 +129,7 @@ public class Compactor {
 
     private void integrateCommitLog(IndexIterator commitLogIterator, DataFileReader commitLogReader,
 	    List<File> dataFiles, String baseFilename) throws StorageException, IOException {
-	SSTableWriter writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(),
-		baseFilename + "-" + fileCount, bufferSize);
+	SSTableWriter writer = new SSTableWriter(storage, directory, baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    IndexEntry commitLogNext = commitLogIterator.next();
 	    for (File dataFile : dataFiles) {
@@ -205,8 +204,7 @@ public class Compactor {
 	    writer.close();
 	    addToIndex(writer);
 	    fileCount++;
-	    writer = new SSTableWriter(storage, columnFamilyDescriptor.getDirectory(), baseFilename + "-" + fileCount,
-		    bufferSize);
+	    writer = new SSTableWriter(storage, directory, baseFilename + "-" + fileCount, bufferSize);
 	}
 	return writer;
     }
@@ -225,8 +223,8 @@ public class Compactor {
 
     private void writeMetaData(String baseFilename) throws IOException {
 	logger.info("Creating meta data for " + commitLogFile + "' (new: " + baseFilename + ")...");
-	try (BufferedOutputStream stream = storage.create(
-		new File(columnFamilyDescriptor.getDirectory(), baseFilename + ColumnFamilyEngine.METADATA_SUFFIX))) {
+	try (BufferedOutputStream stream = storage
+		.create(new File(directory, baseFilename + ColumnFamilyEngine.METADATA_SUFFIX))) {
 	    stream.write(Bytes.toBytes(fileCount + 1)); // Number of files
 	    for (File file : index.keySet()) {
 		String fileName = file.getName();

@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.lss.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -25,7 +25,7 @@ public class CurrentCommitLogFilenameFilter implements FilenameFilter {
 	if (name.startsWith(ColumnFamilyEngine.COMMIT_LOG_PREFIX)
 		&& name.endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX)) {
 	    File dataFile = new File(dir, name);
-	    File compactedName = ColumnFamilyEngineImpl.getCompactedName(dataFile);
+	    File compactedName = LogStructuredStore.getCompactedName(dataFile);
 	    if (storage.exists(compactedName)) {
 		return false;
 	    }
