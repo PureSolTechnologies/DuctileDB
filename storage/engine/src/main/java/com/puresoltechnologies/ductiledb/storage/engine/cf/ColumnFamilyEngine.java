@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SecondaryIndexDescriptor;
 
 /**
  * This class handles the storage of a single column family.
@@ -83,4 +84,12 @@ public interface ColumnFamilyEngine extends Closeable {
      * @return
      */
     public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException;
+
+    public void createIndex(SecondaryIndexDescriptor indexDescriptor);
+
+    public void dropIndex(String name);
+
+    public SecondaryIndexDescriptor getIndex(String name);
+
+    public Iterable<SecondaryIndexDescriptor> getIndizes();
 }

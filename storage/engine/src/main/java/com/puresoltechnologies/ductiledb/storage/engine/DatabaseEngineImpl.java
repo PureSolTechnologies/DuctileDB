@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
@@ -114,7 +115,8 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 
     @Override
     public Table getTable(TableDescriptor tableDescriptor) {
-	return new Table(namespaceEngines.get(tableDescriptor.getNamespace().getName()).getTableEngine(tableDescriptor),
+	NamespaceDescriptor namespace = tableDescriptor.getNamespace();
+	return new Table(namespaceEngines.get(namespace.getName()).getTableEngine(tableDescriptor.getName()),
 		tableDescriptor);
     }
 
@@ -122,11 +124,20 @@ public class DatabaseEngineImpl implements DatabaseEngine {
     public Table getTable(String namespaceName, String tableName) {
 	NamespaceEngineImpl namespaceEngineImpl = namespaceEngines.get(namespaceName);
 	TableDescriptor tableDescriptor = schemaManager.getNamespace(namespaceName).getTable(tableName);
-	return new Table(namespaceEngineImpl.getTableEngine(tableDescriptor), tableDescriptor);
+	return new Table(namespaceEngineImpl.getTableEngine(tableDescriptor.getName()), tableDescriptor);
     }
 
-    public NamespaceEngine getNamespaceEngine(NamespaceDescriptor namespace) {
-	return namespaceEngines.get(namespace.getName());
+    public NamespaceEngineImpl getNamespaceEngine(String namespaceName) {
+	return namespaceEngines.get(namespaceName);
+    }
+
+    public TableEngineImpl getTableEngine(TableDescriptor table) {
+	NamespaceDescriptor namespace = table.getNamespace();
+	return getNamespaceEngine(namespace.getName()).getTableEngine(table.getName());
+    }
+
+    public ColumnFamilyEngineImpl getColumnFamilyEngine(ColumnFamilyDescriptor columnFamily) {
+	return getTableEngine(columnFamily.getTable()).getColumnFamilyEngine(columnFamily.getName());
     }
 
     public void addTable(TableDescriptor tableDescriptor) throws StorageException {
@@ -137,7 +148,7 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	TableDescriptor tableDescriptor = columnFamilyDescriptor.getTable();
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
 	NamespaceEngineImpl namespaceEngine = namespaceEngines.get(namespaceDescriptor.getName());
-	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(tableDescriptor);
+	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(tableDescriptor.getName());
 	tableEngine.addColumnFamily(columnFamilyDescriptor);
     }
 
@@ -149,7 +160,7 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	TableDescriptor tableDescriptor = columnFamilyDescriptor.getTable();
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
 	NamespaceEngineImpl namespaceEngine = namespaceEngines.get(namespaceDescriptor.getName());
-	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(tableDescriptor);
+	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(tableDescriptor.getName());
 	tableEngine.dropColumnFamily(columnFamilyDescriptor);
     }
 

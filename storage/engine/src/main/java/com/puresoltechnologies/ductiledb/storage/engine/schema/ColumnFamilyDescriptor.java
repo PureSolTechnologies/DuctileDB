@@ -9,11 +9,13 @@ public class ColumnFamilyDescriptor {
     private final byte[] name;
     private final TableDescriptor table;
     private final File directory;
+    private final File indexDirectory;
 
     public ColumnFamilyDescriptor(byte[] name, TableDescriptor table, File directory) {
 	this.name = name;
 	this.table = table;
 	this.directory = directory;
+	this.indexDirectory = new File(directory, "indizes");
     }
 
     public final byte[] getName() {
@@ -26,6 +28,10 @@ public class ColumnFamilyDescriptor {
 
     public final File getDirectory() {
 	return directory;
+    }
+
+    public final File getIndexDirectory() {
+	return indexDirectory;
     }
 
     @Override

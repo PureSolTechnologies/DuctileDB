@@ -74,7 +74,7 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 		"Namespace engine '" + namespaceDescriptor.getName() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
-    public TableEngineImpl getTableEngine(TableDescriptor tableDescriptor) {
-	return tableEngines.get(tableDescriptor.getName());
+    public TableEngineImpl getTableEngine(String tableName) {
+	return tableEngines.get(tableName);
     }
 }

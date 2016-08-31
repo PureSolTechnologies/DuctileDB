@@ -36,6 +36,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.UsableCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.schema.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -48,6 +49,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyEngineImpl.class);
+    private static final String FULL_INDEX_FILE = "full_index.flag";
 
     public static String createFilename(String filePrefix, Instant timestamp, int number, String suffix) {
 	StringBuilder buffer = new StringBuilder(filePrefix);
@@ -108,6 +110,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private long maxCommitLogSize;
     private long maxDataFileSize;
     private boolean runCompactions = true;
+    private boolean hasFullIndex = false;
 
     private final ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock(true);
     private final ReadLock readLock = reentrantReadWriteLock.readLock();
@@ -480,8 +483,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		readLock.unlock();
 	    }
 	    return new ColumnFamilyScanner(storage, memtableCopy, currentCommitLogs, dataFiles,
-		    startRowKey != null ? new Key(startRowKey) : null,
-		    endRowKey != null ? new Key(endRowKey) : null);
+		    startRowKey != null ? new Key(startRowKey) : null, endRowKey != null ? new Key(endRowKey) : null);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}
@@ -528,5 +530,29 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	} catch (IOException e) {
 	    throw new StorageException("Could not write " + commitLogFile.getName() + ".", e);
 	}
+    }
+
+    @Override
+    public void createIndex(SecondaryIndexDescriptor indexDescriptor) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void dropIndex(String name) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public SecondaryIndexDescriptor getIndex(String name) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public Iterable<SecondaryIndexDescriptor> getIndizes() {
+	// TODO Auto-generated method stub
+	return null;
     }
 }

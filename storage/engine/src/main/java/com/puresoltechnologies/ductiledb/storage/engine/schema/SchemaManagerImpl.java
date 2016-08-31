@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.EngineChecks;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -301,7 +302,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
-	File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), Bytes.toString(columnFamilyName));
+	File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), Bytes.toHexString(columnFamilyName));
 	ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName, tableDescriptor,
 		columnFamilyDirectory);
 	logger.info("Creating column family '" + columnFamilyDescriptor + "' in storage '" + getStoreName() + "'...");
@@ -323,11 +324,13 @@ public class SchemaManagerImpl implements SchemaManager {
 	}
 	try {
 	    storage.createDirectory(columnFamilyDirectory);
+	    storage.createDirectory(columnFamilyDescriptor.getIndexDirectory());
 	    try (BufferedOutputStream metadataFile = storage
 		    .create(new File(columnFamilyDirectory, "metadata.properties"))) {
 		Properties properties = new Properties();
 		properties.put("cf.creation.time", new Date().toString());
-		properties.put("cf.name", Bytes.toHumanReadableString(columnFamilyName));
+		properties.put("cf.name", Bytes.toHexString(columnFamilyName));
+		properties.put("cf.name.ascii", Bytes.toString(columnFamilyName));
 		properties.put("cf.namespace.name", namespaceDescriptor.getName());
 		properties.put("cf.table.name", tableDescriptor.getName());
 		properties.put("cf.storage.directory", storageDirectory.toString());
@@ -366,46 +369,28 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public boolean hasFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	// TODO Auto-generated method stub
-	return false;
-    }
-
-    @Override
-    public void createFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException {
-	// TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void dropFullIndex(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	// TODO Auto-generated method stub
-
-    }
-
-    @Override
     public Iterable<SecondaryIndexDescriptor> getIndizes(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	// TODO Auto-generated method stub
-	return null;
+	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
+	return columnFamilyEngine.getIndizes();
     }
 
     @Override
     public SecondaryIndexDescriptor getIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) {
-	// TODO Auto-generated method stub
-	return null;
+	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
+	return columnFamilyEngine.getIndex(name);
     }
 
     @Override
-    public void createIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor,
-	    SecondaryIndexDescriptor indexDescriptor) throws SchemaException {
-	// TODO Auto-generated method stub
-
+    public void createIndex(ColumnFamilyDescriptor columnFamilyDescriptor, SecondaryIndexDescriptor indexDescriptor)
+	    throws SchemaException {
+	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
+	columnFamilyEngine.createIndex(indexDescriptor);
     }
 
     @Override
     public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) {
-	// TODO Auto-generated method stub
-
+	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
+	columnFamilyEngine.dropIndex(name);
     }
 
 }
