@@ -1,8 +1,10 @@
-package com.puresoltechnologies.ductiledb.storage.engine.schema;
+package com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary;
 
+import java.io.File;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 /**
@@ -34,6 +36,10 @@ public class SecondaryIndexDescriptor {
 
     public final TreeSet<byte[]> getColumns() {
 	return columns;
+    }
+
+    public File getDirectory() {
+	return new File(columnFamilyDescriptor.getDirectory(), name);
     }
 
 }

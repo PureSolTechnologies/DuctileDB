@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 
 /**
  * This is the central SchemaManager.

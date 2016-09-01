@@ -133,6 +133,11 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
+    public String toString() {
+	return "LogStructuredStore:" + directory.getPath();
+    }
+
+    @Override
     public void close() {
 	logger.info("Closing column family engine '" + toString() + "'...");
 	StopWatch stopWatch = new StopWatch();
@@ -157,6 +162,9 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     public void open() throws StorageException {
 	try {
+	    logger.info("Starting column family engine '" + toString() + "'...");
+	    StopWatch stopWatch = new StopWatch();
+	    stopWatch.start();
 	    if (!storage.exists(directory)) {
 		storage.createDirectory(directory);
 	    }
@@ -164,6 +172,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    createEmptyCommitLog();
 	    checkDataFiles();
 	    openDataFiles();
+	    stopWatch.stop();
+	    logger.info("Column family engine '" + toString() + "' started in " + stopWatch.getMillis() + "ms.");
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize column family '" + toString() + "'.", e);
 	}
@@ -258,9 +268,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		@Override
 		public void run() {
 		    try {
-			Compactor compactor = new Compactor(storage, directory, commitLogFile, bufferSize,
-				maxDataFileSize, maxFileGenerations);
-			compactor.runCompaction();
+			Compactor.run(storage, directory, commitLogFile, bufferSize, maxDataFileSize,
+				maxFileGenerations);
 			openDataFiles();
 			deleteCommitLogFiles(commitLogFile);
 		    } catch (Exception e) {

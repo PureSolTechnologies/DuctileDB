@@ -18,6 +18,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.EngineChecks;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -383,8 +384,12 @@ public class SchemaManagerImpl implements SchemaManager {
     @Override
     public void createIndex(ColumnFamilyDescriptor columnFamilyDescriptor, SecondaryIndexDescriptor indexDescriptor)
 	    throws SchemaException {
-	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
-	columnFamilyEngine.createIndex(indexDescriptor);
+	try {
+	    ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
+	    columnFamilyEngine.createIndex(indexDescriptor);
+	} catch (StorageException e) {
+	    throw new SchemaException("Could not create index '" + indexDescriptor + "'.", e);
+	}
     }
 
     @Override

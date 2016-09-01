@@ -39,25 +39,32 @@ public class Compactor {
 
     private static final Logger logger = LoggerFactory.getLogger(Compactor.class);
 
+    public static void run(Storage storage, File directory, File commitLogFile, int bufferSize, long maxDataFileSize,
+	    int maxFileGenerations) throws StorageException {
+	Compactor compactor = new Compactor(storage, directory, commitLogFile, bufferSize, maxDataFileSize,
+		maxFileGenerations);
+	compactor.runCompaction();
+    }
+
     private final Storage storage;
     private final File directory;
     private final File commitLogFile;
     private final int bufferSize;
     private final long maxDataFileSize;
-    private final int maxGenerations;
+    private final int maxFileGenerations;
 
     private int fileCount = 0;
     private final TreeMap<File, List<IndexEntry>> index = new TreeMap<>();
 
-    public Compactor(Storage storage, File directory, File commitLogFile, int bufferSize, long maxDataFileSize,
-	    int maxGenerations) {
+    private Compactor(Storage storage, File directory, File commitLogFile, int bufferSize, long maxDataFileSize,
+	    int maxFileGenerations) {
 	super();
 	this.storage = storage;
 	this.directory = directory;
 	this.commitLogFile = commitLogFile;
 	this.bufferSize = bufferSize;
 	this.maxDataFileSize = maxDataFileSize;
-	this.maxGenerations = maxGenerations;
+	this.maxFileGenerations = maxFileGenerations;
     }
 
     public void runCompaction() throws StorageException {
@@ -102,7 +109,7 @@ public class Compactor {
     }
 
     private void deleteObsoleteStorageFiles(List<String> timestamps) {
-	while (timestamps.size() > maxGenerations) {
+	while (timestamps.size() > maxFileGenerations) {
 	    String timestamp = timestamps.get(0);
 	    for (File file : storage.list(directory, new FilenameFilter() {
 		@Override
