@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +12,6 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.lss.LogStructuredStoreImpl;
@@ -30,6 +31,8 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File indexDirectory;
+    private final Map<String, SecondaryIndexEngineImpl> indizes = new HashMap<>();
+    private final Map<String, SecondaryIndexDescriptor> indexDescriptors = new HashMap<>();
 
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    DatabaseEngineConfiguration configuration) throws StorageException {
@@ -53,6 +56,10 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     @Override
     public final ColumnFamilyDescriptor getDescriptor() {
 	return columnFamilyDescriptor;
+    }
+
+    public final File getIndexDirectory() {
+	return indexDirectory;
     }
 
     public void readIndizes() {
@@ -104,7 +111,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     @Override
     public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws StorageException {
 	Storage storage = getStorage();
-	File indexDirectory = new File(getDirectory(), indexDescriptor.getName());
+	File indexDirectory = new File(getIndexDirectory(), indexDescriptor.getName());
 	if (storage.exists(indexDirectory)) {
 	    throw new StorageException("Index with name '" + indexDescriptor.getName() + "' exists already.");
 	}
@@ -113,25 +120,29 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	} catch (IOException e) {
 	    throw new StorageException("Could not create index with name '" + indexDescriptor.getName() + "'.", e);
 	}
-	SecondaryIndexEngine indexStore = new SecondaryIndexEngineImpl(storage, indexDescriptor, getMaxCommitLogSize(),
-		getMaxDataFileSize(), getBufferSize(), getMaxFileGenerations());
+	SecondaryIndexEngineImpl indexStore = new SecondaryIndexEngineImpl(storage, indexDescriptor,
+		getMaxCommitLogSize(), getMaxDataFileSize(), getBufferSize(), getMaxFileGenerations());
+	indizes.put(indexDescriptor.getName(), indexStore);
+	indexDescriptors.put(indexDescriptor.getName(), indexDescriptor);
     }
 
     @Override
-    public void dropIndex(String name) {
-	// TODO Auto-generated method stub
-
+    public void dropIndex(String name) throws StorageException {
+	SecondaryIndexEngineImpl indexStore = indizes.get(name);
+	if (indexStore != null) {
+	    indexStore.drop();
+	    indizes.remove(name);
+	    indexDescriptors.remove(name);
+	}
     }
 
     @Override
     public SecondaryIndexDescriptor getIndex(String name) {
-	// TODO Auto-generated method stub
-	return null;
+	return indexDescriptors.get(name);
     }
 
     @Override
     public Iterable<SecondaryIndexDescriptor> getIndizes() {
-	// TODO Auto-generated method stub
-	return null;
+	return indexDescriptors.values();
     }
 }

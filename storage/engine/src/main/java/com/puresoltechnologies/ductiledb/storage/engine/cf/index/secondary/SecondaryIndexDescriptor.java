@@ -2,10 +2,9 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary;
 
 import java.io.File;
 import java.util.Set;
-import java.util.TreeSet;
 
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 /**
  * This class contains the definition of a Secondary Index for a column family.
@@ -17,7 +16,7 @@ public class SecondaryIndexDescriptor {
 
     private final String name;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
-    private final TreeSet<byte[]> columns = new TreeSet<>(ByteArrayComparator.getInstance());
+    private final ColumnKeySet columns = new ColumnKeySet();
 
     public SecondaryIndexDescriptor(String name, ColumnFamilyDescriptor columnFamilyDescriptor, Set<byte[]> columns) {
 	super();
@@ -34,12 +33,49 @@ public class SecondaryIndexDescriptor {
 	return columnFamilyDescriptor;
     }
 
-    public final TreeSet<byte[]> getColumns() {
+    public final ColumnKeySet getColumns() {
 	return columns;
     }
 
     public File getDirectory() {
-	return new File(columnFamilyDescriptor.getDirectory(), name);
+	return new File(new File(columnFamilyDescriptor.getDirectory(), "indizes"), name);
+    }
+
+    @Override
+    public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((columnFamilyDescriptor == null) ? 0 : columnFamilyDescriptor.hashCode());
+	result = prime * result + ((columns == null) ? 0 : columns.hashCode());
+	result = prime * result + ((name == null) ? 0 : name.hashCode());
+	return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+	if (this == obj)
+	    return true;
+	if (obj == null)
+	    return false;
+	if (getClass() != obj.getClass())
+	    return false;
+	SecondaryIndexDescriptor other = (SecondaryIndexDescriptor) obj;
+	if (columnFamilyDescriptor == null) {
+	    if (other.columnFamilyDescriptor != null)
+		return false;
+	} else if (!columnFamilyDescriptor.equals(other.columnFamilyDescriptor))
+	    return false;
+	if (columns == null) {
+	    if (other.columns != null)
+		return false;
+	} else if (!columns.equals(other.columns))
+	    return false;
+	if (name == null) {
+	    if (other.name != null)
+		return false;
+	} else if (!name.equals(other.name))
+	    return false;
+	return true;
     }
 
 }

@@ -41,7 +41,7 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
 
     public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws StorageException;
 
-    public void dropIndex(String name);
+    public void dropIndex(String name) throws StorageException;
 
     public SecondaryIndexDescriptor getIndex(String name);
 
