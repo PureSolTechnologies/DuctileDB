@@ -47,7 +47,7 @@ public interface SchemaManager {
 
     public Iterable<SecondaryIndexDescriptor> getIndizes(ColumnFamilyDescriptor columnFamilyDescriptor);
 
-    public SecondaryIndexDescriptor getIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor);
+    public SecondaryIndexDescriptor getIndex(ColumnFamilyDescriptor columnFamilyDescriptor, String name);
 
     public void createIndex(ColumnFamilyDescriptor columnFamilyDescriptor, SecondaryIndexDescriptor indexDescriptor)
 	    throws SchemaException;

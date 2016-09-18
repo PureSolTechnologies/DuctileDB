@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +39,11 @@ public abstract class AbstractDatabaseEngineTest {
 	}
 	storage = StorageFactory.getStorageInstance(configuration.getStorage());
 	cleanTestStorageDirectory();
+	startEngine();
+    }
+
+    protected static void startEngine() throws StorageException {
+	assertNull("Engine was started already.", storageEngine);
 	storageEngine = new DatabaseEngineImpl(storage, DATABASE_ENGINE_NAME, configuration);
     }
 
@@ -54,9 +60,13 @@ public abstract class AbstractDatabaseEngineTest {
 
     @AfterClass
     public static void cleanupStorageEngine() throws IOException {
-	if (storageEngine != null) {
-	    storageEngine.close();
-	}
+	stopEngine();
+    }
+
+    protected static void stopEngine() throws IOException {
+	assertNotNull("Engine was not started, yet.", storageEngine);
+	storageEngine.close();
+	storageEngine = null;
     }
 
     public static DatabaseEngineConfiguration getConfiguration() {

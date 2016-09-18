@@ -22,4 +22,12 @@ public class ColumnFamily {
     public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException {
 	return columnFamilyEngine.getScanner(startRowKey, endRowKey);
     }
+
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] value) throws StorageException {
+	return columnFamilyEngine.find(columnKey, value);
+    }
+
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) throws StorageException {
+	return columnFamilyEngine.find(columnKey, fromValue, toValue);
+    }
 }

@@ -376,7 +376,7 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public SecondaryIndexDescriptor getIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) {
+    public SecondaryIndexDescriptor getIndex(ColumnFamilyDescriptor columnFamilyDescriptor, String name) {
 	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
 	return columnFamilyEngine.getIndex(name);
     }

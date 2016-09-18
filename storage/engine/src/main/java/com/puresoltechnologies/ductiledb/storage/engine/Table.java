@@ -85,6 +85,24 @@ public class Table {
 	}
     }
 
+    public ResultScanner find(Scan scan, byte[] columnKey, byte[] value) {
+	try {
+	    return new ResultScanner(this, scan, columnKey, value);
+	} catch (StorageException e) {
+	    logger.error("Could not create result scanner.", e);
+	    return null;
+	}
+    }
+
+    public ResultScanner find(Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
+	try {
+	    return new ResultScanner(this, scan, columnKey, fromValue, toValue);
+	} catch (StorageException e) {
+	    logger.error("Could not create result scanner.", e);
+	    return null;
+	}
+    }
+
     public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue)
 	    throws StorageException {
 	ColumnFamilyEngineImpl columnFamilyEngine = tableEngine.getColumnFamilyEngine(columnFamily);

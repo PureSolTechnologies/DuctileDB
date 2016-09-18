@@ -18,6 +18,35 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
     public ColumnFamilyDescriptor getDescriptor();
 
     /**
+     * This method searches the store for a specified column/value pair.
+     * 
+     * @param columnKey
+     *            is the column key of the column to be checked for a certain
+     *            value.
+     * @param value
+     *            is the value to be found in the specified column.
+     * @return A {@link ColumnFamilyScanner} is returned to scan over all found
+     *         results..
+     */
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] value);
+
+    /**
+     * This method searches the store for a specified column/value pair.
+     * 
+     * 
+     * @param columnKey
+     *            is the column key of the column to be checked for a certain
+     *            value.
+     * @param fromValue
+     *            is the minimum value to be found in the specified column.
+     * @param toValue
+     *            is the maximum value to be found in the specified column.
+     * @return A {@link ColumnFamilyScanner} is returned to scan over all found
+     *         results..
+     */
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue);
+
+    /**
      * Increments (or decrements) a value in atomic way.
      * 
      * @param rowKey

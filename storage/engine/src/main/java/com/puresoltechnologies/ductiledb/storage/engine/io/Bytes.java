@@ -232,7 +232,7 @@ public class Bytes {
 	return hexString.toString();
     }
 
-    public static byte[] fromHumanReadableString(String identifier) {
+    public static byte[] fromHexString(String identifier) {
 	if (identifier.length() % 2 != 0) {
 	    throw new IllegalArgumentException("The identifier needs to have a even number of digits.");
 	}

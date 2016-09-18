@@ -26,17 +26,46 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
     private final NavigableMap<byte[], ColumnFamilyScanner> cfScanners = new TreeMap<>(BYTE_ARRAY_COMPARATOR);
 
     private final Table table;
-    private final Scan scan;
     private Result nextResult = null;
 
     public ResultScanner(Table table, Scan scan) throws StorageException {
 	this.table = table;
-	this.scan = scan;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
 	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
 		ColumnFamily columnFamily = table.getColumnFamily(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
+	    }
+	} else {
+	    for (ColumnFamily columnFamily : table.getColumnFamilies()) {
+		cfScanners.put(columnFamily.getName(), columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
+	    }
+	}
+    }
+
+    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] value) throws StorageException {
+	this.table = table;
+	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
+	if (!columnFamilies.isEmpty()) {
+	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
+		ColumnFamily columnFamily = table.getColumnFamily(columnFamilyKey);
+		cfScanners.put(columnFamilyKey, columnFamily.find(columnKey, value));
+	    }
+	} else {
+	    for (ColumnFamily columnFamily : table.getColumnFamilies()) {
+		cfScanners.put(columnFamily.getName(), columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
+	    }
+	}
+    }
+
+    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue)
+	    throws StorageException {
+	this.table = table;
+	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
+	if (!columnFamilies.isEmpty()) {
+	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
+		ColumnFamily columnFamily = table.getColumnFamily(columnFamilyKey);
+		cfScanners.put(columnFamilyKey, columnFamily.find(columnKey, fromValue, toValue));
 	    }
 	} else {
 	    for (ColumnFamily columnFamily : table.getColumnFamilies()) {

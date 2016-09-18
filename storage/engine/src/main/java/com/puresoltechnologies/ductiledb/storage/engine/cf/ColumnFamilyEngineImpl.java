@@ -1,9 +1,12 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +48,6 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.indexDirectory = new File(getDirectory(), "indizes");
 	open();
-	readIndizes();
     }
 
     @Override
@@ -62,14 +64,46 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	return indexDirectory;
     }
 
-    public void readIndizes() {
+    public void readIndizes() throws StorageException {
 	Storage storage = getStorage();
+	try {
+	    storage.createDirectory(indexDirectory);
+	} catch (IOException e) {
+	    throw new StorageException("Could not create index directory '" + indexDirectory + "'.", e);
+	}
 	Iterable<File> list = storage.list(indexDirectory);
 	for (File directory : list) {
 	    if (storage.isDirectory(directory)) {
-
+		SecondaryIndexDescriptor secondaryIndexDescriptor = readSecondaryIndexDescriptor(directory);
 	    }
 	}
+    }
+
+    private SecondaryIndexDescriptor readSecondaryIndexDescriptor(File directory) throws StorageException {
+	Storage storage = getStorage();
+	File metadataFile = new File(directory, "metadata.properties");
+	try (BufferedInputStream metadata = storage.open(metadataFile)) {
+	    Properties properties = new Properties();
+	    properties.load(metadata);
+	    ColumnKeySet columns = new ColumnKeySet();
+	    int count = Integer.parseInt(properties.getProperty("index.columns.count"));
+	    for (int id = 0; id < count; ++id) {
+		String hexName = properties.getProperty("index.columns." + String.valueOf(id));
+		byte[] column = Bytes.fromHexString(hexName);
+		columns.add(column);
+	    }
+	    SecondaryIndexDescriptor secondaryIndexDescriptor = new SecondaryIndexDescriptor(directory.getName(),
+		    columnFamilyDescriptor, columns);
+	    return secondaryIndexDescriptor;
+	} catch (IOException e) {
+	    throw new StorageException("Could not read secondary index meta data.", e);
+	}
+    }
+
+    @Override
+    public void open() throws StorageException {
+	super.open();
+	readIndizes();
     }
 
     @Override
@@ -77,6 +111,20 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	TableDescriptor table = columnFamilyDescriptor.getTable();
 	return "CFEngine:" + table.getNamespace().getName() + "." + table.getName() + "/"
 		+ Bytes.toHumanReadableString(columnFamilyDescriptor.getName());
+    }
+
+    @Override
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] value) {
+	SecondaryIndexEngineImpl indexEngine = indizes.get(columnKey);
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) {
+	SecondaryIndexEngineImpl indexEngine = indizes.get(columnKey);
+	// TODO Auto-generated method stub
+	return null;
     }
 
     @Override
@@ -110,6 +158,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 
     @Override
     public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws StorageException {
+	logger.info("Creating new index '" + indexDescriptor + "' for '" + toString() + "'...");
 	Storage storage = getStorage();
 	File indexDirectory = new File(getIndexDirectory(), indexDescriptor.getName());
 	if (storage.exists(indexDirectory)) {
@@ -117,6 +166,18 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	}
 	try {
 	    storage.createDirectory(indexDirectory);
+	    File metadataFile = new File(indexDirectory, "metadata.properties");
+	    try (BufferedOutputStream metadata = storage.create(metadataFile)) {
+		Properties properties = new Properties();
+		int id = 0;
+		ColumnKeySet columns = indexDescriptor.getColumns();
+		properties.put("index.columns.count", String.valueOf(columns.size()));
+		for (byte[] column : columns) {
+		    properties.put("index.columns." + String.valueOf(id), Bytes.toHexString(column));
+		    id++;
+		}
+		properties.store(metadata, "Column configuration of index.");
+	    }
 	} catch (IOException e) {
 	    throw new StorageException("Could not create index with name '" + indexDescriptor.getName() + "'.", e);
 	}
@@ -124,6 +185,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		getMaxCommitLogSize(), getMaxDataFileSize(), getBufferSize(), getMaxFileGenerations());
 	indizes.put(indexDescriptor.getName(), indexStore);
 	indexDescriptors.put(indexDescriptor.getName(), indexDescriptor);
+	logger.info("Index '" + indexDescriptor + "' for '" + toString() + "' created.");
     }
 
     @Override
