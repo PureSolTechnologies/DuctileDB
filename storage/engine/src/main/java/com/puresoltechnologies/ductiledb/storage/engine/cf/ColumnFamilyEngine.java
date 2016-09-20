@@ -26,7 +26,8 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      * @param value
      *            is the value to be found in the specified column.
      * @return A {@link ColumnFamilyScanner} is returned to scan over all found
-     *         results..
+     *         results. If there is not index for the column, <code>null</code>
+     *         is returned.
      */
     public ColumnFamilyScanner find(byte[] columnKey, byte[] value);
 
@@ -42,7 +43,8 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      * @param toValue
      *            is the maximum value to be found in the specified column.
      * @return A {@link ColumnFamilyScanner} is returned to scan over all found
-     *         results..
+     *         results. If there is not index for the column, <code>null</code>
+     *         is returned.
      */
     public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue);
 
@@ -52,9 +54,8 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      * @param rowKey
      * @param column
      * @param incrementValue
-     * @throws StorageException
      */
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException;
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue);
 
     /**
      * Increments (or decrements) a value in atomic way.
@@ -63,14 +64,12 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      * @param column
      * @param startValue
      * @param incrementValue
-     * @throws StorageException
      */
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
-	    throws StorageException;
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue);
 
-    public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws StorageException;
+    public void createIndex(SecondaryIndexDescriptor indexDescriptor);
 
-    public void dropIndex(String name) throws StorageException;
+    public void dropIndex(String name);
 
     public SecondaryIndexDescriptor getIndex(String name);
 

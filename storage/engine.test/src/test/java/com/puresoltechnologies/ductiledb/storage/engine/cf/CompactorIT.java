@@ -8,9 +8,6 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -22,7 +19,6 @@ public class CompactorIT extends AbstractColumnFamiliyEngineTest {
      * This test was added, because of an issue in the first implementation
      * causing the graph database to crash.
      * 
-     * @throws StorageException
      * @throws SchemaException
      * @throws InterruptedException
      */

@@ -52,6 +52,6 @@ public interface SchemaManager {
     public void createIndex(ColumnFamilyDescriptor columnFamilyDescriptor, SecondaryIndexDescriptor indexDescriptor)
 	    throws SchemaException;
 
-    public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException;
+    public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor);
 
 }

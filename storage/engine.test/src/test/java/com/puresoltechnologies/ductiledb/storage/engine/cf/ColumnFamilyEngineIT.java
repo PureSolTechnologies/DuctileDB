@@ -17,10 +17,6 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
@@ -129,11 +125,10 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
      * This test checks for a small amount of data in memory functionality like
      * put, get, re-put and delete.
      * 
-     * @throws StorageException
      * @throws SchemaException
      */
     @Test
-    public void testSmallDataAmount() throws StorageException, SchemaException {
+    public void testSmallDataAmount() throws SchemaException {
 	byte[] rowKey1 = Bytes.toBytes(1l);
 	byte[] rowKey2 = Bytes.toBytes(2l);
 	byte[] rowKey3 = Bytes.toBytes(3l);
@@ -223,11 +218,9 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
      * @throws SchemaException
      * @throws FileNotFoundException
      * @throws IOException
-     * @throws StorageException
      */
     @Test
-    public void testSingleDataFileCreation()
-	    throws SchemaException, FileNotFoundException, IOException, StorageException {
+    public void testSingleDataFileCreation() throws SchemaException, FileNotFoundException, IOException {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSingleDataFileCreation",
 		"testcf")) {
 	    Storage storage = getStorage();

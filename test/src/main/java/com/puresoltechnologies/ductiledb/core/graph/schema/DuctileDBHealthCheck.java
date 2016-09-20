@@ -75,9 +75,8 @@ public class DuctileDBHealthCheck {
      * indices.
      * 
      * @throws IOException
-     * @throws StorageException
      */
-    private void checkForCorrectVertexIndices() throws IOException, StorageException {
+    private void checkForCorrectVertexIndices() throws IOException {
 	logger.info("Check vertices...");
 	Iterable<DuctileDBVertex> vertices = graph.getVertices();
 	for (DuctileDBVertex vertex : vertices) {
@@ -122,9 +121,8 @@ public class DuctileDBHealthCheck {
      * indices.
      * 
      * @throws IOException
-     * @throws StorageException
      */
-    private void checkForCorrectEdgeIndices() throws IOException, StorageException {
+    private void checkForCorrectEdgeIndices() throws IOException {
 	logger.info("Check edges...");
 	Iterable<DuctileDBEdge> edges = graph.getEdges();
 	for (DuctileDBEdge edge : edges) {

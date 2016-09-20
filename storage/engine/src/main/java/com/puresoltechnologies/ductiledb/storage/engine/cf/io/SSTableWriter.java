@@ -37,7 +37,7 @@ public class SSTableWriter implements Closeable {
     private Key endRowKey = null;
     private long endOffset = -1;
 
-    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) throws StorageException {
+    public SSTableWriter(Storage storage, File directory, String baseFilename, int bufferSize) {
 	super();
 	try {
 	    this.storage = storage;

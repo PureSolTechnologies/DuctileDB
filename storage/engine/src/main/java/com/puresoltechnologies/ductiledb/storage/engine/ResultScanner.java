@@ -8,7 +8,6 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
@@ -28,7 +27,7 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
     private final Table table;
     private Result nextResult = null;
 
-    public ResultScanner(Table table, Scan scan) throws StorageException {
+    public ResultScanner(Table table, Scan scan) {
 	this.table = table;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
@@ -43,7 +42,7 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	}
     }
 
-    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] value) throws StorageException {
+    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] value) {
 	this.table = table;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
@@ -58,8 +57,7 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	}
     }
 
-    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue)
-	    throws StorageException {
+    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
 	this.table = table;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {

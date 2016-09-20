@@ -52,27 +52,27 @@ public class Table {
 	return new ColumnFamily(tableEngine.getColumnFamilyEngine(columnFamily));
     }
 
-    public void put(Put put) throws StorageException {
+    public void put(Put put) {
 	tableEngine.put(put);
     }
 
-    public void put(List<Put> puts) throws StorageException {
+    public void put(List<Put> puts) {
 	for (Put put : puts) {
 	    put(put);
 	}
     }
 
-    public void delete(Delete delete) throws StorageException {
+    public void delete(Delete delete) {
 	tableEngine.delete(delete);
     }
 
-    public void delete(List<Delete> deletes) throws StorageException {
+    public void delete(List<Delete> deletes) {
 	for (Delete delete : deletes) {
 	    delete(delete);
 	}
     }
 
-    public Result get(Get get) throws StorageException {
+    public Result get(Get get) {
 	return tableEngine.get(get);
     }
 
@@ -103,8 +103,7 @@ public class Table {
 	}
     }
 
-    public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue)
-	    throws StorageException {
+    public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue) {
 	ColumnFamilyEngineImpl columnFamilyEngine = tableEngine.getColumnFamilyEngine(columnFamily);
 	return columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
     }

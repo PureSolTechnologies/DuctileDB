@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
@@ -77,11 +76,11 @@ public class DataFileSet implements Closeable {
     private final Map<Integer, File> numToIndexFile = new HashMap<>();
     private final Map<File, Integer> indexFileToNum = new HashMap<>();
 
-    public DataFileSet(Storage storage, File directory) throws StorageException {
+    public DataFileSet(Storage storage, File directory) {
 	this(storage, directory, getLatestMetaDataFile(storage, directory));
     }
 
-    public DataFileSet(Storage storage, File directory, File metadataFile) throws StorageException {
+    public DataFileSet(Storage storage, File directory, File metadataFile) {
 	super();
 	this.storage = storage;
 	this.metadataFile = metadataFile;
@@ -101,7 +100,7 @@ public class DataFileSet implements Closeable {
 	});
     }
 
-    public DataFileSet(Storage storage, File directory, String timestamp) throws StorageException {
+    public DataFileSet(Storage storage, File directory, String timestamp) {
 	this(storage, directory, getMetadataFile(directory, timestamp));
     }
 

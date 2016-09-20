@@ -40,7 +40,7 @@ public class Compactor {
     private static final Logger logger = LoggerFactory.getLogger(Compactor.class);
 
     public static void run(Storage storage, File directory, File commitLogFile, int bufferSize, long maxDataFileSize,
-	    int maxFileGenerations) throws StorageException {
+	    int maxFileGenerations) {
 	Compactor compactor = new Compactor(storage, directory, commitLogFile, bufferSize, maxDataFileSize,
 		maxFileGenerations);
 	compactor.runCompaction();
@@ -67,7 +67,7 @@ public class Compactor {
 	this.maxFileGenerations = maxFileGenerations;
     }
 
-    public void runCompaction() throws StorageException {
+    public void runCompaction() {
 	try {
 	    String baseFilename = LogStructuredStore.createBaseFilename(ColumnFamilyEngine.DB_FILE_PREFIX);
 	    logger.info("Start compaction for '" + commitLogFile + "' (new: " + baseFilename + ")...");
@@ -123,7 +123,7 @@ public class Compactor {
 	}
     }
 
-    private void performCompaction(String baseFilename) throws StorageException, IOException {
+    private void performCompaction(String baseFilename) throws IOException {
 	logger.info("Compacting " + commitLogFile + "' (new: " + baseFilename + ")...");
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
 	try (DataFileReader commitLogReader = new DataFileReader(storage, commitLogFile);
@@ -135,7 +135,7 @@ public class Compactor {
     }
 
     private void integrateCommitLog(IndexIterator commitLogIterator, DataFileReader commitLogReader,
-	    List<File> dataFiles, String baseFilename) throws StorageException, IOException {
+	    List<File> dataFiles, String baseFilename) throws IOException {
 	SSTableWriter writer = new SSTableWriter(storage, directory, baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    IndexEntry commitLogNext = commitLogIterator.next();

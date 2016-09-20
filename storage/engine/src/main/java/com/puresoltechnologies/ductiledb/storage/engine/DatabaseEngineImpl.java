@@ -37,8 +37,7 @@ public class DatabaseEngineImpl implements DatabaseEngine {
     private final SchemaManager schemaManager;
     private final Map<String, NamespaceEngineImpl> namespaceEngines = new HashMap<>();
 
-    public DatabaseEngineImpl(Storage storage, String storageName, DatabaseEngineConfiguration configuration)
-	    throws StorageException {
+    public DatabaseEngineImpl(Storage storage, String storageName, DatabaseEngineConfiguration configuration) {
 	this.storage = storage;
 	this.storageName = storageName;
 	this.configuration = configuration;
@@ -52,7 +51,7 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    private SchemaManager initializeStorage(Storage storage) throws StorageException {
+    private SchemaManager initializeStorage(Storage storage) {
 	try {
 	    storage.createDirectory(storageDirectory);
 	    return new SchemaManagerImpl(this, storageDirectory);
@@ -61,13 +60,13 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	}
     }
 
-    private void initializeNamespaceEngines() throws StorageException {
+    private void initializeNamespaceEngines() {
 	for (NamespaceDescriptor namespaceDescriptor : schemaManager.getNamespaces()) {
 	    addNamespace(namespaceDescriptor);
 	}
     }
 
-    public void addNamespace(NamespaceDescriptor namespaceDescriptor) throws StorageException {
+    public void addNamespace(NamespaceDescriptor namespaceDescriptor) {
 	namespaceEngines.put(namespaceDescriptor.getName(),
 		new NamespaceEngineImpl(storage, namespaceDescriptor, configuration));
     }
@@ -140,11 +139,11 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	return getTableEngine(columnFamily.getTable()).getColumnFamilyEngine(columnFamily.getName());
     }
 
-    public void addTable(TableDescriptor tableDescriptor) throws StorageException {
+    public void addTable(TableDescriptor tableDescriptor) {
 	namespaceEngines.get(tableDescriptor.getNamespace().getName()).addTable(tableDescriptor);
     }
 
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
+    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
 	TableDescriptor tableDescriptor = columnFamilyDescriptor.getTable();
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
 	NamespaceEngineImpl namespaceEngine = namespaceEngines.get(namespaceDescriptor.getName());
@@ -152,11 +151,11 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	tableEngine.addColumnFamily(columnFamilyDescriptor);
     }
 
-    public void dropTable(TableDescriptor tableDescriptor) throws StorageException {
+    public void dropTable(TableDescriptor tableDescriptor) {
 	namespaceEngines.get(tableDescriptor.getNamespace().getName()).dropTable(tableDescriptor);
     }
 
-    public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
+    public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
 	TableDescriptor tableDescriptor = columnFamilyDescriptor.getTable();
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
 	NamespaceEngineImpl namespaceEngine = namespaceEngines.get(namespaceDescriptor.getName());

@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
@@ -35,8 +34,8 @@ public class TableEngineImpl implements TableEngine {
     private final TreeMap<byte[], ColumnFamilyEngineImpl> columnFamilyEngines = new TreeMap<>(
 	    ByteArrayComparator.getInstance());
 
-    public TableEngineImpl(Storage storage, TableDescriptor tableDescriptor, DatabaseEngineConfiguration configuration)
-	    throws StorageException {
+    public TableEngineImpl(Storage storage, TableDescriptor tableDescriptor,
+	    DatabaseEngineConfiguration configuration) {
 	super();
 	this.storage = storage;
 	this.tableDescriptor = tableDescriptor;
@@ -49,13 +48,13 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Table engine '" + tableDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    private void initializeColumnFamilyEngines() throws StorageException {
+    private void initializeColumnFamilyEngines() {
 	for (ColumnFamilyDescriptor columnFamilyDescriptor : tableDescriptor.getColumnFamilies()) {
 	    addColumnFamily(columnFamilyDescriptor);
 	}
     }
 
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
+    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
 	columnFamilyEngines.put(columnFamilyDescriptor.getName(),
 		new ColumnFamilyEngineImpl(storage, columnFamilyDescriptor, configuration));
     }
@@ -96,14 +95,14 @@ public class TableEngineImpl implements TableEngine {
 	return columnFamilyEngines.get(columnFamily);
     }
 
-    public void put(Put put) throws StorageException {
+    public void put(Put put) {
 	for (byte[] columnFamily : put.getColumnFamilies()) {
 	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
 	    columnFamilyEngine.put(put.getKey(), put.getColumnValues(columnFamily));
 	}
     }
 
-    public void delete(Delete delete) throws StorageException {
+    public void delete(Delete delete) {
 	byte[] rowKey = delete.getKey();
 	Set<byte[]> columnFamilies = delete.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
@@ -124,7 +123,7 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
-    public Result get(Get get) throws StorageException {
+    public Result get(Get get) {
 	byte[] rowKey = get.getKey();
 	Result result = new Result(rowKey);
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = get.getColumnFamilies();

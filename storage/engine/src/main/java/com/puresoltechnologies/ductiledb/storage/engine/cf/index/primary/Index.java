@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
 
 import java.io.File;
 
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
 
 /**
@@ -15,18 +14,14 @@ public interface Index extends Iterable<IndexEntry> {
     /**
      * This method is called to update the index by data filed defined by the
      * base filename.
-     * 
-     * @throws StorageException
      */
-    public void update() throws StorageException;
+    public void update();
 
     /**
      * This method is called to update the index by data filed defined by the
      * base filename.
-     * 
-     * @throws StorageException
      */
-    public void update(File latestMetadataFile) throws StorageException;
+    public void update(File latestMetadataFile);
 
     /**
      * This method is used to register a new index entry.

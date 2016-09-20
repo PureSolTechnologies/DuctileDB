@@ -5,7 +5,6 @@ import java.io.File;
 import java.time.Instant;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
@@ -84,34 +83,31 @@ public interface LogStructuredStore extends Closeable {
      * 
      * @param rowKey
      * @param columnValues
-     * @throws StorageException
      */
-    public void put(byte[] rowKey, ColumnMap columnValues) throws StorageException;
+    public void put(byte[] rowKey, ColumnMap columnValues);
 
     /**
      * This metho retrieves the columns from the given row.
      * 
      * @param rowKey
      * @return
-     * @throws StorageException
      */
-    public ColumnMap get(byte[] rowKey) throws StorageException;
+    public ColumnMap get(byte[] rowKey);
 
     /**
      * This method returns a scanner for the column family.
      * 
      * @return
      */
-    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException;
+    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey);
 
     /**
      * This method removes the given row.
      * 
      * @param rowKey
-     * @throws StorageException
      */
-    public void delete(byte[] rowKey) throws StorageException;
+    public void delete(byte[] rowKey);
 
-    public void delete(byte[] rowKey, Set<byte[]> columns) throws StorageException;
+    public void delete(byte[] rowKey, Set<byte[]> columns);
 
 }

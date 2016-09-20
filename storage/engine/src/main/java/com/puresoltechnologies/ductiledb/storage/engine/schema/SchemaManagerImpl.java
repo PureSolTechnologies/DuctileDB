@@ -393,7 +393,7 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) throws StorageException {
+    public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor) {
 	ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
 	columnFamilyEngine.dropIndex(name);
     }

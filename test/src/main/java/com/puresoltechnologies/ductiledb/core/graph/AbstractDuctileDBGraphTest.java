@@ -34,7 +34,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
     private static DuctileDBGraphImpl graph = null;
 
     @BeforeClass
-    public static void connect() throws StorageException, IOException, SchemaException {
+    public static void connect() throws IOException, SchemaException {
 	ductileDB = getDuctileDB();
 	graph = (DuctileDBGraphImpl) ductileDB.getGraph();
 	// Normally meaningless, but we do nevertheless, if tests change...

@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -22,7 +21,7 @@ public class NamespaceEngineImpl implements NamespaceEngine {
     private final Map<String, TableEngineImpl> tableEngines = new HashMap<>();
 
     public NamespaceEngineImpl(Storage storage, NamespaceDescriptor namespaceDescriptor,
-	    DatabaseEngineConfiguration configuration) throws StorageException {
+	    DatabaseEngineConfiguration configuration) {
 	this.storage = storage;
 	this.namespaceDescriptor = namespaceDescriptor;
 	this.configuration = configuration;
@@ -35,7 +34,7 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 		"Namespace engine '" + namespaceDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    private void initializeTableEngines() throws StorageException {
+    private void initializeTableEngines() {
 	for (TableDescriptor tableDescriptor : namespaceDescriptor.getTables()) {
 	    addTable(tableDescriptor);
 	}
@@ -45,7 +44,7 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 	tableEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
     }
 
-    public void addTable(TableDescriptor tableDescriptor) throws StorageException {
+    public void addTable(TableDescriptor tableDescriptor) {
 	tableEngines.put(tableDescriptor.getName(), new TableEngineImpl(storage, tableDescriptor, configuration));
     }
 

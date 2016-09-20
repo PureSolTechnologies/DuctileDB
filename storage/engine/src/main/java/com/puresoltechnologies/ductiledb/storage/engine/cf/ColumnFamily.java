@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-
 public class ColumnFamily {
 
     private final ColumnFamilyEngine columnFamilyEngine;
@@ -19,15 +17,15 @@ public class ColumnFamily {
 	return columnFamilyEngine;
     }
 
-    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException {
+    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) {
 	return columnFamilyEngine.getScanner(startRowKey, endRowKey);
     }
 
-    public ColumnFamilyScanner find(byte[] columnKey, byte[] value) throws StorageException {
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] value) {
 	return columnFamilyEngine.find(columnKey, value);
     }
 
-    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) throws StorageException {
+    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) {
 	return columnFamilyEngine.find(columnKey, fromValue, toValue);
     }
 }

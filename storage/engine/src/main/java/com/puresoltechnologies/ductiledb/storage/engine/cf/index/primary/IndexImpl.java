@@ -27,7 +27,7 @@ public class IndexImpl implements Index {
 	this.directory = directory;
     }
 
-    IndexImpl(Storage storage, File directory, File metadataFile) throws StorageException {
+    IndexImpl(Storage storage, File directory, File metadataFile) {
 	super();
 	this.storage = storage;
 	this.directory = directory;
@@ -35,12 +35,12 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public void update() throws StorageException {
+    public void update() {
 	update(DataFileSet.getLatestMetaDataFile(storage, directory));
     }
 
     @Override
-    public void update(File latestMetadata) throws StorageException {
+    public void update(File latestMetadata) {
 	indexTree.clear();
 	if (latestMetadata == null) {
 	    return;

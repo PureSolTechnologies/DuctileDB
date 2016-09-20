@@ -13,7 +13,6 @@ import org.junit.BeforeClass;
 import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
@@ -35,10 +34,9 @@ public class AbstractDuctileDBTest {
      * @throws ServiceException
      * @throws IOException
      * @throws SchemaException
-     * @throws StorageException
      */
     @BeforeClass
-    public static void initializeDuctileDB() throws StorageException, SchemaException, IOException {
+    public static void initializeDuctileDB() throws SchemaException, IOException {
 	configuration = readTestConfigration();
 	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
 	cleanTestStorageDirectory(storage);
@@ -64,7 +62,7 @@ public class AbstractDuctileDBTest {
 	}
     }
 
-    public static DuctileDB createDuctileDB() throws StorageException, SchemaException, IOException {
+    public static DuctileDB createDuctileDB() throws SchemaException, IOException {
 	if (configuration == null) {
 	    configuration = readTestConfigration();
 	}

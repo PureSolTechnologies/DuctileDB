@@ -29,7 +29,7 @@ public class IndexFactory {
 	return new IndexImpl(storage, directory);
     }
 
-    public static Index create(Storage storage, File directory, File metadataFile) throws StorageException {
+    public static Index create(Storage storage, File directory, File metadataFile) {
 	return new IndexImpl(storage, directory, metadataFile);
     }
 

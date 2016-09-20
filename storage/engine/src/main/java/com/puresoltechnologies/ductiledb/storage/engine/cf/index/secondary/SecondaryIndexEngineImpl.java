@@ -22,7 +22,7 @@ public class SecondaryIndexEngineImpl extends LogStructuredStoreImpl implements 
 	return indexDescription;
     }
 
-    public void drop() throws StorageException {
+    public void drop() {
 	try {
 	    getStorage().removeDirectory(getDirectory(), true);
 	} catch (IOException e) {

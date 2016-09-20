@@ -42,7 +42,7 @@ public abstract class AbstractDatabaseEngineTest {
 	startEngine();
     }
 
-    protected static void startEngine() throws StorageException {
+    protected static void startEngine() {
 	assertNull("Engine was started already.", storageEngine);
 	storageEngine = new DatabaseEngineImpl(storage, DATABASE_ENGINE_NAME, configuration);
     }

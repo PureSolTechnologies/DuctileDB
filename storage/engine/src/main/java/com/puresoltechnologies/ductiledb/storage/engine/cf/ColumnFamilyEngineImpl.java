@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexedColumnFamilyScannerImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -38,7 +39,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     private final Map<String, SecondaryIndexDescriptor> indexDescriptors = new HashMap<>();
 
     public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
-	    DatabaseEngineConfiguration configuration) throws StorageException {
+	    DatabaseEngineConfiguration configuration) {
 	super(storage, //
 		columnFamilyDescriptor.getDirectory(), //
 		configuration.getMaxCommitLogSize(), //
@@ -64,7 +65,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	return indexDirectory;
     }
 
-    public void readIndizes() throws StorageException {
+    public void readIndizes() {
 	Storage storage = getStorage();
 	try {
 	    storage.createDirectory(indexDirectory);
@@ -79,7 +80,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	}
     }
 
-    private SecondaryIndexDescriptor readSecondaryIndexDescriptor(File directory) throws StorageException {
+    private SecondaryIndexDescriptor readSecondaryIndexDescriptor(File directory) {
 	Storage storage = getStorage();
 	File metadataFile = new File(directory, "metadata.properties");
 	try (BufferedInputStream metadata = storage.open(metadataFile)) {
@@ -101,7 +102,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public void open() throws StorageException {
+    public void open() {
 	super.open();
 	readIndizes();
     }
@@ -116,25 +117,39 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     @Override
     public ColumnFamilyScanner find(byte[] columnKey, byte[] value) {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(columnKey);
-	// TODO Auto-generated method stub
-	return null;
+	if (indizes == null) {
+	    return null;
+	}
+	byte[] fromValue = value;
+	byte[] toValue = new byte[value.length + 1];
+	for (int i = 0; i < value.length; ++i) {
+	    toValue[i] = value[i];
+	}
+	toValue[value.length] = (byte) 0xFF;
+	return new IndexedColumnFamilyScannerImpl(this, indexEngine, fromValue, toValue);
     }
 
     @Override
     public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(columnKey);
-	// TODO Auto-generated method stub
-	return null;
+	if (indizes == null) {
+	    return null;
+	}
+	byte[] toValue2 = new byte[toValue.length + 1];
+	for (int i = 0; i < toValue.length; ++i) {
+	    toValue2[i] = toValue[i];
+	}
+	toValue2[toValue.length] = (byte) 0xFF;
+	return new IndexedColumnFamilyScannerImpl(this, indexEngine, fromValue, toValue2);
     }
 
     @Override
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) throws StorageException {
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) {
 	return incrementColumnValue(rowKey, column, 1l, incrementValue);
     }
 
     @Override
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue)
-	    throws StorageException {
+    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue) {
 	long result = startValue;
 	getWriteLock().lock();
 	try {
@@ -157,7 +172,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws StorageException {
+    public void createIndex(SecondaryIndexDescriptor indexDescriptor) {
 	logger.info("Creating new index '" + indexDescriptor + "' for '" + toString() + "'...");
 	Storage storage = getStorage();
 	File indexDirectory = new File(getIndexDirectory(), indexDescriptor.getName());
@@ -189,7 +204,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public void dropIndex(String name) throws StorageException {
+    public void dropIndex(String name) {
 	SecondaryIndexEngineImpl indexStore = indizes.get(name);
 	if (indexStore != null) {
 	    indexStore.drop();

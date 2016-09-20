@@ -25,6 +25,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScannerImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.Compactor;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
@@ -160,7 +161,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	logger.info("Column family engine '" + toString() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
-    public void open() throws StorageException {
+    public void open() {
 	try {
 	    logger.info("Starting column family engine '" + toString() + "'...");
 	    StopWatch stopWatch = new StopWatch();
@@ -189,7 +190,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	}
     }
 
-    private void createIndex(File commitLog, File indexName) throws StorageException {
+    private void createIndex(File commitLog, File indexName) {
 	try (DataInputStream dataStream = new DataInputStream(storage.open(commitLog))) {
 	    long offset = dataStream.getOffset();
 	    ColumnFamilyRow row = dataStream.readRow();
@@ -212,7 +213,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	}
     }
 
-    private void createEmptyCommitLog() throws StorageException {
+    private void createEmptyCommitLog() {
 	try {
 	    if (commitLogStream != null) {
 		commitLogStream.close();
@@ -227,14 +228,14 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	}
     }
 
-    private void checkDataFiles() throws StorageException {
+    private void checkDataFiles() {
 	for (File file : storage.list(directory, new MetadataFilenameFilter())) {
 	    new DataFileSet(storage, directory, file).check();
 	    // TODO
 	}
     }
 
-    private void openDataFiles() throws StorageException {
+    private void openDataFiles() {
 	dataSet = new DataFileSet(storage, directory);
     }
 
@@ -286,7 +287,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	}
     }
 
-    private void rolloverCommitLog() throws StorageException {
+    private void rolloverCommitLog() {
 	try {
 	    if (commitLogStream == null) {
 		return;
@@ -323,7 +324,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public void put(byte[] rowKey, ColumnMap values) throws StorageException {
+    public void put(byte[] rowKey, ColumnMap values) {
 	writeLock.lock();
 	try {
 	    ColumnMap columnMap = get(rowKey);
@@ -338,7 +339,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public ColumnMap get(byte[] rowKey) throws StorageException {
+    public ColumnMap get(byte[] rowKey) {
 	Key rowKey2 = new Key(rowKey);
 	ColumnFamilyRow row;
 	readLock.lock();
@@ -368,7 +369,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	return row != null ? row.getColumnMap() : new ColumnMap();
     }
 
-    private ColumnFamilyRow readFromDataFiles(Key rowKey) throws StorageException {
+    private ColumnFamilyRow readFromDataFiles(Key rowKey) {
 	try {
 	    return dataSet.getRow(rowKey);
 	} catch (IOException e) {
@@ -376,7 +377,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	}
     }
 
-    private ColumnFamilyRow readFromCommitLogs(Key rowKey) throws StorageException {
+    private ColumnFamilyRow readFromCommitLogs(Key rowKey) {
 	try {
 	    List<File> commitLogs = getCurrentCommitLogs();
 	    for (File commitLog : commitLogs) {
@@ -404,7 +405,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) throws StorageException {
+    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) {
 	try {
 	    Memtable memtableCopy = new Memtable();
 	    List<File> currentCommitLogs;
@@ -417,7 +418,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    } finally {
 		readLock.unlock();
 	    }
-	    return new ColumnFamilyScanner(storage, memtableCopy, currentCommitLogs, dataFiles,
+	    return new ColumnFamilyScannerImpl(storage, memtableCopy, currentCommitLogs, dataFiles,
 		    startRowKey != null ? new Key(startRowKey) : null, endRowKey != null ? new Key(endRowKey) : null);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
@@ -425,7 +426,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public void delete(byte[] rowKey) throws StorageException {
+    public void delete(byte[] rowKey) {
 	writeLock.lock();
 	try {
 	    writeCommitLog(new Key(rowKey), Instant.now(), new ColumnMap());
@@ -435,7 +436,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public void delete(byte[] rowKey, Set<byte[]> columns) throws StorageException {
+    public void delete(byte[] rowKey, Set<byte[]> columns) {
 	writeLock.lock();
 	try {
 	    ColumnMap columnMap = get(rowKey);
@@ -454,7 +455,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	}
     }
 
-    protected void writeCommitLog(Key rowKey, Instant tombstone, ColumnMap values) throws StorageException {
+    protected void writeCommitLog(Key rowKey, Instant tombstone, ColumnMap values) {
 	try {
 	    long offset = commitLogStream.getOffset();
 	    commitLogStream.writeRow(rowKey, tombstone, values);

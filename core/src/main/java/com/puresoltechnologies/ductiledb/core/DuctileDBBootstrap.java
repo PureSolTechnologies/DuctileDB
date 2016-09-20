@@ -7,7 +7,6 @@ import java.net.URL;
 import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 /**
  * This is the central factory to connect to DuctileDB. The primary goal is to
@@ -43,7 +42,7 @@ public class DuctileDBBootstrap {
      * @param configuration
      *            is the configuration to be used to create the acutal instance.
      */
-    public synchronized static void start(DuctileDBConfiguration configuration) throws StorageException {
+    public synchronized static void start(DuctileDBConfiguration configuration) {
 	if (instance == null) {
 	    instance = new DuctileDBImpl(configuration);
 	}

@@ -5,7 +5,7 @@ package com.puresoltechnologies.ductiledb.storage.api;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class StorageException extends Exception {
+public class StorageException extends RuntimeException {
 
     private static final long serialVersionUID = 1001603477214335077L;
 

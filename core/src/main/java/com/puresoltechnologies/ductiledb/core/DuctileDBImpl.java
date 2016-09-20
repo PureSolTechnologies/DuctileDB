@@ -25,7 +25,7 @@ public class DuctileDBImpl implements DuctileDB {
 
     private boolean closed = false;;
 
-    public DuctileDBImpl(DuctileDBConfiguration configuration) throws StorageException {
+    public DuctileDBImpl(DuctileDBConfiguration configuration) {
 	this.configuration = configuration;
 	this.blobStore = new BlobStoreImpl(configuration);
 	DatabaseEngineImpl storageEngine = createDatabaseEngine(configuration.getDatabaseEngine());
@@ -56,10 +56,8 @@ public class DuctileDBImpl implements DuctileDB {
      * 
      * @param configuration
      * @return
-     * @throws StorageException
      */
-    private static DatabaseEngineImpl createDatabaseEngine(DatabaseEngineConfiguration configuration)
-	    throws StorageException {
+    private static DatabaseEngineImpl createDatabaseEngine(DatabaseEngineConfiguration configuration) {
 	logger.info("Creating connection to DuctileDB with configuration '" + configuration + "'...");
 	DatabaseEngineImpl storageEngine = new DatabaseEngineImpl(
 		StorageFactory.getStorageInstance(configuration.getStorage()), "graph", configuration);
