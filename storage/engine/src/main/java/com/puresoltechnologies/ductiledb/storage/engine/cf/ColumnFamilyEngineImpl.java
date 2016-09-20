@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,6 +114,61 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	TableDescriptor table = columnFamilyDescriptor.getTable();
 	return "CFEngine:" + table.getNamespace().getName() + "." + table.getName() + "/"
 		+ Bytes.toHumanReadableString(columnFamilyDescriptor.getName());
+    }
+
+    @Override
+    public void put(byte[] rowKey, ColumnMap columnMap) {
+	super.put(rowKey, columnMap);
+	if (hasIndizes()) {
+	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
+		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.keySet())) {
+		    addToIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
+		}
+	    }
+	}
+    }
+
+    private void addToIndex(SecondaryIndexDescriptor value, byte[] rowKey, ColumnMap columnMap) {
+	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
+	byte[] indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
+	indexEngine.put(indexRowKey, new ColumnMap());
+    }
+
+    @Override
+    public void delete(byte[] rowKey) {
+	super.delete(rowKey);
+	if (hasIndizes()) {
+	    ColumnMap columnMap = get(rowKey);
+	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
+		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.keySet())) {
+		    removeFromIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
+		}
+	    }
+	}
+    }
+
+    @Override
+    public void delete(byte[] rowKey, Set<byte[]> columns) {
+	super.delete(rowKey, columns);
+	if (hasIndizes()) {
+	    ColumnMap columnMap = get(rowKey);
+	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
+		if (indexDescriptorEntry.getValue().matchesColumns(columns)) {
+		    removeFromIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
+		}
+	    }
+	}
+    }
+
+    private void removeFromIndex(SecondaryIndexDescriptor value, byte[] rowKey, ColumnMap columnMap) {
+	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
+	byte[] indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
+	indexEngine.delete(indexRowKey);
+
+    }
+
+    private boolean hasIndizes() {
+	return !indizes.isEmpty();
     }
 
     @Override

@@ -41,6 +41,18 @@ public class SecondaryIndexDescriptor {
 	return new File(new File(columnFamilyDescriptor.getDirectory(), "indizes"), name);
     }
 
+    public boolean matchesColumns(Set<byte[]> keySet) {
+	if (columns.size() > keySet.size()) {
+	    return false;
+	}
+	for (byte[] column : columns) {
+	    if (!keySet.contains(column)) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
     @Override
     public int hashCode() {
 	final int prime = 31;
