@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
@@ -16,6 +17,20 @@ public class ColumnKeySet extends TreeSet<byte[]> {
 
     public ColumnKeySet() {
 	super(ByteArrayComparator.getInstance());
+    }
+
+    public ColumnKeySet(byte[]... columns) {
+	this();
+	for (byte[] column : columns) {
+	    add(column);
+	}
+    }
+
+    public ColumnKeySet(Set<byte[]> columns) {
+	this();
+	for (byte[] column : columns) {
+	    add(column);
+	}
     }
 
 }

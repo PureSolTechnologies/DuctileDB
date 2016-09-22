@@ -121,7 +121,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	super.put(rowKey, columnMap);
 	if (hasIndizes()) {
 	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
-		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.keySet())) {
+		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.getColumnKeySet())) {
 		    addToIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
 		}
 	    }
@@ -131,7 +131,9 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     private void addToIndex(SecondaryIndexDescriptor value, byte[] rowKey, ColumnMap columnMap) {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
 	byte[] indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
-	indexEngine.put(indexRowKey, new ColumnMap());
+	ColumnMap values = new ColumnMap();
+	values.put(Bytes.toBytes("key"), rowKey);
+	indexEngine.put(indexRowKey, values);
     }
 
     @Override
@@ -140,7 +142,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	if (hasIndizes()) {
 	    ColumnMap columnMap = get(rowKey);
 	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
-		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.keySet())) {
+		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.getColumnKeySet())) {
 		    removeFromIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
 		}
 	    }
@@ -153,7 +155,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	if (hasIndizes()) {
 	    ColumnMap columnMap = get(rowKey);
 	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
-		if (indexDescriptorEntry.getValue().matchesColumns(columns)) {
+		if (indexDescriptorEntry.getValue().matchesColumns(new ColumnKeySet(columns))) {
 		    removeFromIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
 		}
 	    }
@@ -173,8 +175,8 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 
     @Override
     public ColumnFamilyScanner find(byte[] columnKey, byte[] value) {
-	SecondaryIndexEngineImpl indexEngine = indizes.get(columnKey);
-	if (indizes == null) {
+	SecondaryIndexEngineImpl indexEngine = findIndexEngine(columnKey);
+	if (indexEngine == null) {
 	    return null;
 	}
 	byte[] fromValue = value;
@@ -188,8 +190,8 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 
     @Override
     public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) {
-	SecondaryIndexEngineImpl indexEngine = indizes.get(columnKey);
-	if (indizes == null) {
+	SecondaryIndexEngineImpl indexEngine = findIndexEngine(columnKey);
+	if (indexEngine == null) {
 	    return null;
 	}
 	byte[] toValue2 = new byte[toValue.length + 1];
@@ -198,6 +200,19 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	}
 	toValue2[toValue.length] = (byte) 0xFF;
 	return new IndexedColumnFamilyScannerImpl(this, indexEngine, fromValue, toValue2);
+    }
+
+    private SecondaryIndexEngineImpl findIndexEngine(byte[] columnKey) {
+	if (indizes.isEmpty()) {
+	    return null;
+	}
+	SecondaryIndexEngineImpl indexEngine = null;
+	for (SecondaryIndexDescriptor indexEngineDescriptor : indexDescriptors.values()) {
+	    if (indexEngineDescriptor.matchesColumns(columnKey)) {
+		indexEngine = indizes.get(indexEngineDescriptor.getName());
+	    }
+	}
+	return indexEngine;
     }
 
     @Override
@@ -255,6 +270,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	}
 	SecondaryIndexEngineImpl indexStore = new SecondaryIndexEngineImpl(storage, indexDescriptor,
 		getMaxCommitLogSize(), getMaxDataFileSize(), getBufferSize(), getMaxFileGenerations());
+	indexStore.open();
 	indizes.put(indexDescriptor.getName(), indexStore);
 	indexDescriptors.put(indexDescriptor.getName(), indexDescriptor);
 	logger.info("Index '" + indexDescriptor + "' for '" + toString() + "' created.");

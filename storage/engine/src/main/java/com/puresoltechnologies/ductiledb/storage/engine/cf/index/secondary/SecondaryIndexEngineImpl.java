@@ -44,6 +44,7 @@ public class SecondaryIndexEngineImpl extends LogStructuredStoreImpl implements 
 	    keySize += 4 + value.length;
 	    values.add(value);
 	}
+	keySize += 4 + rowKey.length;
 	byte[] indexKey = new byte[keySize];
 	int pos = 0;
 	for (byte[] value : values) {
@@ -52,6 +53,9 @@ public class SecondaryIndexEngineImpl extends LogStructuredStoreImpl implements 
 	    System.arraycopy(value, 0, indexKey, pos, value.length);
 	    pos += value.length;
 	}
+	System.arraycopy(Bytes.toBytes(rowKey.length), 0, indexKey, pos, 4);
+	pos += 4;
+	System.arraycopy(rowKey, 0, indexKey, pos, rowKey.length);
 	return indexKey;
     }
 

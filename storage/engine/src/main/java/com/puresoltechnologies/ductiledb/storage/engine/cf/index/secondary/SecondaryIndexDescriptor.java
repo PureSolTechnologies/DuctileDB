@@ -41,12 +41,16 @@ public class SecondaryIndexDescriptor {
 	return new File(new File(columnFamilyDescriptor.getDirectory(), "indizes"), name);
     }
 
-    public boolean matchesColumns(Set<byte[]> keySet) {
-	if (columns.size() > keySet.size()) {
+    public boolean matchesColumns(byte[]... columnsArray) {
+	return matchesColumns(new ColumnKeySet(columnsArray));
+    }
+
+    public boolean matchesColumns(ColumnKeySet columnSet) {
+	if (columns.size() > columnSet.size()) {
 	    return false;
 	}
 	for (byte[] column : columns) {
-	    if (!keySet.contains(column)) {
+	    if (!columnSet.contains(column)) {
 		return false;
 	    }
 	}

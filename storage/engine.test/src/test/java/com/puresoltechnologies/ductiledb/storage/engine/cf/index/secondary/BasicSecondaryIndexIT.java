@@ -17,7 +17,10 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnKeySet;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -84,7 +87,6 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertFalse(iterator.hasNext());
 	}
 
-	stopEngine();
 	startEngine();
 
 	DatabaseEngineImpl engine = getEngine();
@@ -104,7 +106,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, "testSecondaryIndexGetByIndex",
 		"testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
-	    columnKeySet.add(Bytes.toBytes("testcol"));
+	    columnKeySet.add(Bytes.toBytes("indexed"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
 		    columnFamily.getDescriptor(), columnKeySet);
 	    columnFamily.createIndex(indexDescriptor);
@@ -114,6 +116,37 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(iterator.hasNext());
 	    assertEquals(indexDescriptor, iterator.next());
 	    assertFalse(iterator.hasNext());
+
+	    ColumnMap columnMap = new ColumnMap();
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(1l));
+	    columnFamily.put(Bytes.toBytes(1l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
+	    columnFamily.put(Bytes.toBytes(2l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(3l));
+	    columnFamily.put(Bytes.toBytes(3l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(4l));
+	    columnFamily.put(Bytes.toBytes(4l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(5l));
+	    columnFamily.put(Bytes.toBytes(5l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(1l));
+	    columnFamily.put(Bytes.toBytes(6l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
+	    columnFamily.put(Bytes.toBytes(7l), columnMap);
+	    columnMap.put(Bytes.toBytes("ineexed"), Bytes.toBytes(3l));
+	    columnFamily.put(Bytes.toBytes(8l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(4l));
+	    columnFamily.put(Bytes.toBytes(9l), columnMap);
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(5l));
+	    columnFamily.put(Bytes.toBytes(10l), columnMap);
+
+	    ColumnFamilyScanner found = columnFamily.find(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
+	    assertTrue(found.hasNext());
+	    ColumnFamilyRow row = found.next();
+	    assertEquals(2l, Bytes.toLong(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
+	    assertTrue(found.hasNext());
+	    row = found.next();
+	    assertEquals(2l, Bytes.toLong(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
+	    assertFalse(found.hasNext());
 	}
     }
 }

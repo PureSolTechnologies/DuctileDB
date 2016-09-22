@@ -28,6 +28,10 @@ public final class ColumnMap implements NavigableMap<byte[], ColumnValue> {
 	super();
     }
 
+    public ColumnKeySet getColumnKeySet() {
+	return new ColumnKeySet(values.keySet());
+    }
+
     @Override
     public String toString() {
 	StringBuilder buffer = new StringBuilder();
