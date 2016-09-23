@@ -87,6 +87,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertFalse(iterator.hasNext());
 	}
 
+	stopEngine();
 	startEngine();
 
 	DatabaseEngineImpl engine = getEngine();

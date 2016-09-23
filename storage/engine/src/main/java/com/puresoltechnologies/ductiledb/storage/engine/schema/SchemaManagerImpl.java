@@ -4,6 +4,7 @@ import static com.puresoltechnologies.ductiledb.storage.engine.EngineChecks.chec
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,7 +53,13 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     private NamespaceIterable readNamespaces() {
-	return new NamespaceIterable(storage.list(storageDirectory));
+	return new NamespaceIterable(storage.list(storageDirectory, new FilenameFilter() {
+
+	    @Override
+	    public boolean accept(File dir, String name) {
+		return storage.isDirectory(new File(dir, name));
+	    }
+	}));
     }
 
     private class NamespaceIterable implements Iterable<NamespaceDescriptor> {
@@ -82,7 +89,13 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     private TableIterable readTables(NamespaceDescriptor namespaceDescriptor) {
-	return new TableIterable(storage.list(namespaceDescriptor.getDirectory()), namespaceDescriptor);
+	return new TableIterable(storage.list(namespaceDescriptor.getDirectory(), new FilenameFilter() {
+
+	    @Override
+	    public boolean accept(File dir, String name) {
+		return storage.isDirectory(new File(dir, name));
+	    }
+	}), namespaceDescriptor);
     }
 
     private class TableIterable implements Iterable<TableDescriptor> {
@@ -114,7 +127,13 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     private ColumnFamilyIterable readColumnFamilies(TableDescriptor tableDescriptor) {
-	return new ColumnFamilyIterable(storage.list(tableDescriptor.getDirectory()), tableDescriptor);
+	return new ColumnFamilyIterable(storage.list(tableDescriptor.getDirectory(), new FilenameFilter() {
+
+	    @Override
+	    public boolean accept(File dir, String name) {
+		return storage.isDirectory(new File(dir, name));
+	    }
+	}), tableDescriptor);
     }
 
     private class ColumnFamilyIterable implements Iterable<ColumnFamilyDescriptor> {
@@ -138,7 +157,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public ColumnFamilyDescriptor next() {
 		    File directory = iterator.next();
-		    return new ColumnFamilyDescriptor(Bytes.toBytes(directory.getName()), table, directory);
+		    return new ColumnFamilyDescriptor(Bytes.fromHexString(directory.getName()), table, directory);
 		}
 	    };
 	}

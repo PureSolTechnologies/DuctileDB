@@ -36,6 +36,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataInputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataOutputStream;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.io.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.engine.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.engine.io.UsableCommitLogFilenameFilter;
@@ -181,7 +182,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     private void processExistingCommitLog() throws IOException, StorageException {
-	for (File commitLog : storage.list(directory, new UsableCommitLogFilenameFilter(storage))) {
+	for (File commitLog : storage.list(directory, new CommitLogFilenameFilter())) {
 	    File indexName = DataFileSet.getIndexName(commitLog);
 	    if (!storage.exists(indexName)) {
 		createIndex(commitLog, indexName);
