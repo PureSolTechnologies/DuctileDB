@@ -77,9 +77,18 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	Iterable<File> list = storage.list(indexDirectory);
 	for (File directory : list) {
 	    if (storage.isDirectory(directory)) {
-		SecondaryIndexDescriptor secondaryIndexDescriptor = readSecondaryIndexDescriptor(directory);
+		readIndex(storage, directory);
 	    }
 	}
+    }
+
+    private void readIndex(Storage storage, File directory) {
+	SecondaryIndexDescriptor secondaryIndexDescriptor = readSecondaryIndexDescriptor(directory);
+	SecondaryIndexEngineImpl indexStore = new SecondaryIndexEngineImpl(storage, secondaryIndexDescriptor,
+		getMaxCommitLogSize(), getMaxDataFileSize(), getBufferSize(), getMaxFileGenerations());
+	indexStore.open();
+	indizes.put(secondaryIndexDescriptor.getName(), indexStore);
+	indexDescriptors.put(secondaryIndexDescriptor.getName(), secondaryIndexDescriptor);
     }
 
     private SecondaryIndexDescriptor readSecondaryIndexDescriptor(File directory) {
@@ -179,13 +188,23 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	if (indexEngine == null) {
 	    return null;
 	}
-	byte[] fromValue = value;
-	byte[] toValue = new byte[value.length + 1];
-	for (int i = 0; i < value.length; ++i) {
-	    toValue[i] = value[i];
-	}
-	toValue[value.length] = (byte) 0xFF;
-	return new IndexedColumnFamilyScannerImpl(this, indexEngine, fromValue, toValue);
+	return new IndexedColumnFamilyScannerImpl(this, indexEngine, convertToFromValue(value),
+		convertToToValue(value));
+    }
+
+    private byte[] convertToFromValue(byte[] value) {
+	byte[] fromValue = new byte[value.length + 4];
+	System.arraycopy(Bytes.toBytes(value.length), 0, fromValue, 0, 4);
+	System.arraycopy(value, 0, fromValue, 4, value.length);
+	return fromValue;
+    }
+
+    private byte[] convertToToValue(byte[] value) {
+	byte[] toValue = new byte[value.length + 5];
+	System.arraycopy(Bytes.toBytes(value.length), 0, toValue, 0, 4);
+	System.arraycopy(value, 0, toValue, 4, value.length);
+	toValue[4 + value.length] = (byte) 0xFF;
+	return toValue;
     }
 
     @Override
@@ -194,12 +213,8 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	if (indexEngine == null) {
 	    return null;
 	}
-	byte[] toValue2 = new byte[toValue.length + 1];
-	for (int i = 0; i < toValue.length; ++i) {
-	    toValue2[i] = toValue[i];
-	}
-	toValue2[toValue.length] = (byte) 0xFF;
-	return new IndexedColumnFamilyScannerImpl(this, indexEngine, fromValue, toValue2);
+	return new IndexedColumnFamilyScannerImpl(this, indexEngine, convertToFromValue(fromValue),
+		convertToToValue(toValue));
     }
 
     private SecondaryIndexEngineImpl findIndexEngine(byte[] columnKey) {
@@ -209,6 +224,9 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	SecondaryIndexEngineImpl indexEngine = null;
 	for (SecondaryIndexDescriptor indexEngineDescriptor : indexDescriptors.values()) {
 	    if (indexEngineDescriptor.matchesColumns(columnKey)) {
+		if (indexEngine != null) {
+		    throw new IllegalStateException("Multiple indizes were found for this column combination.");
+		}
 		indexEngine = indizes.get(indexEngineDescriptor.getName());
 	    }
 	}

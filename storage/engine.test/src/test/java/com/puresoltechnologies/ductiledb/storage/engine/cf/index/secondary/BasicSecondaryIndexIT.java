@@ -133,7 +133,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    columnFamily.put(Bytes.toBytes(6l), columnMap);
 	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
 	    columnFamily.put(Bytes.toBytes(7l), columnMap);
-	    columnMap.put(Bytes.toBytes("ineexed"), Bytes.toBytes(3l));
+	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(3l));
 	    columnFamily.put(Bytes.toBytes(8l), columnMap);
 	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(4l));
 	    columnFamily.put(Bytes.toBytes(9l), columnMap);

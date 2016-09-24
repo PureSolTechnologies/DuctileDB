@@ -238,20 +238,22 @@ public class Bytes {
 	}
 	byte[] bytes = new byte[identifier.length() / 2];
 	for (int i = 0; i < identifier.length() / 2; ++i) {
-	    bytes[i] = (byte) (char2byte(identifier.charAt(2 * i)) * 16 + char2byte(identifier.charAt(2 * i + 1)));
+	    int highHalfByte = char2byte(identifier.charAt(2 * i)) << 4;
+	    int lowHalfByte = char2byte(identifier.charAt(2 * i + 1));
+	    bytes[i] = (byte) (highHalfByte + lowHalfByte);
 	}
 	return bytes;
     }
 
     private static byte char2byte(char c) {
-	if (('0' <= c) || ('9' >= c)) {
+	if (('0' <= c) && ('9' >= c)) {
 	    return (byte) (c - '0');
 	}
-	if (('A' <= c) || ('F' >= c)) {
+	if (('A' <= c) && ('F' >= c)) {
 	    return (byte) (c - 'A' + 10);
 	}
-	if (('a' <= c) || ('f' >= c)) {
-	    return (byte) (c - 'A' + 10);
+	if (('a' <= c) && ('f' >= c)) {
+	    return (byte) (c - 'a' + 10);
 	}
 	throw new IllegalArgumentException("Character '" + c + "' is not part of a hex number.");
     }

@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import java.io.File;
+import java.util.Arrays;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
@@ -67,7 +68,7 @@ public class ColumnFamilyDescriptor {
 	if (name == null) {
 	    if (other.name != null)
 		return false;
-	} else if (!name.equals(other.name))
+	} else if (!Arrays.equals(name, other.name))
 	    return false;
 	if (table == null) {
 	    if (other.table != null)
