@@ -10,6 +10,7 @@ import java.util.Iterator;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineIT;
@@ -28,6 +29,8 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 
     private static final String NAMESPACE = DatabaseEngineIT.class.getSimpleName();
 
+    private static final int TEST_SIZE = 130;
+
     @Test
     public void testSecondaryIndexCreateGetDelete() throws SchemaException, StorageException {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE,
@@ -36,7 +39,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Bytes.toBytes("column1"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
-		    columnFamily.getDescriptor(), columnKeySet);
+		    columnFamily.getDescriptor(), columnKeySet, IndexType.HEAP);
 
 	    Iterable<SecondaryIndexDescriptor> indizes = columnFamily.getIndizes();
 	    Iterator<SecondaryIndexDescriptor> iterator = indizes.iterator();
@@ -77,7 +80,8 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 		"testSecondaryIndexSurvivesRestart", "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Bytes.toBytes("testcol"));
-	    indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST", columnFamily.getDescriptor(), columnKeySet);
+	    indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST", columnFamily.getDescriptor(), columnKeySet,
+		    IndexType.HEAP);
 	    columnFamily.createIndex(indexDescriptor);
 
 	    Iterable<SecondaryIndexDescriptor> indizes = columnFamily.getIndizes();
@@ -103,13 +107,21 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSecondaryIndexGetByIndex() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, "testSecondaryIndexGetByIndex",
-		"testcf")) {
+    public void testSecondaryIndexGetByHeapIndex() throws SchemaException, StorageException {
+	testIndex(IndexType.HEAP, "testSecondaryIndexGetByHeapIndex");
+    }
+
+    @Test
+    public void testSecondaryIndexGetByClusteredIndex() throws SchemaException, StorageException {
+	testIndex(IndexType.CLUSTERED, "testSecondaryIndexGetByClusteredIndex");
+    }
+
+    private void testIndex(IndexType indexType, String tableName) throws StorageException, SchemaException {
+	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, tableName, "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Bytes.toBytes("indexed"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
-		    columnFamily.getDescriptor(), columnKeySet);
+		    columnFamily.getDescriptor(), columnKeySet, indexType);
 	    columnFamily.createIndex(indexDescriptor);
 
 	    Iterable<SecondaryIndexDescriptor> indizes = columnFamily.getIndizes();
@@ -118,36 +130,38 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(indexDescriptor, iterator.next());
 	    assertFalse(iterator.hasNext());
 
+	    StopWatch writingTime = new StopWatch();
+	    writingTime.start();
 	    ColumnMap columnMap = new ColumnMap();
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(1l));
-	    columnFamily.put(Bytes.toBytes(1l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
-	    columnFamily.put(Bytes.toBytes(2l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(3l));
-	    columnFamily.put(Bytes.toBytes(3l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(4l));
-	    columnFamily.put(Bytes.toBytes(4l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(5l));
-	    columnFamily.put(Bytes.toBytes(5l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(1l));
-	    columnFamily.put(Bytes.toBytes(6l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
-	    columnFamily.put(Bytes.toBytes(7l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(3l));
-	    columnFamily.put(Bytes.toBytes(8l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(4l));
-	    columnFamily.put(Bytes.toBytes(9l), columnMap);
-	    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(5l));
-	    columnFamily.put(Bytes.toBytes(10l), columnMap);
-
-	    ColumnFamilyScanner found = columnFamily.find(Bytes.toBytes("indexed"), Bytes.toBytes(2l));
-	    assertTrue(found.hasNext());
-	    ColumnFamilyRow row = found.next();
-	    assertEquals(2l, Bytes.toLong(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
-	    assertTrue(found.hasNext());
-	    row = found.next();
-	    assertEquals(2l, Bytes.toLong(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
-	    assertFalse(found.hasNext());
+	    int id = 1;
+	    for (int i = 1; i <= TEST_SIZE; ++i) {
+		for (int j = i; j <= TEST_SIZE; ++j) {
+		    columnMap.put(Bytes.toBytes("id"), Bytes.toBytes(id));
+		    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(j));
+		    columnFamily.put(Bytes.toBytes(id), columnMap);
+		    id++;
+		}
+	    }
+	    writingTime.stop();
+	    System.out.println("Writing time for type '" + indexType.name() + "' with test size '" + TEST_SIZE + "': "
+		    + writingTime.toString());
+	    StopWatch readingTime = new StopWatch();
+	    readingTime.start();
+	    for (int i = 1; i <= TEST_SIZE; ++i) {
+		ColumnFamilyScanner found = columnFamily.find(Bytes.toBytes("indexed"), Bytes.toBytes(i));
+		for (int j = 0; j < i; ++j) {
+		    assertTrue(found.hasNext());
+		    ColumnFamilyRow row = found.next();
+		    assertEquals(Bytes.toInt(row.getRowKey().getKey()),
+			    Bytes.toInt(row.getColumnMap().get(Bytes.toBytes("id")).getValue()));
+		    assertEquals(i, Bytes.toInt(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
+		}
+		assertFalse(found.hasNext());
+	    }
+	    readingTime.stop();
+	    System.out.println("Reading time for type '" + indexType.name() + "' with test size '" + TEST_SIZE + "': "
+		    + readingTime.toString());
 	}
+
     }
 }

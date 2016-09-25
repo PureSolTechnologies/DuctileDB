@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexType;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexedColumnFamilyScannerImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexEngineImpl;
@@ -98,6 +99,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	    Properties properties = new Properties();
 	    properties.load(metadata);
 	    ColumnKeySet columns = new ColumnKeySet();
+	    IndexType indexType = IndexType.valueOf(properties.getProperty("index.type"));
 	    int count = Integer.parseInt(properties.getProperty("index.columns.count"));
 	    for (int id = 0; id < count; ++id) {
 		String hexName = properties.getProperty("index.columns." + String.valueOf(id));
@@ -105,7 +107,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		columns.add(column);
 	    }
 	    SecondaryIndexDescriptor secondaryIndexDescriptor = new SecondaryIndexDescriptor(directory.getName(),
-		    columnFamilyDescriptor, columns);
+		    columnFamilyDescriptor, columns, indexType);
 	    return secondaryIndexDescriptor;
 	} catch (IOException e) {
 	    throw new StorageException("Could not read secondary index meta data.", e);
@@ -140,9 +142,13 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     private void addToIndex(SecondaryIndexDescriptor value, byte[] rowKey, ColumnMap columnMap) {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
 	byte[] indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
-	ColumnMap values = new ColumnMap();
-	values.put(Bytes.toBytes("key"), rowKey);
-	indexEngine.put(indexRowKey, values);
+	if (value.getIndexType() == IndexType.HEAP) {
+	    ColumnMap values = new ColumnMap();
+	    values.put(Bytes.toBytes("key"), rowKey);
+	    indexEngine.put(indexRowKey, values);
+	} else {
+	    indexEngine.put(indexRowKey, columnMap);
+	}
     }
 
     @Override
@@ -276,6 +282,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		Properties properties = new Properties();
 		int id = 0;
 		ColumnKeySet columns = indexDescriptor.getColumns();
+		properties.put("index.type", indexDescriptor.getIndexType().name());
 		properties.put("index.columns.count", String.valueOf(columns.size()));
 		for (byte[] column : columns) {
 		    properties.put("index.columns." + String.valueOf(id), Bytes.toHexString(column));

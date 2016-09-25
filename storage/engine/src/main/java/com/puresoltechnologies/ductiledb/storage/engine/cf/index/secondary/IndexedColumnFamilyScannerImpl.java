@@ -6,6 +6,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
@@ -40,7 +41,12 @@ public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
     public ColumnFamilyRow next() {
 	Key key = scanner.next().getRowKey();
 	Key cfKey = extractCFKey(key);
-	return new ColumnFamilyRow(key, columnFamilyEngine.get(cfKey.getKey()));
+	if (indexEngine.getDescription().getIndexType() == IndexType.HEAP) {
+	    return new ColumnFamilyRow(cfKey, columnFamilyEngine.get(cfKey.getKey()));
+	} else {
+	    ColumnMap columnMap = indexEngine.get(key.getKey());
+	    return new ColumnFamilyRow(cfKey, columnMap);
+	}
     }
 
     private Key extractCFKey(Key key) {

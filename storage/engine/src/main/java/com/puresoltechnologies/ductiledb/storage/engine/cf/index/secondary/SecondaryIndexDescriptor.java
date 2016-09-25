@@ -17,12 +17,15 @@ public class SecondaryIndexDescriptor {
     private final String name;
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final ColumnKeySet columns = new ColumnKeySet();
+    private final IndexType indexType;
 
-    public SecondaryIndexDescriptor(String name, ColumnFamilyDescriptor columnFamilyDescriptor, Set<byte[]> columns) {
+    public SecondaryIndexDescriptor(String name, ColumnFamilyDescriptor columnFamilyDescriptor, Set<byte[]> columns,
+	    IndexType indexType) {
 	super();
 	this.name = name;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.columns.addAll(columns);
+	this.indexType = indexType;
     }
 
     public final String getName() {
@@ -35,6 +38,10 @@ public class SecondaryIndexDescriptor {
 
     public final ColumnKeySet getColumns() {
 	return columns;
+    }
+
+    public IndexType getIndexType() {
+	return indexType;
     }
 
     public File getDirectory() {
@@ -63,6 +70,7 @@ public class SecondaryIndexDescriptor {
 	int result = 1;
 	result = prime * result + ((columnFamilyDescriptor == null) ? 0 : columnFamilyDescriptor.hashCode());
 	result = prime * result + ((columns == null) ? 0 : columns.hashCode());
+	result = prime * result + ((indexType == null) ? 0 : indexType.hashCode());
 	result = prime * result + ((name == null) ? 0 : name.hashCode());
 	return result;
     }
@@ -86,6 +94,8 @@ public class SecondaryIndexDescriptor {
 		return false;
 	} else if (!columns.equals(other.columns))
 	    return false;
+	if (indexType != other.indexType)
+	    return false;
 	if (name == null) {
 	    if (other.name != null)
 		return false;
@@ -93,5 +103,4 @@ public class SecondaryIndexDescriptor {
 	    return false;
 	return true;
     }
-
 }
