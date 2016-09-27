@@ -1,9 +1,12 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.NavigableMap;
 
 import org.junit.Test;
 
@@ -159,5 +162,48 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	assertFalse(scanner.hasNext());
 	assertNull(scanner.peek());
 	assertNull(scanner.next());
+    }
+
+    @Test
+    public void testScannerRangeScan() throws StorageException, SchemaException {
+	DatabaseEngine engine = getEngine();
+	SchemaManager schemaManager = engine.getSchemaManager();
+	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
+	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
+		"testScannerRangeScan");
+	byte[] columnFamilyName = Bytes.toBytes("testcf");
+	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
+		columnFamilyName);
+	Table table = engine.getTable(tableDescription);
+	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyName);
+	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+
+	ResultScanner scanner = table.getScanner(new Scan());
+	assertNotNull(scanner);
+	assertFalse(scanner.hasNext());
+	assertNull(scanner.peek());
+	assertNull(scanner.next());
+
+	for (long i = 1; i <= 1000; ++i) {
+	    Put put = new Put(Bytes.toBytes(i));
+	    put.addColumn(columnFamilyDescriptor.getName(), Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
+	    table.put(put);
+	}
+
+	scanner = table.getScanner(new Scan(Bytes.toBytes(100l), Bytes.toBytes(900l)));
+	assertNotNull(scanner);
+
+	long current = 100l;
+	while (scanner.hasNext()) {
+	    Result startResult = scanner.next();
+	    assertEquals(current, Bytes.toLong(startResult.getRowKey()));
+	    NavigableMap<byte[], byte[]> familyMap = startResult.getFamilyMap(columnFamilyDescriptor.getName());
+	    assertNotNull(familyMap);
+	    assertEquals(current * 100l, Bytes.toLong(familyMap.get(Bytes.toBytes(current * 10))));
+	    ++current;
+	}
+	assertEquals(901, current);
     }
 }

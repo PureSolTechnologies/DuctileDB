@@ -83,13 +83,19 @@ public class ColumnFamilyScannerImpl implements ColumnFamilyScanner {
 	if (nextRow == null) {
 	    readNextRow();
 	}
-	return nextRow != null;
+	if ((nextRow != null) && (endRowKey != null)) {
+	    return endRowKey.compareTo(nextRow.getRowKey()) >= 0;
+	}
+	return (nextRow != null);
     }
 
     @Override
     public ColumnFamilyRow next() {
 	if (nextRow == null) {
 	    readNextRow();
+	}
+	if ((endRowKey != null) && (nextRow != null) && (endRowKey.compareTo(nextRow.getRowKey()) < 0)) {
+	    return null;
 	}
 	ColumnFamilyRow result = nextRow;
 	nextRow = null;
@@ -100,6 +106,9 @@ public class ColumnFamilyScannerImpl implements ColumnFamilyScanner {
     public ColumnFamilyRow peek() {
 	if (nextRow == null) {
 	    readNextRow();
+	}
+	if ((nextRow != null) && (endRowKey != null) && (endRowKey.compareTo(nextRow.getRowKey()) < 0)) {
+	    return null;
 	}
 	return nextRow;
     }

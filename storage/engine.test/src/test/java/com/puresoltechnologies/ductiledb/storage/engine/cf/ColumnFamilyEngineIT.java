@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
@@ -331,4 +333,43 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	assertEquals(27, indexFiles.size());
     }
 
+    @Test
+    public void testLargerTriangularAmountOfData() throws StorageException, SchemaException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+		"testLargerTriangularAmountOfData", "testcf")) {
+	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024 * 1024);
+
+	    final int TEST_SIZE = 500;
+	    StopWatch writingTime = new StopWatch();
+	    writingTime.start();
+	    for (int i = 1; i <= TEST_SIZE; ++i) {
+		ColumnMap columnMap = new ColumnMap();
+		for (int j = i; j <= TEST_SIZE; ++j) {
+		    columnMap.put(Bytes.toBytes(i), Bytes.toBytes(i + j));
+		    columnFamilyEngine.put(Bytes.toBytes(j), columnMap);
+		}
+	    }
+	    writingTime.stop();
+	    System.out.println("Writing time for test size '" + TEST_SIZE + "': " + writingTime.toString());
+	    StopWatch readingTime = new StopWatch();
+	    readingTime.start();
+	    for (int i = 1; i <= TEST_SIZE; ++i) {
+		ColumnMap columnMap = columnFamilyEngine.get(Bytes.toBytes(i));
+		assertNotNull(columnMap);
+		for (int j = 1; j <= TEST_SIZE; ++j) {
+		    ColumnValue value = columnMap.get(Bytes.toBytes(j));
+		    if (j > i) {
+			assertNull(value);
+		    } else {
+			assertNotNull(value);
+			assertEquals(i + j, Bytes.toInt(columnMap.get(Bytes.toBytes(j)).getValue()));
+		    }
+		}
+	    }
+	    readingTime.stop();
+	    System.out.println("Reading time for test size '" + TEST_SIZE + "': " + readingTime.toString());
+
+	}
+    }
 }

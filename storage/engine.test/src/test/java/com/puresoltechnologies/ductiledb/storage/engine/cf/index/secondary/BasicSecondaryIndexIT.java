@@ -29,7 +29,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 
     private static final String NAMESPACE = DatabaseEngineIT.class.getSimpleName();
 
-    private static final int TEST_SIZE = 130;
+    private static final int TEST_SIZE = 150;
 
     @Test
     public void testSecondaryIndexCreateGetDelete() throws SchemaException, StorageException {
@@ -133,13 +133,12 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    StopWatch writingTime = new StopWatch();
 	    writingTime.start();
 	    ColumnMap columnMap = new ColumnMap();
-	    int id = 1;
-	    for (int i = 1; i <= TEST_SIZE; ++i) {
-		for (int j = i; j <= TEST_SIZE; ++j) {
+	    for (int i = 0; i < TEST_SIZE; ++i) {
+		for (int j = i; j < TEST_SIZE; ++j) {
+		    int id = i * TEST_SIZE + j;
 		    columnMap.put(Bytes.toBytes("id"), Bytes.toBytes(id));
 		    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(j));
 		    columnFamily.put(Bytes.toBytes(id), columnMap);
-		    id++;
 		}
 	    }
 	    writingTime.stop();
@@ -147,9 +146,9 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 		    + writingTime.toString());
 	    StopWatch readingTime = new StopWatch();
 	    readingTime.start();
-	    for (int i = 1; i <= TEST_SIZE; ++i) {
+	    for (int i = 0; i < TEST_SIZE; ++i) {
 		ColumnFamilyScanner found = columnFamily.find(Bytes.toBytes("indexed"), Bytes.toBytes(i));
-		for (int j = 0; j < i; ++j) {
+		for (int j = 0; j <= i; ++j) {
 		    assertTrue(found.hasNext());
 		    ColumnFamilyRow row = found.next();
 		    assertEquals(Bytes.toInt(row.getRowKey().getKey()),

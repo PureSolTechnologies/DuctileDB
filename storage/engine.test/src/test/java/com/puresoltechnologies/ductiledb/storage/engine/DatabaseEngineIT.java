@@ -41,7 +41,6 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 	Set<byte[]> families = result.getFamilies();
 	assertNotNull(families);
 	assertFalse(families.isEmpty());
-
     }
 
 }
