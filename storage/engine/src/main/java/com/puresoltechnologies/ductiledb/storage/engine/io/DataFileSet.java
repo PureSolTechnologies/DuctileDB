@@ -24,7 +24,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEn
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.OffsetRange;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.io.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -90,10 +89,11 @@ public class DataFileSet implements Closeable {
 	dataFiles.forEach(file -> {
 	    Matcher matcher = pattern.matcher(file.getName());
 	    if (matcher.matches()) {
-		indexFiles.add(getIndexName(file));
+		File indexName = getIndexName(file);
+		indexFiles.add(indexName);
 		int num = Integer.parseInt(matcher.group(2));
-		numToIndexFile.put(num, file);
-		indexFileToNum.put(file, num);
+		numToIndexFile.put(num, indexName);
+		indexFileToNum.put(indexName, num);
 	    } else {
 		logger.error("Invalid data file found: " + file);
 	    }
@@ -102,6 +102,14 @@ public class DataFileSet implements Closeable {
 
     public DataFileSet(Storage storage, File directory, String timestamp) {
 	this(storage, directory, getMetadataFile(directory, timestamp));
+    }
+
+    Index getIndex() {
+	return index;
+    }
+
+    Storage getStorage() {
+	return storage;
     }
 
     @Override
@@ -176,7 +184,7 @@ public class DataFileSet implements Closeable {
 	return dataReader.getRow();
     }
 
-    private File getNextIndexFile(File indexFile) {
+    File getNextIndexFile(File indexFile) {
 	if (indexFile == null) {
 	    return null;
 	}
@@ -184,111 +192,7 @@ public class DataFileSet implements Closeable {
 	return num != null ? numToIndexFile.get(num + 1) : null;
     }
 
-    private class SSTableIndexIterator implements IndexIterator {
-
-	private final Key start;
-	private final Key stop;
-	private File currentDataFile;
-	private File currentIndexFile;
-	private IndexEntryIterable indexIterable;
-	private IndexIterator indexIterator;
-	private IndexEntry nextIndex = null;
-
-	public SSTableIndexIterator(Key start, Key stop) throws IOException {
-	    this.start = start;
-	    this.stop = stop;
-	    IndexEntry floor = index.floor(start);
-	    if (floor != null) {
-		currentDataFile = floor.getDataFile();
-	    } else {
-		IndexEntry ceiling = index.ceiling(start);
-		if (ceiling != null) {
-		    currentDataFile = ceiling.getDataFile();
-		}
-	    }
-	    if (currentDataFile != null) {
-		currentIndexFile = getIndexName(currentDataFile);
-		indexIterable = new IndexEntryIterable(storage.open(currentIndexFile));
-		indexIterator = indexIterable.iterator(start, stop);
-		gotoStart(start);
-	    }
-	}
-
-	@Override
-	public Key getStartRowKey() {
-	    return start;
-	}
-
-	@Override
-	public Key getEndRowKey() {
-	    return stop;
-	}
-
-	@Override
-	public IndexEntry peek() {
-	    if (nextIndex == null) {
-		readNext();
-	    }
-	    return nextIndex;
-	}
-
-	@Override
-	public boolean hasNext() {
-	    if (nextIndex == null) {
-		readNext();
-	    }
-	    return nextIndex != null;
-	}
-
-	@Override
-	public IndexEntry next() {
-	    if (nextIndex == null) {
-		readNext();
-	    }
-	    IndexEntry result = nextIndex;
-	    nextIndex = null;
-	    return result;
-	}
-
-	private void readNext() {
-	    if (indexIterator == null) {
-		nextIndex = null;
-		return;
-	    }
-	    if (indexIterator.hasNext()) {
-		nextIndex = indexIterator.next();
-	    } else {
-		try {
-		    try {
-			indexIterable.close();
-		    } finally {
-			indexIterable = null;
-			indexIterator = null;
-		    }
-		    currentIndexFile = getNextIndexFile(currentIndexFile);
-		    if (currentIndexFile != null) {
-			indexIterable = new IndexEntryIterable(storage.open(currentIndexFile));
-			indexIterator = indexIterable.iterator(start, stop);
-			nextIndex = indexIterator.next();
-		    }
-		} catch (IOException e) {
-		    logger.error("Could not find next index file.", e);
-		    nextIndex = null;
-		}
-	    }
-	}
-
-	@Override
-	public void close() throws IOException {
-	    if (indexIterable != null) {
-		indexIterable.close();
-		indexIterable = null;
-	    }
-	}
-
-    }
-
     public IndexIterator getIndexIterator(Key startRowKey, Key stopRowKey) throws IOException {
-	return new SSTableIndexIterator(startRowKey, stopRowKey);
+	return new SSTableIndexIterator(this, startRowKey, stopRowKey);
     }
 }

@@ -11,10 +11,6 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -352,4 +348,39 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	}
     }
 
+    @Test
+    public void testRange() throws SchemaException, StorageException {
+	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testScanner", "testcf")) {
+	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
+	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    assertNotNull(scanner);
+	    assertFalse(scanner.hasNext());
+	    assertNull(scanner.peek());
+	    assertNull(scanner.next());
+
+	    for (long i = 1; i <= 1000; ++i) {
+		ColumnMap columnMap = new ColumnMap();
+		columnMap.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
+		columnFamilyEngine.put(Bytes.toBytes(i), columnMap);
+	    }
+
+	    scanner = columnFamilyEngine.getScanner(Bytes.toBytes(100l), Bytes.toBytes(900l));
+	    assertNotNull(scanner);
+
+	    long current = 100l;
+	    while (scanner.hasNext()) {
+		ColumnFamilyRow startResult = scanner.next();
+		long l = Bytes.toLong(startResult.getRowKey().getKey());
+		assertEquals(current, l);
+		ColumnValue value = startResult.getColumnMap().get(Bytes.toBytes(l * 10l));
+		assertNotNull(value);
+		assertEquals(l * 100l, Bytes.toLong(value.getValue()));
+		++current;
+	    }
+	    assertEquals(901, current);
+
+	}
+    }
 }
