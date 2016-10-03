@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core;
 
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
+import com.puresoltechnologies.ductiledb.core.rdbms.DuctileDBRdbmsConfiguration;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
 
 /**
@@ -14,6 +15,7 @@ public class DuctileDBConfiguration {
     private DatabaseEngineConfiguration databaseEngine;
     private BlobStoreConfiguration blobStore;
     private DuctileDBGraphConfiguration graph;
+    private DuctileDBRdbmsConfiguration rdbms;
 
     public DatabaseEngineConfiguration getDatabaseEngine() {
 	return databaseEngine;
@@ -37,6 +39,14 @@ public class DuctileDBConfiguration {
 
     public void setGraph(DuctileDBGraphConfiguration graph) {
 	this.graph = graph;
+    }
+
+    public DuctileDBRdbmsConfiguration getRdbms() {
+	return rdbms;
+    }
+
+    public void setRdbms(DuctileDBRdbmsConfiguration rdbms) {
+	this.rdbms = rdbms;
     }
 
 }

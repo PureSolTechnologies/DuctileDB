@@ -52,7 +52,6 @@ public class GraphSchema {
 	assureVertexPropertiesIndexTablePresence(schemaManager, namespace);
 	assureEdgeTypesIndexTablePresence(schemaManager, namespace);
 	assureEdgePropertiesIndexTablePresence(schemaManager, namespace);
-
     }
 
     private NamespaceDescriptor assureNamespacePresence(SchemaManager schemaManager)

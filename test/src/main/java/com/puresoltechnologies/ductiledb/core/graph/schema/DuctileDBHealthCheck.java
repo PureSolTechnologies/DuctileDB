@@ -17,6 +17,7 @@ import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.core.rdbms.RelationalDuctileDBImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
@@ -212,5 +213,9 @@ public class DuctileDBHealthCheck {
 	    assertNull("Row data was found, but database was expected to be empty. Row found in table '"
 		    + schemaTable.name() + "'.", scanner.next());
 	}
+    }
+
+    public static void runCheckForEmpty(RelationalDuctileDBImpl rdbms) {
+	throw new IllegalStateException("Not implemented, yet!");
     }
 }

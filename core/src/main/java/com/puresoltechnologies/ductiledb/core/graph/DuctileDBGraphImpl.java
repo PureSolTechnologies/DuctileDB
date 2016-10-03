@@ -37,7 +37,7 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private static final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
 
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();
-    private final GraphSchema hbaseSchema;
+    private final GraphSchema graphSchema;
     private final DuctileDBSchema schema;
 
     private final DuctileDBGraphConfiguration configuration;
@@ -56,8 +56,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	this.blobStore = blobStore;
 	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
-	hbaseSchema = new GraphSchema(storageEngine, configuration);
-	hbaseSchema.checkAndCreateEnvironment();
+	graphSchema = new GraphSchema(storageEngine, configuration);
+	graphSchema.checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
     }
 
@@ -108,8 +108,8 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
 	return new DuctileDBSchemaManagerImpl(this);
     }
 
-    public final GraphSchema getHBaseSchema() {
-	return hbaseSchema;
+    public final GraphSchema getGraphSchema() {
+	return graphSchema;
     }
 
     public final DuctileDBSchema getSchema() {

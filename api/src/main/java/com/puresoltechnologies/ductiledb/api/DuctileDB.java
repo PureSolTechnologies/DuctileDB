@@ -4,6 +4,7 @@ import java.io.Closeable;
 
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.rdbms.RelationalDuctileDB;
 
 /**
  * This is the central interface for DuctileDB.
@@ -28,5 +29,12 @@ public interface DuctileDB extends Closeable {
      * @return A {@link BlobStore} object is returned.
      */
     public BlobStore getBlobStore();
+
+    /**
+     * This method returns the RDBMS part of DuctileDB.
+     * 
+     * @return A {@link RelationalDuctileDB} object is returned.
+     */
+    public RelationalDuctileDB getRDBMS();
 
 }

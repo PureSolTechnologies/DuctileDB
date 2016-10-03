@@ -6,8 +6,10 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.rdbms.RelationalDuctileDB;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.rdbms.RelationalDuctileDBImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
@@ -22,8 +24,9 @@ public class DuctileDBImpl implements DuctileDB {
     private final DuctileDBConfiguration configuration;
     private final BlobStoreImpl blobStore;
     private final DuctileDBGraphImpl graph;
+    private final RelationalDuctileDBImpl rdbms;
 
-    private boolean closed = false;;
+    private boolean closed = false;
 
     public DuctileDBImpl(DuctileDBConfiguration configuration) {
 	this.configuration = configuration;
@@ -31,6 +34,7 @@ public class DuctileDBImpl implements DuctileDB {
 	DatabaseEngineImpl storageEngine = createDatabaseEngine(configuration.getDatabaseEngine());
 	try {
 	    this.graph = new DuctileDBGraphImpl(configuration.getGraph(), blobStore, storageEngine, true);
+	    this.rdbms = new RelationalDuctileDBImpl(configuration.getRdbms(), storageEngine, true);
 	} catch (SchemaException e) {
 	    throw new StorageException("Could not create graph instance.", e);
 	}
@@ -76,6 +80,11 @@ public class DuctileDBImpl implements DuctileDB {
     }
 
     @Override
+    public RelationalDuctileDB getRDBMS() {
+	return rdbms;
+    }
+
+    @Override
     public void close() {
 	logger.info("Closing DuctileDB...");
 	try {
@@ -85,6 +94,11 @@ public class DuctileDBImpl implements DuctileDB {
 	}
 	try {
 	    graph.close();
+	} catch (Exception e) {
+	    logger.warn("Could not close graph.", e);
+	}
+	try {
+	    rdbms.close();
 	} catch (Exception e) {
 	    logger.warn("Could not close graph.", e);
 	}
