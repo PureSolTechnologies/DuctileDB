@@ -83,6 +83,6 @@ public class DuctileDBTestHelper {
     }
 
     public static void removeRDBMS(RelationalDuctileDB graph) throws IOException, StorageException {
-	throw new IllegalStateException("Not implemented, yet!");
+	// TODO throw new IllegalStateException("Not implemented, yet!");
     }
 }

@@ -26,22 +26,26 @@ public class RelationalDuctileDBImpl implements RelationalDuctileDB {
 
     private static Logger logger = LoggerFactory.getLogger(RelationalDuctileDBImpl.class);
 
-    private final DataDefinitionLanguage dataDefinitionLanguage = new DataDefinitionLanguageImpl();
-    private final DataManipulationLanguage dataManipulationLanguage = new DataManipulationLanguageImpl();
-    private final DataControlLanguage dataControlLanguage = new DataControlLanguageImpl();
-
     private final DuctileDBRdbmsConfiguration configuration;
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
     private final RdbmsSchema rdbmsSchema;
+    private final DataDefinitionLanguage dataDefinitionLanguage;
+    private final DataManipulationLanguage dataManipulationLanguage;
+    private final DataControlLanguage dataControlLanguage;
 
     public RelationalDuctileDBImpl(DuctileDBRdbmsConfiguration configuration, DatabaseEngineImpl storageEngine,
 	    boolean autoCloseConnection) throws StorageException, SchemaException {
 	this.configuration = configuration;
 	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
-	rdbmsSchema = new RdbmsSchema(storageEngine, configuration);
+	// Schema...
+	this.rdbmsSchema = new RdbmsSchema(storageEngine, configuration);
 	rdbmsSchema.checkAndCreateEnvironment();
+	// Languages...
+	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(storageEngine);
+	this.dataManipulationLanguage = new DataManipulationLanguageImpl(storageEngine);
+	this.dataControlLanguage = new DataControlLanguageImpl(storageEngine);
     }
 
     @Override
@@ -68,8 +72,7 @@ public class RelationalDuctileDBImpl implements RelationalDuctileDB {
     }
 
     public void runCompaction() {
-	// TODO Auto-generated method stub
-
+	storageEngine.runCompaction();
     }
 
 }

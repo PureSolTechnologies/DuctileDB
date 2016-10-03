@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1475495199420
-Build-Jdk: 1.8.0_92
+Bnd-LastModified: 1475497137035
+Build-Jdk: 1.8.0_71
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.puresoltechnologies.ductiledb.xo.Activator
-Bundle-ClassPath: .,dependencies/osgi-0.7.0-SNAPSHOT.jar,dependencies/xo
- -0.2.0-SNAPSHOT.jar
+Bundle-ClassPath: .,dependencies/osgi-0.7.0-20160809.195813-8.jar,depend
+ encies/xo-0.2.0-SNAPSHOT.jar
 Bundle-Description: DuctileDB is PureSol Technologies' graph database.
 Bundle-DocURL: http://puresol-technologies.com
 Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -18,10 +18,10 @@ Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: *;scope=compile|runtime;inline=false
 Embed-Directory: dependencies
 Embed-StripGroup: true
-Embedded-Artifacts: dependencies/osgi-0.7.0-SNAPSHOT.jar;g="com.puresolt
- echnologies.commons";a="osgi";v="0.7.0-SNAPSHOT",dependencies/xo-0.2.0-
- SNAPSHOT.jar;g="com.puresoltechnologies.ductiledb";a="xo";v="0.2.0-SNAP
- SHOT"
+Embedded-Artifacts: dependencies/osgi-0.7.0-20160809.195813-8.jar;g="com
+ .puresoltechnologies.commons";a="osgi";v="0.7.0-SNAPSHOT",dependencies/
+ xo-0.2.0-SNAPSHOT.jar;g="com.puresoltechnologies.ductiledb";a="xo";v="0
+ .2.0-SNAPSHOT"
 Export-Package: com.puresoltechnologies.ductiledb.xo;version="0.2.0.SNAP
  SHOT",com.puresoltechnologies.ductiledb.xo.api;version="0.2.0.SNAPSHOT"
  ;uses:="com.buschmais.xo.api.bootstrap,com.buschmais.xo.spi.bootstrap,c
