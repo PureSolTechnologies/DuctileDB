@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.ddl;
 
-public interface CreateIndex {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface CreateIndex extends DuctileDBStatement {
 
 }

@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.dml;
 
-public interface Delete {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface Delete extends DuctileDBStatement {
 
 }

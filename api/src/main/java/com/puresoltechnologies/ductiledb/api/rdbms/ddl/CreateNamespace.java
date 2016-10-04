@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.ddl;
 
-public interface CreateNamespace {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface CreateNamespace extends DuctileDBStatement {
 
 }

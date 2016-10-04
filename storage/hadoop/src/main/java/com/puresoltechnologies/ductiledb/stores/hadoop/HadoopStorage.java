@@ -35,6 +35,11 @@ public class HadoopStorage implements Storage {
 	return configuration;
     }
 
+    @Override
+    public File getStorageDirectory() {
+	return null;
+    }
+
     public void createFile() {
 	// TODO
     }

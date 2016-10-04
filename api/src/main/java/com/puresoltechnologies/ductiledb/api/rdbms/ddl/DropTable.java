@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.ddl;
 
-public interface DropTable {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface DropTable extends DuctileDBStatement {
 
 }

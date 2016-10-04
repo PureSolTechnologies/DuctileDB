@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.dml;
 
-public interface Truncate {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface Truncate extends DuctileDBStatement {
 
 }

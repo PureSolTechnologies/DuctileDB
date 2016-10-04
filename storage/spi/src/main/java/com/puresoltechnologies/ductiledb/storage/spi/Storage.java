@@ -28,6 +28,12 @@ public interface Storage extends Closeable {
     public StorageConfiguration getConfiguration();
 
     /**
+     * 
+     * @return
+     */
+    public File getStorageDirectory();
+
+    /**
      * This method is used to check the preconditions and to initialize the
      * storage.
      * 

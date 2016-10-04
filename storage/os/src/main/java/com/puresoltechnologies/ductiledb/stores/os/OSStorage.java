@@ -40,7 +40,8 @@ public class OSStorage implements Storage {
 	return configuration;
     }
 
-    public final File getRootDirectory() {
+    @Override
+    public File getStorageDirectory() {
 	return rootDirectory;
     }
 

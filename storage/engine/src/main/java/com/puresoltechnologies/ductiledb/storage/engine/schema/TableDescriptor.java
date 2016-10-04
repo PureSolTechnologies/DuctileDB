@@ -13,10 +13,10 @@ public class TableDescriptor {
     private final NamespaceDescriptor namespace;
     private final File directory;
 
-    public TableDescriptor(String name, NamespaceDescriptor namespace, File directory) {
-	this.name = name;
+    public TableDescriptor(NamespaceDescriptor namespace, String name) {
 	this.namespace = namespace;
-	this.directory = directory;
+	this.name = name;
+	this.directory = new File(namespace.getDirectory(), name);
     }
 
     public final String getName() {

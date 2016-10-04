@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.dml;
 
-public interface Update {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface Update extends DuctileDBStatement {
 
 }

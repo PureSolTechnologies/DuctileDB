@@ -222,6 +222,6 @@ public class DuctileDBHealthCheck {
 	DataManipulationLanguage dml = rdbms.getDataManipulationLanguage();
 	Select select = dml.createSelect(RdbmsSchema.SYSTEM_NAMESPACE_NAME,
 		com.puresoltechnologies.ductiledb.core.rdbms.schema.DatabaseTable.TABLES.getName());
-	select.queryResults();
+	select.execute();
     }
 }

@@ -13,10 +13,10 @@ public class NamespaceDescriptor {
     private final Storage storage;
     private final File directory;
 
-    public NamespaceDescriptor(String name, Storage storage, File directory) {
+    public NamespaceDescriptor(Storage storage, String name) {
 	this.name = name;
 	this.storage = storage;
-	this.directory = directory;
+	this.directory = new File(storage.getStorageDirectory(), name);
     }
 
     public final String getName() {

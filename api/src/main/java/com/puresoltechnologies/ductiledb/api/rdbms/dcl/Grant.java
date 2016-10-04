@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.rdbms.dcl;
 
-public interface Grant {
+import com.puresoltechnologies.ductiledb.api.rdbms.DuctileDBStatement;
+
+public interface Grant extends DuctileDBStatement {
 
 }

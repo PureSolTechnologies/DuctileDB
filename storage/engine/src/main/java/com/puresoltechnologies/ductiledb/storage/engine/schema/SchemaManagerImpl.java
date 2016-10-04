@@ -81,7 +81,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public NamespaceDescriptor next() {
 		    File directory = iterator.next();
-		    return new NamespaceDescriptor(directory.getName(), storage, directory);
+		    return new NamespaceDescriptor(storage, directory.getName());
 		}
 	    };
 	}
@@ -119,7 +119,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public TableDescriptor next() {
 		    File directory = iterator.next();
-		    return new TableDescriptor(directory.getName(), namespace, directory);
+		    return new TableDescriptor(namespace, directory.getName());
 		}
 	    };
 	}
@@ -200,8 +200,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		properties.put("namespace.storage.name", getStoreName());
 		properties.store(metadataFile, "Meta data for namespace.");
 
-		NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(namespaceName, storage,
-			namespaceDirectory);
+		NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(storage, namespaceName);
 		databaseEngine.addNamespace(namespaceDescriptor);
 		namespaces.put(namespaceDescriptor.getName(), namespaceDescriptor);
 		return namespaceDescriptor;
@@ -272,7 +271,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		properties.put("table.storage.name", getStoreName());
 		properties.store(metadataFile, "Meta data for table.");
 
-		TableDescriptor tableDescriptor = new TableDescriptor(tableName, namespaceDescriptor, tableDirectory);
+		TableDescriptor tableDescriptor = new TableDescriptor(namespaceDescriptor, tableName);
 		namespaceDescriptor.addTable(tableDescriptor);
 		databaseEngine.addTable(tableDescriptor);
 		return tableDescriptor;

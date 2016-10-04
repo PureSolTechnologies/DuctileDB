@@ -24,7 +24,8 @@ public class SelectImpl implements Select {
     }
 
     @Override
-    public TableRowIterable queryResults() {
+    public TableRowIterable execute() {
+	// TODO Auto-generated method stub
 	return null;
     }
 
