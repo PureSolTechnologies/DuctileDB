@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.core;
 
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
-import com.puresoltechnologies.ductiledb.core.rdbms.TableStoreConfiguration;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreConfiguration;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
 
 /**

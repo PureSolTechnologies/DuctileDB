@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.rdbms.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.api.rdbms.dml.Select;
+import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
+import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
-import com.puresoltechnologies.ductiledb.core.rdbms.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.core.rdbms.schema.RdbmsSchema;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.schema.RdbmsSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
@@ -221,7 +221,7 @@ public class DuctileDBHealthCheck {
     public static void runCheckForEmpty(TableStoreImpl rdbms) {
 	DataManipulationLanguage dml = rdbms.getDataManipulationLanguage();
 	Select select = dml.createSelect(RdbmsSchema.SYSTEM_NAMESPACE_NAME,
-		com.puresoltechnologies.ductiledb.core.rdbms.schema.DatabaseTable.TABLES.getName());
+		com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable.TABLES.getName());
 	select.execute();
     }
 }

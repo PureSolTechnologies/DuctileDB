@@ -4,7 +4,7 @@ import java.io.Closeable;
 
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.rdbms.TableStore;
+import com.puresoltechnologies.ductiledb.api.tables.TableStore;
 
 /**
  * This is the central interface for DuctileDB.
