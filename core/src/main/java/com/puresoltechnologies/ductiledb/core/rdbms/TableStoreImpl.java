@@ -1,11 +1,12 @@
 package com.puresoltechnologies.ductiledb.core.rdbms;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.rdbms.RelationalDuctileDB;
+import com.puresoltechnologies.ductiledb.api.rdbms.TableStore;
 import com.puresoltechnologies.ductiledb.api.rdbms.dcl.DataControlLanguage;
 import com.puresoltechnologies.ductiledb.api.rdbms.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.api.rdbms.dml.DataManipulationLanguage;
@@ -22,11 +23,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class RelationalDuctileDBImpl implements RelationalDuctileDB {
+public class TableStoreImpl implements TableStore {
 
-    private static Logger logger = LoggerFactory.getLogger(RelationalDuctileDBImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(TableStoreImpl.class);
 
-    private final DuctileDBRdbmsConfiguration configuration;
+    private final TableStoreConfiguration configuration;
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
     private final RdbmsSchema rdbmsSchema;
@@ -34,7 +35,7 @@ public class RelationalDuctileDBImpl implements RelationalDuctileDB {
     private final DataManipulationLanguage dataManipulationLanguage;
     private final DataControlLanguage dataControlLanguage;
 
-    public RelationalDuctileDBImpl(DuctileDBRdbmsConfiguration configuration, DatabaseEngineImpl storageEngine,
+    public TableStoreImpl(TableStoreConfiguration configuration, DatabaseEngineImpl storageEngine,
 	    boolean autoCloseConnection) throws StorageException, SchemaException {
 	this.configuration = configuration;
 	this.storageEngine = storageEngine;
@@ -43,7 +44,7 @@ public class RelationalDuctileDBImpl implements RelationalDuctileDB {
 	this.rdbmsSchema = new RdbmsSchema(storageEngine, configuration);
 	rdbmsSchema.checkAndCreateEnvironment();
 	// Languages...
-	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(storageEngine);
+	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(storageEngine, new File("tables"));
 	this.dataManipulationLanguage = new DataManipulationLanguageImpl(storageEngine);
 	this.dataControlLanguage = new DataControlLanguageImpl(storageEngine);
     }

@@ -58,6 +58,11 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 	return new DuctileGraph(ductileDB.getGraph(), configuration);
     }
 
+    public static DuctileGraph open(DuctileDB ductileDB)
+	    throws FileNotFoundException, StorageException, SchemaException, IOException {
+	return new DuctileGraph(ductileDB.getGraph(), new BaseConfiguration());
+    }
+
     private DuctileGraphComputerView graphComputerView = null;
     private final DuctileDBGraph baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();

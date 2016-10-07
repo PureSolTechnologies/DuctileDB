@@ -7,6 +7,6 @@ import java.io.Closeable;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface RelationalDuctileDB extends Closeable {
+public interface TableStore extends Closeable {
 
 }

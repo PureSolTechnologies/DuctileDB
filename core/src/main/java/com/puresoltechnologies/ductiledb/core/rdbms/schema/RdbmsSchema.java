@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.rdbms.schema;
 
-import com.puresoltechnologies.ductiledb.core.rdbms.DuctileDBRdbmsConfiguration;
+import com.puresoltechnologies.ductiledb.core.rdbms.TableStoreConfiguration;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
@@ -21,9 +21,9 @@ public class RdbmsSchema {
     public static final String TABLES_TABLE_NAME = "tables";
 
     private final DatabaseEngineImpl storageEngine;
-    private final DuctileDBRdbmsConfiguration configuration;
+    private final TableStoreConfiguration configuration;
 
-    public RdbmsSchema(DatabaseEngineImpl storageEngine, DuctileDBRdbmsConfiguration configuration) {
+    public RdbmsSchema(DatabaseEngineImpl storageEngine, TableStoreConfiguration configuration) {
 	this.storageEngine = storageEngine;
 	this.configuration = configuration;
     }

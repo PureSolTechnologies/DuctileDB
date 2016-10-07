@@ -4,7 +4,7 @@ import java.io.Closeable;
 
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
-import com.puresoltechnologies.ductiledb.api.rdbms.RelationalDuctileDB;
+import com.puresoltechnologies.ductiledb.api.rdbms.TableStore;
 
 /**
  * This is the central interface for DuctileDB.
@@ -13,7 +13,12 @@ import com.puresoltechnologies.ductiledb.api.rdbms.RelationalDuctileDB;
  */
 public interface DuctileDB extends Closeable {
 
-    public boolean isClosed();
+    /**
+     * Checks whether the database was stoped already.
+     * 
+     * @return
+     */
+    public boolean isStopped();
 
     /**
      * This method returns the {@link DuctileDBGraph} of DuctileDB.
@@ -24,7 +29,7 @@ public interface DuctileDB extends Closeable {
     public DuctileDBGraph getGraph();
 
     /**
-     * This method returns the BLOB store reference to DuctileDB's BLOB store.
+     * This method returns the big table store reference.
      * 
      * @return A {@link BlobStore} object is returned.
      */
@@ -33,8 +38,8 @@ public interface DuctileDB extends Closeable {
     /**
      * This method returns the RDBMS part of DuctileDB.
      * 
-     * @return A {@link RelationalDuctileDB} object is returned.
+     * @return A {@link TableStore} object is returned.
      */
-    public RelationalDuctileDB getRDBMS();
+    public TableStore getTableStore();
 
 }

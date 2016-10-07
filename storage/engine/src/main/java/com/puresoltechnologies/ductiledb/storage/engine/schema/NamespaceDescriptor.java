@@ -13,10 +13,20 @@ public class NamespaceDescriptor {
     private final Storage storage;
     private final File directory;
 
-    public NamespaceDescriptor(Storage storage, String name) {
-	this.name = name;
+    /**
+     * This is the primary constructor for the namespace. The namespace name is
+     * determined by {@link File#getName()} of the namespace directory.
+     * 
+     * @param storage
+     *            is the {@link Storage} to be used to put the data to.
+     * @param directory
+     *            is the directory in the storage to be used to put data into
+     *            which belongs to the namespace.
+     */
+    public NamespaceDescriptor(Storage storage, File directory) {
 	this.storage = storage;
-	this.directory = new File(storage.getStorageDirectory(), name);
+	this.directory = directory;
+	this.name = directory.getName();
     }
 
     public final String getName() {

@@ -14,6 +14,8 @@ import com.puresoltechnologies.commons.misc.hash.HashId;
  */
 public interface BlobStore extends Closeable {
 
+    public static String NAMESPACE = "blobs";
+
     /**
      * Check whether a BLOB object is available identified by its hash id.
      * 

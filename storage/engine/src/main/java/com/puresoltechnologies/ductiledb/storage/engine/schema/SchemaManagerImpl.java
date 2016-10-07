@@ -81,7 +81,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public NamespaceDescriptor next() {
 		    File directory = iterator.next();
-		    return new NamespaceDescriptor(storage, directory.getName());
+		    return new NamespaceDescriptor(storage, directory);
 		}
 	    };
 	}
@@ -200,7 +200,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		properties.put("namespace.storage.name", getStoreName());
 		properties.store(metadataFile, "Meta data for namespace.");
 
-		NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(storage, namespaceName);
+		NamespaceDescriptor namespaceDescriptor = new NamespaceDescriptor(storage, namespaceDirectory);
 		databaseEngine.addNamespace(namespaceDescriptor);
 		namespaces.put(namespaceDescriptor.getName(), namespaceDescriptor);
 		return namespaceDescriptor;

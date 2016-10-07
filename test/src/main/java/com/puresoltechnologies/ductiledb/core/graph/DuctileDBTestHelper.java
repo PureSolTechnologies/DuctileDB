@@ -14,7 +14,7 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.rdbms.RelationalDuctileDB;
+import com.puresoltechnologies.ductiledb.api.rdbms.TableStore;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
@@ -82,7 +82,7 @@ public class DuctileDBTestHelper {
 	logger.info("Ductile graph deleted.");
     }
 
-    public static void removeRDBMS(RelationalDuctileDB graph) throws IOException, StorageException {
+    public static void removeRDBMS(TableStore graph) throws IOException, StorageException {
 	// TODO throw new IllegalStateException("Not implemented, yet!");
     }
 }

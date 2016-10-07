@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.rdbms.ddl;
 
+import java.io.File;
+
 import com.puresoltechnologies.ductiledb.api.rdbms.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -7,16 +9,16 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescript
 public class CreateNamespaceImpl implements CreateNamespace {
 
     private final DatabaseEngineImpl storageEngine;
-    private final String namespace;
+    private final File namespaceDirectory;
 
-    public CreateNamespaceImpl(DatabaseEngineImpl storageEngine, String namespace) {
+    public CreateNamespaceImpl(DatabaseEngineImpl storageEngine, File namespaceDirectory) {
 	this.storageEngine = storageEngine;
-	this.namespace = namespace;
+	this.namespaceDirectory = namespaceDirectory;
     }
 
     @Override
     public void execute() {
-	storageEngine.addNamespace(new NamespaceDescriptor(storageEngine.getStorage(), namespace));
+	storageEngine.addNamespace(new NamespaceDescriptor(storageEngine.getStorage(), namespaceDirectory));
     }
 
 }

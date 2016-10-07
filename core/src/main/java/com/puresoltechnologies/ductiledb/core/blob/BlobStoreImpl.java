@@ -30,7 +30,7 @@ public class BlobStoreImpl implements BlobStore {
     /**
      * Root directory for DuctileDB's BLOB store.
      */
-    private static final File filePath = new File("blobs");
+    private static final File filePath = new File(NAMESPACE);
 
     private static final Logger logger = LoggerFactory.getLogger(BlobStoreImpl.class);
     private final Storage storage;

@@ -17,12 +17,12 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 public class AbstractDuctileDBRdbmsTest extends AbstractDuctileDBTest {
 
     private static DuctileDB ductileDB = null;
-    private static RelationalDuctileDBImpl rdbms = null;
+    private static TableStoreImpl rdbms = null;
 
     @BeforeClass
     public static void connect() throws IOException, SchemaException {
 	ductileDB = getDuctileDB();
-	rdbms = (RelationalDuctileDBImpl) ductileDB.getRDBMS();
+	rdbms = (TableStoreImpl) ductileDB.getTableStore();
 	// Normally meaningless, but we do nevertheless, if tests change...
 	DuctileDBTestHelper.removeRDBMS(rdbms);
 	DuctileDBHealthCheck.runCheckForEmpty(rdbms);
@@ -50,7 +50,7 @@ public class AbstractDuctileDBRdbmsTest extends AbstractDuctileDBTest {
 	DuctileDBHealthCheck.runCheckForEmpty(rdbms);
     }
 
-    protected static RelationalDuctileDBImpl getRDBMS() {
+    protected static TableStoreImpl getRDBMS() {
 	return rdbms;
     }
 }

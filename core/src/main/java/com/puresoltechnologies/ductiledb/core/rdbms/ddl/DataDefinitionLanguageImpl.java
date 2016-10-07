@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.rdbms.ddl;
 
+import java.io.File;
+
 import com.puresoltechnologies.ductiledb.api.rdbms.ddl.CreateIndex;
 import com.puresoltechnologies.ductiledb.api.rdbms.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.api.rdbms.ddl.CreateTable;
@@ -12,14 +14,16 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
 
     private final DatabaseEngineImpl storageEngine;
+    private final File directory;
 
-    public DataDefinitionLanguageImpl(DatabaseEngineImpl storageEngine) {
+    public DataDefinitionLanguageImpl(DatabaseEngineImpl storageEngine, File directory) {
 	this.storageEngine = storageEngine;
+	this.directory = directory;
     }
 
     @Override
     public CreateNamespace createCreateNamespace(String namespace) {
-	return new CreateNamespaceImpl(storageEngine, namespace);
+	return new CreateNamespaceImpl(storageEngine, new File(directory, namespace));
     }
 
     @Override
