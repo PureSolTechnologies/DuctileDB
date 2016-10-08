@@ -7,7 +7,7 @@ import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -70,7 +70,7 @@ public class GraphSchema {
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.METADATA.getNameBytes());
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getNameBytes());
 
-	    Table table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
+	    TableEngine table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
 	    Put vertexIdPut = new Put(ID_ROW_BYTES);
 	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.VERTEX_ID.getNameBytes(),
 		    Bytes.toBytes(1l));

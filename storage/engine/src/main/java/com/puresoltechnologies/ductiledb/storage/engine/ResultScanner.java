@@ -8,7 +8,7 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
@@ -24,49 +24,49 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 
     private final NavigableMap<byte[], ColumnFamilyScanner> cfScanners = new TreeMap<>(BYTE_ARRAY_COMPARATOR);
 
-    private final Table table;
+    private final TableEngine table;
     private Result nextResult = null;
 
-    public ResultScanner(Table table, Scan scan) {
+    public ResultScanner(TableEngineImpl table, Scan scan) {
 	this.table = table;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
 	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
-		ColumnFamily columnFamily = table.getColumnFamily(columnFamilyKey);
+		ColumnFamilyEngine columnFamily = table.getColumnFamilyEngine(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
 	    }
 	} else {
-	    for (ColumnFamily columnFamily : table.getColumnFamilies()) {
+	    for (ColumnFamilyEngine columnFamily : table.getColumnFamilyEngines()) {
 		cfScanners.put(columnFamily.getName(), columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
 	    }
 	}
     }
 
-    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] value) {
+    public ResultScanner(TableEngineImpl table, Scan scan, byte[] columnKey, byte[] value) {
 	this.table = table;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
 	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
-		ColumnFamily columnFamily = table.getColumnFamily(columnFamilyKey);
+		ColumnFamilyEngine columnFamily = table.getColumnFamilyEngine(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.find(columnKey, value));
 	    }
 	} else {
-	    for (ColumnFamily columnFamily : table.getColumnFamilies()) {
+	    for (ColumnFamilyEngine columnFamily : table.getColumnFamilyEngines()) {
 		cfScanners.put(columnFamily.getName(), columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
 	    }
 	}
     }
 
-    public ResultScanner(Table table, Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
+    public ResultScanner(TableEngineImpl table, Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
 	this.table = table;
 	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
 	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
-		ColumnFamily columnFamily = table.getColumnFamily(columnFamilyKey);
+		ColumnFamilyEngine columnFamily = table.getColumnFamilyEngine(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.find(columnKey, fromValue, toValue));
 	    }
 	} else {
-	    for (ColumnFamily columnFamily : table.getColumnFamilies()) {
+	    for (ColumnFamilyEngine columnFamily : table.getColumnFamilyEngines()) {
 		cfScanners.put(columnFamily.getName(), columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
 	    }
 	}

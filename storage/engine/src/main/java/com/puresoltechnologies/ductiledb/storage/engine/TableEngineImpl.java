@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.NavigableSet;
@@ -10,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
@@ -54,11 +57,13 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
+    @Override
     public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
 	columnFamilyEngines.put(columnFamilyDescriptor.getName(),
 		new ColumnFamilyEngineImpl(storage, columnFamilyDescriptor, configuration));
     }
 
+    @Override
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
 	ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(tableDescriptor.getName());
 	if (columnFamilyEngine != null) {
@@ -87,6 +92,7 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Table engine '" + tableDescriptor.getName() + "' closed in " + stopWatch.getMillis() + "ms.");
     }
 
+    @Override
     public Set<byte[]> getColumnFamilies() {
 	return columnFamilyEngines.keySet();
     }
@@ -95,6 +101,7 @@ public class TableEngineImpl implements TableEngine {
 	return columnFamilyEngines.get(columnFamily);
     }
 
+    @Override
     public void put(Put put) {
 	for (byte[] columnFamily : put.getColumnFamilies()) {
 	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
@@ -102,6 +109,14 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
+    @Override
+    public void put(List<Put> puts) {
+	for (Put put : puts) {
+	    put(put);
+	}
+    }
+
+    @Override
     public void delete(Delete delete) {
 	byte[] rowKey = delete.getKey();
 	Set<byte[]> columnFamilies = delete.getColumnFamilies();
@@ -123,6 +138,14 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
+    @Override
+    public void delete(List<Delete> deletes) {
+	for (Delete delete : deletes) {
+	    delete(delete);
+	}
+    }
+
+    @Override
     public Result get(Get get) {
 	byte[] rowKey = get.getKey();
 	Result result = new Result(rowKey);
@@ -140,4 +163,45 @@ public class TableEngineImpl implements TableEngine {
 	}
 	return result;
     }
+
+    public Set<ColumnFamilyEngine> getColumnFamilyEngines() {
+	Set<ColumnFamilyEngine> columnFamilies = new HashSet<>();
+	for (byte[] columnFamilyName : getColumnFamilies()) {
+	    columnFamilies.add(getColumnFamilyEngine(columnFamilyName));
+	}
+	return columnFamilies;
+    }
+
+    public ResultScanner getScanner(Scan scan) {
+	try {
+	    return new ResultScanner(this, scan);
+	} catch (StorageException e) {
+	    logger.error("Could not create result scanner.", e);
+	    return null;
+	}
+    }
+
+    public ResultScanner find(Scan scan, byte[] columnKey, byte[] value) {
+	try {
+	    return new ResultScanner(this, scan, columnKey, value);
+	} catch (StorageException e) {
+	    logger.error("Could not create result scanner.", e);
+	    return null;
+	}
+    }
+
+    public ResultScanner find(Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
+	try {
+	    return new ResultScanner(this, scan, columnKey, fromValue, toValue);
+	} catch (StorageException e) {
+	    logger.error("Could not create result scanner.", e);
+	    return null;
+	}
+    }
+
+    public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue) {
+	ColumnFamilyEngineImpl columnFamilyEngine = getColumnFamilyEngine(columnFamily);
+	return columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
+    }
+
 }

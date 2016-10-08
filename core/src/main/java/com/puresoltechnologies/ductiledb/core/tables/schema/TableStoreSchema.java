@@ -15,15 +15,14 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class RdbmsSchema {
+public class TableStoreSchema {
 
     public static final String SYSTEM_NAMESPACE_NAME = "system";
-    public static final String TABLES_TABLE_NAME = "tables";
 
     private final DatabaseEngineImpl storageEngine;
     private final TableStoreConfiguration configuration;
 
-    public RdbmsSchema(DatabaseEngineImpl storageEngine, TableStoreConfiguration configuration) {
+    public TableStoreSchema(DatabaseEngineImpl storageEngine, TableStoreConfiguration configuration) {
 	this.storageEngine = storageEngine;
 	this.configuration = configuration;
     }

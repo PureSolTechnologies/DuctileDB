@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.api.tables.ddl;
 
+import com.puresoltechnologies.commons.misc.io.CloseableIterable;
+
 /**
  * This interface provides access to the data definition functionality of
  * relational DuctileDB.
@@ -23,6 +25,21 @@ public interface DataDefinitionLanguage {
     public DropNamespace createDropNamespace(String namespace);
 
     /**
+     * This method returns all available namespaces.
+     * 
+     * @return
+     */
+    public CloseableIterable<Namespace> getNamespaces();
+
+    /**
+     * This method returns the information about the given namespace.
+     * 
+     * @param namespace
+     * @return
+     */
+    public Namespace getNamespace(String namespace);
+
+    /**
      * This method creates a new {@link CreateTable} statement object.
      * 
      * @return
@@ -35,6 +52,15 @@ public interface DataDefinitionLanguage {
      * @return
      */
     public DropTable createDropTable(String namespace, String table);
+
+    /**
+     * This method returns the information to a table.
+     * 
+     * @param namespace
+     * @param table
+     * @return
+     */
+    public Table getTable(String namespace, String table);
 
     /**
      * This method creates a new {@link CreateIndex} statement object.

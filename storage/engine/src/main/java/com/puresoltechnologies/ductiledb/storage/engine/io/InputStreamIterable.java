@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 
 /**
  * This abstract class is used to create an {@link Iterable} out of an

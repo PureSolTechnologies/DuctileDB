@@ -15,7 +15,7 @@ import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
-public class AbstractDuctileDBRdbmsTest extends AbstractDuctileDBTest {
+public class AbstractTableStoreTest extends AbstractDuctileDBTest {
 
     private static DuctileDB ductileDB = null;
     private static TableStoreImpl rdbms = null;
@@ -51,7 +51,7 @@ public class AbstractDuctileDBRdbmsTest extends AbstractDuctileDBTest {
 	DuctileDBHealthCheck.runCheckForEmpty(rdbms);
     }
 
-    protected static TableStoreImpl getRDBMS() {
+    protected static TableStoreImpl getTableStore() {
 	return rdbms;
     }
 }

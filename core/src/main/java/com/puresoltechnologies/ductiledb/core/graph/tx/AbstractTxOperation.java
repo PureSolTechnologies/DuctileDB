@@ -8,7 +8,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 
 public abstract class AbstractTxOperation implements TxOperation {
 
@@ -37,7 +37,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 
     protected void put(String tableName, Put put) throws IOException {
 	try {
-	    Table table = storageEngine.getTable(namespace, tableName);
+	    TableEngine table = storageEngine.getTable(namespace, tableName);
 	    table.put(put);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not put to table.", e);
@@ -49,7 +49,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 	    return;
 	}
 	try {
-	    Table table = storageEngine.getTable(namespace, tableName);
+	    TableEngine table = storageEngine.getTable(namespace, tableName);
 	    table.put(puts);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not put to table.", e);
@@ -58,7 +58,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 
     protected void delete(String tableName, Delete delete) throws IOException {
 	try {
-	    Table table = storageEngine.getTable(namespace, tableName);
+	    TableEngine table = storageEngine.getTable(namespace, tableName);
 	    table.delete(delete);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not delete from table.", e);
@@ -70,7 +70,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 	    return;
 	}
 	try {
-	    Table table = storageEngine.getTable(namespace, tableName);
+	    TableEngine table = storageEngine.getTable(namespace, tableName);
 	    table.delete(deletes);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not delete from table.", e);

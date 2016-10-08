@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class InsertImpl implements Insert {
 
-    public InsertImpl(DatabaseEngine databaseEngine, String namespace, String table) {
+    public InsertImpl(TableStoreImpl tableStore, String namespace, String table) {
 	// TODO Auto-generated constructor stub
     }
 

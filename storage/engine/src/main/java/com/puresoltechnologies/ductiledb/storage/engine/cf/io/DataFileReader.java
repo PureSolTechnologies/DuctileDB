@@ -8,10 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.storage.engine.io.FileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

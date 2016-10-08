@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import com.puresoltechnologies.ductiledb.api.tables.dml.Truncate;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class TruncateImpl implements Truncate {
 
-    public TruncateImpl(DatabaseEngine databaseEngine, String namespace, String table) {
+    public TruncateImpl(TableStoreImpl tableStore, String namespace, String table) {
 	// TODO Auto-generated constructor stub
     }
 

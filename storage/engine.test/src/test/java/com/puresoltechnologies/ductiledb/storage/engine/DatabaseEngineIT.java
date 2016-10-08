@@ -28,7 +28,7 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 		"testSimpleCRUD");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		Bytes.toBytes("testcf"));
-	Table table = engine.getTable(tableDescription);
+	TableEngine table = engine.getTable(tableDescription);
 
 	byte[] key = new byte[] { 1 };
 	Put put = new Put(key);

@@ -7,4 +7,9 @@ package com.puresoltechnologies.ductiledb.api.tables.dml;
  */
 public class TableRow {
 
+    public String getString(String string) {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
 }

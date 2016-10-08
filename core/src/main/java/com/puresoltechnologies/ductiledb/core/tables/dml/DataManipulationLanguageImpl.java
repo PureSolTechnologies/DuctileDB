@@ -6,40 +6,40 @@ import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Truncate;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Update;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class DataManipulationLanguageImpl implements DataManipulationLanguage {
 
-    private final DatabaseEngineImpl databaseEngine;
+    private final TableStoreImpl tableStore;
 
-    public DataManipulationLanguageImpl(DatabaseEngineImpl databaseEngine) {
+    public DataManipulationLanguageImpl(TableStoreImpl tableStore) {
 	super();
-	this.databaseEngine = databaseEngine;
+	this.tableStore = tableStore;
     }
 
     @Override
     public Insert createInsert(String namespace, String table) {
-	return new InsertImpl(databaseEngine, namespace, table);
+	return new InsertImpl(tableStore, namespace, table);
     }
 
     @Override
     public Update createUpdate(String namespace, String table) {
-	return new UpdateImpl(databaseEngine, namespace, table);
+	return new UpdateImpl(tableStore, namespace, table);
     }
 
     @Override
     public Delete createDelete(String namespace, String table) {
-	return new DeleteImpl(databaseEngine, namespace, table);
+	return new DeleteImpl(tableStore, namespace, table);
     }
 
     @Override
     public Select createSelect(String namespace, String table) {
-	return new SelectImpl(databaseEngine, namespace, table);
+	return new SelectImpl(tableStore, namespace, table);
     }
 
     @Override
     public Truncate createTruncate(String namespace, String table) {
-	return new TruncateImpl(databaseEngine, namespace, table);
+	return new TruncateImpl(tableStore, namespace, table);
     }
 
 }

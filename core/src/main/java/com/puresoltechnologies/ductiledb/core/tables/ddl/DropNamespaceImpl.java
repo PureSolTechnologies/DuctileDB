@@ -1,14 +1,14 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class DropNamespaceImpl implements DropNamespace {
 
-    private final DatabaseEngineImpl storageEngine;
+    private final TableStoreImpl tableStore;
 
-    public DropNamespaceImpl(DatabaseEngineImpl storageEngine, String namespace) {
-	this.storageEngine = storageEngine;
+    public DropNamespaceImpl(TableStoreImpl tableStore, String namespace) {
+	this.tableStore = tableStore;
     }
 
     @Override

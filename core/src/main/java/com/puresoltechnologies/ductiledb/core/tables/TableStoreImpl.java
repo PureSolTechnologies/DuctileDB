@@ -13,7 +13,7 @@ import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage
 import com.puresoltechnologies.ductiledb.core.tables.dcl.DataControlLanguageImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguageImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguageImpl;
-import com.puresoltechnologies.ductiledb.core.tables.schema.RdbmsSchema;
+import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -30,7 +30,7 @@ public class TableStoreImpl implements TableStore {
     private final TableStoreConfiguration configuration;
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
-    private final RdbmsSchema rdbmsSchema;
+    private final TableStoreSchema tablesSchema;
     private final DataDefinitionLanguage dataDefinitionLanguage;
     private final DataManipulationLanguage dataManipulationLanguage;
     private final DataControlLanguage dataControlLanguage;
@@ -41,12 +41,12 @@ public class TableStoreImpl implements TableStore {
 	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
 	// Schema...
-	this.rdbmsSchema = new RdbmsSchema(storageEngine, configuration);
-	rdbmsSchema.checkAndCreateEnvironment();
+	this.tablesSchema = new TableStoreSchema(storageEngine, configuration);
+	tablesSchema.checkAndCreateEnvironment();
 	// Languages...
-	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(storageEngine, new File("tables"));
-	this.dataManipulationLanguage = new DataManipulationLanguageImpl(storageEngine);
-	this.dataControlLanguage = new DataControlLanguageImpl(storageEngine);
+	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(this, new File("tables"));
+	this.dataManipulationLanguage = new DataManipulationLanguageImpl(this);
+	this.dataControlLanguage = new DataControlLanguageImpl(this);
     }
 
     @Override
@@ -60,14 +60,21 @@ public class TableStoreImpl implements TableStore {
 	}
     }
 
+    public DatabaseEngineImpl getStorageEngine() {
+	return storageEngine;
+    }
+
+    @Override
     public DataDefinitionLanguage getDataDefinitionLanguage() {
 	return dataDefinitionLanguage;
     }
 
+    @Override
     public DataManipulationLanguage getDataManipulationLanguage() {
 	return dataManipulationLanguage;
     }
 
+    @Override
     public DataControlLanguage getDataControlLanguage() {
 	return dataControlLanguage;
     }

@@ -20,8 +20,8 @@ public interface DatabaseEngine extends Closeable {
 
     public SchemaManager getSchemaManager();
 
-    public Table getTable(TableDescriptor tableDescriptor);
+    public TableEngine getTable(TableDescriptor tableDescriptor);
 
-    public Table getTable(String namespaceName, String tableName);
+    public TableEngine getTable(String namespaceName, String tableName);
 
 }

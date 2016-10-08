@@ -1,15 +1,15 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropTable;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class DropTableImpl implements DropTable {
 
-    private final DatabaseEngineImpl storageEngine;
+    private final TableStoreImpl tableStore;
 
-    public DropTableImpl(DatabaseEngineImpl storageEngine, String namespace, String table) {
+    public DropTableImpl(TableStoreImpl tableStore, String namespace, String table) {
 	super();
-	this.storageEngine = storageEngine;
+	this.tableStore = tableStore;
     }
 
     @Override

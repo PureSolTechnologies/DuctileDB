@@ -1,14 +1,15 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropIndex;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class DropIndexImpl implements DropIndex {
-    private final DatabaseEngineImpl storageEngine;
 
-    public DropIndexImpl(DatabaseEngineImpl storageEngine, String namespace, String table, String index) {
+    private final TableStoreImpl tableStore;
+
+    public DropIndexImpl(TableStoreImpl tableStore, String namespace, String table, String index) {
 	super();
-	this.storageEngine = storageEngine;
+	this.tableStore = tableStore;
     }
 
     @Override

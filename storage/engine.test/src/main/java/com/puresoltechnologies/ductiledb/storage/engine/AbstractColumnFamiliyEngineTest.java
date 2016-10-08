@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
@@ -19,8 +19,8 @@ public class AbstractColumnFamiliyEngineTest extends AbstractDatabaseEngineTest 
     private TableDescriptor tableDescriptor;
     private ColumnFamilyDescriptor columnFamilyDescriptor;
     private Storage storage;
-    private Table table;
-    private ColumnFamily columnFamily;
+    private TableEngine table;
+    private ColumnFamilyEngine columnFamily;
 
     protected ColumnFamilyEngineImpl createTestColumnFamily(String namespaceName, String tableName,
 	    String columnFamilyName) throws SchemaException, StorageException {
@@ -32,8 +32,8 @@ public class AbstractColumnFamiliyEngineTest extends AbstractDatabaseEngineTest 
 		Bytes.toBytes(columnFamilyName));
 	storage = engine.getStorage();
 	table = engine.getTable(tableDescriptor);
-	columnFamily = table.getColumnFamily(columnFamilyDescriptor);
-	return (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	columnFamily = ((TableEngineImpl) table).getColumnFamilyEngine(columnFamilyDescriptor.getName());
+	return (ColumnFamilyEngineImpl) columnFamily;
     }
 
     protected Storage getStorage() {

@@ -1,19 +1,32 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
+import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class CreateTableImpl implements CreateTable {
 
-    private final DatabaseEngineImpl storageEngine;
+    private final TableStoreImpl tableStore;
 
-    public CreateTableImpl(DatabaseEngineImpl storageEngine, String namespace, String table) {
+    public CreateTableImpl(TableStoreImpl tableStore, String namespace, String table) {
 	super();
-	this.storageEngine = storageEngine;
+	this.tableStore = tableStore;
     }
 
     @Override
     public void execute() {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addColumn(String string, ValueTypes dateTime) {
+	// TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void setPrimaryKey(String... columns) {
 	// TODO Auto-generated method stub
 
     }

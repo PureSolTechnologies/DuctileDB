@@ -1,8 +1,8 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.commons.misc.io.CloseableIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.io.CloseableIterator;
 
 /**
  * This interface is used for intex iterators which provide special features for

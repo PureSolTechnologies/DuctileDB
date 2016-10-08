@@ -20,14 +20,14 @@ import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.core.tables.schema.RdbmsSchema;
+import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
-import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 /**
@@ -86,7 +86,7 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    Table vertexTypesTable = storageEngine.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
+	    TableEngine vertexTypesTable = storageEngine.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
 	    for (String type : vertex.getTypes()) {
 		Result result = vertexTypesTable.get(new Get(Bytes.toBytes(type)));
 		assertFalse("Could not find row for type '" + type + "' in vertex type index.", result.isEmpty());
@@ -96,7 +96,8 @@ public class DuctileDBHealthCheck {
 			+ vertex.getId() + "'", value);
 	    }
 
-	    Table vertexPropertiesTable = storageEngine.getTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName());
+	    TableEngine vertexPropertiesTable = storageEngine.getTable(namespace,
+		    DatabaseTable.VERTEX_PROPERTIES.getName());
 	    for (String key : vertex.getPropertyKeys()) {
 		Object value = vertex.getProperty(key);
 		Result result = vertexPropertiesTable.get(new Get(Bytes.toBytes(key)));
@@ -132,7 +133,7 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String type = edge.getType();
-	    Table table = storageEngine.getTable(namespace, DatabaseTable.EDGE_TYPES.getName());
+	    TableEngine table = storageEngine.getTable(namespace, DatabaseTable.EDGE_TYPES.getName());
 	    Result result = table.get(new Get(Bytes.toBytes(type)));
 	    assertFalse("Could not find row for type '" + type + "' in edge type index.", result.isEmpty());
 	    byte[] value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes())
@@ -211,7 +212,7 @@ public class DuctileDBHealthCheck {
 		 */
 		continue;
 	    }
-	    Table table = storageEngine.getTable(namespace, schemaTable.getName());
+	    TableEngine table = storageEngine.getTable(namespace, schemaTable.getName());
 	    ResultScanner scanner = table.getScanner(new Scan());
 	    assertNull("Row data was found, but database was expected to be empty. Row found in table '"
 		    + schemaTable.name() + "'.", scanner.next());
@@ -220,7 +221,7 @@ public class DuctileDBHealthCheck {
 
     public static void runCheckForEmpty(TableStoreImpl rdbms) {
 	DataManipulationLanguage dml = rdbms.getDataManipulationLanguage();
-	Select select = dml.createSelect(RdbmsSchema.SYSTEM_NAMESPACE_NAME,
+	Select select = dml.createSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
 		com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable.TABLES.getName());
 	select.execute();
     }

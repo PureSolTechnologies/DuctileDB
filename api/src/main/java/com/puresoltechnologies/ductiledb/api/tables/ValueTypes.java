@@ -7,6 +7,6 @@ package com.puresoltechnologies.ductiledb.api.tables;
  */
 public enum ValueTypes {
 
-    BYTE, SHORT, INT, LONG, SINGLE, DOUBLE, DATE, TIME, DATE_TIME, STRING, BYTE_ARRAY;
+    BYTE, SHORT, INT, LONG, SINGLE, DOUBLE, DATE, TIME, DATE_TIME, VAR_CHAR, BYTE_ARRAY;
 
 }

@@ -113,17 +113,16 @@ public class DatabaseEngineImpl implements DatabaseEngine {
     }
 
     @Override
-    public Table getTable(TableDescriptor tableDescriptor) {
+    public TableEngine getTable(TableDescriptor tableDescriptor) {
 	NamespaceDescriptor namespace = tableDescriptor.getNamespace();
-	return new Table(namespaceEngines.get(namespace.getName()).getTableEngine(tableDescriptor.getName()),
-		tableDescriptor);
+	return getTable(namespace.getName(), tableDescriptor.getName());
     }
 
     @Override
-    public Table getTable(String namespaceName, String tableName) {
+    public TableEngine getTable(String namespaceName, String tableName) {
 	NamespaceEngineImpl namespaceEngineImpl = namespaceEngines.get(namespaceName);
 	TableDescriptor tableDescriptor = schemaManager.getNamespace(namespaceName).getTable(tableName);
-	return new Table(namespaceEngineImpl.getTableEngine(tableDescriptor.getName()), tableDescriptor);
+	return namespaceEngineImpl.getTableEngine(tableDescriptor.getName());
     }
 
     public NamespaceEngineImpl getNamespaceEngine(String namespaceName) {

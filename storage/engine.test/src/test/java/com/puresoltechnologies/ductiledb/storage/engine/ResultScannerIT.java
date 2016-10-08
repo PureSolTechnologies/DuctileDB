@@ -11,7 +11,6 @@ import java.util.NavigableMap;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamily;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
@@ -32,7 +31,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
 		"testEmptyScanner");
 	schemaManager.createColumnFamilyIfNotPresent(tableDescription, Bytes.toBytes("testcf"));
-	Table table = engine.getTable(tableDescription);
+	TableEngine table = engine.getTable(tableDescription);
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -50,7 +49,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 		"testEmptyScannerAfterDeletion");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		Bytes.toBytes("testcf"));
-	Table table = engine.getTable(tableDescription);
+	TableEngine table = engine.getTable(tableDescription);
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -87,9 +86,8 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	byte[] columnFamilyName = Bytes.toBytes("testcf");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		columnFamilyName);
-	Table table = engine.getTable(tableDescription);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyName);
-	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	TableEngineImpl table = (TableEngineImpl) engine.getTable(tableDescription);
+	ColumnFamilyEngineImpl columnFamilyEngine = table.getColumnFamilyEngine(columnFamilyName);
 	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 
@@ -132,9 +130,8 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	byte[] columnFamilyName = Bytes.toBytes("testcf");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		columnFamilyName);
-	Table table = engine.getTable(tableDescription);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyName);
-	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	TableEngineImpl table = (TableEngineImpl) engine.getTable(tableDescription);
+	ColumnFamilyEngineImpl columnFamilyEngine = table.getColumnFamilyEngine(columnFamilyName);
 	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 
@@ -174,9 +171,8 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	byte[] columnFamilyName = Bytes.toBytes("testcf");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		columnFamilyName);
-	Table table = engine.getTable(tableDescription);
-	ColumnFamily columnFamily = table.getColumnFamily(columnFamilyName);
-	ColumnFamilyEngineImpl columnFamilyEngine = (ColumnFamilyEngineImpl) columnFamily.getEngine();
+	TableEngineImpl table = (TableEngineImpl) engine.getTable(tableDescription);
+	ColumnFamilyEngineImpl columnFamilyEngine = table.getColumnFamilyEngine(columnFamilyName);
 	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 

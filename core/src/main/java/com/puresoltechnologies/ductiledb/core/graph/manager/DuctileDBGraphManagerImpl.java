@@ -20,7 +20,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
-import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.versioning.Version;
 
@@ -43,7 +43,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public Version getVersion() {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Result result;
 	try {
 	    result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getNameBytes()));
@@ -58,7 +58,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public Iterable<String> getVariableNames() {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Set<String> variableNames = new HashSet<>();
 	Result result;
 	try {
@@ -80,7 +80,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     public <T extends Serializable> void setVariable(String variableName, T value) {
 	try {
 	    DatabaseEngine storageEngine = graph.getStorageEngine();
-	    Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	    TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	    Put put = new Put(DatabaseColumnFamily.VARIABLES.getNameBytes());
 	    put.addColumn(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName),
 		    Serializer.serializePropertyValue(value));
@@ -94,7 +94,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public <T> T getVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Result result;
 	try {
 	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
@@ -115,7 +115,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public void removeVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	Table table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getNameBytes());
 	delete.addColumns(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
 	try {

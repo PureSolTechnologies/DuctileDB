@@ -17,7 +17,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
-import com.puresoltechnologies.ductiledb.storage.engine.Table;
+import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class SetEdgePropertyOperation extends AbstractTxOperation {
@@ -62,7 +62,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	try {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    Table table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
+	    TableEngine table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
 	    Result startVertexResult = table.get(new Get(startVertexRowId));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
