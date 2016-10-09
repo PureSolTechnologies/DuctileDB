@@ -12,6 +12,7 @@ import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dcl.DataControlLanguageImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguageImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguageImpl;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -83,6 +84,11 @@ public class TableStoreImpl implements TableStore {
 
     public void runCompaction() {
 	storageEngine.runCompaction();
+    }
+
+    public TableDefinitionImpl getTableDefinition(String namespace, String table) {
+	// TODO Auto-generated method stub
+	return null;
     }
 
 }

@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
+import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 
@@ -29,7 +29,7 @@ public class TableDefinitionImpl implements TableDefinition {
 	return name;
     }
 
-    public void addColumn(String columnFamily, String name, ValueTypes type) {
+    public void addColumn(String columnFamily, String name, ColumnType type) {
 	columns.add(new ColumnDefinitionImpl(columnFamily, name, type));
     }
 

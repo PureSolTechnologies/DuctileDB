@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.api.tables.ddl;
 
 import com.puresoltechnologies.ductiledb.api.tables.DuctileDBStatement;
-import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
+import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 
 public interface CreateTable extends DuctileDBStatement {
 
-    public void addColumn(String columnFamily, String name, ValueTypes type);
+    public void addColumn(String columnFamily, String name, ColumnType type);
 
     public void setPrimaryKey(String... columns);
 

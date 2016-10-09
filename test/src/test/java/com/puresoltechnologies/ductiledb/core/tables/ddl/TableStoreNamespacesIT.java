@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables;
+package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,6 +17,8 @@ import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
@@ -52,7 +54,7 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	// TODO check also with TableStore API!!!
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateNamespace createNamespace = ddl.createCreateNamespace("testnamespace");
+	CreateNamespace createNamespace = ddl.createCreateNamespace("namespacesit");
 	createNamespace.execute();
 
 	namespaces = schemaManager.getNamespaces();
@@ -60,11 +62,11 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertTrue(namespaceIterator.hasNext());
 	assertEquals("system", namespaceIterator.next().getName());
 	assertTrue(namespaceIterator.hasNext());
-	assertEquals("testnamespace", namespaceIterator.next().getName());
+	assertEquals("namespacesit", namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
 	// TODO check also with TableStore API!!!
 
-	DropNamespace dropNamespace = ddl.createDropNamespace("testnamespace");
+	DropNamespace dropNamespace = ddl.createDropNamespace("namespacesit");
 	dropNamespace.execute();
 
 	namespaces = schemaManager.getNamespaces();

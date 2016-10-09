@@ -4,6 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 import org.junit.Test;
 
@@ -34,7 +37,7 @@ public class BytesTest {
     }
 
     @Test
-    public void testLongConversion() {
+    public void testLongConversionBigEndian() {
 	long l = 1;
 	byte[] encoded = Bytes.toBytes(l);
 	assertEquals(8, encoded.length);
@@ -81,5 +84,79 @@ public class BytesTest {
 	assertEquals(0xfe, 0xff & bytes[17]);
 	assertEquals(0xff, 0xff & bytes[18]);
 	assertEquals(string, Bytes.toHexString(bytes));
+    }
+
+    @Test
+    public void testBoolean() {
+	boolean b = true;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toBoolean(bytes));
+
+	b = false;
+	bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toBoolean(bytes));
+    }
+
+    @Test
+    public void testByte() {
+	byte b = 123;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toByte(bytes));
+    }
+
+    @Test
+    public void testShort() {
+	short b = 32_000;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toShort(bytes));
+    }
+
+    @Test
+    public void testInt() {
+	int b = 1_000_000_000;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toInt(bytes));
+    }
+
+    @Test
+    public void testLong() {
+	long b = 1_000_000_000_000l;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toLong(bytes));
+    }
+
+    @Test
+    public void testFloat() {
+	float b = (float) 1.23456e4;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toFloat(bytes), 0.0);
+    }
+
+    @Test
+    public void testDouble() {
+	double b = 1.23456e4;
+	byte[] bytes = Bytes.toBytes(b);
+	assertEquals(b, Bytes.toDouble(bytes), 0.0);
+    }
+
+    @Test
+    public void testLocalTime() {
+	LocalTime localTime = LocalTime.of(11, 12, 13, 123456789);
+	byte[] bytes = Bytes.toBytes(localTime);
+	assertEquals(localTime, Bytes.toLocalTime(bytes));
+    }
+
+    @Test
+    public void testLocalDate() {
+	LocalDate localDate = LocalDate.of(2016, 10, 9);
+	byte[] bytes = Bytes.toBytes(localDate);
+	assertEquals(localDate, Bytes.toLocalDate(bytes));
+    }
+
+    @Test
+    public void testLocalDateTime() {
+	LocalDateTime localDateTime = LocalDateTime.of(2016, 10, 9, 11, 12, 13, 123456789);
+	byte[] bytes = Bytes.toBytes(localDateTime);
+	assertEquals(localDateTime, Bytes.toLocalDateTime(bytes));
     }
 }

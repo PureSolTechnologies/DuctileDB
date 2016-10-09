@@ -1,7 +1,11 @@
 package com.puresoltechnologies.ductiledb.storage.engine.io;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 /**
  * This is an utility class to support converting from and to bytes arrays.
@@ -18,18 +22,67 @@ public class Bytes {
 	return new byte[0];
     }
 
-    public static int putBytes(byte[] bytes, byte[] b, int offset) {
-	for (int i = 0; i < b.length; ++i) {
-	    bytes[offset + i] = (b[i]);
+    public static int putBytes(byte[] destination, byte[] source, int destinationOffset) {
+	for (int i = 0; i < source.length; ++i) {
+	    destination[destinationOffset + i] = (source[i]);
 	}
-	return b.length;
+	return source.length;
+    }
+
+    public static byte[] toBytes(boolean b) {
+	byte[] bytes = new byte[1];
+	bytes[0] = (byte) (b ? 1 : 0);
+	return bytes;
+    }
+
+    public static int putBytes(byte[] bytes, boolean b, int offset) {
+	bytes[offset] = (byte) (b ? 1 : 0);
+	return 1;
+    }
+
+    public static boolean toBoolean(byte[] bytes) {
+	return bytes[0] != 0;
+    }
+
+    public static boolean toBoolean(byte[] bytes, int offset) {
+	return bytes[offset] != 0;
+    }
+
+    public static byte[] toBytes(byte b) {
+	byte[] bytes = new byte[1];
+	bytes[0] = b;
+	return bytes;
+    }
+
+    public static int toBytes(byte[] bytes, byte b, int offset) {
+	bytes[offset] = b;
+	return 1;
+    }
+
+    public static int putBytes(byte[] bytes, byte b, int offset) {
+	bytes[offset] = b;
+	return 1;
+    }
+
+    public static byte toByte(byte[] bytes) {
+	return bytes[0];
+    }
+
+    public static byte toByte(byte[] bytes, int offset) {
+	return bytes[offset];
     }
 
     public static byte[] toBytes(short i) {
-	byte[] bytes = new byte[4];
+	byte[] bytes = new byte[2];
 	bytes[1] = (byte) (i);
 	bytes[0] = (byte) (i >>> 8);
 	return bytes;
+    }
+
+    public static int toBytes(byte[] bytes, short s, int offset) {
+	bytes[offset + 1] = (byte) s;
+	bytes[offset] = (byte) (s >>> 8);
+	return 2;
     }
 
     public static int putBytes(byte[] bytes, short i, int offset) {
@@ -55,6 +108,14 @@ public class Bytes {
 	bytes[1] = (byte) (i >>> 16);
 	bytes[0] = (byte) (i >>> 24);
 	return bytes;
+    }
+
+    public static int toBytes(byte[] bytes, int i, int offset) {
+	bytes[offset + 3] = (byte) (i);
+	bytes[offset + 2] = (byte) (i >>> 8);
+	bytes[offset + 1] = (byte) (i >>> 16);
+	bytes[offset] = (byte) (i >>> 24);
+	return 4;
     }
 
     public static int putBytes(byte[] bytes, int i, int offset) {
@@ -126,6 +187,71 @@ public class Bytes {
 		| ((bytes[offset]) << 56);
     }
 
+    public static byte[] toBytes(float f) {
+	int bits = Float.floatToIntBits(f);
+	byte[] bytes = new byte[4];
+	bytes[3] = (byte) (bits & 0xff);
+	bytes[2] = (byte) ((bits >> 8) & 0xff);
+	bytes[1] = (byte) ((bits >> 16) & 0xff);
+	bytes[0] = (byte) ((bits >> 24) & 0xff);
+	return bytes;
+    }
+
+    public static int toBytes(byte[] bytes, float f, int offset) {
+	int bits = Float.floatToIntBits(f);
+	bytes[offset + 3] = (byte) (bits & 0xff);
+	bytes[offset + 2] = (byte) ((bits >> 8) & 0xff);
+	bytes[offset + 1] = (byte) ((bits >> 16) & 0xff);
+	bytes[offset] = (byte) ((bits >> 24) & 0xff);
+	return 4;
+    }
+
+    public static float toFloat(byte[] bytes) {
+	return ByteBuffer.wrap(bytes).getFloat();
+    }
+
+    public static float toFloat(byte[] bytes, int offset) {
+	byte[] b = new byte[] { bytes[offset + 3], bytes[offset + 2], bytes[offset + 1], bytes[offset] };
+	return ByteBuffer.wrap(b).getFloat();
+    }
+
+    public static byte[] toBytes(double d) {
+	long bits = Double.doubleToLongBits(d);
+	byte[] bytes = new byte[8];
+	bytes[7] = (byte) (bits & 0xff);
+	bytes[6] = (byte) ((bits >> 8) & 0xff);
+	bytes[5] = (byte) ((bits >> 16) & 0xff);
+	bytes[4] = (byte) ((bits >> 24) & 0xff);
+	bytes[3] = (byte) ((bits >> 32) & 0xff);
+	bytes[2] = (byte) ((bits >> 40) & 0xff);
+	bytes[1] = (byte) ((bits >> 48) & 0xff);
+	bytes[0] = (byte) ((bits >> 56) & 0xff);
+	return bytes;
+    }
+
+    public static int toBytes(byte[] bytes, double d, int offset) {
+	long bits = Double.doubleToLongBits(d);
+	bytes[offset + 7] = (byte) (bits & 0xff);
+	bytes[offset + 6] = (byte) ((bits >> 8) & 0xff);
+	bytes[offset + 5] = (byte) ((bits >> 16) & 0xff);
+	bytes[offset + 4] = (byte) ((bits >> 24) & 0xff);
+	bytes[offset + 3] = (byte) ((bits >> 32) & 0xff);
+	bytes[offset + 2] = (byte) ((bits >> 40) & 0xff);
+	bytes[offset + 1] = (byte) ((bits >> 48) & 0xff);
+	bytes[offset] = (byte) ((bits >> 56) & 0xff);
+	return 8;
+    }
+
+    public static double toDouble(byte[] bytes) {
+	return ByteBuffer.wrap(bytes).getDouble();
+    }
+
+    public static double toDouble(byte[] bytes, int offset) {
+	byte[] b = new byte[] { bytes[offset + 7], bytes[offset + 6], bytes[offset + 5], bytes[offset + 4],
+		bytes[offset + 3], bytes[offset + 2], bytes[offset + 1], bytes[offset] };
+	return ByteBuffer.wrap(b).getDouble();
+    }
+
     public static byte[] toBytes(String string) {
 	return string.getBytes(DEFAULT_CHARSET);
     }
@@ -163,6 +289,75 @@ public class Bytes {
 	long seconds = toLong(bytes);
 	int nano = toInt(bytes, 8);
 	return Instant.ofEpochSecond(seconds, nano);
+    }
+
+    public static byte[] toBytes(LocalDate localDate) {
+	byte[] bytes = new byte[4];
+	short year = (short) localDate.getYear();
+	Bytes.toBytes(bytes, year, 0);
+	byte month = (byte) localDate.getMonthValue();
+	Bytes.toBytes(bytes, month, 2);
+	byte day = (byte) localDate.getDayOfMonth();
+	Bytes.toBytes(bytes, day, 3);
+	return bytes;
+    }
+
+    public static LocalDate toLocalDate(byte[] bytes) {
+	short year = Bytes.toShort(bytes, 0);
+	byte month = Bytes.toByte(bytes, 2);
+	byte day = Bytes.toByte(bytes, 3);
+	return LocalDate.of(year, month, day);
+    }
+
+    public static byte[] toBytes(LocalTime localTime) {
+	byte[] bytes = new byte[7];
+	byte hour = (byte) localTime.getHour();
+	Bytes.toBytes(bytes, hour, 0);
+	byte minute = (byte) localTime.getMinute();
+	Bytes.toBytes(bytes, minute, 1);
+	byte second = (byte) localTime.getSecond();
+	Bytes.toBytes(bytes, second, 2);
+	int nano = localTime.getNano();
+	Bytes.toBytes(bytes, nano, 3);
+	return bytes;
+    }
+
+    public static LocalTime toLocalTime(byte[] bytes) {
+	byte hour = Bytes.toByte(bytes, 0);
+	byte minute = Bytes.toByte(bytes, 1);
+	byte second = Bytes.toByte(bytes, 2);
+	int nano = Bytes.toInt(bytes, 3);
+	return LocalTime.of(hour, minute, second, nano);
+    }
+
+    public static byte[] toBytes(LocalDateTime localDateTime) {
+	byte[] bytes = new byte[11];
+	short year = (short) localDateTime.getYear();
+	Bytes.toBytes(bytes, year, 0);
+	byte month = (byte) localDateTime.getMonthValue();
+	Bytes.toBytes(bytes, month, 2);
+	byte day = (byte) localDateTime.getDayOfMonth();
+	Bytes.toBytes(bytes, day, 3);
+	byte hour = (byte) localDateTime.getHour();
+	Bytes.toBytes(bytes, hour, 4);
+	byte minute = (byte) localDateTime.getMinute();
+	Bytes.toBytes(bytes, minute, 5);
+	byte second = (byte) localDateTime.getSecond();
+	Bytes.toBytes(bytes, second, 6);
+	int nano = localDateTime.getNano();
+	Bytes.toBytes(bytes, nano, 7);
+	return bytes;
+    }
+
+    public static LocalDateTime toLocalDateTime(byte[] bytes) {
+	short year = Bytes.toShort(bytes, 0);
+	byte month = Bytes.toByte(bytes, 2);
+	byte day = Bytes.toByte(bytes, 3);
+	byte hour = Bytes.toByte(bytes, 4);
+	byte minute = Bytes.toByte(bytes, 5);
+	byte second = Bytes.toByte(bytes, 6);
+	int nano = Bytes.toInt(bytes, 7);
+	return LocalDateTime.of(year, month, day, hour, minute, second, nano);
     }
 
     public static Instant toTombstone(byte[] bytes) {

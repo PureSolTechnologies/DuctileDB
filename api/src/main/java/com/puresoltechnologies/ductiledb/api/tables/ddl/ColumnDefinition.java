@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.api.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
+import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 
 public interface ColumnDefinition {
 
@@ -8,6 +8,6 @@ public interface ColumnDefinition {
 
     public String getName();
 
-    public ValueTypes getType();
+    public ColumnType getType();
 
 }

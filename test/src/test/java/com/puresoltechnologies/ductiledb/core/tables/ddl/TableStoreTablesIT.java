@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables;
+package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -12,11 +12,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropTable;
+import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.columns.VarCharColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -45,19 +47,19 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	// TODO check also with TableStore API!!!
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateNamespace createNamespace = ddl.createCreateNamespace("testnamespace");
+	CreateNamespace createNamespace = ddl.createCreateNamespace("tablesit");
 	createNamespace.execute();
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
 	assertTrue(namespaceIterator.hasNext());
-	assertEquals("system", namespaceIterator.next().getName());
+	assertEquals("tablesit", namespaceIterator.next().getName());
 	assertTrue(namespaceIterator.hasNext());
-	assertEquals("testnamespace", namespaceIterator.next().getName());
+	assertEquals("system", namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
 	// TODO check also with TableStore API!!!
 
-	namespaceEngine = storageEngine.getNamespaceEngine("testnamespace");
+	namespaceEngine = storageEngine.getNamespaceEngine("tablesit");
     }
 
     @Test
@@ -66,14 +68,14 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 
 	DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	NamespaceDescriptor namespace = schemaManager.getNamespace("testnamespace");
+	NamespaceDescriptor namespace = schemaManager.getNamespace("tablesit");
 	Iterable<TableDescriptor> tables = schemaManager.getTables(namespace);
 	Iterator<TableDescriptor> tableIterator = tables.iterator();
 	assertFalse(tableIterator.hasNext());
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable("testnamespace", "testtable");
-	createTable.addColumn("testcf", "testcolumn", ValueTypes.VAR_CHAR);
+	CreateTable createTable = ddl.createCreateTable("tablesit", "testtable");
+	createTable.addColumn("testcf", "testcolumn", new VarCharColumnType());
 	createTable.execute();
 
 	tables = schemaManager.getTables(namespace);
@@ -82,7 +84,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	assertEquals("testtable", tableIterator.next().getName());
 	assertFalse(tableIterator.hasNext());
 
-	DropTable dropTable = ddl.createDropTable("testnamespace", "testtable");
+	DropTable dropTable = ddl.createDropTable("tablesit", "testtable");
 	dropTable.execute();
 
 	tables = schemaManager.getTables(namespace);

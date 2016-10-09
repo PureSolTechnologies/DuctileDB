@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
+import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
@@ -55,7 +55,7 @@ public class CreateTableImpl implements CreateTable {
     }
 
     @Override
-    public void addColumn(String columnFamily, String name, ValueTypes type) {
+    public void addColumn(String columnFamily, String name, ColumnType type) {
 	tableDefinition.addColumn(columnFamily, name, type);
     }
 
