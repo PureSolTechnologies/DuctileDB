@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
@@ -20,6 +22,9 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescript
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
 public class TableStoreNamespacesIT extends AbstractTableStoreTest {
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void testEmptyDatabase() {
@@ -69,4 +74,25 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertFalse(namespaceIterator.hasNext());
 	// TODO check also with TableStore API!!!
     }
+
+    @Test
+    public void testCreationOfSystemNamespaceForbidden() throws ExecutionException {
+	exception.expect(ExecutionException.class);
+	exception.expectMessage("Creation of 'system' namespace is not allowed.");
+
+	TableStoreImpl tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	ddl.createCreateNamespace("system").execute();
+    }
+
+    @Test
+    public void testDroppingOfSystemNamespaceForbidden() throws ExecutionException {
+	exception.expect(ExecutionException.class);
+	exception.expectMessage("Dropping of 'system' namespace is not allowed.");
+
+	TableStoreImpl tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	ddl.createDropNamespace("system").execute();
+    }
+
 }

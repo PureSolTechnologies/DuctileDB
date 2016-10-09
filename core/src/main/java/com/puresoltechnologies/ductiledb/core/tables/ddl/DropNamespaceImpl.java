@@ -20,6 +20,9 @@ public class DropNamespaceImpl implements DropNamespace {
 
     @Override
     public void execute() throws ExecutionException {
+	if ("system".equals(name)) {
+	    throw new ExecutionException("Dropping of 'system' namespace is not allowed.");
+	}
 	try {
 	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();

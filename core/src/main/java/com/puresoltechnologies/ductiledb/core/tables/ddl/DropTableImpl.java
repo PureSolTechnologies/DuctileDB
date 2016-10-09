@@ -24,6 +24,9 @@ public class DropTableImpl implements DropTable {
 
     @Override
     public void execute() throws ExecutionException {
+	if ("system".equals(namespace)) {
+	    throw new ExecutionException("Dropping tables from 'system' namespace is not allowed.");
+	}
 	try {
 	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();

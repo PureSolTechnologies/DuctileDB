@@ -33,6 +33,9 @@ public class CreateTableImpl implements CreateTable {
 
     @Override
     public void execute() throws ExecutionException {
+	if ("system".equals(namespace)) {
+	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
+	}
 	try {
 	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();

@@ -20,6 +20,9 @@ public class CreateNamespaceImpl implements CreateNamespace {
 
     @Override
     public void execute() throws ExecutionException {
+	if ("system".equals(name)) {
+	    throw new ExecutionException("Creation of 'system' namespace is not allowed.");
+	}
 	try {
 	    DatabaseEngine storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();

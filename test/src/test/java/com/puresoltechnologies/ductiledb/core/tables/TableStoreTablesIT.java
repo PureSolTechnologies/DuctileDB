@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.api.tables.ValueTypes;
@@ -24,6 +26,9 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 public class TableStoreTablesIT extends AbstractTableStoreTest {
 
     private static NamespaceEngineImpl namespaceEngine;
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     @BeforeClass
     public static void createTestnamespace() throws ExecutionException {
@@ -83,5 +88,25 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	tables = schemaManager.getTables(namespace);
 	tableIterator = tables.iterator();
 	assertFalse(tableIterator.hasNext());
+    }
+
+    @Test
+    public void testCreatingTablesInSystemNamespaceForbidden() throws ExecutionException {
+	exception.expect(ExecutionException.class);
+	exception.expectMessage("Creating tables in 'system' namespace is not allowed.");
+
+	TableStoreImpl tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	ddl.createCreateTable("system", "testtable").execute();
+    }
+
+    @Test
+    public void testDroppingTablesFromSystemNamespaceForbidden() throws ExecutionException {
+	exception.expect(ExecutionException.class);
+	exception.expectMessage("Dropping tables from 'system' namespace is not allowed.");
+
+	TableStoreImpl tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	ddl.createDropTable("system", "namespaces").execute();
     }
 }

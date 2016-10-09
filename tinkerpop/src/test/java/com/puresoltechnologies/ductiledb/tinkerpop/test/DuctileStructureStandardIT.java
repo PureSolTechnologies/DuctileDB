@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.tinkerpop.gremlin.GraphProviderClass;
 import org.apache.tinkerpop.gremlin.structure.StructureStandardSuite;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
@@ -17,6 +18,7 @@ import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphProvider;
 
 @RunWith(StructureStandardSuite.class)
 @GraphProviderClass(provider = DuctileGraphProvider.class, graph = DuctileGraph.class)
+@Ignore
 public class DuctileStructureStandardIT {
 
     @BeforeClass
