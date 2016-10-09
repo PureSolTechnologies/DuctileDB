@@ -15,7 +15,7 @@ public interface DuctileDBElement extends Cloneable {
     /**
      * This method returns the graph which is the source of the current element.
      * 
-     * @return A {@link DuctileDBGraph} is returned.
+     * @return A {@link GraphStore} is returned.
      */
     public DuctileDBTransaction getTransaction();
 

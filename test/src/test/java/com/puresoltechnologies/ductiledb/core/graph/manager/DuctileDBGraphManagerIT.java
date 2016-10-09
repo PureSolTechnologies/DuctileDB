@@ -11,14 +11,14 @@ import java.util.Iterator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 
 public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 
-    private static DuctileDBGraph graph;
+    private static GraphStore graph;
     private static DuctileDBGraphManager graphManager;
 
     @BeforeClass

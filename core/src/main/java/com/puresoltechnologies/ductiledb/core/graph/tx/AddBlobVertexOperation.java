@@ -21,7 +21,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashIdCreatorInputStream;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransactionException;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
@@ -43,7 +43,7 @@ public class AddBlobVertexOperation extends AbstractTxOperation {
 	super(transaction);
 	try {
 	    this.types = Collections.unmodifiableSet(types);
-	    this.types.add(DuctileDBGraph.BLOB_TYPE_NAME);
+	    this.types.add(GraphStore.BLOB_TYPE_NAME);
 	    this.properties = Collections.unmodifiableMap(properties);
 	    this.vertex = new DuctileDBCacheVertex(transaction, vertexId, types, properties, new ArrayList<>());
 	    blobFile = File.createTempFile("add-vertex-" + vertex.getId(), ".blob");
@@ -54,8 +54,8 @@ public class AddBlobVertexOperation extends AbstractTxOperation {
 		ByteStreams.copy(hashIdStream, outputStream);
 		hashId = hashIdStream.getHashId();
 		long size = countingInputStream.getCount();
-		properties.put(DuctileDBGraph.BLOB_HASHID_PROPERTY_NAME, hashId.toString());
-		properties.put(DuctileDBGraph.BLOB_SIZE_PROPERTY_NAME, size);
+		properties.put(GraphStore.BLOB_HASHID_PROPERTY_NAME, hashId.toString());
+		properties.put(GraphStore.BLOB_SIZE_PROPERTY_NAME, size);
 	    }
 	} catch (IOException e) {
 	    throw new DuctileDBTransactionException("Could not create temporary file.", e);

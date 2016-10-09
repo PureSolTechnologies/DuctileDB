@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 
 public class DuctileDBFactoryIT extends AbstractDuctileDBTest {
 
@@ -15,7 +15,7 @@ public class DuctileDBFactoryIT extends AbstractDuctileDBTest {
 	DuctileDB ductileDB = getDuctileDB();
 	BlobStore blobStore = ductileDB.getBlobStore();
 	assertNotNull("BLOB store available.", blobStore);
-	DuctileDBGraph graph = ductileDB.getGraph();
+	GraphStore graph = ductileDB.getGraph();
 	assertNotNull("Graph is available.", graph);
     }
 

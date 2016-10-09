@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.api.tables.ddl;
 
-public interface Namespace {
+public interface TableDefinition {
+
+    public String getNamespace();
 
     public String getName();
 

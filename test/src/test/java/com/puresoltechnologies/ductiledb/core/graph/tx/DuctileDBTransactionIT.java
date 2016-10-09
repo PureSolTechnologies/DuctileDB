@@ -23,7 +23,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidPropertyKeyException;
@@ -31,7 +31,7 @@ import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidTypeNa
 import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -43,7 +43,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
  */
 public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 
-    private static DuctileDBGraphImpl graph;
+    private static GraphStoreImpl graph;
 
     @BeforeClass
     public static void initializeGraph() {
@@ -337,7 +337,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	// are being mutated by multiple threads. originally replicated a bug
 	// that was part of OrientDB.
 
-	final DuctileDBGraph g1 = AbstractDuctileDBTest.createDuctileDB().getGraph();
+	final GraphStore g1 = AbstractDuctileDBTest.createDuctileDB().getGraph();
 
 	final Thread threadModFirstGraph = new Thread() {
 	    @Override

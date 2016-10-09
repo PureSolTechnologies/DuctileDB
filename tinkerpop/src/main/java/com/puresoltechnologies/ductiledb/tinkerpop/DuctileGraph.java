@@ -20,7 +20,7 @@ import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedGraph;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
 import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
@@ -40,7 +40,7 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_INTEGRATE)
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_PERFORMANCE)
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
-public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph> {
+public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.graph.GraphStore> {
 
     public static final String DUCTILEDB_CONFIG_FILE_PROPERTY = "ductiledb.configuration.file";
     public static final String DUCTILEDB_NAMESPACE_PROPERTY = "ductiledb.configuration.namespace";
@@ -64,12 +64,12 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     }
 
     private DuctileGraphComputerView graphComputerView = null;
-    private final DuctileDBGraph baseGraph;
+    private final GraphStore baseGraph;
     private final BaseConfiguration configuration = new BaseConfiguration();
     private final DuctileTransaction ductileTransaction;
     private final DuctileFeatures features = new DuctileFeatures();
 
-    protected DuctileGraph(DuctileDBGraph baseGraph, Configuration configuration) {
+    protected DuctileGraph(GraphStore baseGraph, Configuration configuration) {
 	this.configuration.copy(configuration);
 	this.baseGraph = baseGraph;
 	this.ductileTransaction = new DuctileTransaction(this);
@@ -213,7 +213,7 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     }
 
     @Override
-    public DuctileDBGraph getBaseGraph() {
+    public GraphStore getBaseGraph() {
 	return baseGraph;
     }
 

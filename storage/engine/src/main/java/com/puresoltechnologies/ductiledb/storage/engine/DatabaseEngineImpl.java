@@ -138,8 +138,10 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	return getTableEngine(columnFamily.getTable()).getColumnFamilyEngine(columnFamily.getName());
     }
 
-    public void addTable(TableDescriptor tableDescriptor) {
-	namespaceEngines.get(tableDescriptor.getNamespace().getName()).addTable(tableDescriptor);
+    public TableEngineImpl addTable(TableDescriptor tableDescriptor) {
+	String namespaceName = tableDescriptor.getNamespace().getName();
+	NamespaceEngineImpl namespaceEngine = namespaceEngines.get(namespaceName);
+	return namespaceEngine.addTable(tableDescriptor);
     }
 
     public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {

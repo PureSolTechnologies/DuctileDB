@@ -11,7 +11,7 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
@@ -142,12 +142,12 @@ public class DuctileDBDetachedVertex extends DuctileDBDetachedElement implements
     }
 
     @Override
-    protected <T> void setProperty(DuctileDBGraph graph, String key, T value) {
+    protected <T> void setProperty(GraphStore graph, String key, T value) {
 	throwDetachedException();
     }
 
     @Override
-    public void removeProperty(DuctileDBGraph graph, String key) {
+    public void removeProperty(GraphStore graph, String key) {
 	throwDetachedException();
     }
 

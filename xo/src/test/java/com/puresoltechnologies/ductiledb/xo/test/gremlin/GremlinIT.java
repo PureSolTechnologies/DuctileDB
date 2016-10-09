@@ -15,7 +15,7 @@ import com.buschmais.xo.api.Query;
 import com.buschmais.xo.api.Query.Result;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.core.graph.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
@@ -35,7 +35,7 @@ public class GremlinIT extends AbstractXODuctileDBTest {
 
     @Before
     public void setupData() throws IOException {
-	DuctileDBGraph graph = getGraph();
+	GraphStore graph = getGraph();
 	StarWarsGraph.addStarWarsFiguresData(graph);
 	graph.commit();
     }

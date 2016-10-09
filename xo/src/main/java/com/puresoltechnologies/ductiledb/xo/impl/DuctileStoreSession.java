@@ -12,7 +12,7 @@ import com.buschmais.xo.spi.datastore.DatastoreRelationManager;
 import com.buschmais.xo.spi.datastore.DatastoreSession;
 import com.buschmais.xo.spi.datastore.DatastoreTransaction;
 import com.buschmais.xo.spi.session.XOSession;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileEdge;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphFactory;
@@ -31,7 +31,7 @@ public class DuctileStoreSession implements
 	DatastoreSession<Long, DuctileVertex, DuctileVertexMetadata, String, Long, DuctileEdge, DuctileEdgeMetadata, String, DuctilePropertyMetadata> {
 
     /**
-     * This field contains the graph as {@link DuctileDBGraph} object.
+     * This field contains the graph as {@link GraphStore} object.
      */
     private final DuctileGraph graph;
     private final DuctileStoreTransaction transaction;
@@ -49,7 +49,7 @@ public class DuctileStoreSession implements
      * @throws IOException
      *             is thrown in case of IO issues.
      */
-    public DuctileStoreSession(DuctileDBGraph ductileDB, BaseConfiguration configuration) throws IOException {
+    public DuctileStoreSession(GraphStore ductileDB, BaseConfiguration configuration) throws IOException {
 	this.graph = DuctileGraphFactory.createGraph(ductileDB, configuration);
 	this.transaction = new DuctileStoreTransaction(graph);
 	this.vertexManager = new DucileStoreVertexManager(graph);

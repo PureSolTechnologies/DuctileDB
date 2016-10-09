@@ -21,7 +21,7 @@ import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 
 /**
@@ -37,9 +37,9 @@ public class DuctileDBSchema {
     private final Map<ElementType, Map<String, PropertyDefinition<?>>> propertyDefinitions = new HashMap<>();
     private final Map<ElementType, Map<String, Set<String>>> typeDefinitions = new ConcurrentHashMap<>();
 
-    private final DuctileDBGraphImpl graph;
+    private final GraphStoreImpl graph;
 
-    public DuctileDBSchema(DuctileDBGraphImpl graph) {
+    public DuctileDBSchema(GraphStoreImpl graph) {
 	super();
 	this.graph = graph;
 	readSchemaInformation();

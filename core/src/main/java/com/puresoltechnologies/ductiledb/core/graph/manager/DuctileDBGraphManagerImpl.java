@@ -6,10 +6,10 @@ import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManagerException;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
@@ -26,17 +26,17 @@ import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
-    private final DuctileDBGraphImpl graph;
+    private final GraphStoreImpl graph;
     private final String namespace;
 
-    public DuctileDBGraphManagerImpl(DuctileDBGraphImpl graph) {
+    public DuctileDBGraphManagerImpl(GraphStoreImpl graph) {
 	super();
 	this.graph = graph;
 	this.namespace = graph.getConfiguration().getNamespace();
     }
 
     @Override
-    public DuctileDBGraph getGraph() {
+    public GraphStore getGraph() {
 	return graph;
     }
 

@@ -18,7 +18,7 @@ import com.buschmais.xo.spi.datastore.DatastoreMetadataFactory;
 import com.buschmais.xo.spi.metadata.method.IndexedPropertyMethodMetadata;
 import com.buschmais.xo.spi.metadata.type.TypeMetadata;
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
@@ -56,11 +56,11 @@ public class DuctileStore
      */
     private DuctileDB ductileDB = null;
     /**
-     * This field contains the {@link DuctileDBGraph}. This object is
+     * This field contains the {@link GraphStore}. This object is
      * thread-safe an can be reused for multiple session, because opening a new
      * graph is quite expensive.
      */
-    private DuctileDBGraph graph = null;
+    private GraphStore graph = null;
 
     /**
      * Contains the metadata factory for this XO implementation.

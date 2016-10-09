@@ -40,12 +40,19 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 	}
     }
 
+    @Override
+    public NamespaceDescriptor getDescriptor() {
+	return namespaceDescriptor;
+    }
+
     public void setRunCompactions(boolean runCompaction) {
 	tableEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
     }
 
-    public void addTable(TableDescriptor tableDescriptor) {
-	tableEngines.put(tableDescriptor.getName(), new TableEngineImpl(storage, tableDescriptor, configuration));
+    public TableEngineImpl addTable(TableDescriptor tableDescriptor) {
+	TableEngineImpl tableEngine = new TableEngineImpl(storage, tableDescriptor, configuration);
+	tableEngines.put(tableDescriptor.getName(), tableEngine);
+	return tableEngine;
     }
 
     public void dropTable(TableDescriptor tableDescriptor) {

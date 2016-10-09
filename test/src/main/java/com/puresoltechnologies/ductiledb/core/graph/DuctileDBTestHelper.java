@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
@@ -53,7 +53,7 @@ public class DuctileDBTestHelper {
 	return count[0];
     }
 
-    public static void removeGraph(DuctileDBGraph graph) throws IOException, StorageException {
+    public static void removeGraph(GraphStore graph) throws IOException, StorageException {
 	logger.info("Delete ductile graph...");
 	for (DuctileDBEdge edge : graph.getEdges()) {
 	    edge.remove();
@@ -77,8 +77,8 @@ public class DuctileDBTestHelper {
 		schemaManager.removePropertyDefinition(elementType, propertyName);
 	    }
 	}
-	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
-	new DuctileDBHealthCheck((DuctileDBGraphImpl) graph).runCheck();
+	assertEquals(GraphStoreImpl.class, graph.getClass());
+	new DuctileDBHealthCheck((GraphStoreImpl) graph).runCheck();
 	logger.info("Ductile graph deleted.");
     }
 

@@ -26,7 +26,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     private static int NUMBER = 90;
-    private static DuctileDBGraphImpl graph;
+    private static GraphStoreImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 
     @BeforeClass
@@ -152,7 +152,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testPropertyCRUD() throws IOException, StorageException {
-	DuctileDBGraphImpl graph = getGraph();
+	GraphStoreImpl graph = getGraph();
 	assertEquals(0, DuctileDBTestHelper.count(graph.getVertices()));
 
 	DuctileDBVertex vertex = graph.addVertex();

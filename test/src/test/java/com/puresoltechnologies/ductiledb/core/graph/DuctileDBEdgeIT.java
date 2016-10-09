@@ -15,11 +15,11 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 
 public class DuctileDBEdgeIT extends AbstractDuctileDBGraphTest {
 
-    private static DuctileDBGraphImpl graph;
+    private static GraphStoreImpl graph;
 
     @BeforeClass
     public static void initialize() {

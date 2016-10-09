@@ -7,6 +7,6 @@ package com.puresoltechnologies.ductiledb.api.tables;
  */
 public interface DuctileDBStatement {
 
-    public void execute();
+    public void execute() throws ExecutionException;
 
 }

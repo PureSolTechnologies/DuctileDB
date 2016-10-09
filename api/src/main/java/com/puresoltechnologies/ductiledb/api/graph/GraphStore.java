@@ -11,7 +11,7 @@ import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface DuctileDBGraph extends DuctileDBTransaction, GraphOperations, Closeable {
+public interface GraphStore extends DuctileDBTransaction, GraphOperations, Closeable {
 
     /**
      * This is the type of BLOB vertices.

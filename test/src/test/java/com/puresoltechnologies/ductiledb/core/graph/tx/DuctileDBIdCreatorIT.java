@@ -9,7 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.StarWarsGraph;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 
@@ -22,8 +22,8 @@ public class DuctileDBIdCreatorIT extends AbstractDuctileDBGraphTest {
 
     private static final int NUMBER = 10000;
 
-    private static DuctileDBGraphImpl graph;
-    private static DuctileDBGraphImpl graphImpl;
+    private static GraphStoreImpl graph;
+    private static GraphStoreImpl graphImpl;
 
     @BeforeClass
     public static void initialize() throws IOException {

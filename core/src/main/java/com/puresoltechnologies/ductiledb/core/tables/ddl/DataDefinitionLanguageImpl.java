@@ -12,9 +12,8 @@ import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropIndex;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropTable;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.Namespace;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceImpl;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.Table;
+import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
+import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
 import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
@@ -35,7 +34,7 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
 
     @Override
     public CreateNamespace createCreateNamespace(String namespace) {
-	return new CreateNamespaceImpl(tableStore, new File(directory, namespace));
+	return new CreateNamespaceImpl(tableStore, namespace);
     }
 
     @Override
@@ -44,16 +43,16 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     }
 
     @Override
-    public Namespace getNamespace(String namespace) {
+    public NamespaceDefinition getNamespace(String namespace) {
 	// TODO Auto-generated method stub
 	return null;
     }
 
     @Override
-    public CloseableIterable<Namespace> getNamespaces() {
+    public CloseableIterable<NamespaceDefinition> getNamespaces() {
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 	Select select = dml.createSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME, DatabaseTable.NAMESPACES.getName());
-	return new CloseableIterable<Namespace>() {
+	return new CloseableIterable<NamespaceDefinition>() {
 
 	    private final TableRowIterable results = select.execute();
 	    private final Iterator<TableRow> iterator = results.iterator();
@@ -64,8 +63,8 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
 	    }
 
 	    @Override
-	    public Iterator<Namespace> iterator() {
-		return new Iterator<Namespace>() {
+	    public Iterator<NamespaceDefinition> iterator() {
+		return new Iterator<NamespaceDefinition>() {
 
 		    @Override
 		    public boolean hasNext() {
@@ -73,9 +72,9 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
 		    }
 
 		    @Override
-		    public Namespace next() {
+		    public NamespaceDefinition next() {
 			TableRow result = iterator.next();
-			return new NamespaceImpl(result.getString("name"));
+			return new NamespaceDefinitionImpl(result.getString("name"));
 		    }
 		};
 	    }
@@ -93,7 +92,7 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     }
 
     @Override
-    public Table getTable(String namespace, String table) {
+    public TableDefinition getTable(String namespace, String table) {
 	// TODO Auto-generated method stub
 	return null;
     }

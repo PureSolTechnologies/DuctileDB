@@ -27,7 +27,7 @@ import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.api.graph.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
@@ -73,14 +73,14 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    .withInitial(() -> new ArrayList<>());
 
     private final BlobStoreImpl blobStore;
-    private final DuctileDBGraphImpl graph;
+    private final GraphStoreImpl graph;
     private final TransactionType type;
     private final String namespace;
     private final long threadId;
     private final DatabaseEngine storageEngine;
     private boolean closed = false;
 
-    public DuctileDBTransactionImpl(BlobStoreImpl blobStore, DuctileDBGraphImpl graph, TransactionType type) {
+    public DuctileDBTransactionImpl(BlobStoreImpl blobStore, GraphStoreImpl graph, TransactionType type) {
 	this.blobStore = blobStore;
 	this.graph = graph;
 	this.storageEngine = graph.getStorageEngine();
@@ -89,7 +89,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	this.namespace = graph.getConfiguration().getNamespace();
     }
 
-    public DuctileDBGraphImpl getGraph() {
+    public GraphStoreImpl getGraph() {
 	return graph;
     }
 

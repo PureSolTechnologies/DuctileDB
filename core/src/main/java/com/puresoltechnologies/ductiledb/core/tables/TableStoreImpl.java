@@ -27,6 +27,8 @@ public class TableStoreImpl implements TableStore {
 
     private static Logger logger = LoggerFactory.getLogger(TableStoreImpl.class);
 
+    public static String STORAGE_DIRECTORY = "tables";
+
     private final TableStoreConfiguration configuration;
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
@@ -44,7 +46,7 @@ public class TableStoreImpl implements TableStore {
 	this.tablesSchema = new TableStoreSchema(storageEngine, configuration);
 	tablesSchema.checkAndCreateEnvironment();
 	// Languages...
-	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(this, new File("tables"));
+	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(this, new File(STORAGE_DIRECTORY));
 	this.dataManipulationLanguage = new DataManipulationLanguageImpl(this);
 	this.dataControlLanguage = new DataControlLanguageImpl(this);
     }

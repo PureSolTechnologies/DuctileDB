@@ -29,7 +29,7 @@ public interface DataDefinitionLanguage {
      * 
      * @return
      */
-    public CloseableIterable<Namespace> getNamespaces();
+    public CloseableIterable<NamespaceDefinition> getNamespaces();
 
     /**
      * This method returns the information about the given namespace.
@@ -37,7 +37,7 @@ public interface DataDefinitionLanguage {
      * @param namespace
      * @return
      */
-    public Namespace getNamespace(String namespace);
+    public NamespaceDefinition getNamespace(String namespace);
 
     /**
      * This method creates a new {@link CreateTable} statement object.
@@ -60,7 +60,7 @@ public interface DataDefinitionLanguage {
      * @param table
      * @return
      */
-    public Table getTable(String namespace, String table);
+    public TableDefinition getTable(String namespace, String table);
 
     /**
      * This method creates a new {@link CreateIndex} statement object.

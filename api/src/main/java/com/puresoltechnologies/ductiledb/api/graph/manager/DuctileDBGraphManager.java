@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.api.graph.manager;
 
 import java.io.Serializable;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.versioning.Version;
 
 /**
@@ -15,9 +15,9 @@ public interface DuctileDBGraphManager {
     /**
      * This method returns the graph for which this manager is responsible for.
      * 
-     * @return A {@link DuctileDBGraph} is returned.
+     * @return A {@link GraphStore} is returned.
      */
-    public DuctileDBGraph getGraph();
+    public GraphStore getGraph();
 
     /**
      * This method returns the version of the current implementation.

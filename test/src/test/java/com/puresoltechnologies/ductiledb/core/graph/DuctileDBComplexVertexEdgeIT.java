@@ -15,7 +15,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBComplexVertexEdgeIT extends AbstractDuctileDBGraphTest {
 
-    private static DuctileDBGraphImpl graph;
+    private static GraphStoreImpl graph;
     private static DuctileDBHealthCheck healthChecker;
 
     @BeforeClass

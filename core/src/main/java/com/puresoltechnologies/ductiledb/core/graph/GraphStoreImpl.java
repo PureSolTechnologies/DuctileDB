@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
@@ -30,9 +30,11 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
-public class DuctileDBGraphImpl implements DuctileDBGraph {
+public class GraphStoreImpl implements GraphStore {
 
-    private static Logger logger = LoggerFactory.getLogger(DuctileDBGraphImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(GraphStoreImpl.class);
+
+    public static String STORAGE_DIRECTORY = "graphs";
 
     private static final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
 
@@ -45,12 +47,12 @@ public class DuctileDBGraphImpl implements DuctileDBGraph {
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
 
-    public DuctileDBGraphImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
+    public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
 	    DatabaseEngineImpl storageEngine) throws SchemaException, StorageException {
 	this(configuration, blobStore, storageEngine, false);
     }
 
-    public DuctileDBGraphImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
+    public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
 	    DatabaseEngineImpl storageEngine, boolean autoCloseConnection) throws SchemaException, StorageException {
 	this.configuration = configuration;
 	this.blobStore = blobStore;

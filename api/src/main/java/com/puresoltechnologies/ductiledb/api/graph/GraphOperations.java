@@ -11,7 +11,7 @@ import com.puresoltechnologies.ductiledb.api.graph.tx.DuctileDBTransaction;
 
 /**
  * This interface defines all public operations on a Ductile Graph. The
- * interface is used to define the {@link DuctileDBGraph} and also the
+ * interface is used to define the {@link GraphStore} and also the
  * transaction {@link DuctileDBTransaction}.
  * 
  * @author Rick-Rainer Ludwig

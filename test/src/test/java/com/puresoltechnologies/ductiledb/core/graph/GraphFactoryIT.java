@@ -8,11 +8,11 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 
 public class GraphFactoryIT extends AbstractDuctileDBGraphTest {
 
-    private static DuctileDBGraphImpl graph;
+    private static GraphStoreImpl graph;
 
     @BeforeClass
     public static void initialize() {
@@ -22,7 +22,7 @@ public class GraphFactoryIT extends AbstractDuctileDBGraphTest {
     @Test
     public void testConnection() throws IOException {
 	assertNotNull(graph);
-	assertEquals(DuctileDBGraphImpl.class, graph.getClass());
+	assertEquals(GraphStoreImpl.class, graph.getClass());
     }
 
 }

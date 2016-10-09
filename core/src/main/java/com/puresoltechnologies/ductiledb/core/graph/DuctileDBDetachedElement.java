@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 
@@ -40,7 +40,7 @@ public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement 
 	throwDetachedException();
     }
 
-    protected abstract <T> void setProperty(DuctileDBGraph graph, String key, T value);
+    protected abstract <T> void setProperty(GraphStore graph, String key, T value);
 
     @Override
     public final <T> T getProperty(String key) {
@@ -54,7 +54,7 @@ public abstract class DuctileDBDetachedElement extends AbstractDuctileDBElement 
 	throwDetachedException();
     }
 
-    protected abstract void removeProperty(DuctileDBGraph graph, String key);
+    protected abstract void removeProperty(GraphStore graph, String key);
 
     @Override
     public int hashCode() {

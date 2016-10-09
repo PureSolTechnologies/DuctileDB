@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -27,7 +27,7 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
     public void clear(Graph graph, Configuration configuration) throws Exception {
 	if (graph != null) {
 	    logger.info("Delete ductile graph...");
-	    DuctileDBGraphImpl ductileGraph = (DuctileDBGraphImpl) ((DuctileGraph) graph).getBaseGraph();
+	    GraphStoreImpl ductileGraph = (GraphStoreImpl) ((DuctileGraph) graph).getBaseGraph();
 	    // DuctileDBTestHelper.removeGraph(ductileGraph);
 	    DatabaseEngineImpl storageEngine = ductileGraph.getStorageEngine();
 	    graph.close();

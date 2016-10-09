@@ -16,7 +16,7 @@ import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
@@ -46,19 +46,19 @@ public class DuctileDBHealthCheck {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileDBHealthCheck.class);
 
-    public static void runCheck(DuctileDBGraphImpl graph) throws IOException, StorageException {
+    public static void runCheck(GraphStoreImpl graph) throws IOException, StorageException {
 	new DuctileDBHealthCheck(graph).runCheck();
     }
 
-    public static void runCheckForEmpty(DuctileDBGraphImpl graph) throws IOException {
+    public static void runCheckForEmpty(GraphStoreImpl graph) throws IOException {
 	new DuctileDBHealthCheck(graph).runCheckForEmpty();
     }
 
-    private final DuctileDBGraphImpl graph;
+    private final GraphStoreImpl graph;
     private final DatabaseEngine storageEngine;
     private final String namespace;
 
-    public DuctileDBHealthCheck(DuctileDBGraphImpl graph) throws IOException {
+    public DuctileDBHealthCheck(GraphStoreImpl graph) throws IOException {
 	super();
 	this.graph = graph;
 	storageEngine = graph.getStorageEngine();

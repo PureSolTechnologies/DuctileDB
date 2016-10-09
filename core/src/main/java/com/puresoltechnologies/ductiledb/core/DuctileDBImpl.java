@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
@@ -23,7 +23,7 @@ public class DuctileDBImpl implements DuctileDB {
 
     private final DuctileDBConfiguration configuration;
     private final BlobStoreImpl blobStore;
-    private final DuctileDBGraphImpl graph;
+    private final GraphStoreImpl graph;
     private final TableStoreImpl tableStore;
 
     private boolean closed = false;
@@ -32,9 +32,11 @@ public class DuctileDBImpl implements DuctileDB {
 	try {
 	    this.configuration = configuration;
 	    this.blobStore = new BlobStoreImpl(configuration);
-	    DatabaseEngineImpl graphStorageEngine = createDatabaseEngine(configuration.getDatabaseEngine(), "graph");
-	    this.graph = new DuctileDBGraphImpl(configuration.getGraph(), blobStore, graphStorageEngine, true);
-	    DatabaseEngineImpl tablesStorageEngine = createDatabaseEngine(configuration.getDatabaseEngine(), "table");
+	    DatabaseEngineImpl graphStorageEngine = createDatabaseEngine(configuration.getDatabaseEngine(),
+		    GraphStoreImpl.STORAGE_DIRECTORY);
+	    this.graph = new GraphStoreImpl(configuration.getGraph(), blobStore, graphStorageEngine, true);
+	    DatabaseEngineImpl tablesStorageEngine = createDatabaseEngine(configuration.getDatabaseEngine(),
+		    TableStoreImpl.STORAGE_DIRECTORY);
 	    this.tableStore = new TableStoreImpl(configuration.getTableStore(), tablesStorageEngine, true);
 	} catch (SchemaException e) {
 	    throw new StorageException("Could not create graph instance.", e);
@@ -72,7 +74,7 @@ public class DuctileDBImpl implements DuctileDB {
     }
 
     @Override
-    public DuctileDBGraph getGraph() {
+    public GraphStore getGraph() {
 	return graph;
     }
 

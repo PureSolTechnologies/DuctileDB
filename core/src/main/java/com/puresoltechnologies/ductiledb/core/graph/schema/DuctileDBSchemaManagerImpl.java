@@ -14,7 +14,7 @@ import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBTypeAlreadyDefinedException;
 import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
 import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
@@ -31,12 +31,12 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
-    private final DuctileDBGraphImpl graph;
+    private final GraphStoreImpl graph;
     private final String namespace;
     private final NamespaceDescriptor namespaceDescriptor;
     private final TableDescriptor propertyDefinitionsTable;
 
-    public DuctileDBSchemaManagerImpl(DuctileDBGraphImpl graph) {
+    public DuctileDBSchemaManagerImpl(GraphStoreImpl graph) {
 	super();
 	this.graph = graph;
 	this.namespace = graph.getConfiguration().getNamespace();

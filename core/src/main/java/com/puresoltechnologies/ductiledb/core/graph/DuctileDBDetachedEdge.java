@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDBException;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
@@ -118,12 +118,12 @@ public class DuctileDBDetachedEdge extends DuctileDBDetachedElement implements D
     }
 
     @Override
-    protected <T> void setProperty(DuctileDBGraph graph, String key, T value) {
+    protected <T> void setProperty(GraphStore graph, String key, T value) {
 	throwDetachedException();
     }
 
     @Override
-    protected void removeProperty(DuctileDBGraph graph, String key) {
+    protected void removeProperty(GraphStore graph, String key) {
 	throwDetachedException();
     }
 

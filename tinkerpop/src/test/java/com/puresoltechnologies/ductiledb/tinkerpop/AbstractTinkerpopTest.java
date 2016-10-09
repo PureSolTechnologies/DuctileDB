@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
-import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphImpl;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -52,7 +52,7 @@ public abstract class AbstractTinkerpopTest extends AbstractDuctileDBTest {
     @Before
     public final void cleanup() throws IOException, StorageException {
 	DuctileDBTestHelper.removeGraph(graph.getBaseGraph());
-	DuctileDBHealthCheck.runCheckForEmpty((DuctileDBGraphImpl) graph.getBaseGraph());
+	DuctileDBHealthCheck.runCheckForEmpty((GraphStoreImpl) graph.getBaseGraph());
     }
 
     public static DuctileGraph getGraph() {

@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.api;
 import java.io.Closeable;
 
 import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.tables.TableStore;
 
 /**
@@ -21,12 +21,12 @@ public interface DuctileDB extends Closeable {
     public boolean isStopped();
 
     /**
-     * This method returns the {@link DuctileDBGraph} of DuctileDB.
+     * This method returns the {@link GraphStore} of DuctileDB.
      * 
-     * @return A {@link DuctileDBGraph} object is returned to use the graph
+     * @return A {@link GraphStore} object is returned to use the graph
      *         engine.
      */
-    public DuctileDBGraph getGraph();
+    public GraphStore getGraph();
 
     /**
      * This method returns the big table store reference.

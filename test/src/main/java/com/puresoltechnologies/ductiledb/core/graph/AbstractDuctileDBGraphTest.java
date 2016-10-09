@@ -18,7 +18,7 @@ import org.junit.BeforeClass;
 
 import com.puresoltechnologies.ductiledb.api.DuctileDB;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
@@ -31,12 +31,12 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 
     private static DuctileDB ductileDB = null;
-    private static DuctileDBGraphImpl graph = null;
+    private static GraphStoreImpl graph = null;
 
     @BeforeClass
     public static void connect() throws IOException, SchemaException {
 	ductileDB = getDuctileDB();
-	graph = (DuctileDBGraphImpl) ductileDB.getGraph();
+	graph = (GraphStoreImpl) ductileDB.getGraph();
 	// Normally meaningless, but we do nevertheless, if tests change...
 	DuctileDBTestHelper.removeGraph(graph);
 	DuctileDBHealthCheck.runCheckForEmpty(graph);
@@ -62,7 +62,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 	DuctileDBHealthCheck.runCheckForEmpty(graph);
     }
 
-    protected static DuctileDBGraphImpl getGraph() {
+    protected static GraphStoreImpl getGraph() {
 	return graph;
     }
 
@@ -143,7 +143,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
 	assertNull(graph.createTransaction().getEdge(edge.getId()));
     }
 
-    public static Consumer<DuctileDBGraph> assertVertexEdgeCounts(final int expectedVertexCount,
+    public static Consumer<GraphStore> assertVertexEdgeCounts(final int expectedVertexCount,
 	    final int expectedEdgeCount) {
 	return (g) -> {
 	    assertEquals(expectedVertexCount, DuctileDBTestHelper.count(g.getVertices()));

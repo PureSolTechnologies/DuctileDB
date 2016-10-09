@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 
 /**
@@ -31,7 +31,7 @@ public class StandardGraphs {
      * @throws IOException
      *             is thrown in case of IO issues.
      */
-    public static void createGraph(DuctileDBGraph graph, int numberOfVertices) throws IOException {
+    public static void createGraph(GraphStore graph, int numberOfVertices) throws IOException {
 	DuctileDBVertex[] vertices = new DuctileDBVertex[numberOfVertices];
 	for (int i = 0; i < numberOfVertices; ++i) {
 	    Set<String> types = new HashSet<>();

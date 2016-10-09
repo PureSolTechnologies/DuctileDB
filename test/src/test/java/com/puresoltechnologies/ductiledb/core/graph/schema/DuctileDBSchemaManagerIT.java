@@ -13,7 +13,7 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBGraph;
+import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.api.graph.ElementType;
 import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidPropertyTypeException;
@@ -27,7 +27,7 @@ import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
 
 public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 
-    private static DuctileDBGraph graph;
+    private static GraphStore graph;
     private static DuctileDBSchemaManager schemaManager;
 
     @BeforeClass
