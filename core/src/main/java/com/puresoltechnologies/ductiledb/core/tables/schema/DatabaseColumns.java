@@ -2,16 +2,16 @@ package com.puresoltechnologies.ductiledb.core.tables.schema;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public enum DatabaseColumnFamily {
+public enum DatabaseColumns {
 
-    METADATA("metadata"), //
-    DEFINITION("definition"), //
+    TYPE("type"), //
+    COLUMN_FAMILY("column_family"), //
     ;
 
     private final String name;
     private final byte[] nameBytes;
 
-    DatabaseColumnFamily(String name) {
+    DatabaseColumns(String name) {
 	this.name = name;
 	this.nameBytes = Bytes.toBytes(this.name);
     }

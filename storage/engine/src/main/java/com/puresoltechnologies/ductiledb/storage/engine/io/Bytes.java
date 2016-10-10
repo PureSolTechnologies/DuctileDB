@@ -22,7 +22,7 @@ public class Bytes {
 	return new byte[0];
     }
 
-    public static int putBytes(byte[] destination, byte[] source, int destinationOffset) {
+    public static int putBytes(byte[] destination, int destinationOffset, byte[] source) {
 	for (int i = 0; i < source.length; ++i) {
 	    destination[destinationOffset + i] = (source[i]);
 	}

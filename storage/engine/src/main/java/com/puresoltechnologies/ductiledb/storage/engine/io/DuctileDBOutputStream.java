@@ -62,10 +62,10 @@ public class DuctileDBOutputStream implements Closeable {
 	    if (bytes.length > bufferSize) {
 		stream.write(bytes);
 	    } else {
-		bufferPos += Bytes.putBytes(buffer, bytes, bufferPos);
+		bufferPos += Bytes.putBytes(buffer, bufferPos, bytes);
 	    }
 	} else {
-	    bufferPos += Bytes.putBytes(buffer, bytes, bufferPos);
+	    bufferPos += Bytes.putBytes(buffer, bufferPos, bytes);
 	}
 	offset += bytes.length;
     }

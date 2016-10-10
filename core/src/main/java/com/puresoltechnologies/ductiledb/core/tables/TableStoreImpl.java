@@ -46,6 +46,7 @@ public class TableStoreImpl implements TableStore {
 	// Schema...
 	this.tablesSchema = new TableStoreSchema(storageEngine, configuration);
 	tablesSchema.checkAndCreateEnvironment();
+	tablesSchema.readDefinitions();
 	// Languages...
 	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(this, new File(STORAGE_DIRECTORY));
 	this.dataManipulationLanguage = new DataManipulationLanguageImpl(this);
