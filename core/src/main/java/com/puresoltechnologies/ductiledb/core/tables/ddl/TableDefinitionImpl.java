@@ -1,7 +1,9 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
@@ -11,8 +13,8 @@ public class TableDefinitionImpl implements TableDefinition {
 
     private final String namespace;
     private final String name;
-    private String[] primaryKey = new String[0];
-    private List<ColumnDefinition> columns = new ArrayList<>();
+    private List<ColumnDefinition<?>> primaryKey = new ArrayList<>();
+    private Set<ColumnDefinition<?>> columns = new HashSet<>();
 
     public TableDefinitionImpl(String namespace, String name) {
 	this.namespace = namespace;
@@ -29,16 +31,39 @@ public class TableDefinitionImpl implements TableDefinition {
 	return name;
     }
 
-    public void addColumn(String columnFamily, String name, ColumnType type) {
-	columns.add(new ColumnDefinitionImpl(columnFamily, name, type));
-    }
-
     public void setPrimaryKey(String[] columns) {
-	primaryKey = columns;
+	for (String column : columns) {
+	    ColumnDefinition<?> columnDefinition = getColumnDefinition(column);
+	    if (columnDefinition != null) {
+		primaryKey.add(columnDefinition);
+	    } else {
+		throw new IllegalStateException("No definition for column '" + column + "' found.");
+	    }
+	}
     }
 
-    public List<ColumnDefinition> getColumns() {
+    @Override
+    public Set<ColumnDefinition<?>> getColumnDefinitions() {
 	return columns;
+    }
+
+    @Override
+    public ColumnDefinition<?> getColumnDefinition(String columnName) {
+	for (ColumnDefinition<?> columnDefinition : columns) {
+	    if (columnDefinition.getName().equals(columnName)) {
+		return columnDefinition;
+	    }
+	}
+	return null;
+    }
+
+    @Override
+    public List<ColumnDefinition<?>> getPrimaryKey() {
+	return primaryKey;
+    }
+
+    public void addColumn(String columnFamily, String columnName, ColumnType<?> type) {
+	columns.add(new ColumnDefinitionImpl<>(columnFamily, columnName, type));
     }
 
 }

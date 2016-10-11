@@ -12,4 +12,9 @@ public class TableRow {
 	return null;
     }
 
+    public void add(String name, byte[] part) {
+	// TODO Auto-generated method stub
+
+    }
+
 }

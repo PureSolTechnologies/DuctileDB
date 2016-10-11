@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -17,6 +19,9 @@ import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
+import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
+import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
+import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.VarCharColumnType;
@@ -52,14 +57,31 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
+	Set<String> namespaceSet = new HashSet<>();
 	assertTrue(namespaceIterator.hasNext());
-	assertEquals("basicid", namespaceIterator.next().getName());
+	namespaceSet.add(namespaceIterator.next().getName());
 	assertTrue(namespaceIterator.hasNext());
-	assertEquals("system", namespaceIterator.next().getName());
+	namespaceSet.add(namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
 	// TODO check also with TableStore API!!!
+	assertTrue(namespaceSet.contains("basicit"));
+	assertTrue(namespaceSet.contains("system"));
 
 	namespaceEngine = storageEngine.getNamespaceEngine("basicit");
+    }
+
+    @Test
+    public void testSystemColumnsTable() {
+	TableStoreImpl tableStore = getTableStore();
+
+	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
+	Select select = dml.createSelect("system", "columns");
+	TableRowIterable results = select.execute();
+	int count = 0;
+	for (TableRow result : results) {
+	    count++;
+	}
+	assertTrue(count > 0);
     }
 
     @Test

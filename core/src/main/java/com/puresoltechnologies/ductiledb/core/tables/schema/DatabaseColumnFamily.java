@@ -4,6 +4,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public enum DatabaseColumnFamily {
 
+    ROWKEY(""), //
     METADATA("metadata"), //
     DEFINITION("definition"), //
     ;

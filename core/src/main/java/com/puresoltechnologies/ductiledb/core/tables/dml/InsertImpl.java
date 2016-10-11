@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
@@ -36,7 +36,7 @@ public class InsertImpl implements Insert {
 
     @Override
     public void execute() {
-	TableDefinitionImpl tableDefinition = tableStore.getTableDefinition(namespace, table);
+	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
 	DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	NamespaceEngineImpl namespaceEngine = storageEngine.getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);

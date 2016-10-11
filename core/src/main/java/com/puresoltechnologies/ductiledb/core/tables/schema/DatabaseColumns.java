@@ -6,6 +6,11 @@ public enum DatabaseColumns {
 
     TYPE("type"), //
     COLUMN_FAMILY("column_family"), //
+    CREATED("created"), //
+    NAMESPACE("namespace"), //
+    COLUMN("column"), //
+    TABLE("column"), //
+    PRIMARY_KEY_PART("primary_key_part"), //
     ;
 
     private final String name;

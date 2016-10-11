@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
 import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
 import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
@@ -12,7 +13,6 @@ import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class SelectImpl implements Select {
 
@@ -32,6 +32,7 @@ public class SelectImpl implements Select {
 
     @Override
     public TableRowIterable execute() {
+	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
 	ResultScanner scanner = tableEngine.getScanner(new Scan());
 	return new TableRowIterable() {
 
@@ -47,13 +48,8 @@ public class SelectImpl implements Select {
 		    @Override
 		    public TableRow next() {
 			Result next = scanner.next();
-			byte[] rowKey = next.getRowKey();
 
-			for (byte[] family : next.getFamilies()) {
-			    String familyName = Bytes.toString(family);
-
-			}
-			return new TableRow();
+			return TableRowCreator.create(tableDefinition, next);
 		    }
 		};
 	    }

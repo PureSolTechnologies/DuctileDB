@@ -43,7 +43,7 @@ public class CreateTableImpl implements CreateTable {
 	    TableDescriptor tableDescriptor = schemaManager.createTable(namespaceDescriptor, name);
 
 	    Set<String> columnFamilies = new HashSet<>();
-	    for (ColumnDefinition columnDefinition : tableDefinition.getColumns()) {
+	    for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
 		columnFamilies.add(columnDefinition.getColumnFamily());
 	    }
 	    for (String columnFamily : columnFamilies) {
@@ -55,7 +55,7 @@ public class CreateTableImpl implements CreateTable {
     }
 
     @Override
-    public void addColumn(String columnFamily, String name, ColumnType type) {
+    public void addColumn(String columnFamily, String name, ColumnType<?> type) {
 	tableDefinition.addColumn(columnFamily, name, type);
     }
 
