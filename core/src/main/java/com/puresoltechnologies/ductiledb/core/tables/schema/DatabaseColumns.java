@@ -9,7 +9,7 @@ public enum DatabaseColumns {
     CREATED("created"), //
     NAMESPACE("namespace"), //
     COLUMN("column"), //
-    TABLE("column"), //
+    TABLE("table"), //
     PRIMARY_KEY_PART("primary_key_part"), //
     ;
 

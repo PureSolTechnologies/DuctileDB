@@ -6,6 +6,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class ShortColumnType implements ColumnType<Short> {
 
     @Override
+    public String getName() {
+	return "SHORT";
+    }
+
+    @Override
     public Class<Short> getJavaClass() {
 	return Short.class;
     }

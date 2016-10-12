@@ -8,6 +8,8 @@ package com.puresoltechnologies.ductiledb.api.tables.columns;
  */
 public interface ColumnType<Type> {
 
+    public String getName();
+
     public Class<Type> getJavaClass();
 
     public byte[] toBytes(Type value);

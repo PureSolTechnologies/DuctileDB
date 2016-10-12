@@ -8,6 +8,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class TimeColumnType implements ColumnType<LocalTime> {
 
     @Override
+    public String getName() {
+	return "TIME";
+    }
+
+    @Override
     public Class<LocalTime> getJavaClass() {
 	return LocalTime.class;
     }

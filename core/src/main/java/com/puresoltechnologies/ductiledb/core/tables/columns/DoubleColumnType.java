@@ -6,6 +6,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class DoubleColumnType implements ColumnType<Byte> {
 
     @Override
+    public String getName() {
+	return "DOUBLE";
+    }
+
+    @Override
     public Class<Byte> getJavaClass() {
 	return Byte.class;
     }

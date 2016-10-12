@@ -8,6 +8,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class TimestampColumnType implements ColumnType<Instant> {
 
     @Override
+    public String getName() {
+	return "TIMESTAMP";
+    }
+
+    @Override
     public Class<Instant> getJavaClass() {
 	return Instant.class;
     }

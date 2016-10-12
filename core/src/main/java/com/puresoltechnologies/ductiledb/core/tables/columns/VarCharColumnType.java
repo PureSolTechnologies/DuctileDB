@@ -6,6 +6,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class VarCharColumnType implements ColumnType<String> {
 
     @Override
+    public String getName() {
+	return "VARCHAR";
+    }
+
+    @Override
     public Class<String> getJavaClass() {
 	return String.class;
     }

@@ -6,6 +6,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class BooleanColumnType implements ColumnType<Boolean> {
 
     @Override
+    public String getName() {
+	return "BOOLEAN";
+    }
+
+    @Override
     public Class<Boolean> getJavaClass() {
 	return Boolean.class;
     }

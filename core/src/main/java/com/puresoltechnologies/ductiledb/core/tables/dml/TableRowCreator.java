@@ -31,7 +31,7 @@ public class TableRowCreator {
 	    for (Entry<byte[], byte[]> entry : familyMap.entrySet()) {
 		String columnName = Bytes.toString(entry.getKey());
 		ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(columnName);
-		tableRow.add(columnDefinition.getName(), entry.getValue());
+		tableRow.add(columnName, entry.getValue());
 	    }
 	}
 	return tableRow;

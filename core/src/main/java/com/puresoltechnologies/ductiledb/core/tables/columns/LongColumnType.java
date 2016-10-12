@@ -6,6 +6,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class LongColumnType implements ColumnType<Long> {
 
     @Override
+    public String getName() {
+	return "LONG";
+    }
+
+    @Override
     public Class<Long> getJavaClass() {
 	return Long.class;
     }

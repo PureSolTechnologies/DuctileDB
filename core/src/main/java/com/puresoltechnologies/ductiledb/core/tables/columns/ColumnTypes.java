@@ -9,7 +9,7 @@ public enum ColumnTypes {
     DATE(new DateColumnType()), //
     DATETIME(new DateTimeColumnType()), //
     DOUBLE(new DoubleColumnType()), //
-    INTEGER(new IntColumnType()), //
+    INTEGER(new IntegerColumnType()), //
     LONG(new LongColumnType()), //
     SHORT(new ShortColumnType()), //
     SINGLE(new SingleColumnType()), //

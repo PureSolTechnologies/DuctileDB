@@ -8,6 +8,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class DateColumnType implements ColumnType<LocalDate> {
 
     @Override
+    public String getName() {
+	return "DATE";
+    }
+
+    @Override
     public Class<LocalDate> getJavaClass() {
 	return LocalDate.class;
     }

@@ -11,8 +11,6 @@ import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreConfiguration;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypes;
-import com.puresoltechnologies.ductiledb.core.tables.columns.IntColumnType;
-import com.puresoltechnologies.ductiledb.core.tables.columns.VarCharColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinitionImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -134,8 +132,8 @@ public class TableStoreSchema {
 	    put.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumns.CREATED.getNameBytes(), now);
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN_FAMILY.getNameBytes(),
 		    DatabaseColumnFamily.ROWKEY.getNameBytes());
-	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.NAMESPACE.getNameBytes(),
-		    Bytes.toBytes(IntColumnType.class.getSimpleName()));
+	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TYPE.getNameBytes(),
+		    Bytes.toBytes(ColumnTypes.VARCHAR.name()));
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(),
 		    DatabaseColumns.PRIMARY_KEY_PART.getNameBytes(), Bytes.toBytes((byte) 0));
 	    table.put(put);
@@ -145,8 +143,8 @@ public class TableStoreSchema {
 	    put.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumns.CREATED.getNameBytes(), now);
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN_FAMILY.getNameBytes(),
 		    DatabaseColumnFamily.ROWKEY.getNameBytes());
-	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TABLE.getNameBytes(),
-		    Bytes.toBytes(IntColumnType.class.getSimpleName()));
+	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TYPE.getNameBytes(),
+		    Bytes.toBytes(ColumnTypes.VARCHAR.name()));
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(),
 		    DatabaseColumns.PRIMARY_KEY_PART.getNameBytes(), Bytes.toBytes((byte) 1));
 	    table.put(put);
@@ -156,8 +154,8 @@ public class TableStoreSchema {
 	    put.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumns.CREATED.getNameBytes(), now);
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN_FAMILY.getNameBytes(),
 		    DatabaseColumnFamily.ROWKEY.getNameBytes());
-	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN.getNameBytes(),
-		    Bytes.toBytes(IntColumnType.class.getSimpleName()));
+	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TYPE.getNameBytes(),
+		    Bytes.toBytes(ColumnTypes.VARCHAR.name()));
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(),
 		    DatabaseColumns.PRIMARY_KEY_PART.getNameBytes(), Bytes.toBytes((byte) 2));
 	    table.put(put);
@@ -168,7 +166,7 @@ public class TableStoreSchema {
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN_FAMILY.getNameBytes(),
 		    DatabaseColumnFamily.METADATA.getNameBytes());
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TYPE.getNameBytes(),
-		    Bytes.toBytes(IntColumnType.class.getSimpleName()));
+		    Bytes.toBytes(ColumnTypes.TIMESTAMP.name()));
 	    table.put(put);
 
 	    put = new Put(CompoundKey.create(SYSTEM_NAMESPACE_NAME_BYTES, DatabaseTable.COLUMNS.getNameBytes(),
@@ -177,7 +175,7 @@ public class TableStoreSchema {
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN_FAMILY.getNameBytes(),
 		    DatabaseColumnFamily.DEFINITION.getNameBytes());
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TYPE.getNameBytes(),
-		    Bytes.toBytes(VarCharColumnType.class.getSimpleName()));
+		    Bytes.toBytes(ColumnTypes.VARCHAR.name()));
 	    table.put(put);
 
 	    put = new Put(CompoundKey.create(SYSTEM_NAMESPACE_NAME_BYTES, DatabaseTable.COLUMNS.getNameBytes(),
@@ -186,7 +184,7 @@ public class TableStoreSchema {
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.COLUMN_FAMILY.getNameBytes(),
 		    DatabaseColumnFamily.DEFINITION.getNameBytes());
 	    put.addColumn(DatabaseColumnFamily.DEFINITION.getNameBytes(), DatabaseColumns.TYPE.getNameBytes(),
-		    Bytes.toBytes(VarCharColumnType.class.getSimpleName()));
+		    Bytes.toBytes(ColumnTypes.VARCHAR.name()));
 	    table.put(put);
 	}
     }
@@ -200,11 +198,16 @@ public class TableStoreSchema {
     }
 
     public void readDefinitions() {
-	readNamespaceDefinitions();
-	readTableDefinitions();
+	try {
+	    readNamespaceDefinitions();
+	    readTableDefinitions();
+	    readColumnDefinitions();
+	} catch (IOException e) {
+	    throw new StorageException("Could not read definitions.", e);
+	}
     }
 
-    private void readNamespaceDefinitions() {
+    private void readNamespaceDefinitions() throws IOException {
 	TableEngine namespaceTable = storageEngine.getTable(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
 		DatabaseTable.NAMESPACES.getName());
 	try (ResultScanner scanner = namespaceTable.getScanner(new Scan())) {
@@ -216,16 +219,12 @@ public class TableStoreSchema {
 		namespaceDefinitions.put(namespaceName, namespaceDefinition);
 		tableDefinitions.put(namespaceName, new HashMap<>());
 	    }
-	} catch (IOException e) {
-	    throw new StorageException("Could not read definitions.", e);
 	}
     }
 
-    private void readTableDefinitions() {
+    private void readTableDefinitions() throws IOException {
 	TableEngine tableTable = storageEngine.getTable(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
 		DatabaseTable.TABLES.getName());
-	TableEngine columnsTable = storageEngine.getTable(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
-		DatabaseTable.COLUMNS.getName());
 	try (ResultScanner scanner = tableTable.getScanner(new Scan())) {
 	    for (Result result : scanner) {
 		byte[] rowKey = result.getRowKey();
@@ -234,33 +233,58 @@ public class TableStoreSchema {
 		String tableName = Bytes.toString(compoundKey.getPart(1));
 		TableDefinitionImpl tableDefinition = new TableDefinitionImpl(namespaceName, tableName);
 		tableDefinitions.get(namespaceName).put(tableName, tableDefinition);
-		rowKey[0] = 3;
-		try (ResultScanner columnScanner = columnsTable.getScanner(new Scan(rowKey, rowKey))) {
-		    Map<Byte, String> primaryKeys = new HashMap<>();
-		    for (Result columnResult : columnScanner) {
-			byte[] columnRowKey = columnResult.getRowKey();
-			CompoundKey columnCompoundKey = CompoundKey.of(columnRowKey);
-			String columnName = Bytes.toString(columnCompoundKey.getPart(2));
-			NavigableMap<byte[], byte[]> familyMap = columnResult
-				.getFamilyMap(DatabaseColumnFamily.DEFINITION.getNameBytes());
-			byte[] columnFamily = familyMap.get(DatabaseColumns.COLUMN_FAMILY.getNameBytes());
-			byte[] type = familyMap.get(DatabaseColumns.TYPE.getNameBytes());
-			byte[] primaryKeyPart = familyMap.get(DatabaseColumns.PRIMARY_KEY_PART.getNameBytes());
-			if (primaryKeyPart != null) {
-			    primaryKeys.put(Bytes.toByte(primaryKeyPart), columnName);
-			}
-			tableDefinition.addColumn(Bytes.toString(columnFamily), columnName,
-				ColumnTypes.valueOf(Bytes.toString(type)).getType());
+	    }
+	}
+    }
+
+    private void readColumnDefinitions() throws IOException {
+	Map<String, Map<String, Map<Integer, String>>> primaryKeyParts = new HashMap<>();
+	TableEngine columnsTable = storageEngine.getTable(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
+		DatabaseTable.COLUMNS.getName());
+	try (ResultScanner columnScanner = columnsTable.getScanner(new Scan())) {
+	    for (Result columnResult : columnScanner) {
+		byte[] columnRowKey = columnResult.getRowKey();
+		CompoundKey columnCompoundKey = CompoundKey.of(columnRowKey);
+		String namespaceName = Bytes.toString(columnCompoundKey.getPart(0));
+		String tableName = Bytes.toString(columnCompoundKey.getPart(1));
+		String columnName = Bytes.toString(columnCompoundKey.getPart(2));
+		NavigableMap<byte[], byte[]> familyMap = columnResult
+			.getFamilyMap(DatabaseColumnFamily.DEFINITION.getNameBytes());
+		String columnFamily = Bytes.toString(familyMap.get(DatabaseColumns.COLUMN_FAMILY.getNameBytes()));
+		ColumnTypes type = ColumnTypes
+			.valueOf(Bytes.toString(familyMap.get(DatabaseColumns.TYPE.getNameBytes())));
+		byte[] primaryKeyPart = familyMap.get(DatabaseColumns.PRIMARY_KEY_PART.getNameBytes());
+
+		TableDefinitionImpl tableDefinition = (TableDefinitionImpl) tableDefinitions.get(namespaceName)
+			.get(tableName);
+		tableDefinition.addColumn(columnFamily, columnName, type.getType());
+		if (primaryKeyPart != null) {
+		    Map<String, Map<Integer, String>> namespaceMap = primaryKeyParts.get(namespaceName);
+		    if (namespaceMap == null) {
+			namespaceMap = new HashMap<>();
+			primaryKeyParts.put(namespaceName, namespaceMap);
 		    }
-		    String[] primaryKeyParts = new String[primaryKeys.size()];
-		    for (Entry<Byte, String> e : primaryKeys.entrySet()) {
-			primaryKeyParts[e.getKey() & 0xFF] = e.getValue();
+		    Map<Integer, String> tableMap = namespaceMap.get(tableName);
+		    if (tableMap == null) {
+			tableMap = new HashMap<>();
+			namespaceMap.put(tableName, tableMap);
 		    }
-		    tableDefinition.setPrimaryKey(primaryKeyParts);
+		    tableMap.put(Bytes.toByte(primaryKeyPart) & 0xFF, columnName);
 		}
 	    }
-	} catch (IOException e) {
-	    throw new StorageException("Could not read definitions.", e);
+	    for (Entry<String, Map<String, Map<Integer, String>>> namespaceEntry : primaryKeyParts.entrySet()) {
+		String namespaceName = namespaceEntry.getKey();
+		for (Entry<String, Map<Integer, String>> tableEntry : namespaceEntry.getValue().entrySet()) {
+		    String tableName = tableEntry.getKey();
+		    String[] keyParts = new String[tableEntry.getValue().size()];
+		    for (Entry<Integer, String> columnEntry : tableEntry.getValue().entrySet()) {
+			keyParts[columnEntry.getKey() & 0xFF] = columnEntry.getValue();
+		    }
+		    TableDefinitionImpl tableDefinition = (TableDefinitionImpl) tableDefinitions.get(namespaceName)
+			    .get(tableName);
+		    tableDefinition.setPrimaryKey(keyParts);
+		}
+	    }
 	}
     }
 

@@ -6,6 +6,11 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class SingleColumnType implements ColumnType<Float> {
 
     @Override
+    public String getName() {
+	return "SINGLE";
+    }
+
+    @Override
     public Class<Float> getJavaClass() {
 	return Float.class;
     }

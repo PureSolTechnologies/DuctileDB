@@ -3,7 +3,12 @@ package com.puresoltechnologies.ductiledb.core.tables.columns;
 import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class IntColumnType implements ColumnType<Integer> {
+public class IntegerColumnType implements ColumnType<Integer> {
+
+    @Override
+    public String getName() {
+	return "INTEGER";
+    }
 
     @Override
     public Class<Integer> getJavaClass() {
