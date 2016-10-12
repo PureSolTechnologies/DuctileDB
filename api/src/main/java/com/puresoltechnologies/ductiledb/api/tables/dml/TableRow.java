@@ -5,16 +5,10 @@ package com.puresoltechnologies.ductiledb.api.tables.dml;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class TableRow {
+public interface TableRow {
 
-    public String getString(String string) {
-	// TODO Auto-generated method stub
-	return null;
-    }
+    public byte[] getBytes(String column);
 
-    public void add(String name, byte[] part) {
-	// TODO Auto-generated method stub
-
-    }
+    public String getString(String column);
 
 }

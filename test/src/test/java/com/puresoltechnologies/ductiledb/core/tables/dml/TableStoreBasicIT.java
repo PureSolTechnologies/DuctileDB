@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,9 +15,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
+import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
+import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
+import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
 import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
@@ -71,21 +75,65 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
     }
 
     @Test
-    public void testSystemColumnsTable() {
+    public void testSystemNamespacesTable() throws IOException {
 	TableStoreImpl tableStore = getTableStore();
 
-	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	Select select = dml.createSelect("system", "columns");
-	TableRowIterable results = select.execute();
-	int count = 0;
-	for (TableRow result : results) {
-	    count++;
-	}
-	assertTrue(count > 0);
+	String namespace = "system";
+	String table = "namespaces";
+
+	printTableContent(tableStore, namespace, table);
     }
 
     @Test
-    public void testValueCrud() throws ExecutionException {
+    public void testSystemTablesTable() throws IOException {
+	TableStoreImpl tableStore = getTableStore();
+
+	String namespace = "system";
+	String table = "tables";
+
+	printTableContent(tableStore, namespace, table);
+    }
+
+    @Test
+    public void testSystemColumnsTable() throws IOException {
+	TableStoreImpl tableStore = getTableStore();
+
+	String namespace = "system";
+	String table = "columns";
+
+	printTableContent(tableStore, namespace, table);
+    }
+
+    private void printTableContent(TableStoreImpl tableStore, String namespace, String table) throws IOException {
+	StringBuilder builder = new StringBuilder();
+	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
+	builder.append("---------------------------------------------------------\n");
+	builder.append("TABLE: " + tableDefinition.getNamespace() + "." + tableDefinition.getName() + "\n");
+	for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
+	    builder.append(columnDefinition.getName() + "\t");
+	}
+	builder.append("\n");
+	builder.append("---------------------------------------------------------\n");
+	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
+	Select select = dml.createSelect(namespace, table);
+	try (TableRowIterable tableRows = select.execute()) {
+	    int count = 0;
+	    for (TableRow tableRow : tableRows) {
+		for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
+		    ColumnType<?> type = columnDefinition.getType();
+		    byte[] value = tableRow.getBytes(columnDefinition.getName());
+		    builder.append(type.fromBytes(value) + "\t");
+		}
+		builder.append("\n");
+		count++;
+	    }
+	    System.out.println(builder.toString());
+	    assertTrue(count > 0);
+	}
+    }
+
+    @Test
+    public void testValueCrud() throws ExecutionException, IOException {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
@@ -98,5 +146,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	Insert insert = dml.createInsert("basicit", "valuecrud");
 	insert.addValue("testcf", "testcolumn", "teststring");
 	insert.execute();
+
+	printTableContent(tableStore, "basicit", "valuecrud");
     }
 }
