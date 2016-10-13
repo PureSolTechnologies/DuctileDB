@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -27,6 +28,8 @@ public class CreateNamespaceImpl implements CreateNamespace {
 	    DatabaseEngine storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    schemaManager.createNamespace(name);
+	    TableStoreSchema schema = tableStore.getSchema();
+	    schema.addNamespaceDefinition(new NamespaceDefinitionImpl(name));
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create namespace '" + name + "'.", e);
 	}

@@ -1,10 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Iterator;
 
-import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateIndex;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
@@ -14,12 +11,7 @@ import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DropTable;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 
 public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
@@ -44,41 +36,14 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
 
     @Override
     public NamespaceDefinition getNamespace(String namespace) {
-	// TODO Auto-generated method stub
-	return null;
+	TableStoreSchema schema = tableStore.getSchema();
+	return schema.getNamespaceDefinition(namespace);
     }
 
     @Override
-    public CloseableIterable<NamespaceDefinition> getNamespaces() {
-	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	Select select = dml.createSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME, DatabaseTable.NAMESPACES.getName());
-	return new CloseableIterable<NamespaceDefinition>() {
-
-	    private final TableRowIterable results = select.execute();
-	    private final Iterator<TableRow> iterator = results.iterator();
-
-	    @Override
-	    public void close() throws IOException {
-		results.close();
-	    }
-
-	    @Override
-	    public Iterator<NamespaceDefinition> iterator() {
-		return new Iterator<NamespaceDefinition>() {
-
-		    @Override
-		    public boolean hasNext() {
-			return iterator.hasNext();
-		    }
-
-		    @Override
-		    public NamespaceDefinition next() {
-			TableRow result = iterator.next();
-			return new NamespaceDefinitionImpl(result.getString("name"));
-		    }
-		};
-	    }
-	};
+    public Iterable<NamespaceDefinition> getNamespaces() {
+	TableStoreSchema schema = tableStore.getSchema();
+	return schema.getNamespaceDefinitions();
     }
 
     @Override

@@ -33,7 +33,7 @@ public class TableStoreImpl implements TableStore {
     private final TableStoreConfiguration configuration;
     private final DatabaseEngineImpl storageEngine;
     private final boolean autoCloseConnection;
-    private final TableStoreSchema tablesSchema;
+    private final TableStoreSchema schema;
     private final DataDefinitionLanguage dataDefinitionLanguage;
     private final DataManipulationLanguage dataManipulationLanguage;
     private final DataControlLanguage dataControlLanguage;
@@ -44,9 +44,9 @@ public class TableStoreImpl implements TableStore {
 	this.storageEngine = storageEngine;
 	this.autoCloseConnection = autoCloseConnection;
 	// Schema...
-	this.tablesSchema = new TableStoreSchema(storageEngine, configuration);
-	tablesSchema.checkAndCreateEnvironment();
-	tablesSchema.readDefinitions();
+	this.schema = new TableStoreSchema(storageEngine, configuration);
+	schema.checkAndCreateEnvironment();
+	schema.readDefinitions();
 	// Languages...
 	this.dataDefinitionLanguage = new DataDefinitionLanguageImpl(this, new File(STORAGE_DIRECTORY));
 	this.dataManipulationLanguage = new DataManipulationLanguageImpl(this);
@@ -66,6 +66,10 @@ public class TableStoreImpl implements TableStore {
 
     public DatabaseEngineImpl getStorageEngine() {
 	return storageEngine;
+    }
+
+    public TableStoreSchema getSchema() {
+	return schema;
     }
 
     @Override
@@ -88,7 +92,7 @@ public class TableStoreImpl implements TableStore {
     }
 
     public TableDefinition getTableDefinition(String namespace, String table) {
-	return tablesSchema.getTableDefinition(namespace, table);
+	return schema.getTableDefinition(namespace, table);
     }
 
 }

@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
@@ -11,7 +10,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
@@ -29,17 +27,6 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
     public final ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void testEmptyDatabase() {
-	TableStoreImpl tableStore = getTableStore();
-	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CloseableIterable<NamespaceDefinition> namespaces = ddl.getNamespaces();
-	assertNotNull(namespaces);
-	Iterator<NamespaceDefinition> iterator = namespaces.iterator();
-	assertNotNull(iterator);
-	assertFalse(iterator.hasNext());
-    }
-
-    @Test
     public void testNamespaceCRUD() throws ExecutionException {
 	TableStoreImpl tableStore = getTableStore();
 	DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
@@ -51,9 +38,14 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertTrue(namespaceIterator.hasNext());
 	assertEquals("system", namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
-	// TODO check also with TableStore API!!!
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	Iterable<NamespaceDefinition> namespacesIterable = ddl.getNamespaces();
+	Iterator<NamespaceDefinition> iterator = namespacesIterable.iterator();
+	assertTrue(iterator.hasNext());
+	assertEquals("system", iterator.next().getName());
+	assertFalse(iterator.hasNext());
+
 	CreateNamespace createNamespace = ddl.createCreateNamespace("namespacesit");
 	createNamespace.execute();
 
@@ -64,7 +56,14 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertTrue(namespaceIterator.hasNext());
 	assertEquals("namespacesit", namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
-	// TODO check also with TableStore API!!!
+
+	namespacesIterable = ddl.getNamespaces();
+	iterator = namespacesIterable.iterator();
+	assertTrue(iterator.hasNext());
+	assertEquals("system", iterator.next().getName());
+	assertTrue(iterator.hasNext());
+	assertEquals("namespacesit", iterator.next().getName());
+	assertFalse(iterator.hasNext());
 
 	DropNamespace dropNamespace = ddl.createDropNamespace("namespacesit");
 	dropNamespace.execute();
@@ -74,7 +73,12 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertTrue(namespaceIterator.hasNext());
 	assertEquals("system", namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
-	// TODO check also with TableStore API!!!
+
+	namespacesIterable = ddl.getNamespaces();
+	iterator = namespacesIterable.iterator();
+	assertTrue(iterator.hasNext());
+	assertEquals("system", iterator.next().getName());
+	assertFalse(iterator.hasNext());
     }
 
     @Test

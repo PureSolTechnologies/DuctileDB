@@ -367,4 +367,20 @@ public class TableStoreSchema {
 	Map<String, TableDefinition> definitions = tableDefinitions.get(namespace);
 	return definitions != null ? definitions.get(table) : null;
     }
+
+    public Iterable<NamespaceDefinition> getNamespaceDefinitions() {
+	return namespaceDefinitions.values();
+    }
+
+    public NamespaceDefinition getNamespaceDefinition(String namespace) {
+	return namespaceDefinitions.get(namespace);
+    }
+
+    public void addNamespaceDefinition(NamespaceDefinition namespaceDefinition) {
+	namespaceDefinitions.put(namespaceDefinition.getName(), namespaceDefinition);
+    }
+
+    public void removeNamespaceDefinition(String name) {
+	namespaceDefinitions.remove(name);
+    }
 }

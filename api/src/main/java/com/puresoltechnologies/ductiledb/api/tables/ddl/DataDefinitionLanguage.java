@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.api.tables.ddl;
 
-import com.puresoltechnologies.commons.misc.io.CloseableIterable;
-
 /**
  * This interface provides access to the data definition functionality of
  * relational DuctileDB.
@@ -29,7 +27,7 @@ public interface DataDefinitionLanguage {
      * 
      * @return
      */
-    public CloseableIterable<NamespaceDefinition> getNamespaces();
+    public Iterable<NamespaceDefinition> getNamespaces();
 
     /**
      * This method returns the information about the given namespace.
