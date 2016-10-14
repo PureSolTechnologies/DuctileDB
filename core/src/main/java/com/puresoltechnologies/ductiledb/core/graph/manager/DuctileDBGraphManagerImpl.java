@@ -6,9 +6,7 @@ import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManagerException;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;

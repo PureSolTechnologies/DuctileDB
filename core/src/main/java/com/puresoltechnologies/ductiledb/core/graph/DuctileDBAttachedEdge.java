@@ -2,8 +2,6 @@ package com.puresoltechnologies.ductiledb.core.graph;
 
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 
 public class DuctileDBAttachedEdge extends DuctileDBAttachedElement implements DuctileDBEdge {

@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBException;
-import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;

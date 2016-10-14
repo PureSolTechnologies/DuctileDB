@@ -5,9 +5,6 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-
 /**
  * This class is used to provide sample data for testing. The sample data
  * consists of Star Wars figures and their relations to each other.

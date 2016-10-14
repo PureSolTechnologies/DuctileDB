@@ -11,10 +11,10 @@ import org.junit.runners.Parameterized;
 
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.api.graph.ElementType;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
-import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
+import com.puresoltechnologies.ductiledb.core.graph.ElementType;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.core.graph.schema.PropertyDefinition;
+import com.puresoltechnologies.ductiledb.core.graph.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 

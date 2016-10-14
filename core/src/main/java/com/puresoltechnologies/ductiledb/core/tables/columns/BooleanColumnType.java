@@ -1,9 +1,8 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class BooleanColumnType implements ColumnType<Boolean> {
+public class BooleanColumnType implements ColumnTypeDefinition<Boolean> {
 
     @Override
     public String getName() {

@@ -3,9 +3,8 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;

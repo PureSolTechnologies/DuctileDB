@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-
 /**
  * This class contains helpers to create some standard graphs for testing.
  * 

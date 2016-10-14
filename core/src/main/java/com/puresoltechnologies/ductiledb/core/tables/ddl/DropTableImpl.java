@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DropTable;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -33,6 +32,7 @@ public class DropTableImpl implements DropTable {
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
 	    TableDescriptor tableDescriptor = schemaManager.getTable(namespaceDescriptor, name);
 	    schemaManager.dropTable(tableDescriptor);
+	    tableStore.getSchema().removeTableDefinition(namespace, tableDescriptor.getName());
 	} catch (SchemaException e) {
 	    throw new ExecutionException("Could not drop table '" + namespace + "." + name + "'.", e);
 	}

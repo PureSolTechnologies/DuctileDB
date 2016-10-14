@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBElement;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBElement;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 
 abstract class DuctileDBCacheElement extends AbstractDuctileDBElement {

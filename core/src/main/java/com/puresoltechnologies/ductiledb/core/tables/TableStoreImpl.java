@@ -6,13 +6,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.tables.TableStore;
-import com.puresoltechnologies.ductiledb.api.tables.dcl.DataControlLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
+import com.puresoltechnologies.ductiledb.core.tables.dcl.DataControlLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dcl.DataControlLanguageImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguageImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguageImpl;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;

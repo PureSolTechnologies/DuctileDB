@@ -1,7 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;

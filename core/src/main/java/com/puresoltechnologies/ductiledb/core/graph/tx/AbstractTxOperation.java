@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.List;
 
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManagerException;
+import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;

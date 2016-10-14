@@ -1,9 +1,8 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class ShortColumnType implements ColumnType<Short> {
+public class ShortColumnType implements ColumnTypeDefinition<Short> {
 
     @Override
     public String getName() {

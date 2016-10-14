@@ -5,9 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 
 public class TableDefinitionImpl implements TableDefinition {
 
@@ -62,8 +60,8 @@ public class TableDefinitionImpl implements TableDefinition {
 	return primaryKey;
     }
 
-    public void addColumn(String columnFamily, String columnName, ColumnType<?> type) {
-	columns.add(new ColumnDefinitionImpl<>(columnFamily, columnName, type));
+    public void addColumn(String columnFamily, String columnName, ColumnType type) {
+	columns.add(new ColumnDefinitionImpl<>(columnFamily, columnName, type.getType()));
     }
 
 }

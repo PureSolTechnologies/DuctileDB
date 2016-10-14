@@ -18,12 +18,12 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedGraph;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
 import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
@@ -40,7 +40,7 @@ import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_INTEGRATE)
 @Graph.OptIn(Graph.OptIn.SUITE_GROOVY_ENVIRONMENT_PERFORMANCE)
 @Graph.OptIn("com.puresoltechnologies.ductiledb.tinkerpop.test.StructureTestSuite")
-public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.api.graph.GraphStore> {
+public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies.ductiledb.core.graph.GraphStore> {
 
     public static final String DUCTILEDB_CONFIG_FILE_PROPERTY = "ductiledb.configuration.file";
     public static final String DUCTILEDB_NAMESPACE_PROPERTY = "ductiledb.configuration.namespace";

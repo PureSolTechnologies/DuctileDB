@@ -3,14 +3,14 @@ package com.puresoltechnologies.ductiledb.core.cli;
 import java.io.IOException;
 import java.io.PrintStream;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
+import com.puresoltechnologies.ductiledb.core.tables.dml.Select;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRow;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 
 public class DuctileDBConsoleOutput {
 
@@ -36,7 +36,7 @@ public class DuctileDBConsoleOutput {
 	try (TableRowIterable tableRows = select.execute()) {
 	    for (TableRow tableRow : tableRows) {
 		for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
-		    ColumnType<?> type = columnDefinition.getType();
+		    ColumnTypeDefinition<?> type = columnDefinition.getType();
 		    byte[] value = tableRow.getBytes(columnDefinition.getName());
 		    builder.append(type.fromBytes(value) + "\t");
 		}

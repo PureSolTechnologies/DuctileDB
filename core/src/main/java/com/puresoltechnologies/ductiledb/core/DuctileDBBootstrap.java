@@ -6,8 +6,6 @@ import java.net.URL;
 
 import org.yaml.snakeyaml.Yaml;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDB;
-
 /**
  * This is the central factory to connect to DuctileDB. The primary goal is to
  * have a simple point of access, because DuctileDB needs some information to

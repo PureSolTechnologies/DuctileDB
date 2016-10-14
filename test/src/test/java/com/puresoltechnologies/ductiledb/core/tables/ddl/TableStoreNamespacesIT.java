@@ -10,12 +10,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;

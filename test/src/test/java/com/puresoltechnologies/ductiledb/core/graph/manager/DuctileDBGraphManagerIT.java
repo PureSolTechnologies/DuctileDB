@@ -11,10 +11,9 @@ import java.util.Iterator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 
 public class DuctileDBGraphManagerIT extends AbstractDuctileDBGraphTest {
 

@@ -8,14 +8,10 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.graph.ElementType;
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManager;
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 /**

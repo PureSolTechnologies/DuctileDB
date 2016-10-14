@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
-
 /**
  * This class contains the information for the namespace.
  * 

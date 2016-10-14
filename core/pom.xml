@@ -14,11 +14,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>api</artifactId>
+			<artifactId>storage.engine</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>storage.engine</artifactId>
+			<groupId>com.puresoltechnologies.versioning</groupId>
+			<artifactId>versioning</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.findbugs</groupId>

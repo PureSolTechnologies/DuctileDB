@@ -3,11 +3,9 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -43,19 +41,20 @@ public class CreateTableImpl implements CreateTable {
 	    TableDescriptor tableDescriptor = schemaManager.createTable(namespaceDescriptor, name);
 
 	    Set<String> columnFamilies = new HashSet<>();
-	    for (ColumnDefinition columnDefinition : tableDefinition.getColumnDefinitions()) {
+	    for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
 		columnFamilies.add(columnDefinition.getColumnFamily());
 	    }
 	    for (String columnFamily : columnFamilies) {
 		schemaManager.createColumnFamily(tableDescriptor, Bytes.toBytes(columnFamily));
 	    }
+	    tableStore.getSchema().addTableDefinition(namespace, tableDefinition);
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create table '" + namespace + "." + name + "'.");
 	}
     }
 
     @Override
-    public void addColumn(String columnFamily, String name, ColumnType<?> type) {
+    public void addColumn(String columnFamily, String name, ColumnType type) {
 	tableDefinition.addColumn(columnFamily, name, type);
     }
 

@@ -16,9 +16,8 @@ import org.junit.Test;
 import com.google.common.io.ByteStreams;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
-import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
+import com.puresoltechnologies.ductiledb.core.DuctileDB;
 
 public class BlobStoreIT extends AbstractDuctileDBTest {
 

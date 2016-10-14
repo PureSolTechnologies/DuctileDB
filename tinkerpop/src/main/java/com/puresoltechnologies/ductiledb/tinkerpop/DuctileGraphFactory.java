@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.tinkerpop;
 
 import org.apache.commons.configuration.Configuration;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 
 /**
  * This class is used to create a new {@link DuctileGraph} object.

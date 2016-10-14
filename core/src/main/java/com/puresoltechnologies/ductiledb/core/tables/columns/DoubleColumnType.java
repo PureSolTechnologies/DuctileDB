@@ -1,9 +1,8 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class DoubleColumnType implements ColumnType<Byte> {
+public class DoubleColumnType implements ColumnTypeDefinition<Byte> {
 
     @Override
     public String getName() {

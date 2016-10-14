@@ -6,8 +6,8 @@ import java.util.Set;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
+import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManager;
 
 public class DuctileGraphVariables implements Graph.Variables {
 

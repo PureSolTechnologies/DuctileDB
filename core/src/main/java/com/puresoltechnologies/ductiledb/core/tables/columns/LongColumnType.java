@@ -1,9 +1,8 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class LongColumnType implements ColumnType<Long> {
+public class LongColumnType implements ColumnTypeDefinition<Long> {
 
     @Override
     public String getName() {

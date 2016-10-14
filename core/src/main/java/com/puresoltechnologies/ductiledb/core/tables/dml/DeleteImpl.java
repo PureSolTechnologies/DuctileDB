@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.api.tables.dml.Delete;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class DeleteImpl implements Delete {

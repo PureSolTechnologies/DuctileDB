@@ -7,7 +7,7 @@ import org.apache.tinkerpop.gremlin.structure.Property;
 import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBElement;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBElement;
 
 public class DuctileProperty<V> implements Property<V> {
 

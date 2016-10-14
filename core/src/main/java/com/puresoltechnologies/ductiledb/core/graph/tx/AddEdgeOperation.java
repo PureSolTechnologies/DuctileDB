@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;

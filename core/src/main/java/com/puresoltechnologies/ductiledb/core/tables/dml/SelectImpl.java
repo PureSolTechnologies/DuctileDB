@@ -3,11 +3,8 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;

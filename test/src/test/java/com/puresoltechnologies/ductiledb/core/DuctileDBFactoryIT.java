@@ -4,9 +4,8 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDB;
-import com.puresoltechnologies.ductiledb.api.blob.BlobStore;
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
+import com.puresoltechnologies.ductiledb.core.blob.BlobStore;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 
 public class DuctileDBFactoryIT extends AbstractDuctileDBTest {
 

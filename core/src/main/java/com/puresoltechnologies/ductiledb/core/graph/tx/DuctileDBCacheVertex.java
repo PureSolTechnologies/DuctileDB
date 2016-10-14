@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBException;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 
 class DuctileDBCacheVertex extends DuctileDBCacheElement implements DuctileDBVertex {

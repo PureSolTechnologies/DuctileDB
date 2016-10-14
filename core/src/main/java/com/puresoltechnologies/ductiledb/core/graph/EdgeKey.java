@@ -3,7 +3,6 @@ package com.puresoltechnologies.ductiledb.core.graph;
 import java.io.Serializable;
 import java.util.Arrays;
 
-import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.StringEncoder;
 

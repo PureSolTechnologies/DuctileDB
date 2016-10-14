@@ -3,9 +3,6 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
-
 public class TableRowIteratorImpl implements TableRowIterable {
 
     @Override

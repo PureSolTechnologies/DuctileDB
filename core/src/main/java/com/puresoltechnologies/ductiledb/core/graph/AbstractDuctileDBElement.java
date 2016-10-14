@@ -1,8 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBElement;
-import com.puresoltechnologies.ductiledb.api.graph.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
+import com.puresoltechnologies.ductiledb.core.graph.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 
 public abstract class AbstractDuctileDBElement implements DuctileDBElement {

@@ -389,11 +389,6 @@
 			<!-- SELF -->
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -756,7 +751,6 @@
 
 	<modules>
 		<module>storage</module>
-		<module>api</module>
 		<module>core</module>
 		<module>tinkerpop</module>
 		<module>test</module>

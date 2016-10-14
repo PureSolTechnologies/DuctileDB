@@ -4,9 +4,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 
-import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.CompoundKey;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;

@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateIndex;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class CreateIndexImpl implements CreateIndex {

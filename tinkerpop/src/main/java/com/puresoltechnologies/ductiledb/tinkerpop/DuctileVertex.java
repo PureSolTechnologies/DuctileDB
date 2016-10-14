@@ -18,10 +18,10 @@ import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.apache.tinkerpop.gremlin.structure.util.wrapped.WrappedVertex;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.graph.EdgeDirection;
-import com.puresoltechnologies.ductiledb.api.graph.tx.TransactionType;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
+import com.puresoltechnologies.ductiledb.core.graph.tx.TransactionType;
 
 public class DuctileVertex extends DuctileElement implements Vertex, WrappedVertex<DuctileDBVertex> {
 

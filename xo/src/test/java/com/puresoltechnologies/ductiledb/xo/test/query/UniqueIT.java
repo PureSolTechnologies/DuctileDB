@@ -16,7 +16,7 @@ import org.junit.runners.Parameterized;
 import com.buschmais.xo.api.XOException;
 import com.buschmais.xo.api.XOManager;
 import com.buschmais.xo.api.bootstrap.XOUnit;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBUniqueConstraintViolationException;
+import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBUniqueConstraintViolationException;
 import com.puresoltechnologies.ductiledb.xo.test.AbstractXODuctileDBTest;
 import com.puresoltechnologies.ductiledb.xo.test.DuctileDBTestUtils;
 

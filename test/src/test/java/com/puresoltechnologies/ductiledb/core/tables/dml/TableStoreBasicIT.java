@@ -14,21 +14,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.puresoltechnologies.ductiledb.api.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.ColumnDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRow;
-import com.puresoltechnologies.ductiledb.api.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.core.tables.columns.VarCharColumnType;
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateNamespace;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -120,7 +115,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	    int count = 0;
 	    for (TableRow tableRow : tableRows) {
 		for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
-		    ColumnType<?> type = columnDefinition.getType();
+		    ColumnTypeDefinition<?> type = columnDefinition.getType();
 		    byte[] value = tableRow.getBytes(columnDefinition.getName());
 		    builder.append(type.fromBytes(value) + "\t");
 		}
@@ -138,7 +133,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateTable createTable = ddl.createCreateTable("basicit", "valuecrud");
-	createTable.addColumn("testcf", "testcolumn", new VarCharColumnType());
+	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
 	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();

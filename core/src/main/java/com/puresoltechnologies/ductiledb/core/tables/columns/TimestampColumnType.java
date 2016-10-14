@@ -2,10 +2,9 @@ package com.puresoltechnologies.ductiledb.core.tables.columns;
 
 import java.time.Instant;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class TimestampColumnType implements ColumnType<Instant> {
+public class TimestampColumnType implements ColumnTypeDefinition<Instant> {
 
     @Override
     public String getName() {

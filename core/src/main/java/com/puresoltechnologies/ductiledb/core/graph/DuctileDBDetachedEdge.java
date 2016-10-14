@@ -2,10 +2,7 @@ package com.puresoltechnologies.ductiledb.core.graph;
 
 import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.api.DuctileDBException;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 

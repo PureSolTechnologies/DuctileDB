@@ -13,17 +13,10 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.api.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.graph.ElementType;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidPropertyTypeException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBPropertyAlreadyDefinedException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBUniqueConstraintViolationException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
-import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.ElementType;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 
 public class DuctileDBSchemaManagerIT extends AbstractDuctileDBGraphTest {
 

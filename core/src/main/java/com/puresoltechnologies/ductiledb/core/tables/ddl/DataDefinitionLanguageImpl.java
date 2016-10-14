@@ -2,15 +2,6 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import java.io.File;
 
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateIndex;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateNamespace;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.CreateTable;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DropIndex;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DropNamespace;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.DropTable;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.NamespaceDefinition;
-import com.puresoltechnologies.ductiledb.api.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 

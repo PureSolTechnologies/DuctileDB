@@ -2,10 +2,9 @@ package com.puresoltechnologies.ductiledb.core.tables.columns;
 
 import java.time.LocalDate;
 
-import com.puresoltechnologies.ductiledb.api.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
-public class DateColumnType implements ColumnType<LocalDate> {
+public class DateColumnType implements ColumnTypeDefinition<LocalDate> {
 
     @Override
     public String getName() {

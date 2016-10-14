@@ -8,20 +8,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBElement;
-import com.puresoltechnologies.ductiledb.api.graph.DuctileDBVertex;
-import com.puresoltechnologies.ductiledb.api.graph.ElementType;
-import com.puresoltechnologies.ductiledb.api.graph.manager.DuctileDBGraphManager;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidPropertyKeyException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidPropertyTypeException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBInvalidTypeNameException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.api.graph.schema.DuctileDBUniqueConstraintViolationException;
-import com.puresoltechnologies.ductiledb.api.graph.schema.PropertyDefinition;
-import com.puresoltechnologies.ductiledb.api.graph.schema.UniqueConstraint;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBElement;
+import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
+import com.puresoltechnologies.ductiledb.core.graph.ElementType;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
+import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 
 /**

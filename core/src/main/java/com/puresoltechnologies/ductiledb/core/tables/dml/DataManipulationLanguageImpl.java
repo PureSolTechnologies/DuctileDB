@@ -1,11 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.api.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Delete;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Insert;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Select;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Truncate;
-import com.puresoltechnologies.ductiledb.api.tables.dml.Update;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
 public class DataManipulationLanguageImpl implements DataManipulationLanguage {
