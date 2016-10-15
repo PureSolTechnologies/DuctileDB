@@ -22,6 +22,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -41,6 +42,7 @@ public class TableStoreSchema {
 
     private final Map<String, NamespaceDefinition> namespaceDefinitions = new HashMap<>();
     private final Map<String, Map<String, TableDefinition>> tableDefinitions = new HashMap<>();
+    private final Map<String, Map<String, SecondaryIndexDescriptor>> indexDefinitions = new HashMap<>();
 
     private final DatabaseEngineImpl storageEngine;
     private final TableStoreConfiguration configuration;
@@ -392,10 +394,20 @@ public class TableStoreSchema {
     public void addNamespaceDefinition(NamespaceDefinition namespaceDefinition) {
 	namespaceDefinitions.put(namespaceDefinition.getName(), namespaceDefinition);
 	tableDefinitions.put(namespaceDefinition.getName(), new HashMap<>());
+	indexDefinitions.put(namespaceDefinition.getName(), new HashMap<>());
     }
 
     public void removeNamespaceDefinition(String name) {
 	namespaceDefinitions.remove(name);
 	tableDefinitions.remove(name);
+	indexDefinitions.remove(name);
+    }
+
+    public void addIndexDefinition(String namespace, SecondaryIndexDescriptor indexDescriptor) {
+	indexDefinitions.get(namespace).put(indexDescriptor.getName(), indexDescriptor);
+    }
+
+    public void removeIndexDefinition(String namespace, String index) {
+	indexDefinitions.get(namespace).remove(index);
     }
 }

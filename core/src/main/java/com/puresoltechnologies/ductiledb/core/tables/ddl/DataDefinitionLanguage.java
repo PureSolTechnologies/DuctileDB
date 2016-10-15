@@ -65,7 +65,7 @@ public interface DataDefinitionLanguage {
      * 
      * @return
      */
-    public CreateIndex createCreateIndex(String namespace, String table, String index);
+    public CreateIndex createCreateIndex(String namespace, String table, String columnFamily, String index);
 
     /**
      * This method creates a new {@link DropIndex} statement object.

@@ -54,8 +54,8 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     }
 
     @Override
-    public CreateIndex createCreateIndex(String namespace, String table, String index) {
-	return new CreateIndexImpl(tableStore, namespace, table, index);
+    public CreateIndex createCreateIndex(String namespace, String table, String columnFamily, String index) {
+	return new CreateIndexImpl(tableStore, namespace, table, columnFamily, index);
     }
 
     @Override
