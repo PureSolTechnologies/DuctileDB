@@ -17,9 +17,10 @@ import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.core.tables.dml.Select;
+import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedSelect;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
@@ -219,10 +220,10 @@ public class DuctileDBHealthCheck {
 	}
     }
 
-    public static void runCheckForEmpty(TableStoreImpl rdbms) {
+    public static void runCheckForEmpty(TableStoreImpl rdbms) throws ExecutionException {
 	DataManipulationLanguage dml = rdbms.getDataManipulationLanguage();
-	Select select = dml.createSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
+	PreparedSelect select = dml.preparedSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
 		com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable.TABLES.getName());
-	select.execute();
+	select.bind().execute();
     }
 }

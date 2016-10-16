@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
@@ -19,7 +20,7 @@ public class DropNamespaceImpl implements DropNamespace {
     }
 
     @Override
-    public void execute() throws ExecutionException {
+    public TableRowIterable execute() throws ExecutionException {
 	if ("system".equals(name)) {
 	    throw new ExecutionException("Dropping of 'system' namespace is not allowed.");
 	}
@@ -30,6 +31,7 @@ public class DropNamespaceImpl implements DropNamespace {
 	    schemaManager.dropNamespace(namespaceDescriptor);
 	    TableStoreSchema schema = tableStore.getSchema();
 	    schema.removeNamespaceDefinition(name);
+	    return null;
 	} catch (SchemaException e) {
 	    throw new ExecutionException("Could not drop namespace '" + name + "'.", e);
 	}

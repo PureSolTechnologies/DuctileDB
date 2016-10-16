@@ -6,6 +6,7 @@ import java.util.Set;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -30,7 +31,7 @@ public class CreateTableImpl implements CreateTable {
     }
 
     @Override
-    public void execute() throws ExecutionException {
+    public TableRowIterable execute() throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}
@@ -48,6 +49,7 @@ public class CreateTableImpl implements CreateTable {
 		schemaManager.createColumnFamily(tableDescriptor, Bytes.toBytes(columnFamily));
 	    }
 	    tableStore.getSchema().addTableDefinition(namespace, tableDefinition);
+	    return null;
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create table '" + namespace + "." + name + "'.");
 	}

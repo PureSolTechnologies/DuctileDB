@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.core.tables.DuctileDBStatement;
+import com.puresoltechnologies.ductiledb.core.tables.Statement;
 
-public interface DropNamespace extends DuctileDBStatement {
+public interface DropNamespace extends Statement {
 
 }

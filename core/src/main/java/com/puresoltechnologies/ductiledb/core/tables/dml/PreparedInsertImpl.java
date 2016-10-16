@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.core.tables.PreparedStatementImpl;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
@@ -10,14 +11,14 @@ import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 
-public class InsertImpl implements Insert {
+public class PreparedInsertImpl extends PreparedStatementImpl implements PreparedInsert {
 
     private final TableStoreImpl tableStore;
     private final String namespace;
     private final String table;
     private final Map<String, Map<String, Object>> values = new HashMap<>();
 
-    public InsertImpl(TableStoreImpl tableStore, String namespace, String table) {
+    public PreparedInsertImpl(TableStoreImpl tableStore, String namespace, String table) {
 	this.tableStore = tableStore;
 	this.namespace = namespace;
 	this.table = table;
@@ -34,13 +35,14 @@ public class InsertImpl implements Insert {
     }
 
     @Override
-    public void execute() {
+    public TableRowIterable execute() {
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
 	DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	NamespaceEngineImpl namespaceEngine = storageEngine.getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
 	Put put = new Put(null);
 	tableEngine.put(put);
+	return null;
     }
 
 }

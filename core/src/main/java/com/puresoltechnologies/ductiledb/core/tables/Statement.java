@@ -3,12 +3,12 @@ package com.puresoltechnologies.ductiledb.core.tables;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 
 /**
- * This is the base interface for all DuctileDB queries.
+ * This is the base class for DuctileDB statements.
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface DuctileDBQuery {
+public interface Statement {
 
-    public TableRowIterable execute();
+    public TableRowIterable execute() throws ExecutionException;
 
 }

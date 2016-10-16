@@ -19,6 +19,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexType;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexedColumnFamilyScannerImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.lss.LogStructuredStoreImpl;
@@ -190,7 +191,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 
     @Override
     public ColumnFamilyScanner find(byte[] columnKey, byte[] value) {
-	SecondaryIndexEngineImpl indexEngine = findIndexEngine(columnKey);
+	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
 	}
@@ -215,7 +216,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 
     @Override
     public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) {
-	SecondaryIndexEngineImpl indexEngine = findIndexEngine(columnKey);
+	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
 	}
@@ -223,7 +224,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		convertToToValue(toValue));
     }
 
-    private SecondaryIndexEngineImpl findIndexEngine(byte[] columnKey) {
+    public SecondaryIndexEngine findIndexEngine(byte[] columnKey) {
 	if (indizes.isEmpty()) {
 	    return null;
 	}

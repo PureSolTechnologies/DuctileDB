@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.io.IOException;
 import java.util.Iterator;
 
+import com.puresoltechnologies.ductiledb.core.tables.PreparedStatementImpl;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
@@ -11,7 +12,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 
-public class SelectImpl implements Select {
+public class PreparedSelectImpl extends PreparedStatementImpl implements PreparedSelect {
 
     private final TableStoreImpl tableStore;
     private final String namespace;
@@ -19,7 +20,7 @@ public class SelectImpl implements Select {
     private final NamespaceEngineImpl namespaceEngine;
     private final TableEngineImpl tableEngine;
 
-    public SelectImpl(TableStoreImpl tableStore, String namespace, String table) {
+    public PreparedSelectImpl(TableStoreImpl tableStore, String namespace, String table) {
 	this.tableStore = tableStore;
 	this.namespace = namespace;
 	this.table = table;

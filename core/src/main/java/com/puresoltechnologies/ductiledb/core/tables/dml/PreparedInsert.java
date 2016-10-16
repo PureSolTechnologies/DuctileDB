@@ -1,8 +1,8 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.core.tables.DuctileDBStatement;
+import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
 
-public interface Insert extends DuctileDBStatement {
+public interface PreparedInsert extends PreparedStatement {
 
     public void addValue(String columnFamily, String column, Object value);
 

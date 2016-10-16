@@ -8,14 +8,14 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
  */
 public interface DataManipulationLanguage {
 
-    public Insert createInsert(String namespace, String table);
+    public PreparedInsert preparedInsert(String namespace, String table);
 
-    public Update createUpdate(String namespace, String table);
+    public PreparedUpdate preparedUpdate(String namespace, String table);
 
-    public Delete createDelete(String namespace, String table);
+    public PreparedDelete preparedDelete(String namespace, String table);
 
-    public Select createSelect(String namespace, String table);
+    public PreparedSelect preparedSelect(String namespace, String table);
 
-    public Truncate createTruncate(String namespace, String table);
+    public PreparedTruncate preparedTruncate(String namespace, String table);
 
 }

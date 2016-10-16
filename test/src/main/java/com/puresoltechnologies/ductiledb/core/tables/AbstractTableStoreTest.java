@@ -10,7 +10,6 @@ import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
-import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -21,7 +20,7 @@ public class AbstractTableStoreTest extends AbstractDuctileDBTest {
     private static TableStoreImpl rdbms = null;
 
     @BeforeClass
-    public static void connect() throws IOException, SchemaException {
+    public static void connect() throws IOException, SchemaException, ExecutionException {
 	ductileDB = getDuctileDB();
 	rdbms = (TableStoreImpl) ductileDB.getTableStore();
 	// Normally meaningless, but we do nevertheless, if tests change...
@@ -45,7 +44,7 @@ public class AbstractTableStoreTest extends AbstractDuctileDBTest {
     }
 
     @Before
-    public final void cleanup() throws IOException, StorageException {
+    public final void cleanup() throws IOException, StorageException, ExecutionException {
 	DuctileDBTestHelper.removeRDBMS(rdbms);
 	rdbms.runCompaction();
 	DuctileDBHealthCheck.runCheckForEmpty(rdbms);

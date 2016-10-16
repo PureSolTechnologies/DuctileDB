@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary;
 import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
@@ -11,14 +11,14 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
-    private final ColumnFamilyEngineImpl columnFamilyEngine;
-    private final SecondaryIndexEngineImpl indexEngine;
+    private final ColumnFamilyEngine columnFamilyEngine;
+    private final SecondaryIndexEngine indexEngine;
     private final byte[] fromValue;
     private final byte[] toValue;
     private final ColumnFamilyScanner scanner;
 
-    public IndexedColumnFamilyScannerImpl(ColumnFamilyEngineImpl columnFamilyEngine,
-	    SecondaryIndexEngineImpl indexEngine, byte[] fromValue, byte[] toValue) {
+    public IndexedColumnFamilyScannerImpl(ColumnFamilyEngine columnFamilyEngine, SecondaryIndexEngine indexEngine,
+	    byte[] fromValue, byte[] toValue) {
 	this.columnFamilyEngine = columnFamilyEngine;
 	this.indexEngine = indexEngine;
 	this.fromValue = fromValue;

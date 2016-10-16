@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexType;
@@ -43,7 +44,7 @@ public class CreateIndexImpl implements CreateIndex {
     }
 
     @Override
-    public void execute() throws ExecutionException {
+    public TableRowIterable execute() throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}
@@ -61,10 +62,10 @@ public class CreateIndexImpl implements CreateIndex {
 	    schemaManager.createIndex(columnFamilyDescriptor, indexDescriptor);
 
 	    tableStore.getSchema().addIndexDefinition(namespace, indexDescriptor);
+	    return null;
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create index '" + name + " in namespace " + namespace + "'.");
 	}
-
     }
 
 }

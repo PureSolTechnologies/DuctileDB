@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
+import com.puresoltechnologies.ductiledb.core.tables.BoundStatement;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
@@ -70,7 +71,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
     }
 
     @Test
-    public void testSystemNamespacesTable() throws IOException {
+    public void testSystemNamespacesTable() throws IOException, ExecutionException {
 	TableStoreImpl tableStore = getTableStore();
 
 	String namespace = "system";
@@ -80,7 +81,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
     }
 
     @Test
-    public void testSystemTablesTable() throws IOException {
+    public void testSystemTablesTable() throws IOException, ExecutionException {
 	TableStoreImpl tableStore = getTableStore();
 
 	String namespace = "system";
@@ -90,7 +91,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
     }
 
     @Test
-    public void testSystemColumnsTable() throws IOException {
+    public void testSystemColumnsTable() throws IOException, ExecutionException {
 	TableStoreImpl tableStore = getTableStore();
 
 	String namespace = "system";
@@ -99,7 +100,8 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	printTableContent(tableStore, namespace, table);
     }
 
-    private void printTableContent(TableStoreImpl tableStore, String namespace, String table) throws IOException {
+    private void printTableContent(TableStoreImpl tableStore, String namespace, String table)
+	    throws IOException, ExecutionException {
 	StringBuilder builder = new StringBuilder();
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
 	builder.append("---------------------------------------------------------\n");
@@ -110,8 +112,8 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	builder.append("\n");
 	builder.append("---------------------------------------------------------\n");
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	Select select = dml.createSelect(namespace, table);
-	try (TableRowIterable tableRows = select.execute()) {
+	PreparedSelect select = dml.preparedSelect(namespace, table);
+	try (TableRowIterable tableRows = select.bind().execute()) {
 	    int count = 0;
 	    for (TableRow tableRow : tableRows) {
 		for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
@@ -138,9 +140,10 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
-	Insert insert = dml.createInsert("basicit", "valuecrud");
+	PreparedInsert insert = dml.preparedInsert("basicit", "valuecrud");
 	insert.addValue("testcf", "testcolumn", "teststring");
-	insert.execute();
+	BoundStatement boundStatement = insert.bind();
+	boundStatement.execute();
 
 	printTableContent(tableStore, "basicit", "valuecrud");
     }
