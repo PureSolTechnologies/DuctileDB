@@ -15,8 +15,8 @@ public class IntegerColumnType implements ColumnTypeDefinition<Integer> {
     }
 
     @Override
-    public byte[] toBytes(Integer value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((Integer) value);
     }
 
     @Override

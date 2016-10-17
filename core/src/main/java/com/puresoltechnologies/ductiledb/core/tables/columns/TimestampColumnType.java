@@ -17,8 +17,8 @@ public class TimestampColumnType implements ColumnTypeDefinition<Instant> {
     }
 
     @Override
-    public byte[] toBytes(Instant value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((Instant) value);
     }
 
     @Override

@@ -1,16 +1,17 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.core.tables.PreparedStatementImpl;
+import java.util.Map;
+
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 
-public class PreparedUpdateImpl extends PreparedStatementImpl implements PreparedUpdate {
+public class PreparedUpdateImpl extends AbstractPreparedWhereSelectionStatement implements PreparedUpdate {
 
     public PreparedUpdateImpl(TableStoreImpl tableStore, String namespace, String table) {
-	// TODO Auto-generated constructor stub
+	super(tableStore.getTableDefinition(namespace, table));
     }
 
     @Override
-    public TableRowIterable execute() {
+    public TableRowIterable execute(Map<String, Object> valueSpecifications) {
 	// TODO Auto-generated method stub
 	return null;
     }

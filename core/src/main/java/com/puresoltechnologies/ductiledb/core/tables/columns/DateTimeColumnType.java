@@ -17,8 +17,8 @@ public class DateTimeColumnType implements ColumnTypeDefinition<LocalDateTime> {
     }
 
     @Override
-    public byte[] toBytes(LocalDateTime value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((LocalDateTime) value);
     }
 
     @Override

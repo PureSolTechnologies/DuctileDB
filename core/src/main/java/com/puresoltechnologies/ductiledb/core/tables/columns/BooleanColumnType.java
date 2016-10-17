@@ -15,8 +15,8 @@ public class BooleanColumnType implements ColumnTypeDefinition<Boolean> {
     }
 
     @Override
-    public byte[] toBytes(Boolean value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((Boolean) value);
     }
 
     @Override

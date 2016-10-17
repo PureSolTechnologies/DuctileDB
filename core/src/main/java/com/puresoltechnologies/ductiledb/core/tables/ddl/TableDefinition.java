@@ -20,4 +20,7 @@ public interface TableDefinition {
     public List<ColumnDefinition<?>> getPrimaryKey();
 
     public ColumnDefinition<?> getColumnDefinition(String columnName);
+
+    public boolean isPrimaryKey(ColumnDefinition<?> columnDefinition);
+
 }

@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables;
+package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.time.Instant;
 import java.time.LocalDate;

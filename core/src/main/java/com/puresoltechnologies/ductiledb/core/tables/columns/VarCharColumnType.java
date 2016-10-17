@@ -15,8 +15,8 @@ public class VarCharColumnType implements ColumnTypeDefinition<String> {
     }
 
     @Override
-    public byte[] toBytes(String value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((String) value);
     }
 
     @Override

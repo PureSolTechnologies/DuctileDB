@@ -12,7 +12,7 @@ public interface ColumnTypeDefinition<Type> {
 
     public Class<Type> getJavaClass();
 
-    public byte[] toBytes(Type value);
+    public byte[] toBytes(Object value);
 
     public Type fromBytes(byte[] value);
 

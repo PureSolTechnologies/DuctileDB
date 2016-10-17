@@ -15,8 +15,8 @@ public class ShortColumnType implements ColumnTypeDefinition<Short> {
     }
 
     @Override
-    public byte[] toBytes(Short value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((Short) value);
     }
 
     @Override

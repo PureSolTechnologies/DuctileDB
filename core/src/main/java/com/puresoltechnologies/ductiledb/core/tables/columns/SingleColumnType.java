@@ -15,8 +15,8 @@ public class SingleColumnType implements ColumnTypeDefinition<Float> {
     }
 
     @Override
-    public byte[] toBytes(Float value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((Float) value);
     }
 
     @Override

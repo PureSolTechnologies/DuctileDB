@@ -1,24 +1,33 @@
-package com.puresoltechnologies.ductiledb.core.tables;
+package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
+import com.puresoltechnologies.ductiledb.core.tables.StatementImpl;
 
 public class BoundStatementImpl extends StatementImpl implements BoundStatement {
 
-    private final PreparedStatementImpl preparedStatement;
+    private final Map<String, Object> selections = new HashMap<>();
+    private final AbstractPreparedStatementImpl preparedStatement;
 
-    public BoundStatementImpl(PreparedStatementImpl preparedStatement) {
+    public BoundStatementImpl(AbstractPreparedStatementImpl preparedStatement) {
 	super();
 	this.preparedStatement = preparedStatement;
+	if (AbstractPreparedWhereSelectionStatement.class.isAssignableFrom(preparedStatement.getClass())) {
+	    this.selections.putAll(((AbstractPreparedWhereSelectionStatement) preparedStatement).getSelections());
+	} else {
+	    this.selections.putAll(new HashMap<>());
+	}
     }
 
     @Override
     public TableRowIterable execute() throws ExecutionException {
-	return preparedStatement.execute();
+	return preparedStatement.execute(selections);
     }
 
     @Override

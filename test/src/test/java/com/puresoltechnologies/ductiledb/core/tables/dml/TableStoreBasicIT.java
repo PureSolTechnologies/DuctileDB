@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
-import com.puresoltechnologies.ductiledb.core.tables.BoundStatement;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
@@ -27,6 +26,7 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
@@ -136,14 +136,15 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateTable createTable = ddl.createCreateTable("basicit", "valuecrud");
 	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
+	createTable.setPrimaryKey("testcolumn");
 	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.preparedInsert("basicit", "valuecrud");
 	insert.addValue("testcf", "testcolumn", "teststring");
-	BoundStatement boundStatement = insert.bind();
-	boundStatement.execute();
+	insert.addValue("testcf", "testcolumn2", Bytes.toBytes("teststring"));
+	insert.bind().execute();
 
 	printTableContent(tableStore, "basicit", "valuecrud");
     }

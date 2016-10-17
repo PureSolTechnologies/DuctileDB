@@ -15,8 +15,8 @@ public class LongColumnType implements ColumnTypeDefinition<Long> {
     }
 
     @Override
-    public byte[] toBytes(Long value) {
-	return Bytes.toBytes(value);
+    public byte[] toBytes(Object value) {
+	return Bytes.toBytes((Long) value);
     }
 
     @Override

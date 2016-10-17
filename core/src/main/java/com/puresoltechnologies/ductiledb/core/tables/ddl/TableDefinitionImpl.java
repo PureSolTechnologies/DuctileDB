@@ -64,4 +64,14 @@ public class TableDefinitionImpl implements TableDefinition {
 	columns.add(new ColumnDefinitionImpl<>(columnFamily, columnName, type.getType()));
     }
 
+    @Override
+    public boolean isPrimaryKey(ColumnDefinition<?> columnDefinition) {
+	for (ColumnDefinition<?> primaryKeyPart : primaryKey) {
+	    if (primaryKeyPart.getName().equals(columnDefinition.getName())) {
+		return true;
+	    }
+	}
+	return false;
+    }
+
 }
