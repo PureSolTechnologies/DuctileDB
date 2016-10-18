@@ -21,7 +21,8 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
     private final TableStoreImpl tableStore;
     private final String namespace;
     private final String table;
-    private final Map<String, Map<String, Object>> values = new HashMap<>();
+    private final Map<String, Map<String, InsertValue>> values = new HashMap<>();
+    private final Map<String, Map<String, InsertPlaceholder>> placeholders = new HashMap<>();
 
     public PreparedInsertImpl(TableStoreImpl tableStore, String namespace, String table) {
 	super(tableStore.getTableDefinition(namespace, table));
@@ -32,12 +33,22 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 
     @Override
     public void addValue(String columnFamily, String column, Object value) {
-	Map<String, Object> cf = values.get(columnFamily);
+	Map<String, InsertValue> cf = values.get(columnFamily);
 	if (cf == null) {
 	    cf = new HashMap<>();
 	    values.put(columnFamily, cf);
 	}
-	cf.put(column, value);
+	cf.put(column, new InsertValue(columnFamily, column, value));
+    }
+
+    @Override
+    public void addPlaceholder(String columnFamily, String column, int index) {
+	Map<String, InsertPlaceholder> cf = placeholders.get(columnFamily);
+	if (cf == null) {
+	    cf = new HashMap<>();
+	    placeholders.put(columnFamily, cf);
+	}
+	cf.put(column, new InsertPlaceholder(columnFamily, column, index));
     }
 
     @Override
@@ -55,8 +66,8 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 	    keyParts[i] = primaryKeyPart.getType().toBytes(value);
 	}
 	Put put = new Put(CompoundKey.create(keyParts).getKey());
-	for (Entry<String, Map<String, Object>> columnFamilyEntry : values.entrySet()) {
-	    for (Entry<String, Object> columnEntry : columnFamilyEntry.getValue().entrySet()) {
+	for (Entry<String, Map<String, InsertValue>> columnFamilyEntry : values.entrySet()) {
+	    for (Entry<String, InsertValue> columnEntry : columnFamilyEntry.getValue().entrySet()) {
 		ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(columnEntry.getKey());
 		if (columnDefinition != null) {
 		    if (tableDefinition.isPrimaryKey(columnDefinition)) {
@@ -68,7 +79,7 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 			    value);
 		} else {
 		    put.addColumn(Bytes.toBytes(columnFamilyEntry.getKey()), Bytes.toBytes(columnEntry.getKey()),
-			    (byte[]) columnEntry.getValue());
+			    (byte[]) columnEntry.getValue().getValue());
 		}
 	    }
 	}

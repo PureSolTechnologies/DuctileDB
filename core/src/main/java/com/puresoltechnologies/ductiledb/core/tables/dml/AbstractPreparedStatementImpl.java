@@ -24,4 +24,13 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 	return new BoundStatementImpl(this);
     }
 
+    @Override
+    public BoundStatement bind(Object... values) {
+	BoundStatementImpl boundStatement = new BoundStatementImpl(this);
+	for (int i = 0; i < values.length; ++i) {
+	    boundStatement.set(i + 1, values[i]);
+	}
+	return boundStatement;
+    }
+
 }

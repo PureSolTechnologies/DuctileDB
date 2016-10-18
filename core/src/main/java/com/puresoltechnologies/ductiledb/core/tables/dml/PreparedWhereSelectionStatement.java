@@ -16,7 +16,7 @@ public interface PreparedWhereSelectionStatement extends PreparedStatement {
      * @param index
      *            is the index to be used for a later bind index.
      */
-    public void addWherePlaceholder(String column, int index);
+    public void addWherePlaceholder(String columnFamily, String column, CompareOperator operator, int index);
 
     /**
      * This method adds a new where selection.
@@ -26,6 +26,6 @@ public interface PreparedWhereSelectionStatement extends PreparedStatement {
      * @param value
      *            is the value to look for in the given column.
      */
-    public void addWhereSelection(String column, Object value);
+    public void addWhereSelection(String columnFamily, String column, CompareOperator operator, Object value);
 
 }

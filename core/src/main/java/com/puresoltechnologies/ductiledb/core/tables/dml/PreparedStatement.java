@@ -12,8 +12,21 @@ public interface PreparedStatement {
     /**
      * Takes the prepared statement and creates a bound statement out of it.
      * 
-     * @return
+     * @return A {@link BoundStatement} is returned which can be used to be
+     *         executed.
      */
     public BoundStatement bind();
+
+    /**
+     * Takes the prepared statement and creates a bound statement out of it.
+     * 
+     * @param values
+     *            is an array of values to be assigned to the defined
+     *            placeholders. The assignment starts from 1 to the end
+     *            successively.
+     * @return A {@link BoundStatement} is returned which can be used to be
+     *         executed.
+     */
+    public BoundStatement bind(Object... values);
 
 }

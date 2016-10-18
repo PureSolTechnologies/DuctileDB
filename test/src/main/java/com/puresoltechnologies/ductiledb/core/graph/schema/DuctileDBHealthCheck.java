@@ -222,7 +222,7 @@ public class DuctileDBHealthCheck {
 
     public static void runCheckForEmpty(TableStoreImpl rdbms) throws ExecutionException {
 	DataManipulationLanguage dml = rdbms.getDataManipulationLanguage();
-	PreparedSelect select = dml.preparedSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
+	PreparedSelect select = dml.prepareSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
 		com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable.TABLES.getName());
 	select.bind().execute();
     }

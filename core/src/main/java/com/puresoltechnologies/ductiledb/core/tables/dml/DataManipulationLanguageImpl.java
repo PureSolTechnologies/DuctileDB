@@ -12,27 +12,27 @@ public class DataManipulationLanguageImpl implements DataManipulationLanguage {
     }
 
     @Override
-    public PreparedInsert preparedInsert(String namespace, String table) {
+    public PreparedInsert prepareInsert(String namespace, String table) {
 	return new PreparedInsertImpl(tableStore, namespace, table);
     }
 
     @Override
-    public PreparedUpdate preparedUpdate(String namespace, String table) {
+    public PreparedUpdate prepareUpdate(String namespace, String table) {
 	return new PreparedUpdateImpl(tableStore, namespace, table);
     }
 
     @Override
-    public PreparedDelete preparedDelete(String namespace, String table) {
+    public PreparedDelete prepareDelete(String namespace, String table) {
 	return new PreparedDeleteImpl(tableStore, namespace, table);
     }
 
     @Override
-    public PreparedSelect preparedSelect(String namespace, String table) {
+    public PreparedSelect prepareSelect(String namespace, String table) {
 	return new PreparedSelectImpl(tableStore, namespace, table);
     }
 
     @Override
-    public PreparedTruncate preparedTruncate(String namespace, String table) {
+    public PreparedTruncate prepareTruncate(String namespace, String table) {
 	return new PreparedTruncateImpl(tableStore, namespace, table);
     }
 

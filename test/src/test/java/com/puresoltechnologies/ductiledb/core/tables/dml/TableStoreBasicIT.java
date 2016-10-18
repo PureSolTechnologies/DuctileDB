@@ -14,23 +14,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.puresoltechnologies.ductiledb.core.cli.DuctileDBConsoleOutput;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
-import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
-import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
 public class TableStoreBasicIT extends AbstractTableStoreTest {
+
+    private final DuctileDBConsoleOutput consoleOutput = new DuctileDBConsoleOutput(System.out);
 
     private static NamespaceEngineImpl namespaceEngine;
 
@@ -77,7 +76,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	String namespace = "system";
 	String table = "namespaces";
 
-	printTableContent(tableStore, namespace, table);
+	consoleOutput.printTableContent(tableStore, namespace, table);
     }
 
     @Test
@@ -87,7 +86,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	String namespace = "system";
 	String table = "tables";
 
-	printTableContent(tableStore, namespace, table);
+	consoleOutput.printTableContent(tableStore, namespace, table);
     }
 
     @Test
@@ -97,36 +96,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	String namespace = "system";
 	String table = "columns";
 
-	printTableContent(tableStore, namespace, table);
-    }
-
-    private void printTableContent(TableStoreImpl tableStore, String namespace, String table)
-	    throws IOException, ExecutionException {
-	StringBuilder builder = new StringBuilder();
-	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
-	builder.append("---------------------------------------------------------\n");
-	builder.append("TABLE: " + tableDefinition.getNamespace() + "." + tableDefinition.getName() + "\n");
-	for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
-	    builder.append(columnDefinition.getName() + "\t");
-	}
-	builder.append("\n");
-	builder.append("---------------------------------------------------------\n");
-	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	PreparedSelect select = dml.preparedSelect(namespace, table);
-	try (TableRowIterable tableRows = select.bind().execute()) {
-	    int count = 0;
-	    for (TableRow tableRow : tableRows) {
-		for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
-		    ColumnTypeDefinition<?> type = columnDefinition.getType();
-		    byte[] value = tableRow.getBytes(columnDefinition.getName());
-		    builder.append(type.fromBytes(value) + "\t");
-		}
-		builder.append("\n");
-		count++;
-	    }
-	    System.out.println(builder.toString());
-	    assertTrue(count > 0);
-	}
+	consoleOutput.printTableContent(tableStore, namespace, table);
     }
 
     @Test
@@ -141,11 +111,10 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
-	PreparedInsert insert = dml.preparedInsert("basicit", "valuecrud");
+	PreparedInsert insert = dml.prepareInsert("basicit", "valuecrud");
 	insert.addValue("testcf", "testcolumn", "teststring");
-	insert.addValue("testcf", "testcolumn2", Bytes.toBytes("teststring"));
 	insert.bind().execute();
 
-	printTableContent(tableStore, "basicit", "valuecrud");
+	consoleOutput.printTableContent(tableStore, "basicit", "valuecrud");
     }
 }

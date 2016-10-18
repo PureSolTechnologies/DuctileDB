@@ -186,7 +186,7 @@ public class Compactor {
 	 * entry to delete it
 	 */
 	ColumnFamilyRow row = commitLogReader.getRow(commitLogNext);
-	if ((!row.isEmpty()) && (!row.wasDeleted())) {
+	if (!row.wasDeleted()) {
 	    ColumnMap columnMap = row.getColumnMap();
 	    Iterator<Entry<byte[], ColumnValue>> iterator = columnMap.entrySet().iterator();
 	    while (iterator.hasNext()) {

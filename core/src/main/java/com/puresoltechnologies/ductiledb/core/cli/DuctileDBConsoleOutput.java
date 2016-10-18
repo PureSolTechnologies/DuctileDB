@@ -34,7 +34,7 @@ public class DuctileDBConsoleOutput {
 	builder.append("\n");
 	builder.append("---------------------------------------------------------\n");
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	PreparedSelect select = dml.preparedSelect(namespace, table);
+	PreparedSelect select = dml.prepareSelect(namespace, table);
 	try (TableRowIterable tableRows = select.bind().execute()) {
 	    for (TableRow tableRow : tableRows) {
 		for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {
