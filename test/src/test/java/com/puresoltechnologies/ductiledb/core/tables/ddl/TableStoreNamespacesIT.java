@@ -43,7 +43,7 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertFalse(iterator.hasNext());
 
 	CreateNamespace createNamespace = ddl.createCreateNamespace("namespacesit");
-	createNamespace.execute();
+	createNamespace.execute(tableStore);
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
@@ -62,7 +62,7 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 	assertFalse(iterator.hasNext());
 
 	DropNamespace dropNamespace = ddl.createDropNamespace("namespacesit");
-	dropNamespace.execute();
+	dropNamespace.execute(tableStore);
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
@@ -84,7 +84,7 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 
 	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	ddl.createCreateNamespace("system").execute();
+	ddl.createCreateNamespace("system").execute(tableStore);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 
 	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	ddl.createDropNamespace("system").execute();
+	ddl.createDropNamespace("system").execute(tableStore);
     }
 
 }

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
@@ -13,23 +15,20 @@ import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 
 public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement implements PreparedSelect {
 
-    private final TableStoreImpl tableStore;
     private final String namespace;
     private final String table;
-    private final NamespaceEngineImpl namespaceEngine;
-    private final TableEngineImpl tableEngine;
 
-    public PreparedSelectImpl(TableStoreImpl tableStore, String namespace, String table) {
-	super(tableStore.getTableDefinition(namespace, table));
-	this.tableStore = tableStore;
-	this.namespace = namespace;
-	this.table = table;
-	this.namespaceEngine = tableStore.getStorageEngine().getNamespaceEngine(namespace);
-	this.tableEngine = namespaceEngine.getTableEngine(table);
+    public PreparedSelectImpl(TableDefinition tableDefinition) {
+	super(tableDefinition);
+	this.namespace = tableDefinition.getNamespace();
+	this.table = tableDefinition.getName();
     }
 
     @Override
-    public TableRowIterable execute(Map<String, Object> valueSpecifications) {
+    public TableRowIterable execute(TableStore tableStore, Map<String, Object> valueSpecifications) {
+	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
+		.getNamespaceEngine(namespace);
+	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
 	ResultScanner scanner = tableEngine.getScanner(new Scan());
 	return new TableRowIterable() {
 

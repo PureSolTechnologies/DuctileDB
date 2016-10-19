@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 
 public abstract class AbstractPreparedStatementImpl implements PreparedStatement {
@@ -10,6 +11,9 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 
     public AbstractPreparedStatementImpl(TableDefinition tableDefinition) {
 	super();
+	if (tableDefinition == null) {
+	    throw new IllegalArgumentException("Table definition must not be null.");
+	}
 	this.tableDefinition = tableDefinition;
     }
 
@@ -17,7 +21,7 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 	return tableDefinition;
     }
 
-    public abstract TableRowIterable execute(Map<String, Object> valueSpecifications);
+    public abstract TableRowIterable execute(TableStore tableStore, Map<String, Object> valueSpecifications);
 
     @Override
     public final BoundStatement bind() {

@@ -22,7 +22,7 @@ public class TableStoreIndexIT extends AbstractTableStoreTest {
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateNamespace createNamespace = ddl.createCreateNamespace(NAMESPACE);
-	createNamespace.execute();
+	createNamespace.execute(tableStore);
 
 	TableStoreSchema schema = tableStore.getSchema();
 	NamespaceDefinition namespaceDefinition = schema.getNamespaceDefinition(NAMESPACE);
@@ -41,7 +41,7 @@ public class TableStoreIndexIT extends AbstractTableStoreTest {
 	createTable.addColumn(COLUMN_FAMILY, "column1", ColumnType.VARCHAR);
 	createTable.addColumn(COLUMN_FAMILY, "column2", ColumnType.VARCHAR);
 	createTable.addColumn(COLUMN_FAMILY, "column3", ColumnType.VARCHAR);
-	createTable.execute();
+	createTable.execute(tableStore);
 
 	CreateIndex createIndex = ddl.createCreateIndex(NAMESPACE, TABLE, COLUMN_FAMILY, INDEX);
 	// TODO

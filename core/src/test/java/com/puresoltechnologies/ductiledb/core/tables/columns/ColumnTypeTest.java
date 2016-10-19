@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 
-public class ColumnTypesTest {
+public class ColumnTypeTest {
 
     @Test
     public void checkNames() {

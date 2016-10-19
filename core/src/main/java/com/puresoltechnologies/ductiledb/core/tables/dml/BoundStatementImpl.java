@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.StatementImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 
 public class BoundStatementImpl extends StatementImpl implements BoundStatement {
 
@@ -26,8 +27,8 @@ public class BoundStatementImpl extends StatementImpl implements BoundStatement 
     }
 
     @Override
-    public TableRowIterable execute() throws ExecutionException {
-	return preparedStatement.execute(selections);
+    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+	return preparedStatement.execute(tableStore, selections);
     }
 
     @Override

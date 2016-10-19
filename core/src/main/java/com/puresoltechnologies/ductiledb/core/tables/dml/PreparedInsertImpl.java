@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.CompoundKey;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
@@ -18,17 +18,15 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements PreparedInsert {
 
-    private final TableStoreImpl tableStore;
     private final String namespace;
     private final String table;
     private final Map<String, Map<String, InsertValue>> values = new HashMap<>();
     private final Map<String, Map<String, InsertPlaceholder>> placeholders = new HashMap<>();
 
-    public PreparedInsertImpl(TableStoreImpl tableStore, String namespace, String table) {
-	super(tableStore.getTableDefinition(namespace, table));
-	this.tableStore = tableStore;
-	this.namespace = namespace;
-	this.table = table;
+    public PreparedInsertImpl(TableDefinition tableDefinition) {
+	super(tableDefinition);
+	this.namespace = tableDefinition.getNamespace();
+	this.table = tableDefinition.getName();
     }
 
     @Override
@@ -52,9 +50,9 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
     }
 
     @Override
-    public TableRowIterable execute(Map<String, Object> valueSpecifications) {
-	DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
-	NamespaceEngineImpl namespaceEngine = storageEngine.getNamespaceEngine(namespace);
+    public TableRowIterable execute(TableStore tableStore, Map<String, Object> valueSpecifications) {
+	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
+		.getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
 
 	TableDefinition tableDefinition = getTableDefinition();

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
@@ -31,12 +32,15 @@ public class CreateTableImpl implements CreateTable {
     }
 
     @Override
-    public TableRowIterable execute() throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}
+	if (tableDefinition.getPrimaryKey().size() == 0) {
+	    throw new ExecutionException("No primary key was defined.");
+	}
 	try {
-	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
+	    DatabaseEngineImpl storageEngine = ((TableStoreImpl) tableStore).getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
 	    TableDescriptor tableDescriptor = schemaManager.createTable(namespaceDescriptor, name);
@@ -48,7 +52,7 @@ public class CreateTableImpl implements CreateTable {
 	    for (String columnFamily : columnFamilies) {
 		schemaManager.createColumnFamily(tableDescriptor, Bytes.toBytes(columnFamily));
 	    }
-	    tableStore.getSchema().addTableDefinition(namespace, tableDefinition);
+	    ((TableStoreImpl) tableStore).getSchema().addTableDefinition(namespace, tableDefinition);
 	    return null;
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create table '" + namespace + "." + name + "'.");

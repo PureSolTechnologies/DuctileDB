@@ -52,7 +52,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateNamespace createNamespace = ddl.createCreateNamespace("basicit");
-	createNamespace.execute();
+	createNamespace.execute(tableStore);
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
@@ -107,13 +107,13 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	CreateTable createTable = ddl.createCreateTable("basicit", "valuecrud");
 	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("testcolumn");
-	createTable.execute();
+	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert("basicit", "valuecrud");
 	insert.addValue("testcf", "testcolumn", "teststring");
-	insert.bind().execute();
+	insert.bind().execute(tableStore);
 
 	consoleOutput.printTableContent(tableStore, "basicit", "valuecrud");
     }

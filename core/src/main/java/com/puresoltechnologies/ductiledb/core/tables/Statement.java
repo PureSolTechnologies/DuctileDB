@@ -9,6 +9,6 @@ import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
  */
 public interface Statement {
 
-    public TableRowIterable execute() throws ExecutionException;
+    public TableRowIterable execute(TableStore tableStore) throws ExecutionException;
 
 }

@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
@@ -20,16 +21,16 @@ public class DropNamespaceImpl implements DropNamespace {
     }
 
     @Override
-    public TableRowIterable execute() throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
 	if ("system".equals(name)) {
 	    throw new ExecutionException("Dropping of 'system' namespace is not allowed.");
 	}
 	try {
-	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
+	    DatabaseEngineImpl storageEngine = ((TableStoreImpl) tableStore).getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(name);
 	    schemaManager.dropNamespace(namespaceDescriptor);
-	    TableStoreSchema schema = tableStore.getSchema();
+	    TableStoreSchema schema = ((TableStoreImpl) tableStore).getSchema();
 	    schema.removeNamespaceDefinition(name);
 	    return null;
 	} catch (SchemaException e) {

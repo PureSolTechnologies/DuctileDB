@@ -2,16 +2,17 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
+import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 
 public class PreparedTruncateImpl extends AbstractPreparedStatementImpl implements PreparedTruncate {
 
-    public PreparedTruncateImpl(TableStoreImpl tableStore, String namespace, String table) {
-	super(tableStore.getTableDefinition(namespace, table));
+    public PreparedTruncateImpl(TableDefinition tableDefinition) {
+	super(tableDefinition);
     }
 
     @Override
-    public TableRowIterable execute(Map<String, Object> valueSpecifications) {
+    public TableRowIterable execute(TableStore tableStore, Map<String, Object> valueSpecifications) {
 	// TODO Auto-generated method stub
 	return null;
     }
