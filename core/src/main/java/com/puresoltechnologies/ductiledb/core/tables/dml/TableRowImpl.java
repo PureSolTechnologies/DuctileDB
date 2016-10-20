@@ -3,6 +3,9 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 /**
@@ -13,10 +16,29 @@ import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 public class TableRowImpl implements TableRow {
 
     private final Map<String, byte[]> values = new HashMap<>();
+    private final TableDefinition tableDefinition;
+
+    public TableRowImpl(TableDefinition tableDefinition) {
+	this.tableDefinition = tableDefinition;
+    }
 
     @Override
-    public byte[] getBytes(String column) {
-	return values.get(column);
+    public <T> T get(String columnName) {
+	ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(columnName);
+	ColumnTypeDefinition<?> type = columnDefinition.getType();
+	@SuppressWarnings("unchecked")
+	T t = (T) type.fromBytes(values.get(columnName));
+	return t;
+    }
+
+    @Override
+    public byte[] getBytes(int columnIndex) {
+	return values.get(columnName);
+    }
+
+    @Override
+    public byte[] getBytes(String columnName) {
+	return values.get(columnName);
     }
 
     @Override

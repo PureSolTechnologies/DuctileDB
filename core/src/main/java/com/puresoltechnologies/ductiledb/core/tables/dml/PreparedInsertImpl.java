@@ -60,8 +60,8 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 	byte[][] keyParts = new byte[primaryKey.size()][];
 	for (int i = 0; i < primaryKey.size(); ++i) {
 	    ColumnDefinition<?> primaryKeyPart = primaryKey.get(i);
-	    Object value = values.get(primaryKeyPart.getColumnFamily()).get(primaryKeyPart.getName());
-	    keyParts[i] = primaryKeyPart.getType().toBytes(value);
+	    InsertValue value = values.get(primaryKeyPart.getColumnFamily()).get(primaryKeyPart.getName());
+	    keyParts[i] = primaryKeyPart.getType().toBytes(value.getValue());
 	}
 	Put put = new Put(CompoundKey.create(keyParts).getKey());
 	for (Entry<String, Map<String, InsertValue>> columnFamilyEntry : values.entrySet()) {

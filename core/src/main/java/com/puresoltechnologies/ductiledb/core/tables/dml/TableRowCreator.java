@@ -20,7 +20,7 @@ public class TableRowCreator {
 	    throw new IllegalArgumentException("The number of found key parts " + compoundKey.getPartNum()
 		    + " do not match the definition of the primary key which contains " + primaryKey.size() + " part.");
 	}
-	TableRowImpl tableRow = new TableRowImpl();
+	TableRowImpl tableRow = new TableRowImpl(tableDefinition);
 	for (int partId = 0; partId < primaryKey.size(); ++partId) {
 	    ColumnDefinition<?> columnDefinition = primaryKey.get(partId);
 	    tableRow.add(columnDefinition.getName(), compoundKey.getPart(partId));

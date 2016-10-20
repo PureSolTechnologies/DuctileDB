@@ -41,6 +41,7 @@ public class TableStoreIndexIT extends AbstractTableStoreTest {
 	createTable.addColumn(COLUMN_FAMILY, "column1", ColumnType.VARCHAR);
 	createTable.addColumn(COLUMN_FAMILY, "column2", ColumnType.VARCHAR);
 	createTable.addColumn(COLUMN_FAMILY, "column3", ColumnType.VARCHAR);
+	createTable.setPrimaryKey("column1");
 	createTable.execute(tableStore);
 
 	CreateIndex createIndex = ddl.createCreateIndex(NAMESPACE, TABLE, COLUMN_FAMILY, INDEX);

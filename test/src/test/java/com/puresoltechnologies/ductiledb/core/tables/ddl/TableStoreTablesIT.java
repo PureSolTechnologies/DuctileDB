@@ -63,6 +63,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateTable createTable = ddl.createCreateTable("tablesit", "testtable");
 	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
+	createTable.setPrimaryKey("testcolumn");
 	createTable.execute(tableStore);
 
 	tables = schemaManager.getTables(namespace);

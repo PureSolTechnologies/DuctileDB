@@ -7,8 +7,12 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
  */
 public interface TableRow {
 
-    public byte[] getBytes(String column);
+    public <T> T get(String columnName);
 
-    public String getString(String column);
+    public byte[] getBytes(int columnIndex);
+
+    public byte[] getBytes(String columnName);
+
+    public String getString(String columnName);
 
 }
