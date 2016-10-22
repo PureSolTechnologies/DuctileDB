@@ -32,11 +32,6 @@ public class TableRowImpl implements TableRow {
     }
 
     @Override
-    public byte[] getBytes(int columnIndex) {
-	return values.get(columnName);
-    }
-
-    @Override
     public byte[] getBytes(String columnName) {
 	return values.get(columnName);
     }

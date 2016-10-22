@@ -82,7 +82,7 @@ public class DuctileDriver implements Driver {
 	 * This is not a fully compliant JDBC driver, because we do not do SQL
 	 * here...
 	 */
-	return false;
+	return true;
     }
 
     @Override

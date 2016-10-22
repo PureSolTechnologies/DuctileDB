@@ -24,14 +24,17 @@ import java.util.concurrent.Executor;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.DuctileDBBootstrap;
 import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
-import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphFactory;
 
 public class DuctileConnection implements Connection, DuctileWrapper {
+
+    private static final Logger logger = LoggerFactory.getLogger(DuctileConnection.class);
 
     private DuctileDatabaseMetaData metaData = null;
     private boolean closed = false;
@@ -39,12 +42,13 @@ public class DuctileConnection implements Connection, DuctileWrapper {
     private final URL url;
     private final File configFile;
     private DuctileDB ductileDB;
-    private final Graph graph;
+    private Graph graph;
 
     public DuctileConnection(URL url) throws SQLException {
 	this.url = url;
 	configFile = new File(url.getPath());
-	this.graph = open();
+	open();
+	logger.info("New connection to: '" + url + "'");
     }
 
     public URL getUrl() {
@@ -59,13 +63,13 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 	return ductileDB;
     }
 
-    private DuctileGraph open() throws SQLException {
+    private void open() throws SQLException {
 	try {
 	    DuctileDBConfiguration configuration = DuctileDBBootstrap.readConfiguration(getUrl());
 	    DuctileDBBootstrap.start(configuration);
-	    DuctileDB ductileDB = DuctileDBBootstrap.getInstance();
+	    ductileDB = DuctileDBBootstrap.getInstance();
 	    BaseConfiguration baseConfiguration = new BaseConfiguration();
-	    return DuctileGraphFactory.createGraph(ductileDB.getGraph(), baseConfiguration);
+	    graph = DuctileGraphFactory.createGraph(ductileDB.getGraph(), baseConfiguration);
 	} catch (IOException e) {
 	    throw new SQLException("Could not open graph.", e);
 	}

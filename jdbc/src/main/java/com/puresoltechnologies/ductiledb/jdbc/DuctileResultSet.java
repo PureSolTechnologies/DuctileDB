@@ -73,105 +73,87 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public String getString(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public byte getByte(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public short getShort(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public InputStream getAsciiStream(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	row.getBytes(column)
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public String getString(String columnLabel) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return row.get(columnLabel);
     }
 
     @Override
@@ -290,7 +272,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-	return row.get(column);
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -307,8 +289,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Reader getCharacterStream(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -319,8 +300,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -690,32 +670,27 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Object getObject(int columnIndex, Map<String, Class<?>> map) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Ref getRef(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Blob getBlob(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Clob getClob(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
     public Array getArray(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -750,8 +725,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Date getDate(int columnIndex, Calendar cal) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -762,8 +736,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Time getTime(int columnIndex, Calendar cal) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -774,8 +747,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Timestamp getTimestamp(int columnIndex, Calendar cal) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -786,8 +758,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public URL getURL(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -838,8 +809,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public RowId getRowId(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -904,8 +874,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public SQLXML getSQLXML(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -926,8 +895,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public String getNString(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -938,8 +906,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public Reader getNCharacterStream(int columnIndex) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override
@@ -1090,8 +1057,7 @@ public class DuctileResultSet implements ResultSet, DuctileWrapper {
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	throw new SQLException("Column retrieval via column index is not supported.");
     }
 
     @Override

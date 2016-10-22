@@ -38,6 +38,7 @@ public class CreateNamespaceImpl implements CreateNamespace {
 	    DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 	    PreparedInsert preparedInsert = dml.prepareInsert("system", "namespaces");
 	    preparedInsert.addValue("metadata", "created", Instant.now());
+	    preparedInsert.addValue("metadata", "created", Instant.now());
 	    return null;
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create namespace '" + name + "'.", e);

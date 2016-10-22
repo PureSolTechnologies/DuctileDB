@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeThat;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -15,19 +16,11 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 
-@Ignore
-public class DuctileDriverTest {
-
-    @BeforeClass
-    public static void initialization() throws ClassNotFoundException {
-	Class.forName(DuctileDriver.class.getName());
-    }
+public class DuctileDriverTest extends AbstractJDBCTest {
 
     @Test
     public void testDriverManagerRegistration() {
@@ -51,7 +44,8 @@ public class DuctileDriverTest {
 
     @Test
     public void testGetConnection() throws SQLException {
-	Connection connection = DriverManager.getConnection("jdbc:ductile:file:/opt/hbase/conf/hbase-site.xml");
+	Connection connection = DriverManager.getConnection(
+		"jdbc:ductile:file:" + new File("src/test/resources/ductiledb-test.yml").getAbsolutePath());
 	assertEquals(DuctileConnection.class, connection.getClass());
     }
 

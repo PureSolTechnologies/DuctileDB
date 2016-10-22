@@ -9,8 +9,6 @@ public interface TableRow {
 
     public <T> T get(String columnName);
 
-    public byte[] getBytes(int columnIndex);
-
     public byte[] getBytes(String columnName);
 
     public String getString(String columnName);

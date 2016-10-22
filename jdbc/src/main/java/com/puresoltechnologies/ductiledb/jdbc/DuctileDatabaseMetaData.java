@@ -7,9 +7,15 @@ import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowImpl;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterableImpl;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
+import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.EmptyIterable;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper {
@@ -54,7 +60,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean isReadOnly() throws SQLException {
-	return true;
+	return false;
     }
 
     @Override
@@ -169,44 +175,37 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getSQLKeywords() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     @Override
     public String getNumericFunctions() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     @Override
     public String getStringFunctions() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     @Override
     public String getSystemFunctions() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     @Override
     public String getTimeDateFunctions() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     @Override
     public String getSearchStringEscape() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "\\";
     }
 
     @Override
     public String getExtraNameCharacters() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     @Override
@@ -369,8 +368,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getProcedureTerm() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "procedure";
     }
 
     @Override
@@ -706,10 +704,17 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getCatalogs() throws SQLException {
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	tableDefinition.addColumn("metadata", "TABLE_CAT", ColumnType.VARCHAR);
+
 	TableStore tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	Iterable<NamespaceDefinition> namespaces = ddl.getNamespaces();
-	return new DuctileResultSet(connection);
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition);
+	    tableRow.add("TABLE_CAT", Bytes.toBytes(namespace.getName()));
+	    return tableRow;
+	}));
     }
 
     @Override
@@ -865,8 +870,19 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
     @Override
     public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types)
 	    throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	tableDefinition.addColumn("metadata", "TYPE_CAT", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "TYPE_SCHEM", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "TYPE_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "CLASS_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "DATA_TYPE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "REMARKS", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "BASE_TYPE", ColumnType.VARCHAR);
+
+	Iterable<NamespaceDefinition> namespaces = new EmptyIterable<>();
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
+	    return new TableRowImpl(tableDefinition);
+	}));
     }
 
     @Override

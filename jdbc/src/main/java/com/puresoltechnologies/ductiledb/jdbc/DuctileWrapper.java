@@ -17,7 +17,6 @@ interface DuctileWrapper extends Wrapper {
 
     @Override
     default public boolean isWrapperFor(Class<?> iface) throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
