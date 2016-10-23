@@ -5,6 +5,8 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
@@ -89,7 +91,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getDatabaseProductName() throws SQLException {
-	return "Ductile Graph Database";
+	return "Ductile Database";
     }
 
     @Override
@@ -719,8 +721,17 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getTableTypes() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	tableDefinition.addColumn("metadata", "TABLE_TYPE", ColumnType.VARCHAR);
+
+	List<String> tableTypes = new ArrayList<>();
+	tableTypes.add("TABLE");
+	tableTypes.add("SYSTEM TABLE");
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(tableTypes, tableType -> {
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition);
+	    tableRow.add("TABLE_TYPE", Bytes.toBytes(tableType));
+	    return tableRow;
+	}));
     }
 
     @Override
@@ -875,9 +886,9 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 	tableDefinition.addColumn("metadata", "TYPE_SCHEM", ColumnType.VARCHAR);
 	tableDefinition.addColumn("metadata", "TYPE_NAME", ColumnType.VARCHAR);
 	tableDefinition.addColumn("metadata", "CLASS_NAME", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "DATA_TYPE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "DATA_TYPE", ColumnType.INTEGER);
 	tableDefinition.addColumn("metadata", "REMARKS", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "BASE_TYPE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "BASE_TYPE", ColumnType.SHORT);
 
 	Iterable<NamespaceDefinition> namespaces = new EmptyIterable<>();
 	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
@@ -887,8 +898,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public Connection getConnection() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return connection;
     }
 
     @Override
@@ -936,14 +946,12 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean supportsResultSetHoldability(int holdability) throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	return holdability == ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     @Override
     public int getResultSetHoldability() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return ResultSet.HOLD_CURSORS_OVER_COMMIT;
     }
 
     @Override

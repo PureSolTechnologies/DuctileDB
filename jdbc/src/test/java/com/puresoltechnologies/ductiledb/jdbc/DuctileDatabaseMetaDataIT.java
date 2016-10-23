@@ -15,6 +15,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
+import com.puresoltechnologies.versioning.Version;
+
 public class DuctileDatabaseMetaDataIT extends AbstractJDBCTest {
 
     private static Connection connection;
@@ -32,6 +35,33 @@ public class DuctileDatabaseMetaDataIT extends AbstractJDBCTest {
     @AfterClass
     public static void disconnect() throws SQLException {
 	connection.close();
+    }
+
+    @Test
+    public void testDatabaseProductInformation() throws SQLException {
+	assertEquals("Ductile Database", metaData.getDatabaseProductName());
+	Version version = Version.valueOf(BuildInformation.getVersion());
+	assertEquals(version.toString(), metaData.getDatabaseProductVersion());
+	assertEquals(version.getMajor(), metaData.getDatabaseMajorVersion());
+	assertEquals(version.getMinor(), metaData.getDatabaseMinorVersion());
+    }
+
+    @Test
+    public void testDriverInformation() throws SQLException {
+	assertEquals(DuctileDriver.class.getName(), metaData.getDriverName());
+	Version version = Version.valueOf(BuildInformation.getVersion());
+	assertEquals(version.toString(), metaData.getDriverVersion());
+	assertEquals(version.getMajor(), metaData.getDriverMajorVersion());
+	assertEquals(version.getMinor(), metaData.getDriverMinorVersion());
+    }
+
+    @Test
+    public void testKeywordsAndFunctions() throws SQLException {
+	assertEquals("", metaData.getSQLKeywords());
+	assertEquals("", metaData.getNumericFunctions());
+	assertEquals("", metaData.getStringFunctions());
+	assertEquals("", metaData.getSystemFunctions());
+	assertEquals("", metaData.getTimeDateFunctions());
     }
 
     @Test
