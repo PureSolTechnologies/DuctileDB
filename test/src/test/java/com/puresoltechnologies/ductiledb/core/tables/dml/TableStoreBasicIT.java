@@ -70,50 +70,22 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
     }
 
     @Test
-    public void testSystemNamespacesTable() throws IOException, ExecutionException {
-	TableStoreImpl tableStore = getTableStore();
-
-	String namespace = "system";
-	String table = "namespaces";
-
-	consoleOutput.printTableContent(tableStore, namespace, table);
-    }
-
-    @Test
-    public void testSystemTablesTable() throws IOException, ExecutionException {
-	TableStoreImpl tableStore = getTableStore();
-
-	String namespace = "system";
-	String table = "tables";
-
-	consoleOutput.printTableContent(tableStore, namespace, table);
-    }
-
-    @Test
-    public void testSystemColumnsTable() throws IOException, ExecutionException {
-	TableStoreImpl tableStore = getTableStore();
-
-	String namespace = "system";
-	String table = "columns";
-
-	consoleOutput.printTableContent(tableStore, namespace, table);
-    }
-
-    @Test
     public void testValueCrud() throws ExecutionException, IOException {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateTable createTable = ddl.createCreateTable("basicit", "valuecrud");
-	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
-	createTable.setPrimaryKey("testcolumn");
+	createTable.addColumn("testcf", "static", ColumnType.VARCHAR);
+	createTable.addColumn("testcf", "dynamic", ColumnType.VARCHAR);
+	createTable.setPrimaryKey("static");
 	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert("basicit", "valuecrud");
-	insert.addValue("testcf", "testcolumn", "teststring");
-	insert.bind().execute(tableStore);
+	insert.addValue("testcf", "static", "static_string");
+	insert.addPlaceholder("testcf", "dynamic", 1);
+	insert.bind("dynamic_string").execute(tableStore);
 
 	consoleOutput.printTableContent(tableStore, "basicit", "valuecrud");
     }

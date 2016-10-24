@@ -39,8 +39,16 @@ public class AbstractDuctileDBTest {
 	configuration = readTestConfigration();
 	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
 	cleanTestStorageDirectory(storage);
-	ductileDB = createDuctileDB();
+	if (configuration == null) {
+	    configuration = readTestConfigration();
+	}
+	startDatabase();
 	assertNotNull("DuctileDB is null.", ductileDB);
+    }
+
+    protected static void startDatabase() {
+	DuctileDBBootstrap.start(configuration);
+	ductileDB = DuctileDBBootstrap.getInstance();
     }
 
     public static void cleanTestStorageDirectory(Storage storage) throws FileNotFoundException, IOException {
@@ -61,14 +69,6 @@ public class AbstractDuctileDBTest {
 	}
     }
 
-    public static DuctileDB createDuctileDB() throws SchemaException, IOException {
-	if (configuration == null) {
-	    configuration = readTestConfigration();
-	}
-	DuctileDBBootstrap.start(configuration);
-	return DuctileDBBootstrap.getInstance();
-    }
-
     /**
      * Shuts down DuctileDB after test.
      * 
@@ -77,6 +77,10 @@ public class AbstractDuctileDBTest {
      */
     @AfterClass
     public static void shutdownDuctileDB() throws IOException {
+	stopDatabase();
+    }
+
+    protected static void stopDatabase() {
 	try {
 	    DuctileDBBootstrap.stop();
 	} finally {

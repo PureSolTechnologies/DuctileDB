@@ -22,14 +22,13 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.AbstractDuctileDBGraphTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
-import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
-import com.puresoltechnologies.ductiledb.core.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
+import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
+import com.puresoltechnologies.ductiledb.core.graph.NoSuchGraphElementException;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBInvalidPropertyKeyException;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBInvalidTypeNameException;
@@ -336,7 +335,7 @@ public class DuctileDBTransactionIT extends AbstractDuctileDBGraphTest {
 	// are being mutated by multiple threads. originally replicated a bug
 	// that was part of OrientDB.
 
-	final GraphStore g1 = AbstractDuctileDBTest.createDuctileDB().getGraph();
+	final GraphStore g1 = getDuctileDB().getGraph();
 
 	final Thread threadModFirstGraph = new Thread() {
 	    @Override

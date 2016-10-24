@@ -49,8 +49,8 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
 
     @Override
     public TableDefinition getTable(String namespace, String table) {
-	// TODO Auto-generated method stub
-	return null;
+	TableStoreSchema schema = tableStore.getSchema();
+	return schema.getTableDefinition(namespace, table);
     }
 
     @Override

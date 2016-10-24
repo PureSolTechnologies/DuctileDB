@@ -41,6 +41,9 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 
     @Override
     public void addPlaceholder(String columnFamily, String column, int index) {
+	if (index <= 0) {
+	    throw new IllegalArgumentException("Index must be a positive number larger than 1.");
+	}
 	Map<String, InsertPlaceholder> cf = placeholders.get(columnFamily);
 	if (cf == null) {
 	    cf = new HashMap<>();
@@ -60,7 +63,8 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 	byte[][] keyParts = new byte[primaryKey.size()][];
 	for (int i = 0; i < primaryKey.size(); ++i) {
 	    ColumnDefinition<?> primaryKeyPart = primaryKey.get(i);
-	    InsertValue value = values.get(primaryKeyPart.getColumnFamily()).get(primaryKeyPart.getName());
+	    Map<String, InsertValue> insertValues = values.get(primaryKeyPart.getColumnFamily());
+	    InsertValue value = insertValues.get(primaryKeyPart.getName());
 	    keyParts[i] = primaryKeyPart.getType().toBytes(value.getValue());
 	}
 	Put put = new Put(CompoundKey.create(keyParts).getKey());
