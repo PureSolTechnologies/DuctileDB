@@ -10,6 +10,13 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 public interface PreparedStatement {
 
     /**
+     * This method adds a new placeholder.
+     * 
+     * @param placeholder
+     */
+    public void addPlaceholder(Placeholder placeholder);
+
+    /**
      * Takes the prepared statement and creates a bound statement out of it.
      * 
      * @return A {@link BoundStatement} is returned which can be used to be

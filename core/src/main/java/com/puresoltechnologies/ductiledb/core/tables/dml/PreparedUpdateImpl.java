@@ -12,7 +12,7 @@ public class PreparedUpdateImpl extends AbstractPreparedWhereSelectionStatement 
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<String, Object> valueSpecifications) {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValue) {
 	// TODO Auto-generated method stub
 	return null;
     }

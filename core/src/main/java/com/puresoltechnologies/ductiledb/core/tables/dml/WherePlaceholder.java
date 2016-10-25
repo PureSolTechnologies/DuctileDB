@@ -1,34 +1,16 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-public class WherePlaceholder {
+public class WherePlaceholder extends Placeholder {
 
-    private final String columnFamily;
-    private final String column;
     private final CompareOperator operator;
-    private final int index;
 
-    public WherePlaceholder(String columnFamily, String column, CompareOperator operator, int index) {
-	super();
-	this.columnFamily = columnFamily;
-	this.column = column;
+    public WherePlaceholder(int index, String columnFamily, String column, CompareOperator operator) {
+	super(index, columnFamily, column);
 	this.operator = operator;
-	this.index = index;
-    }
-
-    public String getColumnFamily() {
-	return columnFamily;
-    }
-
-    public String getColumn() {
-	return column;
     }
 
     public CompareOperator getOperator() {
 	return operator;
-    }
-
-    public int getIndex() {
-	return index;
     }
 
 }

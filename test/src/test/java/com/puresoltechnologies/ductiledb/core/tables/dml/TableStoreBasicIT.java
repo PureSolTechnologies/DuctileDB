@@ -84,7 +84,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	PreparedInsert insert = dml.prepareInsert("basicit", "valuecrud");
 	insert.addValue("testcf", "static", "static_string");
-	insert.addPlaceholder("testcf", "dynamic", 1);
+	insert.addPlaceholder(new Placeholder(1, "testcf", "dynamic"));
 	insert.bind("dynamic_string").execute(tableStore);
 
 	consoleOutput.printTableContent(tableStore, "basicit", "valuecrud");

@@ -21,7 +21,6 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
     private final String namespace;
     private final String table;
     private final Map<String, Map<String, InsertValue>> values = new HashMap<>();
-    private final Map<String, Map<String, InsertPlaceholder>> placeholders = new HashMap<>();
 
     public PreparedInsertImpl(TableDefinition tableDefinition) {
 	super(tableDefinition);
@@ -40,20 +39,7 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
     }
 
     @Override
-    public void addPlaceholder(String columnFamily, String column, int index) {
-	if (index <= 0) {
-	    throw new IllegalArgumentException("Index must be a positive number larger than 1.");
-	}
-	Map<String, InsertPlaceholder> cf = placeholders.get(columnFamily);
-	if (cf == null) {
-	    cf = new HashMap<>();
-	    placeholders.put(columnFamily, cf);
-	}
-	cf.put(column, new InsertPlaceholder(columnFamily, column, index));
-    }
-
-    @Override
-    public TableRowIterable execute(TableStore tableStore, Map<String, Object> valueSpecifications) {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValue) {
 	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
 		.getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
@@ -63,9 +49,26 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 	byte[][] keyParts = new byte[primaryKey.size()][];
 	for (int i = 0; i < primaryKey.size(); ++i) {
 	    ColumnDefinition<?> primaryKeyPart = primaryKey.get(i);
+	    InsertValue insertValue = null;
+	    Placeholder placeholder = null;
 	    Map<String, InsertValue> insertValues = values.get(primaryKeyPart.getColumnFamily());
-	    InsertValue value = insertValues.get(primaryKeyPart.getName());
-	    keyParts[i] = primaryKeyPart.getType().toBytes(value.getValue());
+	    if (insertValues != null) {
+		insertValue = insertValues.get(primaryKeyPart.getName());
+	    }
+	    int placeholderIndex = getPlaceholderIndex(primaryKeyPart.getName());
+	    if (placeholderIndex >= 0) {
+		placeholder = getPlaceholder(placeholderIndex);
+	    }
+	    if ((placeholder != null) && (insertValue != null)) {
+		throw new IllegalStateException("Placeholder and value found.");
+	    }
+	    Object value;
+	    if (placeholder != null) {
+		value = placeholderValue.get(placeholder.getIndex());
+	    } else {
+		value = insertValue.getValue();
+	    }
+	    keyParts[i] = primaryKeyPart.getType().toBytes(value);
 	}
 	Put put = new Put(CompoundKey.create(keyParts).getKey());
 	for (Entry<String, Map<String, InsertValue>> columnFamilyEntry : values.entrySet()) {

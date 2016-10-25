@@ -13,178 +13,172 @@ import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 
 public class BoundStatementImpl extends StatementImpl implements BoundStatement {
 
-    private final Map<String, Object> selections = new HashMap<>();
+    private final Map<Integer, Object> placeholderValues = new HashMap<>();
     private final AbstractPreparedStatementImpl preparedStatement;
 
     public BoundStatementImpl(AbstractPreparedStatementImpl preparedStatement) {
 	super();
 	this.preparedStatement = preparedStatement;
-	if (AbstractPreparedWhereSelectionStatement.class.isAssignableFrom(preparedStatement.getClass())) {
-	    this.selections.putAll(((AbstractPreparedWhereSelectionStatement) preparedStatement).getSelections());
-	} else {
-	    this.selections.putAll(new HashMap<>());
-	}
     }
 
     @Override
     public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
-	return preparedStatement.execute(tableStore, selections);
+	return preparedStatement.execute(tableStore, placeholderValues);
     }
 
     @Override
     public BoundStatement setBoolean(int index, boolean value) {
-	// TODO Auto-generated method stub
-	return null;
+	return this;
     }
 
     @Override
     public BoundStatement setByte(int index, byte value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setDate(int index, LocalDate value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setDateTime(int index, LocalDateTime value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setDouble(int index, double value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setInteger(int index, int value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setLong(int index, long value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setShort(int index, short value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setSingle(int index, float value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setTime(int index, LocalTime value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setTimestamp(int index, Instant value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setVarChar(int index, String value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, value);
+	return this;
     }
 
     @Override
     public BoundStatement setNull(int index) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(index, null);
+	return this;
     }
 
     @Override
     public BoundStatement setBoolean(String name, boolean value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setByte(String name, byte value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setDate(String name, LocalDate value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setDateTime(String name, LocalDateTime value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setDouble(String name, double value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setInteger(String name, int value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setLong(String name, long value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setShort(String name, short value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setSingle(String name, float value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setTime(String name, LocalTime value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setTimestamp(String name, Instant value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setVarChar(String name, String value) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
+	return this;
     }
 
     @Override
     public BoundStatement setNull(String name) {
-	// TODO Auto-generated method stub
-	return null;
+	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), null);
+	return this;
     }
 
     public void set(int index, Object value) {
