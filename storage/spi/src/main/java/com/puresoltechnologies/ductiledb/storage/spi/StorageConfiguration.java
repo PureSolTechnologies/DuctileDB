@@ -31,4 +31,8 @@ public class StorageConfiguration {
 	this.properties = properties;
     }
 
+    @Override
+    public String toString() {
+	return "blocksize: " + blockSize + " bytes; properties=" + properties;
+    }
 }

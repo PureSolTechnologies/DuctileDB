@@ -52,9 +52,9 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
     }
 
     public final int getPlaceholderIndex(String columnName) {
-	for (Entry<Integer, Placeholder> placeholder : placeholders.entrySet()) {
-	    if (columnName.equals(placeholder.getValue().getColumn())) {
-		return placeholder.getKey();
+	for (Entry<Integer, Placeholder> placeholderEntry : placeholders.entrySet()) {
+	    if (columnName.equals(placeholderEntry.getValue().getColumn())) {
+		return placeholderEntry.getKey();
 	    }
 	}
 	return -1;

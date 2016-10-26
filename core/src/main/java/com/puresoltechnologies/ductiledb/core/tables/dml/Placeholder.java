@@ -13,6 +13,9 @@ public class Placeholder {
 
     public Placeholder(int index, String columnFamily, String column) {
 	super();
+	if (index <= 0) {
+	    throw new IllegalArgumentException("Column index has to be larger than zero.");
+	}
 	this.index = index;
 	this.columnFamily = columnFamily;
 	this.column = column;

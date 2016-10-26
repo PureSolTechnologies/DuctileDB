@@ -29,7 +29,8 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
 public class TableStoreBasicIT extends AbstractTableStoreTest {
 
-    private final DuctileDBConsoleOutput consoleOutput = new DuctileDBConsoleOutput(System.out);
+    private static final String NAMESPACE = "basicit";
+    private static final DuctileDBConsoleOutput consoleOutput = new DuctileDBConsoleOutput(System.out);
 
     private static NamespaceEngineImpl namespaceEngine;
 
@@ -51,7 +52,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	// TODO check also with TableStore API!!!
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateNamespace createNamespace = ddl.createCreateNamespace("basicit");
+	CreateNamespace createNamespace = ddl.createCreateNamespace(NAMESPACE);
 	createNamespace.execute(tableStore);
 
 	namespaces = schemaManager.getNamespaces();
@@ -63,30 +64,52 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	namespaceSet.add(namespaceIterator.next().getName());
 	assertFalse(namespaceIterator.hasNext());
 	// TODO check also with TableStore API!!!
-	assertTrue(namespaceSet.contains("basicit"));
+	assertTrue(namespaceSet.contains(NAMESPACE));
 	assertTrue(namespaceSet.contains("system"));
 
-	namespaceEngine = storageEngine.getNamespaceEngine("basicit");
+	namespaceEngine = storageEngine.getNamespaceEngine(NAMESPACE);
     }
 
     @Test
-    public void testValueCrud() throws ExecutionException, IOException {
+    public void testSingleValueCrud() throws ExecutionException, IOException {
+	final String CF = "testcf";
+	final String TABLE = "valuecrud";
+
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable("basicit", "valuecrud");
-	createTable.addColumn("testcf", "static", ColumnType.VARCHAR);
-	createTable.addColumn("testcf", "dynamic", ColumnType.VARCHAR);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	createTable.addColumn(CF, "static", ColumnType.INTEGER);
+	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
 	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
-	PreparedInsert insert = dml.prepareInsert("basicit", "valuecrud");
-	insert.addValue("testcf", "static", "static_string");
-	insert.addPlaceholder(new Placeholder(1, "testcf", "dynamic"));
-	insert.bind("dynamic_string").execute(tableStore);
+	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 1);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("A").execute(tableStore);
 
-	consoleOutput.printTableContent(tableStore, "basicit", "valuecrud");
+	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
+
+	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
+	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	    Iterator<TableRow> iterator = result.iterator();
+	    assertTrue(iterator.hasNext());
+	    TableRow row = iterator.next();
+	    assertEquals(1, (int) row.get("static"));
+	    assertEquals("A", row.get("dynamic"));
+	    assertFalse(iterator.hasNext());
+	}
+
+	PreparedDelete delete = dml.prepareDelete(NAMESPACE, TABLE);
+	delete.bind().execute(tableStore);
+
+	select = dml.prepareSelect(NAMESPACE, TABLE);
+	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	    Iterator<TableRow> iterator = result.iterator();
+	    assertFalse(iterator.hasNext());
+	}
     }
 }

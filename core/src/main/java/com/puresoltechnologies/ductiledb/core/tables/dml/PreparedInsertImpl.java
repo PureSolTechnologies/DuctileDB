@@ -39,7 +39,7 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValue) {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValues) {
 	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
 		.getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
@@ -50,46 +50,59 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 	for (int i = 0; i < primaryKey.size(); ++i) {
 	    ColumnDefinition<?> primaryKeyPart = primaryKey.get(i);
 	    InsertValue insertValue = null;
-	    Placeholder placeholder = null;
 	    Map<String, InsertValue> insertValues = values.get(primaryKeyPart.getColumnFamily());
 	    if (insertValues != null) {
 		insertValue = insertValues.get(primaryKeyPart.getName());
 	    }
+	    Placeholder placeholder = null;
 	    int placeholderIndex = getPlaceholderIndex(primaryKeyPart.getName());
-	    if (placeholderIndex >= 0) {
+	    if (placeholderIndex > 0) {
 		placeholder = getPlaceholder(placeholderIndex);
 	    }
 	    if ((placeholder != null) && (insertValue != null)) {
 		throw new IllegalStateException("Placeholder and value found.");
 	    }
-	    Object value;
+	    ColumnTypeDefinition<?> type = primaryKeyPart.getType();
 	    if (placeholder != null) {
-		value = placeholderValue.get(placeholder.getIndex());
+		keyParts[i] = type.toBytes(placeholderValues.get(placeholder.getIndex()));
 	    } else {
-		value = insertValue.getValue();
+		keyParts[i] = type.toBytes(insertValue.getValue());
 	    }
-	    keyParts[i] = primaryKeyPart.getType().toBytes(value);
 	}
 	Put put = new Put(CompoundKey.create(keyParts).getKey());
+	// Add static values...
 	for (Entry<String, Map<String, InsertValue>> columnFamilyEntry : values.entrySet()) {
 	    for (Entry<String, InsertValue> columnEntry : columnFamilyEntry.getValue().entrySet()) {
-		ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(columnEntry.getKey());
-		if (columnDefinition != null) {
-		    if (tableDefinition.isPrimaryKey(columnDefinition)) {
-			continue;
-		    }
-		    ColumnTypeDefinition<?> type = columnDefinition.getType();
-		    byte[] value = type.toBytes(columnEntry.getValue());
-		    put.addColumn(Bytes.toBytes(columnFamilyEntry.getKey()), Bytes.toBytes(columnEntry.getKey()),
-			    value);
-		} else {
-		    put.addColumn(Bytes.toBytes(columnFamilyEntry.getKey()), Bytes.toBytes(columnEntry.getKey()),
-			    (byte[]) columnEntry.getValue().getValue());
-		}
+		String columnFamily = columnFamilyEntry.getKey();
+		String column = columnEntry.getKey();
+		InsertValue value = columnEntry.getValue();
+		addColumnValue(put, tableDefinition, columnFamily, column, value);
 	    }
+	}
+	// Add dynamic values...
+	for (Placeholder placeholder : getPlaceholders().values()) {
+	    String columnFamily = placeholder.getColumnFamily();
+	    String column = placeholder.getColumn();
+	    Object value = placeholderValues.get(placeholder.getIndex());
+	    addColumnValue(put, tableDefinition, columnFamily, column, value);
 	}
 	tableEngine.put(put);
 	return null;
+    }
+
+    private void addColumnValue(Put put, TableDefinition tableDefinition, String columnFamily, String column,
+	    Object value) {
+	ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(column);
+	if (columnDefinition != null) {
+	    if (tableDefinition.isPrimaryKey(columnDefinition)) {
+		return;
+	    }
+	    ColumnTypeDefinition<?> type = columnDefinition.getType();
+	    byte[] valueBytes = type.toBytes(value);
+	    put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(column), valueBytes);
+	} else {
+	    put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(column), (byte[]) value);
+	}
     }
 
 }
