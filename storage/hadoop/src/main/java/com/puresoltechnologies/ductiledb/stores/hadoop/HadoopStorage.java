@@ -111,9 +111,8 @@ public class HadoopStorage implements Storage {
     }
 
     @Override
-    public boolean delete(File file) {
+    public void delete(File file) {
 	// TODO Auto-generated method stub
-	return false;
     }
 
     @Override

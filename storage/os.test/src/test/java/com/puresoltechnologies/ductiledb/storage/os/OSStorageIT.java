@@ -1,7 +1,15 @@
 package com.puresoltechnologies.ductiledb.storage.os;
 
-import java.io.IOException;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -11,10 +19,15 @@ import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public class OSStorageIT {
 
-    private static StorageConfiguration configuration = new StorageConfiguration();;
-
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    private StorageConfiguration configuration;
+
+    @Before
+    public void createConfiguration() {
+	configuration = new StorageConfiguration();
+    }
 
     @Test
     public void testEmptyDirectory() throws IOException {
@@ -35,4 +48,41 @@ public class OSStorageIT {
 	}
     }
 
+    @Test
+    public void testDeletionAfterLastStreamClose() throws IOException, InterruptedException {
+	configuration.getProperties().setProperty(OSStorage.DIRECTORY_PROPERTY, "/tmp/test");
+	configuration.getProperties().setProperty(OSStorage.DELETION_PERIOD_PROPERTY, "1000");
+	try (OSStorage storage = new OSStorage(configuration)) {
+	    storage.initialize();
+
+	    File storageDirectory = storage.getStorageDirectory();
+	    String fileName = "deletion.test";
+	    File file = new File(storageDirectory, fileName);
+	    if (file.exists()) {
+		assertTrue(file.delete());
+	    }
+	    assertFalse(file.exists());
+	    try (BufferedOutputStream created = storage.create(new File("/" + fileName))) {
+		assertTrue(file.exists());
+	    }
+	    storage.delete(new File("/" + fileName));
+	    TimeUnit.MILLISECONDS.sleep(1500);
+	    assertFalse(file.exists());
+
+	    try (BufferedOutputStream created = storage.create(new File("/" + fileName))) {
+		assertTrue(file.exists());
+	    }
+	    try (BufferedInputStream opened = storage.open(new File("/" + fileName))) {
+		assertTrue(file.exists());
+		storage.delete(new File("/" + fileName));
+		assertTrue(file.exists());
+		TimeUnit.MILLISECONDS.sleep(1500);
+		assertTrue(file.exists());
+	    }
+	    storage.delete(new File("/" + fileName));
+	    TimeUnit.MILLISECONDS.sleep(1500);
+	    assertFalse(file.exists());
+	}
+
+    }
 }

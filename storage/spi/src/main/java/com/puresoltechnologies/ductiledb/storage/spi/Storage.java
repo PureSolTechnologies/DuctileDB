@@ -86,12 +86,18 @@ public interface Storage extends Closeable {
 
     public FileStatus getFileStatus(File file);
 
-    public BufferedInputStream open(File file) throws FileNotFoundException;
+    public BufferedInputStream open(File file) throws IOException;
 
     public BufferedOutputStream create(File file) throws IOException;
 
     public BufferedOutputStream append(File file) throws IOException;
 
-    public boolean delete(File file);
+    /**
+     * This method deletes the specified file.
+     * 
+     * @param file
+     * @return
+     */
+    public void delete(File file);
 
 }

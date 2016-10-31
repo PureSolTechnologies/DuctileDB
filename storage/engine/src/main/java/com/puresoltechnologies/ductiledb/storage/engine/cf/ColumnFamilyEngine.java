@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.lss.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;

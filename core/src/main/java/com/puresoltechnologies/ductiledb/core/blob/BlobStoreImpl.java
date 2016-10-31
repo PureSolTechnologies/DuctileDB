@@ -128,9 +128,7 @@ public class BlobStoreImpl implements BlobStore {
 	    return false;
 	}
 	File path = createPath(hashId);
-	if (!storage.delete(path)) {
-	    throw new IOException("Could not delete file for hash id '" + hashId + "'.");
-	}
+	storage.delete(path);
 	return true;
     }
 
