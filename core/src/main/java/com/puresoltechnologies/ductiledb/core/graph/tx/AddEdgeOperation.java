@@ -20,8 +20,9 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 public class AddEdgeOperation extends AbstractTxOperation {
 
@@ -83,31 +84,31 @@ public class AddEdgeOperation extends AbstractTxOperation {
     @Override
     public void perform() throws IOException {
 	long edgeId = edge.getId();
-	byte[] edgeValue = new EdgeValue(properties).encode();
+	ColumnValue edgeValue = ColumnValue.of(new EdgeValue(properties).encode());
 	// Put to Start Vertex
-	Put outPut = new Put(IdEncoder.encodeRowId(startVertexId));
-	outPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(),
-		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode(), edgeValue);
+	Put outPut = new Put(Key.of(IdEncoder.encodeRowId(startVertexId)));
+	outPut.addColumn(DatabaseColumnFamily.EDGES.getKey(),
+		Key.of(new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode()), edgeValue);
 	// Put to Target Vertex
-	Put inPut = new Put(IdEncoder.encodeRowId(targetVertexId));
-	inPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(),
-		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode(), edgeValue);
+	Put inPut = new Put(Key.of(IdEncoder.encodeRowId(targetVertexId)));
+	inPut.addColumn(DatabaseColumnFamily.EDGES.getKey(),
+		Key.of(new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode()), edgeValue);
 	// Put to Edges Table
-	Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
-	edgePut.addColumn(DatabaseColumnFamily.VERICES.getNameBytes(), DatabaseColumn.START_VERTEX_ID.getNameBytes(),
-		IdEncoder.encodeRowId(startVertexId));
-	edgePut.addColumn(DatabaseColumnFamily.VERICES.getNameBytes(), DatabaseColumn.TARGET_VERTEX_ID.getNameBytes(),
-		IdEncoder.encodeRowId(targetVertexId));
-	edgePut.addColumn(DatabaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
+	Put edgePut = new Put(Key.of(IdEncoder.encodeRowId(edgeId)));
+	edgePut.addColumn(DatabaseColumnFamily.VERICES.getKey(), DatabaseColumn.START_VERTEX_ID.getKey(),
+		ColumnValue.of(IdEncoder.encodeRowId(startVertexId)));
+	edgePut.addColumn(DatabaseColumnFamily.VERICES.getKey(), DatabaseColumn.TARGET_VERTEX_ID.getKey(),
+		ColumnValue.of(IdEncoder.encodeRowId(targetVertexId)));
+	edgePut.addColumn(DatabaseColumnFamily.TYPES.getKey(), Key.of(type), ColumnValue.empty());
 	Put typeIndexPut = OperationsHelper.createEdgeTypeIndexPut(edgeId, type);
 	List<Put> propertyIndexPuts = new ArrayList<>();
-	edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
-		Serializer.serializePropertyValue(edgeId));
-	edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(),
-		Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY), Serializer.serializePropertyValue(new Date()));
+	edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(DUCTILEDB_ID_PROPERTY),
+		ColumnValue.of(Serializer.serializePropertyValue(edgeId)));
+	edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
+		ColumnValue.of(Serializer.serializePropertyValue(new Date())));
 	for (Entry<String, Object> property : properties.entrySet()) {
-	    edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(property.getKey()),
-		    Serializer.serializePropertyValue((Serializable) property.getValue()));
+	    edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(property.getKey()),
+		    ColumnValue.of(Serializer.serializePropertyValue((Serializable) property.getValue())));
 	    propertyIndexPuts.add(OperationsHelper.createEdgePropertyIndexPut(edgeId, property.getKey(),
 		    (Serializable) property.getValue()));
 	}

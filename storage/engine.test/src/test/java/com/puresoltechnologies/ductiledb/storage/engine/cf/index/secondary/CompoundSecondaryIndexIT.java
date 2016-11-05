@@ -13,11 +13,13 @@ import org.junit.Test;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
@@ -33,8 +35,8 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 		"testSecondaryIndexCreateGetDelete", "testcf")) {
 
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
-	    columnKeySet.add(Bytes.toBytes("column1"));
-	    columnKeySet.add(Bytes.toBytes("column2"));
+	    columnKeySet.add(Key.of("column1"));
+	    columnKeySet.add(Key.of("column2"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
 		    columnFamily.getDescriptor(), columnKeySet, IndexType.HEAP);
 
@@ -57,10 +59,10 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(indexDescriptor, index);
 	    ColumnKeySet columns = index.getColumns();
 	    assertEquals(2, columns.size());
-	    Iterator<byte[]> columnIterator = columns.iterator();
+	    Iterator<Key> columnIterator = columns.iterator();
 	    assertTrue(columnIterator.hasNext());
-	    assertEquals("column1", Bytes.toString(columnIterator.next()));
-	    assertEquals("column2", Bytes.toString(columnIterator.next()));
+	    assertEquals("column1", columnIterator.next().toString());
+	    assertEquals("column2", columnIterator.next().toString());
 	    assertFalse(columnIterator.hasNext());
 
 	    columnFamily.dropIndex("IDX_TEST");
@@ -89,8 +91,8 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     private void testIndex(IndexType indexType, String tableName) throws StorageException, SchemaException {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, tableName, "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
-	    columnKeySet.add(Bytes.toBytes("indexed1"));
-	    columnKeySet.add(Bytes.toBytes("indexed2"));
+	    columnKeySet.add(Key.of("indexed1"));
+	    columnKeySet.add(Key.of("indexed2"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
 		    columnFamily.getDescriptor(), columnKeySet, indexType);
 	    columnFamily.createIndex(indexDescriptor);
@@ -107,10 +109,10 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    for (int i = 0; i < TEST_SIZE; ++i) {
 		for (int j = i; j < TEST_SIZE; ++j) {
 		    int id = i * TEST_SIZE + j;
-		    columnMap.put(Bytes.toBytes("id"), Bytes.toBytes(id));
-		    columnMap.put(Bytes.toBytes("indexed1"), Bytes.toBytes(j));
-		    columnMap.put(Bytes.toBytes("indexed2"), Bytes.toBytes(j * 10));
-		    columnFamily.put(Bytes.toBytes(id), columnMap);
+		    columnMap.put(Key.of("id"), ColumnValue.of(id));
+		    columnMap.put(Key.of("indexed1"), ColumnValue.of(j));
+		    columnMap.put(Key.of("indexed2"), ColumnValue.of(j * 10));
+		    columnFamily.put(Key.of(id), columnMap);
 		}
 	    }
 	    writingTime.stop();
@@ -119,13 +121,13 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    StopWatch readingTime = new StopWatch();
 	    readingTime.start();
 	    for (int i = 0; i < TEST_SIZE; ++i) {
-		ColumnFamilyScanner found = columnFamily.find(Bytes.toBytes("indexed"), Bytes.toBytes(i));
+		ColumnFamilyScanner found = columnFamily.find(Key.of("indexed"), ColumnValue.of(i));
 		for (int j = 0; j <= i; ++j) {
 		    assertTrue(found.hasNext());
 		    ColumnFamilyRow row = found.next();
-		    assertEquals(Bytes.toInt(row.getRowKey().getKey()),
-			    Bytes.toInt(row.getColumnMap().get(Bytes.toBytes("id")).getValue()));
-		    assertEquals(i, Bytes.toInt(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
+		    assertEquals(Bytes.toInt(row.getRowKey().getBytes()),
+			    Bytes.toInt(row.getColumnMap().get(Key.of("id")).getBytes()));
+		    assertEquals(i, Bytes.toInt(row.getColumnMap().get(Key.of("indexed")).getBytes()));
 		}
 		assertFalse(found.hasNext());
 	    }

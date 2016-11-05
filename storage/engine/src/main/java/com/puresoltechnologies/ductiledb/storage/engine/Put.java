@@ -9,32 +9,32 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 public class Put {
 
     private final ColumnFamilyMap columnFamilies = new ColumnFamilyMap();
-    private final byte[] key;
+    private final Key rowKey;
 
-    public Put(byte[] key) {
+    public Put(Key rowKey) {
 	super();
-	this.key = key;
+	this.rowKey = rowKey;
     }
 
-    public final byte[] getKey() {
-	return key;
+    public final Key getKey() {
+	return rowKey;
     }
 
-    public final Set<byte[]> getColumnFamilies() {
+    public final Set<Key> getColumnFamilies() {
 	return columnFamilies.keySet();
     }
 
-    public final ColumnMap getColumnValues(byte[] columnFamily) {
+    public final ColumnMap getColumnValues(Key columnFamily) {
 	return columnFamilies.get(columnFamily);
     }
 
-    public final void addColumn(byte[] columnFamilyName, byte[] key, byte[] value) {
+    public final void addColumn(Key columnFamilyName, Key key, ColumnValue value) {
 	ColumnMap columnFamily = columnFamilies.get(columnFamilyName);
 	if (columnFamily == null) {
 	    columnFamily = new ColumnMap();
 	    columnFamilies.put(columnFamilyName, columnFamily);
 	}
-	columnFamily.put(key, new ColumnValue(value, null));
+	columnFamily.put(key, value);
     }
 
 }

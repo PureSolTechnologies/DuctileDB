@@ -12,6 +12,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEng
 import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.primary.IndexIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -32,21 +33,20 @@ public class DataFileSetIT extends AbstractColumnFamiliyEngineTest {
 
 	    for (long i = 1; i <= 1000; ++i) {
 		ColumnMap columnMap = new ColumnMap();
-		columnMap.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
-		columnFamilyEngine.put(Bytes.toBytes(i), columnMap);
+		columnMap.put(Key.of(i * 10), ColumnValue.of(i * 100));
+		columnFamilyEngine.put(Key.of(i), columnMap);
 	    }
 	    columnFamilyEngine.runCompaction();
 
 	    DataFileSet dataFileSet = new DataFileSet(storage, columnFamilyEngine.getDirectory());
 
-	    IndexIterator indexIterator = dataFileSet.getIndexIterator(new Key(Bytes.toBytes(100l)),
-		    new Key(Bytes.toBytes(900l)));
+	    IndexIterator indexIterator = dataFileSet.getIndexIterator(Key.of(100l), Key.of(900l));
 	    assertNotNull(indexIterator);
 
 	    long current = 100l;
 	    while (indexIterator.hasNext()) {
 		IndexEntry startResult = indexIterator.next();
-		long l = Bytes.toLong(startResult.getRowKey().getKey());
+		long l = Bytes.toLong(startResult.getRowKey().getBytes());
 		assertEquals(current, l);
 		++current;
 	    }

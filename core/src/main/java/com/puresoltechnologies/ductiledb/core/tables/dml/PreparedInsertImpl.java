@@ -11,10 +11,11 @@ import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinitio
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.CompoundKey;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements PreparedInsert {
 
@@ -69,7 +70,7 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 		keyParts[i] = type.toBytes(insertValue.getValue());
 	    }
 	}
-	Put put = new Put(CompoundKey.create(keyParts).getKey());
+	Put put = new Put(CompoundKey.create(keyParts));
 	// Add static values...
 	for (Entry<String, Map<String, InsertValue>> columnFamilyEntry : values.entrySet()) {
 	    for (Entry<String, InsertValue> columnEntry : columnFamilyEntry.getValue().entrySet()) {
@@ -99,9 +100,9 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
 	    }
 	    ColumnTypeDefinition<?> type = columnDefinition.getType();
 	    byte[] valueBytes = type.toBytes(value);
-	    put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(column), valueBytes);
+	    put.addColumn(Key.of(columnFamily), Key.of(column), ColumnValue.of(valueBytes));
 	} else {
-	    put.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(column), (byte[]) value);
+	    put.addColumn(Key.of(columnFamily), Key.of(column), ColumnValue.of((byte[]) value));
 	}
     }
 

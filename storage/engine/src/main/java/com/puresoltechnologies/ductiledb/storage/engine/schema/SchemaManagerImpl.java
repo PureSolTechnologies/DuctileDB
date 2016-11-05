@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.EngineChecks;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class SchemaManagerImpl implements SchemaManager {
@@ -157,7 +157,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public ColumnFamilyDescriptor next() {
 		    File directory = iterator.next();
-		    return new ColumnFamilyDescriptor(Bytes.fromHexString(directory.getName()), table, directory);
+		    return new ColumnFamilyDescriptor(Key.fromHexString(directory.getName()), table, directory);
 		}
 	    };
 	}
@@ -309,19 +309,19 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName) {
+    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, Key columnFamilyName) {
 	return tableDescriptor.getColumnFamily(columnFamilyName);
     }
 
     @Override
-    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName)
+    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, Key columnFamilyName)
 	    throws SchemaException, StorageException {
-	if ((columnFamilyName == null) || (columnFamilyName.length == 0)) {
-	    throw new SchemaException("Column family name '" + Bytes.toHumanReadableString(columnFamilyName)
+	if (columnFamilyName == null) {
+	    throw new SchemaException("Column family name '" + columnFamilyName
 		    + "' is invalid. Identifiers have to match pattern '" + EngineChecks.IDENTIFIED_FORM + "'.");
 	}
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
-	File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), Bytes.toHexString(columnFamilyName));
+	File columnFamilyDirectory = new File(tableDescriptor.getDirectory(), columnFamilyName.toHexString());
 	ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(columnFamilyName, tableDescriptor,
 		columnFamilyDirectory);
 	logger.info("Creating column family '" + columnFamilyDescriptor + "' in storage '" + getStoreName() + "'...");
@@ -348,8 +348,8 @@ public class SchemaManagerImpl implements SchemaManager {
 		    .create(new File(columnFamilyDirectory, "metadata.properties"))) {
 		Properties properties = new Properties();
 		properties.put("cf.creation.time", new Date().toString());
-		properties.put("cf.name", Bytes.toHexString(columnFamilyName));
-		properties.put("cf.name.ascii", Bytes.toString(columnFamilyName));
+		properties.put("cf.name", columnFamilyName.toHexString());
+		properties.put("cf.name.ascii", columnFamilyName.toHumanReadableString());
 		properties.put("cf.namespace.name", namespaceDescriptor.getName());
 		properties.put("cf.table.name", tableDescriptor.getName());
 		properties.put("cf.storage.directory", storageDirectory.toString());
@@ -366,8 +366,8 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor,
-	    byte[] columnFamilyName) throws SchemaException, StorageException {
+    public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor, Key columnFamilyName)
+	    throws SchemaException, StorageException {
 	ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamily(tableDescriptor, columnFamilyName);
 	if (columnFamilyDescriptor == null) {
 	    return createColumnFamily(tableDescriptor, columnFamilyName);

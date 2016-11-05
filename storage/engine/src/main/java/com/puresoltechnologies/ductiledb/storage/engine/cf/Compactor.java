@@ -188,9 +188,9 @@ public class Compactor {
 	ColumnFamilyRow row = commitLogReader.getRow(commitLogNext);
 	if (!row.wasDeleted()) {
 	    ColumnMap columnMap = row.getColumnMap();
-	    Iterator<Entry<byte[], ColumnValue>> iterator = columnMap.entrySet().iterator();
+	    Iterator<Entry<Key, ColumnValue>> iterator = columnMap.entrySet().iterator();
 	    while (iterator.hasNext()) {
-		Entry<byte[], ColumnValue> entry = iterator.next();
+		Entry<Key, ColumnValue> entry = iterator.next();
 		ColumnValue value = entry.getValue();
 		if (value.wasDeleted()) {
 		    iterator.remove();
@@ -241,8 +241,8 @@ public class Compactor {
 		Collections.sort(indexEntries);
 		for (IndexEntry entry : indexEntries) {
 		    Key rowKey = entry.getRowKey();
-		    stream.write(Bytes.toBytes(rowKey.getKey().length));
-		    stream.write(rowKey.getKey());
+		    stream.write(Bytes.toBytes(rowKey.getBytes().length));
+		    stream.write(rowKey.getBytes());
 
 		    long offset = entry.getOffset();
 		    stream.write(Bytes.toBytes(offset));

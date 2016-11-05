@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public enum DatabaseColumn {
@@ -13,10 +14,12 @@ public enum DatabaseColumn {
 
     private final String name;
     private final byte[] nameBytes;
+    private final Key key;
 
     DatabaseColumn(String name) {
 	this.name = name;
 	this.nameBytes = Bytes.toBytes(this.name);
+	this.key = Key.of(nameBytes);
     }
 
     public String getName() {
@@ -25,5 +28,9 @@ public enum DatabaseColumn {
 
     public byte[] getNameBytes() {
 	return nameBytes;
+    }
+
+    public Key getKey() {
+	return key;
     }
 }

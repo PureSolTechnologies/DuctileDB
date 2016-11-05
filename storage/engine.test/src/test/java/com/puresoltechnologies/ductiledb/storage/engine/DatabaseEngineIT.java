@@ -8,7 +8,7 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -27,18 +27,18 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
 		"testSimpleCRUD");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		Bytes.toBytes("testcf"));
+		Key.of("testcf"));
 	TableEngine table = engine.getTable(tableDescription);
 
-	byte[] key = new byte[] { 1 };
+	Key key = new Key(new byte[] { 1 });
 	Put put = new Put(key);
-	put.addColumn(columnFamily.getName(), new byte[] { 2 }, new byte[] { 3 });
+	put.addColumn(columnFamily.getName(), Key.of(new byte[] { 2 }), ColumnValue.of(new byte[] { 3 }));
 	table.put(put);
 
 	Result result = table.get(new Get(key));
 	assertNotNull(result);
 	assertFalse(result.isEmpty());
-	Set<byte[]> families = result.getFamilies();
+	Set<Key> families = result.getFamilies();
 	assertNotNull(families);
 	assertFalse(families.isEmpty());
     }

@@ -16,10 +16,11 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
@@ -44,13 +45,13 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Result result;
 	try {
-	    result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getNameBytes()));
+	    result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getKey()));
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not read version.", e);
 	}
-	byte[] version = result.getFamilyMap(DatabaseColumnFamily.METADATA.getNameBytes())
-		.get(DatabaseColumn.SCHEMA_VERSION.getNameBytes());
-	return Version.valueOf(Bytes.toString(version));
+	ColumnValue version = result.getFamilyMap(DatabaseColumnFamily.METADATA.getKey())
+		.get(DatabaseColumn.SCHEMA_VERSION.getKey());
+	return Version.valueOf(version.toString());
     }
 
     @Override
@@ -60,16 +61,16 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	Set<String> variableNames = new HashSet<>();
 	Result result;
 	try {
-	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
+	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getKey()));
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not read variable names.", e);
 	}
-	NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getNameBytes());
+	NavigableMap<Key, ColumnValue> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getKey());
 	if (familyMap == null) {
 	    return variableNames;
 	}
-	for (byte[] nameBytes : familyMap.keySet()) {
-	    variableNames.add(Bytes.toString(nameBytes));
+	for (Key column : familyMap.keySet()) {
+	    variableNames.add(column.toString());
 	}
 	return variableNames;
     }
@@ -79,9 +80,9 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	try {
 	    DatabaseEngine storageEngine = graph.getStorageEngine();
 	    TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
-	    Put put = new Put(DatabaseColumnFamily.VARIABLES.getNameBytes());
-	    put.addColumn(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName),
-		    Serializer.serializePropertyValue(value));
+	    Put put = new Put(DatabaseColumnFamily.VARIABLES.getKey());
+	    put.addColumn(DatabaseColumnFamily.VARIABLES.getKey(), Key.of(variableName),
+		    ColumnValue.of(Serializer.serializePropertyValue(value)));
 	    table.put(put);
 	} catch (IOException | StorageException e) {
 	    throw new DuctileDBGraphManagerException(
@@ -95,27 +96,27 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
 	Result result;
 	try {
-	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getNameBytes()));
+	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getKey()));
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not read variable.", e);
 	}
-	NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getNameBytes());
+	NavigableMap<Key, ColumnValue> familyMap = result.getFamilyMap(DatabaseColumnFamily.VARIABLES.getKey());
 	if (familyMap == null) {
 	    return null;
 	}
-	byte[] value = familyMap.get(Bytes.toBytes(variableName));
+	ColumnValue value = familyMap.get(Key.of(variableName));
 	if (value == null) {
 	    return null;
 	}
-	return Serializer.deserializePropertyValue(value);
+	return Serializer.deserializePropertyValue(value.getBytes());
     }
 
     @Override
     public void removeVariable(String variableName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
-	Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getNameBytes());
-	delete.addColumns(DatabaseColumnFamily.VARIABLES.getNameBytes(), Bytes.toBytes(variableName));
+	Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getKey());
+	delete.addColumns(DatabaseColumnFamily.VARIABLES.getKey(), Key.of(variableName));
 	try {
 	    table.delete(delete);
 	} catch (StorageException e) {

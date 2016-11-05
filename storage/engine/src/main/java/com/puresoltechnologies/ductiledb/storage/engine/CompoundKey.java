@@ -47,8 +47,21 @@ public class CompoundKey extends Key {
 	return new CompoundKey(false, keyParts);
     }
 
-    public static CompoundKey of(byte[] rowKey) {
-	return new CompoundKey(true, rowKey);
+    public static CompoundKey of(byte[] compoundKey) {
+	return new CompoundKey(true, compoundKey);
+    }
+
+    public static CompoundKey create(Key... keyParts) {
+	byte[][] parts = new byte[keyParts.length][];
+	for (int i = 0; i < keyParts.length; ++i) {
+	    Key keyPart = keyParts[i];
+	    parts[i] = keyPart.getBytes();
+	}
+	return create(parts);
+    }
+
+    public static CompoundKey of(Key compoundKey) {
+	return of(compoundKey.getBytes());
     }
 
     List<byte[]> parts = new ArrayList<>();
@@ -64,7 +77,7 @@ public class CompoundKey extends Key {
     }
 
     public int getPartNum() {
-	return getKey()[0] & 0xFF;
+	return getBytes()[0] & 0xFF;
     }
 
     public byte[] getPart(int i) {

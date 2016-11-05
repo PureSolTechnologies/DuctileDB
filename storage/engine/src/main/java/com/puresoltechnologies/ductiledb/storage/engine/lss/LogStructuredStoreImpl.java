@@ -325,7 +325,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public void put(byte[] rowKey, ColumnMap values) {
+    public void put(Key rowKey, ColumnMap values) {
 	writeLock.lock();
 	try {
 	    ColumnMap columnMap = get(rowKey);
@@ -333,19 +333,18 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		columnMap.putAll(values);
 		values = columnMap;
 	    }
-	    writeCommitLog(new Key(rowKey), null, values);
+	    writeCommitLog(rowKey, null, values);
 	} finally {
 	    writeLock.unlock();
 	}
     }
 
     @Override
-    public ColumnMap get(byte[] rowKey) {
-	Key rowKey2 = new Key(rowKey);
+    public ColumnMap get(Key rowKey) {
 	ColumnFamilyRow row;
 	readLock.lock();
 	try {
-	    IndexEntry indexEntry = memtable.get(rowKey2);
+	    IndexEntry indexEntry = memtable.get(rowKey);
 	    if (indexEntry != null) {
 		long offset = indexEntry.getOffset();
 		try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
@@ -359,11 +358,11 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 			    e);
 		}
 	    }
-	    row = readFromCommitLogs(rowKey2);
+	    row = readFromCommitLogs(rowKey);
 	    if (row != null) {
 		return row.wasDeleted() ? new ColumnMap() : row.getColumnMap();
 	    }
-	    row = readFromDataFiles(rowKey2);
+	    row = readFromDataFiles(rowKey);
 	} finally {
 	    readLock.unlock();
 	}
@@ -406,7 +405,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey) {
+    public ColumnFamilyScanner getScanner(Key startRowKey, Key endRowKey) {
 	try {
 	    Memtable memtableCopy = new Memtable();
 	    List<File> currentCommitLogs;
@@ -419,36 +418,36 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    } finally {
 		readLock.unlock();
 	    }
-	    return new ColumnFamilyScannerImpl(storage, memtableCopy, currentCommitLogs, dataFiles,
-		    startRowKey != null ? new Key(startRowKey) : null, endRowKey != null ? new Key(endRowKey) : null);
+	    return new ColumnFamilyScannerImpl(storage, memtableCopy, currentCommitLogs, dataFiles, startRowKey,
+		    endRowKey);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create ColumnFamilyScanner.", e);
 	}
     }
 
     @Override
-    public void delete(byte[] rowKey) {
+    public void delete(Key rowKey) {
 	writeLock.lock();
 	try {
-	    writeCommitLog(new Key(rowKey), Instant.now(), new ColumnMap());
+	    writeCommitLog(rowKey, Instant.now(), new ColumnMap());
 	} finally {
 	    writeLock.unlock();
 	}
     }
 
     @Override
-    public void delete(byte[] rowKey, Set<byte[]> columns) {
+    public void delete(Key rowKey, Set<Key> columns) {
 	writeLock.lock();
 	try {
 	    ColumnMap columnMap = get(rowKey);
 	    if (columnMap != null) {
-		for (byte[] columnKey : columns) {
+		for (Key columnKey : columns) {
 		    columnMap.remove(columnKey);
 		}
 		if (columnMap.size() == 0) {
 		    delete(rowKey);
 		} else {
-		    writeCommitLog(new Key(rowKey), null, columnMap);
+		    writeCommitLog(rowKey, null, columnMap);
 		}
 	    }
 	} finally {

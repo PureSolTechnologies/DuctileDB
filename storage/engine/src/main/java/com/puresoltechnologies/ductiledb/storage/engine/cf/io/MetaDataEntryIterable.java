@@ -97,7 +97,7 @@ public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
 	    }
 	    long endOffset = Bytes.toLong(buffer);
 
-	    return new MetaDataEntry(fileName, new Key(startKey), startOffset, new Key(endKey), endOffset);
+	    return new MetaDataEntry(fileName, Key.of(startKey), startOffset, Key.of(endKey), endOffset);
 	} catch (IOException e) {
 	    logger.error("Error reading metadata file", e);
 	    return null;

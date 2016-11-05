@@ -46,7 +46,7 @@ public class SecondaryIndexInputStream extends DuctileDBInputStream {
 	    logger.warn("Could not read full number of bytes needed. It is maybe a broken index file.");
 	    return null;
 	}
-	return new SecondaryIndexEntry(value, new Key(key));
+	return new SecondaryIndexEntry(value, Key.of(key));
     }
 
 }

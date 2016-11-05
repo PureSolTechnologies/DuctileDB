@@ -9,10 +9,38 @@ public class Key implements Comparable<Key> {
 
     private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();
 
+    public static Key fromHexString(String hexString) {
+	return new Key(Bytes.fromHexString(hexString));
+    }
+
+    public static Key of(byte b) {
+	return new Key(Bytes.toBytes(b));
+    }
+
+    public static Key of(short s) {
+	return new Key(Bytes.toBytes(s));
+    }
+
+    public static Key of(int i) {
+	return new Key(Bytes.toBytes(i));
+    }
+
+    public static Key of(long l) {
+	return new Key(Bytes.toBytes(l));
+    }
+
+    public static Key of(String s) {
+	return new Key(Bytes.toBytes(s));
+    }
+
+    public static Key of(byte[] bytes) {
+	return new Key(bytes);
+    }
+
     private final int hashCode;
     private final byte[] key;
 
-    public Key(byte[] key) {
+    protected Key(byte[] key) {
 	super();
 	if ((key == null) || (key.length == 0)) {
 	    throw new IllegalArgumentException("Row keys must not be null or empty.");
@@ -25,7 +53,7 @@ public class Key implements Comparable<Key> {
 	hashCode = result;
     }
 
-    public byte[] getKey() {
+    public byte[] getBytes() {
 	return key;
     }
 
@@ -57,6 +85,30 @@ public class Key implements Comparable<Key> {
 
     @Override
     public String toString() {
+	return Bytes.toString(key);
+    }
+
+    public String toHexString() {
+	return Bytes.toHexString(key);
+    }
+
+    public String toHumanReadableString() {
 	return Bytes.toHumanReadableString(key);
+    }
+
+    public byte toByte() {
+	return Bytes.toByte(key);
+    }
+
+    public short toShort() {
+	return Bytes.toShort(key);
+    }
+
+    public int toInt() {
+	return Bytes.toInt(key);
+    }
+
+    public long toLong() {
+	return Bytes.toLong(key);
     }
 }

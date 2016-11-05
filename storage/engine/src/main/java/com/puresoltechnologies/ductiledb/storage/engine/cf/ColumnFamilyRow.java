@@ -56,7 +56,7 @@ public final class ColumnFamilyRow {
     @Override
     public String toString() {
 	// TODO Auto-generated method stub
-	return Bytes.toHumanReadableString(rowKey.getKey()) + " " + (wasDeleted() ? "(deleted)" : "") + ":\n"
+	return Bytes.toHumanReadableString(rowKey.getBytes()) + " " + (wasDeleted() ? "(deleted)" : "") + ":\n"
 		+ columnMap.toString();
     }
 }

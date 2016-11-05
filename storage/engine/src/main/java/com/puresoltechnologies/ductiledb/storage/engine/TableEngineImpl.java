@@ -16,9 +16,9 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -34,8 +34,7 @@ public class TableEngineImpl implements TableEngine {
     private final Storage storage;
     private final TableDescriptor tableDescriptor;
     private final DatabaseEngineConfiguration configuration;
-    private final TreeMap<byte[], ColumnFamilyEngineImpl> columnFamilyEngines = new TreeMap<>(
-	    ByteArrayComparator.getInstance());
+    private final TreeMap<Key, ColumnFamilyEngineImpl> columnFamilyEngines = new TreeMap<>();
 
     public TableEngineImpl(Storage storage, TableDescriptor tableDescriptor,
 	    DatabaseEngineConfiguration configuration) {
@@ -93,17 +92,17 @@ public class TableEngineImpl implements TableEngine {
     }
 
     @Override
-    public Set<byte[]> getColumnFamilies() {
+    public Set<Key> getColumnFamilies() {
 	return columnFamilyEngines.keySet();
     }
 
-    public ColumnFamilyEngineImpl getColumnFamilyEngine(byte[] columnFamily) {
+    public ColumnFamilyEngineImpl getColumnFamilyEngine(Key columnFamily) {
 	return columnFamilyEngines.get(columnFamily);
     }
 
     @Override
     public void put(Put put) {
-	for (byte[] columnFamily : put.getColumnFamilies()) {
+	for (Key columnFamily : put.getColumnFamilies()) {
 	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
 	    columnFamilyEngine.put(put.getKey(), put.getColumnValues(columnFamily));
 	}
@@ -118,11 +117,11 @@ public class TableEngineImpl implements TableEngine {
 
     @Override
     public void delete(Delete delete) {
-	byte[] rowKey = delete.getKey();
-	Set<byte[]> columnFamilies = delete.getColumnFamilies();
+	Key rowKey = delete.getKey();
+	Set<Key> columnFamilies = delete.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
-	    for (byte[] columnFamily : columnFamilies) {
-		Set<byte[]> columns = delete.getColumns(columnFamily);
+	    for (Key columnFamily : columnFamilies) {
+		Set<Key> columns = delete.getColumns(columnFamily);
 		ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
 		if (columns.size() == 0) {
 		    columnFamilyEngine.delete(rowKey);
@@ -131,7 +130,7 @@ public class TableEngineImpl implements TableEngine {
 		}
 	    }
 	} else {
-	    for (Entry<byte[], ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
+	    for (Entry<Key, ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
 		ColumnFamilyEngineImpl columnFamilyEngine = columnFamily.getValue();
 		columnFamilyEngine.delete(rowKey);
 	    }
@@ -147,16 +146,16 @@ public class TableEngineImpl implements TableEngine {
 
     @Override
     public Result get(Get get) {
-	byte[] rowKey = get.getKey();
+	Key rowKey = get.getKey();
 	Result result = new Result(rowKey);
-	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = get.getColumnFamilies();
+	NavigableMap<Key, NavigableSet<Key>> columnFamilies = get.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
-	    for (byte[] columnFamily : columnFamilies.keySet()) {
+	    for (Key columnFamily : columnFamilies.keySet()) {
 		ColumnMap columns = columnFamilyEngines.get(columnFamily).get(rowKey);
 		result.add(columnFamily, columns);
 	    }
 	} else {
-	    for (Entry<byte[], ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
+	    for (Entry<Key, ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
 		ColumnMap columns = columnFamily.getValue().get(rowKey);
 		result.add(columnFamily.getKey(), columns);
 	    }
@@ -166,12 +165,13 @@ public class TableEngineImpl implements TableEngine {
 
     public Set<ColumnFamilyEngine> getColumnFamilyEngines() {
 	Set<ColumnFamilyEngine> columnFamilies = new HashSet<>();
-	for (byte[] columnFamilyName : getColumnFamilies()) {
+	for (Key columnFamilyName : getColumnFamilies()) {
 	    columnFamilies.add(getColumnFamilyEngine(columnFamilyName));
 	}
 	return columnFamilies;
     }
 
+    @Override
     public ResultScanner getScanner(Scan scan) {
 	try {
 	    return new ResultScanner(this, scan);
@@ -181,7 +181,8 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
-    public ResultScanner find(Scan scan, byte[] columnKey, byte[] value) {
+    @Override
+    public ResultScanner find(Scan scan, Key columnKey, ColumnValue value) {
 	try {
 	    return new ResultScanner(this, scan, columnKey, value);
 	} catch (StorageException e) {
@@ -190,7 +191,8 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
-    public ResultScanner find(Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
+    @Override
+    public ResultScanner find(Scan scan, Key columnKey, ColumnValue fromValue, ColumnValue toValue) {
 	try {
 	    return new ResultScanner(this, scan, columnKey, fromValue, toValue);
 	} catch (StorageException e) {
@@ -199,7 +201,8 @@ public class TableEngineImpl implements TableEngine {
 	}
     }
 
-    public long incrementColumnValue(byte[] rowKey, byte[] columnFamily, byte[] column, long incrementValue) {
+    @Override
+    public long incrementColumnValue(Key rowKey, Key columnFamily, Key column, long incrementValue) {
 	ColumnFamilyEngineImpl columnFamilyEngine = getColumnFamilyEngine(columnFamily);
 	return columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
     }

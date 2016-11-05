@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary;
 import java.io.File;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 
@@ -19,7 +20,7 @@ public class SecondaryIndexDescriptor {
     private final ColumnKeySet columns = new ColumnKeySet();
     private final IndexType indexType;
 
-    public SecondaryIndexDescriptor(String name, ColumnFamilyDescriptor columnFamilyDescriptor, Set<byte[]> columns,
+    public SecondaryIndexDescriptor(String name, ColumnFamilyDescriptor columnFamilyDescriptor, Set<Key> columns,
 	    IndexType indexType) {
 	super();
 	this.name = name;
@@ -48,15 +49,15 @@ public class SecondaryIndexDescriptor {
 	return new File(new File(columnFamilyDescriptor.getDirectory(), "indizes"), name);
     }
 
-    public boolean matchesColumns(byte[]... columnsArray) {
-	return matchesColumns(new ColumnKeySet(columnsArray));
+    public boolean matchesColumns(Key... columns) {
+	return matchesColumns(new ColumnKeySet(columns));
     }
 
     public boolean matchesColumns(ColumnKeySet columnSet) {
 	if (columns.size() > columnSet.size()) {
 	    return false;
 	}
-	for (byte[] column : columns) {
+	for (Key column : columns) {
 	    if (!columnSet.contains(column)) {
 		return false;
 	    }

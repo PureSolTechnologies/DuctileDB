@@ -13,6 +13,7 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 
 public class RemoveEdgeOperation extends AbstractTxOperation {
 
@@ -57,13 +58,13 @@ public class RemoveEdgeOperation extends AbstractTxOperation {
     @Override
     public void perform() throws IOException {
 	long edgeId = edge.getId();
-	Delete deleteOutEdge = new Delete(IdEncoder.encodeRowId(startVertexId));
-	deleteOutEdge.addColumns(DatabaseColumnFamily.EDGES.getNameBytes(),
-		new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode());
-	Delete deleteInEdge = new Delete(IdEncoder.encodeRowId(targetVertexId));
-	deleteInEdge.addColumns(DatabaseColumnFamily.EDGES.getNameBytes(),
-		new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode());
-	Delete deleteEdges = new Delete(IdEncoder.encodeRowId(edgeId));
+	Delete deleteOutEdge = new Delete(Key.of(IdEncoder.encodeRowId(startVertexId)));
+	deleteOutEdge.addColumns(DatabaseColumnFamily.EDGES.getKey(),
+		Key.of(new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type).encode()));
+	Delete deleteInEdge = new Delete(Key.of(IdEncoder.encodeRowId(targetVertexId)));
+	deleteInEdge.addColumns(DatabaseColumnFamily.EDGES.getKey(),
+		Key.of(new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type).encode()));
+	Delete deleteEdges = new Delete(Key.of(IdEncoder.encodeRowId(edgeId)));
 	Delete typeIndex = OperationsHelper.createEdgeTypeIndexDelete(edgeId, type);
 	List<Delete> propertyIndices = new ArrayList<>();
 	for (String key : edgePropertyKeys) {

@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.NavigableMap;
 
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
@@ -15,10 +14,12 @@ import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 public class SetEdgePropertyOperation extends AbstractTxOperation {
 
@@ -63,38 +64,37 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
 	try {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    TableEngine table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
-	    Result startVertexResult = table.get(new Get(startVertexRowId));
+	    Result startVertexResult = table.get(new Get(Key.of(startVertexRowId)));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");
 	    }
-	    NavigableMap<byte[], byte[]> startVertexEdgeColumnFamily = startVertexResult
-		    .getFamilyMap(DatabaseColumnFamily.EDGES.getNameBytes());
+	    ColumnMap startVertexEdgeColumnFamily = startVertexResult.getFamilyMap(DatabaseColumnFamily.EDGES.getKey());
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
-	    byte[] startVertexPropertyBytes = startVertexEdgeColumnFamily.get(startVertexEdgeKey.encode());
-	    EdgeValue startVertexEdgeValue = EdgeValue.decode(startVertexPropertyBytes);
+	    ColumnValue startVertexProperty = startVertexEdgeColumnFamily.get(Key.of(startVertexEdgeKey.encode()));
+	    EdgeValue startVertexEdgeValue = EdgeValue.decode(startVertexProperty.getBytes());
 	    startVertexEdgeValue.getProperties().put(key, value);
-	    Put startVertexPut = new Put(startVertexRowId);
-	    startVertexPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(), startVertexEdgeKey.encode(),
-		    startVertexEdgeValue.encode());
+	    Put startVertexPut = new Put(Key.of(startVertexRowId));
+	    startVertexPut.addColumn(DatabaseColumnFamily.EDGES.getKey(), Key.of(startVertexEdgeKey.encode()),
+		    ColumnValue.of(startVertexEdgeValue.encode()));
 
 	    byte[] targetVertexRowId = IdEncoder.encodeRowId(targetVertexId);
 	    EdgeKey targetVertexEdgeKey = new EdgeKey(EdgeDirection.IN, edgeId, startVertexId, type);
-	    Result targetVertexResult = table.get(new Get(targetVertexRowId));
+	    Result targetVertexResult = table.get(new Get(Key.of(targetVertexRowId)));
 	    if (targetVertexResult.isEmpty()) {
 		throw new IllegalStateException("Target vertex of edge was not found in graph store.");
 	    }
-	    NavigableMap<byte[], byte[]> targetVertexEdgeColumnFamily = targetVertexResult
-		    .getFamilyMap(DatabaseColumnFamily.EDGES.getNameBytes());
-	    byte[] targetVertexPropertyBytes = targetVertexEdgeColumnFamily.get(targetVertexEdgeKey.encode());
-	    EdgeValue targetVertexEdgeValue = EdgeValue.decode(targetVertexPropertyBytes);
+	    ColumnMap targetVertexEdgeColumnFamily = targetVertexResult
+		    .getFamilyMap(DatabaseColumnFamily.EDGES.getKey());
+	    ColumnValue targetVertexProperty = targetVertexEdgeColumnFamily.get(Key.of(targetVertexEdgeKey.encode()));
+	    EdgeValue targetVertexEdgeValue = EdgeValue.decode(targetVertexProperty.getBytes());
 	    targetVertexEdgeValue.getProperties().put(key, value);
-	    Put targetVertexPut = new Put(targetVertexRowId);
-	    targetVertexPut.addColumn(DatabaseColumnFamily.EDGES.getNameBytes(), targetVertexEdgeKey.encode(),
-		    targetVertexEdgeValue.encode());
+	    Put targetVertexPut = new Put(Key.of(targetVertexRowId));
+	    targetVertexPut.addColumn(DatabaseColumnFamily.EDGES.getKey(), Key.of(targetVertexEdgeKey.encode()),
+		    ColumnValue.of(targetVertexEdgeValue.encode()));
 
-	    Put edgePut = new Put(IdEncoder.encodeRowId(edgeId));
-	    edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
-		    Serializer.serializePropertyValue((Serializable) value));
+	    Put edgePut = new Put(Key.of(IdEncoder.encodeRowId(edgeId)));
+	    edgePut.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(key),
+		    ColumnValue.of(Serializer.serializePropertyValue((Serializable) value)));
 
 	    Put index = OperationsHelper.createEdgePropertyIndexPut(edgeId, key, (Serializable) value);
 	    // Add to transaction

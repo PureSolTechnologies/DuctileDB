@@ -7,20 +7,20 @@ import java.util.Set;
 
 public class Delete {
 
-    private final byte[] key;
-    private final Map<byte[], Set<byte[]>> columnFamilies = new HashMap<>();
+    private final Key key;
+    private final Map<Key, Set<Key>> columnFamilies = new HashMap<>();
 
-    public Delete(byte[] key) {
+    public Delete(Key key) {
 	super();
 	this.key = key;
     }
 
-    public final byte[] getKey() {
+    public final Key getKey() {
 	return key;
     }
 
-    public void addColumns(byte[] columnFamily, byte[] columnKey) {
-	Set<byte[]> columns = columnFamilies.get(columnFamily);
+    public void addColumns(Key columnFamily, Key columnKey) {
+	Set<Key> columns = columnFamilies.get(columnFamily);
 	if (columns == null) {
 	    columns = new HashSet<>();
 	    columnFamilies.put(columnFamily, columns);
@@ -29,19 +29,19 @@ public class Delete {
 	columnFamilies.put(columnFamily, columns);
     }
 
-    public void addFamily(byte[] columnFamily) {
-	Set<byte[]> columns = columnFamilies.get(columnFamily);
+    public void addFamily(Key columnFamily) {
+	Set<Key> columns = columnFamilies.get(columnFamily);
 	if (columns == null) {
 	    columns = new HashSet<>();
 	    columnFamilies.put(columnFamily, columns);
 	}
     }
 
-    public Set<byte[]> getColumnFamilies() {
+    public Set<Key> getColumnFamilies() {
 	return columnFamilies.keySet();
     }
 
-    public Set<byte[]> getColumns(byte[] columnKey) {
+    public Set<Key> getColumns(Key columnKey) {
 	return columnFamilies.get(columnKey);
     }
 

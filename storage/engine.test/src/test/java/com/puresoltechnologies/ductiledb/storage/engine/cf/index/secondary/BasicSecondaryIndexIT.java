@@ -14,6 +14,7 @@ import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
@@ -21,7 +22,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
@@ -36,7 +37,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 		"testSecondaryIndexCreateGetDelete", "testcf")) {
 
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
-	    columnKeySet.add(Bytes.toBytes("column1"));
+	    columnKeySet.add(Key.of("column1"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
 		    columnFamily.getDescriptor(), columnKeySet, IndexType.HEAP);
 
@@ -59,7 +60,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(indexDescriptor, index);
 	    ColumnKeySet columns = index.getColumns();
 	    assertEquals(1, columns.size());
-	    assertEquals("column1", Bytes.toString(columns.iterator().next()));
+	    assertEquals("column1", columns.iterator().next().toString());
 
 	    columnFamily.dropIndex("IDX_TEST");
 
@@ -78,7 +79,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE,
 		"testSecondaryIndexSurvivesRestart", "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
-	    columnKeySet.add(Bytes.toBytes("testcol"));
+	    columnKeySet.add(Key.of("testcol"));
 	    indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST", columnFamily.getDescriptor(), columnKeySet,
 		    IndexType.HEAP);
 	    columnFamily.createIndex(indexDescriptor);
@@ -96,7 +97,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	DatabaseEngineImpl engine = getEngine();
 	NamespaceEngineImpl namespaceEngine = engine.getNamespaceEngine(NAMESPACE);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine("testSecondaryIndexSurvivesRestart");
-	ColumnFamilyEngineImpl columnFamily = tableEngine.getColumnFamilyEngine(Bytes.toBytes("testcf"));
+	ColumnFamilyEngineImpl columnFamily = tableEngine.getColumnFamilyEngine(Key.of("testcf"));
 
 	Iterable<SecondaryIndexDescriptor> indizes = columnFamily.getIndizes();
 	Iterator<SecondaryIndexDescriptor> iterator = indizes.iterator();
@@ -118,7 +119,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     private void testIndex(IndexType indexType, String tableName) throws StorageException, SchemaException {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, tableName, "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
-	    columnKeySet.add(Bytes.toBytes("indexed"));
+	    columnKeySet.add(Key.of("indexed"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",
 		    columnFamily.getDescriptor(), columnKeySet, indexType);
 	    columnFamily.createIndex(indexDescriptor);
@@ -135,9 +136,9 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    for (int i = 0; i < TEST_SIZE; ++i) {
 		for (int j = i; j < TEST_SIZE; ++j) {
 		    int id = i * TEST_SIZE + j;
-		    columnMap.put(Bytes.toBytes("id"), Bytes.toBytes(id));
-		    columnMap.put(Bytes.toBytes("indexed"), Bytes.toBytes(j));
-		    columnFamily.put(Bytes.toBytes(id), columnMap);
+		    columnMap.put(Key.of("id"), ColumnValue.of(id));
+		    columnMap.put(Key.of("indexed"), ColumnValue.of(j));
+		    columnFamily.put(Key.of(id), columnMap);
 		}
 	    }
 	    writingTime.stop();
@@ -146,13 +147,12 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    StopWatch readingTime = new StopWatch();
 	    readingTime.start();
 	    for (int i = 0; i < TEST_SIZE; ++i) {
-		ColumnFamilyScanner found = columnFamily.find(Bytes.toBytes("indexed"), Bytes.toBytes(i));
+		ColumnFamilyScanner found = columnFamily.find(Key.of("indexed"), ColumnValue.of(i));
 		for (int j = 0; j <= i; ++j) {
 		    assertTrue(found.hasNext());
 		    ColumnFamilyRow row = found.next();
-		    assertEquals(Bytes.toInt(row.getRowKey().getKey()),
-			    Bytes.toInt(row.getColumnMap().get(Bytes.toBytes("id")).getValue()));
-		    assertEquals(i, Bytes.toInt(row.getColumnMap().get(Bytes.toBytes("indexed")).getValue()));
+		    assertEquals(row.getRowKey().toInt(), row.getColumnMap().get(Key.of("id")).toInt());
+		    assertEquals(i, row.getColumnMap().get(Key.of("indexed")).toInt());
 		}
 		assertFalse(found.hasNext());
 	    }

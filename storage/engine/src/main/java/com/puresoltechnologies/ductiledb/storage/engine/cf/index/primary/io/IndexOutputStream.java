@@ -19,8 +19,8 @@ public class IndexOutputStream extends DuctileDBOutputStream {
     }
 
     public synchronized void writeIndexEntry(Key rowKey, long offset) throws IOException {
-	writeData(Bytes.toBytes(rowKey.getKey().length));
-	writeData(rowKey.getKey());
+	writeData(Bytes.toBytes(rowKey.getBytes().length));
+	writeData(rowKey.getBytes());
 	writeData(Bytes.toBytes(offset));
     }
 

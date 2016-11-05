@@ -31,7 +31,7 @@ public class CompoundKeyTest {
 	CompoundKey compoundKey = CompoundKey.create(new byte[] { 42 });
 	assertNotNull(compoundKey);
 	assertEquals(1, compoundKey.getPartNum());
-	byte[] key = compoundKey.getKey();
+	byte[] key = compoundKey.getBytes();
 	assertNotNull(key);
 	assertEquals(6, key.length);
 	assertEquals(1, key[0]);
@@ -48,7 +48,7 @@ public class CompoundKeyTest {
 		new byte[] { 13, 14, 15 });
 	assertNotNull(compoundKey);
 	assertEquals(3, compoundKey.getPartNum());
-	byte[] key = compoundKey.getKey();
+	byte[] key = compoundKey.getBytes();
 	assertNotNull(key);
 	assertEquals(19, key.length);
 	assertEquals(3, key[0]);
@@ -82,7 +82,7 @@ public class CompoundKeyTest {
 	CompoundKey compoundKey = CompoundKey.create(keyParts);
 	assertNotNull(compoundKey);
 	assertEquals(200, compoundKey.getPartNum());
-	byte[] key = compoundKey.getKey();
+	byte[] key = compoundKey.getBytes();
 	assertNotNull(key);
 	assertEquals(1001, key.length);
 	assertEquals(200, key[0] & 0xFF);

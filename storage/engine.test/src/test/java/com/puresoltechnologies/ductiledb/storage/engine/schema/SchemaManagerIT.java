@@ -13,7 +13,7 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractDatabaseEngineTest;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 
 public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 
@@ -83,8 +83,7 @@ public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 	    assertFalse("No column family should be present.", columnFamilies.hasNext());
 	    assertNull("No column family should be present.", schemaManager.getTable(namespace, "table"));
 
-	    ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(table,
-		    Bytes.toBytes("columnFamily"));
+	    ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamily(table, Key.of("columnFamily"));
 	    assertNotNull(columnFamily);
 
 	    columnFamilies = schemaManager.getColumnFamilies(table).iterator();

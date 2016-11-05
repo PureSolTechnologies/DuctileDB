@@ -1,25 +1,24 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import java.io.File;
-import java.util.Arrays;
 
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 
 public class ColumnFamilyDescriptor {
 
-    private final byte[] name;
+    private final Key name;
     private final TableDescriptor table;
     private final File directory;
     private final File indexDirectory;
 
-    public ColumnFamilyDescriptor(byte[] name, TableDescriptor table, File directory) {
+    public ColumnFamilyDescriptor(Key name, TableDescriptor table, File directory) {
 	this.name = name;
 	this.table = table;
 	this.directory = directory;
 	this.indexDirectory = new File(directory, "indizes");
     }
 
-    public final byte[] getName() {
+    public final Key getName() {
 	return name;
     }
 
@@ -37,8 +36,7 @@ public class ColumnFamilyDescriptor {
 
     @Override
     public String toString() {
-	return "column family:" + table.getNamespace().getName() + "." + table.getName() + "/"
-		+ Bytes.toHumanReadableString(name);
+	return "column family:" + table.getNamespace().getName() + "." + table.getName() + "/" + name;
     }
 
     @Override
@@ -68,7 +66,7 @@ public class ColumnFamilyDescriptor {
 	if (name == null) {
 	    if (other.name != null)
 		return false;
-	} else if (!Arrays.equals(name, other.name))
+	} else if (!name.equals(other.name))
 	    return false;
 	if (table == null) {
 	    if (other.table != null)

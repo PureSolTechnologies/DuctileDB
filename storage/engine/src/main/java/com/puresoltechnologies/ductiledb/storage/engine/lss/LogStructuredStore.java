@@ -5,6 +5,7 @@ import java.io.File;
 import java.time.Instant;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
@@ -84,7 +85,7 @@ public interface LogStructuredStore extends Closeable {
      * @param rowKey
      * @param columnValues
      */
-    public void put(byte[] rowKey, ColumnMap columnValues);
+    public void put(Key rowKey, ColumnMap columnValues);
 
     /**
      * This metho retrieves the columns from the given row.
@@ -92,22 +93,22 @@ public interface LogStructuredStore extends Closeable {
      * @param rowKey
      * @return
      */
-    public ColumnMap get(byte[] rowKey);
+    public ColumnMap get(Key rowKey);
 
     /**
      * This method returns a scanner for the column family.
      * 
      * @return
      */
-    public ColumnFamilyScanner getScanner(byte[] startRowKey, byte[] endRowKey);
+    public ColumnFamilyScanner getScanner(Key startRowKey, Key endRowKey);
 
     /**
      * This method removes the given row.
      * 
      * @param rowKey
      */
-    public void delete(byte[] rowKey);
+    public void delete(Key rowKey);
 
-    public void delete(byte[] rowKey, Set<byte[]> columns);
+    public void delete(Key rowKey, Set<Key> columns);
 
 }

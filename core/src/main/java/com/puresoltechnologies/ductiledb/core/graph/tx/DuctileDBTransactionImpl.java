@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.tx;
 
-import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.ID_ROW_BYTES;
+import static com.puresoltechnologies.ductiledb.core.graph.schema.GraphSchema.ID_ROW_KEY;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,11 +35,12 @@ import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 /**
  * This transaction is used per thread to record changes in the graph to be
@@ -184,7 +185,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try {
 	    TableEngine vertexTable = openVertexTable();
 	    byte[] id = IdEncoder.encodeRowId(vertexId);
-	    Get get = new Get(id);
+	    Get get = new Get(Key.of(id));
 	    Result result = vertexTable.get(get);
 	    if (!result.isEmpty()) {
 		vertex = ResultDecoder.toVertex(this, vertexId, result);
@@ -221,7 +222,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try {
 	    TableEngine table = openEdgeTable();
 	    byte[] id = IdEncoder.encodeRowId(edgeId);
-	    Get get = new Get(id);
+	    Get get = new Get(Key.of(id));
 	    Result result = table.get(get);
 	    if (!result.isEmpty()) {
 		edge = ResultDecoder.toCacheEdge(this, edgeId, result);
@@ -275,9 +276,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (vertexIdCounter >= ID_CACHE_SIZE) {
 	    try {
 		TableEngine metaDataTable = openMetaDataTable();
-		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_BYTES,
-			DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.VERTEX_ID.getNameBytes(),
-			ID_CACHE_SIZE);
+		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_KEY, DatabaseColumnFamily.METADATA.getKey(),
+			DatabaseColumn.VERTEX_ID.getKey(), ID_CACHE_SIZE);
 		vertexIdCounter = 0;
 	    } catch (IOException | StorageException e) {
 		throw new DuctileDBException("Could not create vertex id.", e);
@@ -293,9 +293,8 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	if (edgeIdCounter >= ID_CACHE_SIZE) {
 	    try {
 		TableEngine metaDataTable = openMetaDataTable();
-		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_BYTES,
-			DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.EDGE_ID.getNameBytes(),
-			ID_CACHE_SIZE);
+		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_KEY, DatabaseColumnFamily.METADATA.getKey(),
+			DatabaseColumn.EDGE_ID.getKey(), ID_CACHE_SIZE);
 		edgeIdCounter = 0;
 	    } catch (IOException | StorageException e) {
 		throw new DuctileDBException("Could not create edge id.", e);
@@ -367,13 +366,13 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try {
 	    TableEngine table = openEdgePropertyTable();
 	    List<DuctileDBEdge> edges = new ArrayList<>();
-	    Result result = table.get(new Get(Bytes.toBytes(propertyKey)));
-	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
+	    Result result = table.get(new Get(Key.of(propertyKey)));
+	    NavigableMap<Key, ColumnValue> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 	    if (map != null) {
-		for (Entry<byte[], byte[]> entry : map.entrySet()) {
-		    Object value = Serializer.deserializePropertyValue(entry.getValue());
+		for (Entry<Key, ColumnValue> entry : map.entrySet()) {
+		    Object value = Serializer.deserializePropertyValue(entry.getValue().getBytes());
 		    if ((propertyValue == null) || (value.equals(propertyValue))) {
-			long edgeId = IdEncoder.decodeRowId(entry.getKey());
+			long edgeId = IdEncoder.decodeRowId(entry.getKey().getBytes());
 			if (!wasEdgeRemoved(edgeId)) {
 			    DuctileDBEdge edge = getEdge(edgeId);
 			    if ((edge != null) && //
@@ -416,11 +415,11 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	}
 	try {
 	    TableEngine table = openEdgeTypesTable();
-	    Result result = table.get(new Get(Bytes.toBytes(type)));
-	    NavigableMap<byte[], byte[]> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
+	    Result result = table.get(new Get(Key.of(type)));
+	    NavigableMap<Key, ColumnValue> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 	    List<DuctileDBEdge> edges = new ArrayList<>();
-	    for (byte[] edgeIdBytes : map.keySet()) {
-		long edgeId = IdEncoder.decodeRowId(edgeIdBytes);
+	    for (Key edgeIdBytes : map.keySet()) {
+		long edgeId = IdEncoder.decodeRowId(edgeIdBytes.getBytes());
 		if (!wasEdgeRemoved(edgeId)) {
 		    DuctileDBEdge edge = getEdge(edgeId);
 		    if ((edge != null) && (type.equals(edge.getType()))) {
@@ -477,15 +476,15 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try {
 	    TableEngine table = openVertexPropertyTable();
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
-	    Get get = new Get(Bytes.toBytes(propertyKey));
-	    get.addFamily(DatabaseColumnFamily.INDEX.getNameBytes());
+	    Get get = new Get(Key.of(propertyKey));
+	    get.addFamily(DatabaseColumnFamily.INDEX.getKey());
 	    Result result = table.get(get);
-	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
+	    NavigableMap<Key, ColumnValue> propertyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 	    if (propertyMap != null) {
-		for (Entry<byte[], byte[]> entry : propertyMap.entrySet()) {
-		    Object value = Serializer.deserializePropertyValue(entry.getValue());
+		for (Entry<Key, ColumnValue> entry : propertyMap.entrySet()) {
+		    Object value = Serializer.deserializePropertyValue(entry.getValue().getBytes());
 		    if ((propertyValue == null) || (propertyValue.equals(value))) {
-			long vertexId = IdEncoder.decodeRowId(entry.getKey());
+			long vertexId = IdEncoder.decodeRowId(entry.getKey().getBytes());
 			if (!wasVertexRemoved(vertexId)) {
 			    DuctileDBVertex vertex = getVertex(vertexId);
 			    if ((vertex != null) && //
@@ -528,13 +527,13 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	try {
 	    TableEngine table = openVertexTypesTable();
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
-	    Get get = new Get(Bytes.toBytes(type));
-	    get.addFamily(DatabaseColumnFamily.INDEX.getNameBytes());
+	    Get get = new Get(Key.of(type));
+	    get.addFamily(DatabaseColumnFamily.INDEX.getKey());
 	    Result result = table.get(get);
-	    NavigableMap<byte[], byte[]> propertyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
+	    NavigableMap<Key, ColumnValue> propertyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 	    if (propertyMap != null) {
-		for (byte[] vertexIdBytes : propertyMap.keySet()) {
-		    long vertexId = IdEncoder.decodeRowId(vertexIdBytes);
+		for (Key vertexIdBytes : propertyMap.keySet()) {
+		    long vertexId = IdEncoder.decodeRowId(vertexIdBytes.getBytes());
 		    if (!wasVertexRemoved(vertexId)) {
 			DuctileDBVertex vertex = getVertex(vertexId);
 			if ((vertex != null) && (ElementUtils.getTypes(vertex).contains(type))) {

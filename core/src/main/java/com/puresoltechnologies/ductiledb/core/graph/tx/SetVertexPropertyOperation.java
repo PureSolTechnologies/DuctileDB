@@ -8,8 +8,9 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 public class SetVertexPropertyOperation extends AbstractTxOperation {
 
@@ -46,9 +47,9 @@ public class SetVertexPropertyOperation extends AbstractTxOperation {
     @Override
     public void perform() throws IOException {
 	byte[] id = IdEncoder.encodeRowId(vertexId);
-	Put put = new Put(id);
-	put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
-		Serializer.serializePropertyValue((Serializable) value));
+	Put put = new Put(Key.of(id));
+	put.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(key),
+		ColumnValue.of(Serializer.serializePropertyValue((Serializable) value)));
 	Put index = OperationsHelper.createVertexPropertyIndexPut(vertexId, key, (Serializable) value);
 	put(DatabaseTable.VERTICES.getName(), put);
 	put(DatabaseTable.VERTEX_PROPERTIES.getName(), index);

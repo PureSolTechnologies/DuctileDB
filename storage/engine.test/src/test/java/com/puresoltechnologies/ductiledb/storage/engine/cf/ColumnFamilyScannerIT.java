@@ -36,8 +36,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithoutBounds", "testcf")) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes(12l), Bytes.toBytes(123l));
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    values.put(Key.of(12l), ColumnValue.of(123l));
+	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
@@ -45,10 +45,10 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new Key(rowKey), result.getRowKey());
+	    assertEquals(rowKey, result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Key.of(12l)).getBytes()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -60,8 +60,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithLowerBoundOnly", "testcf")) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes(12l), Bytes.toBytes(123l));
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    values.put(Key.of(12l), ColumnValue.of(123l));
+	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(rowKey, null);
@@ -69,10 +69,10 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new Key(rowKey), result.getRowKey());
+	    assertEquals(rowKey, result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Key.of(12l)).getBytes()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -84,8 +84,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithUpperBoundOnly", "testcf")) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes(12l), Bytes.toBytes(123l));
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    values.put(Key.of(12l), ColumnValue.of(123l));
+	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, rowKey);
@@ -93,10 +93,10 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new Key(rowKey), result.getRowKey());
+	    assertEquals(rowKey, result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Key.of(12l)).getBytes()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -108,8 +108,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithCloseBounds", "testcf")) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes(12l), Bytes.toBytes(123l));
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    values.put(Key.of(12l), ColumnValue.of(123l));
+	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(rowKey, rowKey);
@@ -117,10 +117,10 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new Key(rowKey), result.getRowKey());
+	    assertEquals(rowKey, result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Key.of(12l)).getBytes()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -132,19 +132,19 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithWideBounds", "testcf")) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes(12l), Bytes.toBytes(123l));
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    values.put(Key.of(12l), ColumnValue.of(123l));
+	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(Bytes.toBytes(0l), Bytes.toBytes(123l));
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(Key.of(0l), Key.of(123l));
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
 	    ColumnFamilyRow result = scanner.next();
-	    assertEquals(new Key(rowKey), result.getRowKey());
+	    assertEquals(rowKey, result.getRowKey());
 	    ColumnMap columnMap = result.getColumnMap();
 	    assertEquals(1, columnMap.size());
-	    assertEquals(123l, Bytes.toLong(columnMap.get(Bytes.toBytes(12l)).getValue()));
+	    assertEquals(123l, Bytes.toLong(columnMap.get(Key.of(12l)).getBytes()));
 
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -156,8 +156,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testEmptyScannerAfterDeletion", "testcf")) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes(123l), Bytes.toBytes(1234l));
-	    byte[] rowKey = Bytes.toBytes(12345l);
+	    values.put(Key.of(123l), ColumnValue.of(1234l));
+	    Key rowKey = Key.of(12345l);
 	    columnFamilyEngine.put(rowKey, values);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
@@ -183,8 +183,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 	    for (long i = 1; i <= 200; ++i) {
 		ColumnMap values = new ColumnMap();
-		values.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
-		byte[] rowKey = Bytes.toBytes(i);
+		values.put(Key.of(i * 10), ColumnValue.of(i * 100));
+		Key rowKey = Key.of(i);
 		columnFamilyEngine.put(rowKey, values);
 	    }
 
@@ -193,7 +193,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 
 	    for (long i = 1; i <= 200; ++i) {
-		byte[] rowKey = Bytes.toBytes(i);
+		Key rowKey = Key.of(i);
 		columnFamilyEngine.delete(rowKey);
 	    }
 
@@ -215,8 +215,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columnFamilyEngine.setRunCompactions(false);
 	    for (long i = 1; i <= 100; ++i) {
 		ColumnMap values = new ColumnMap();
-		values.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
-		byte[] rowKey = Bytes.toBytes(i);
+		values.put(Key.of(i * 10), ColumnValue.of(i * 100));
+		Key rowKey = Key.of(i);
 		columnFamilyEngine.put(rowKey, values);
 	    }
 
@@ -225,7 +225,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    assertTrue(scanner.hasNext());
 
 	    for (long i = 1; i <= 100; ++i) {
-		byte[] rowKey = Bytes.toBytes(i);
+		Key rowKey = Key.of(i);
 		columnFamilyEngine.delete(rowKey);
 	    }
 
@@ -245,43 +245,43 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 	    // Check behavior of empty Memtable
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    Key rowKey = Key.of(1l);
 	    ColumnMap entry = columnFamilyEngine.get(rowKey);
 	    assertTrue(entry.isEmpty());
 
 	    // Check put
 	    ColumnMap columns = new ColumnMap();
-	    columns.put(Bytes.toBytes(10l), Bytes.toBytes(100l));
+	    columns.put(Key.of(10l), ColumnValue.of(100l));
 	    columnFamilyEngine.put(rowKey, columns);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(Bytes.toLong(rowKey), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(rowKey, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check put with column extension
 	    columns = new ColumnMap();
-	    columns.put(Bytes.toBytes(20l), Bytes.toBytes(200l));
+	    columns.put(Key.of(20l), ColumnValue.of(200l));
 	    columnFamilyEngine.put(rowKey, columns);
 
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(Bytes.toLong(rowKey), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(rowKey, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check put with column extensions with compaction
 	    for (long i = 3; i <= 100; ++i) {
 		columns = new ColumnMap();
-		columns.put(Bytes.toBytes((i + 1) * 10), Bytes.toBytes((i + 1) * 100));
+		columns.put(Key.of((i + 1) * 10), ColumnValue.of((i + 1) * 100));
 		columnFamilyEngine.put(rowKey, columns);
 	    }
 
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(Bytes.toLong(rowKey), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(rowKey, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 	}
     }
@@ -293,37 +293,37 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 	    // Check behavior of empty Memtable
-	    byte[] rowKey1 = Bytes.toBytes(1l);
+	    Key rowKey1 = Key.of(1l);
 	    ColumnMap entry1 = columnFamilyEngine.get(rowKey1);
 	    assertTrue(entry1.isEmpty());
 
-	    byte[] rowKey2 = Bytes.toBytes(2l);
+	    Key rowKey2 = Key.of(2l);
 	    ColumnMap entry2 = columnFamilyEngine.get(rowKey2);
 	    assertTrue(entry2.isEmpty());
 
-	    byte[] rowKey3 = Bytes.toBytes(3l);
+	    Key rowKey3 = Key.of(3l);
 	    ColumnMap entry3 = columnFamilyEngine.get(rowKey3);
 	    assertTrue(entry3.isEmpty());
 
 	    // Check put
 	    ColumnMap columns = new ColumnMap();
-	    columns.put(Bytes.toBytes(10l), Bytes.toBytes(100l));
+	    columns.put(Key.of(10l), ColumnValue.of(100l));
 	    columnFamilyEngine.put(rowKey1, columns);
 
 	    ColumnMap columns2 = new ColumnMap();
-	    columns2.put(Bytes.toBytes(20l), Bytes.toBytes(200l));
+	    columns2.put(Key.of(20l), ColumnValue.of(200l));
 	    columnFamilyEngine.put(rowKey2, columns2);
 
 	    ColumnMap columns3 = new ColumnMap();
-	    columns3.put(Bytes.toBytes(30l), Bytes.toBytes(300l));
+	    columns3.put(Key.of(30l), ColumnValue.of(300l));
 	    columnFamilyEngine.put(rowKey3, columns3);
 
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(Bytes.toLong(rowKey1), Bytes.toLong(scanner.next().getRowKey().getKey()));
-	    assertEquals(Bytes.toLong(rowKey2), Bytes.toLong(scanner.next().getRowKey().getKey()));
-	    assertEquals(Bytes.toLong(rowKey3), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(rowKey1, scanner.next().getRowKey());
+	    assertEquals(rowKey2, scanner.next().getRowKey());
+	    assertEquals(rowKey3, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check put with column extension
@@ -332,8 +332,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(Bytes.toLong(rowKey1), Bytes.toLong(scanner.next().getRowKey().getKey()));
-	    assertEquals(Bytes.toLong(rowKey3), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(rowKey1, scanner.next().getRowKey());
+	    assertEquals(rowKey3, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check after compaction
@@ -342,8 +342,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(Bytes.toLong(rowKey1), Bytes.toLong(scanner.next().getRowKey().getKey()));
-	    assertEquals(Bytes.toLong(rowKey3), Bytes.toLong(scanner.next().getRowKey().getKey()));
+	    assertEquals(rowKey1, scanner.next().getRowKey());
+	    assertEquals(rowKey3, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 	}
     }
@@ -362,21 +362,21 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 
 	    for (long i = 1; i <= 1000; ++i) {
 		ColumnMap columnMap = new ColumnMap();
-		columnMap.put(Bytes.toBytes(i * 10), Bytes.toBytes(i * 100));
-		columnFamilyEngine.put(Bytes.toBytes(i), columnMap);
+		columnMap.put(Key.of(i * 10), ColumnValue.of(i * 100));
+		columnFamilyEngine.put(Key.of(i), columnMap);
 	    }
 
-	    scanner = columnFamilyEngine.getScanner(Bytes.toBytes(100l), Bytes.toBytes(900l));
+	    scanner = columnFamilyEngine.getScanner(Key.of(100l), Key.of(900l));
 	    assertNotNull(scanner);
 
 	    long current = 100l;
 	    while (scanner.hasNext()) {
 		ColumnFamilyRow startResult = scanner.next();
-		long l = Bytes.toLong(startResult.getRowKey().getKey());
+		long l = Bytes.toLong(startResult.getRowKey().getBytes());
 		assertEquals(current, l);
-		ColumnValue value = startResult.getColumnMap().get(Bytes.toBytes(l * 10l));
+		ColumnValue value = startResult.getColumnMap().get(Key.of(l * 10l));
 		assertNotNull(value);
-		assertEquals(l * 100l, Bytes.toLong(value.getValue()));
+		assertEquals(l * 100l, Bytes.toLong(value.getBytes()));
 		++current;
 	    }
 	    assertEquals(901, current);

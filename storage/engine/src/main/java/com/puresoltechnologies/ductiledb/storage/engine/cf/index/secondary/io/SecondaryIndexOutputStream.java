@@ -17,8 +17,8 @@ public class SecondaryIndexOutputStream extends DuctileDBOutputStream {
     public synchronized void writeIndexEntry(byte[] value, Key rowKey) throws IOException {
 	writeData(Bytes.toBytes(value.length));
 	writeData(value);
-	writeData(Bytes.toBytes(rowKey.getKey().length));
-	writeData(rowKey.getKey());
+	writeData(Bytes.toBytes(rowKey.getBytes().length));
+	writeData(rowKey.getBytes());
     }
 
 }

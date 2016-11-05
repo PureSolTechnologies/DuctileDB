@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class CompactorIT extends AbstractColumnFamiliyEngineTest {
@@ -26,14 +26,14 @@ public class CompactorIT extends AbstractColumnFamiliyEngineTest {
     public void testRolloverOfEmptyCommitLog() throws SchemaException, StorageException, InterruptedException {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testRolloverOfEmptyCommitLog", "testcf")) {
-	    byte[] rowKey = Bytes.toBytes(1l);
+	    Key rowKey = Key.of(1l);
 
 	    ColumnMap result = columnFamilyEngine.get(rowKey);
 	    assertTrue(result.isEmpty());
 	    assertFalse(columnFamilyEngine.getScanner(null, null).hasNext());
 
 	    ColumnMap columnMap = new ColumnMap();
-	    columnMap.put(Bytes.toBytes(10l), Bytes.toBytes(100l));
+	    columnMap.put(Key.of(10l), ColumnValue.of(100l));
 	    columnFamilyEngine.put(rowKey, columnMap);
 
 	    result = columnFamilyEngine.get(rowKey);

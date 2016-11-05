@@ -10,7 +10,7 @@ import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
@@ -50,7 +50,7 @@ public class CreateTableImpl implements CreateTable {
 		columnFamilies.add(columnDefinition.getColumnFamily());
 	    }
 	    for (String columnFamily : columnFamilies) {
-		schemaManager.createColumnFamily(tableDescriptor, Bytes.toBytes(columnFamily));
+		schemaManager.createColumnFamily(tableDescriptor, Key.of(columnFamily));
 	    }
 	    ((TableStoreImpl) tableStore).getSchema().addTableDefinition(namespace, tableDefinition);
 	    return null;

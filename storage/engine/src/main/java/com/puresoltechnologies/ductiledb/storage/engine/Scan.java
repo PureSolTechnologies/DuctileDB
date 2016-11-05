@@ -5,44 +5,41 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
-
 public class Scan {
 
-    private final byte[] startRow;
-    private final byte[] endRow;
-    private NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = new TreeMap<>(
-	    ByteArrayComparator.getInstance());
+    private final Key startRow;
+    private final Key endRow;
+    private NavigableMap<Key, NavigableSet<Key>> columnFamilies = new TreeMap<>();
 
     public Scan() {
 	this(null, null);
     }
 
-    public Scan(byte[] startRow) {
+    public Scan(Key startRow) {
 	this(startRow, null);
     }
 
-    public Scan(byte[] startRow, byte[] endRow) {
+    public Scan(Key startRow, Key endRow) {
 	super();
 	this.startRow = startRow;
 	this.endRow = endRow;
     }
 
-    public byte[] getStartRow() {
+    public Key getStartRow() {
 	return startRow;
     }
 
-    public byte[] getEndRow() {
+    public Key getEndRow() {
 	return endRow;
     }
 
-    public void addFamily(byte[] columnFamily) {
+    public void addFamily(Key columnFamily) {
 	columnFamilies.remove(columnFamily);
 	columnFamilies.put(columnFamily, null);
     }
 
-    public void addColumn(byte[] columnFamily, byte[] column) {
-	NavigableSet<byte[]> columns = columnFamilies.get(columnFamily);
+    public void addColumn(Key columnFamily, Key column) {
+	NavigableSet<Key> columns = columnFamilies.get(columnFamily);
 	if (columns == null) {
 	    columns = new TreeSet<>();
 	    columnFamilies.put(columnFamily, columns);
@@ -50,7 +47,7 @@ public class Scan {
 	columns.add(column);
     }
 
-    public NavigableMap<byte[], NavigableSet<byte[]>> getColumnFamilies() {
+    public NavigableMap<Key, NavigableSet<Key>> getColumnFamilies() {
 	return columnFamilies;
     }
 }

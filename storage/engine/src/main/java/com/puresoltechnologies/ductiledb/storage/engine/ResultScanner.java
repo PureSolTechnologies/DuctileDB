@@ -11,7 +11,7 @@ import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 /**
  * This is class used to scan for results.
@@ -20,18 +20,16 @@ import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparato
  */
 public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterable<Result> {
 
-    private static final ByteArrayComparator BYTE_ARRAY_COMPARATOR = ByteArrayComparator.getInstance();
-
-    private final NavigableMap<byte[], ColumnFamilyScanner> cfScanners = new TreeMap<>(BYTE_ARRAY_COMPARATOR);
+    private final NavigableMap<Key, ColumnFamilyScanner> cfScanners = new TreeMap<>();
 
     private final TableEngine table;
     private Result nextResult = null;
 
     public ResultScanner(TableEngineImpl table, Scan scan) {
 	this.table = table;
-	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
+	NavigableMap<Key, NavigableSet<Key>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
-	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
+	    for (Key columnFamilyKey : columnFamilies.keySet()) {
 		ColumnFamilyEngine columnFamily = table.getColumnFamilyEngine(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.getScanner(scan.getStartRow(), scan.getEndRow()));
 	    }
@@ -42,11 +40,11 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	}
     }
 
-    public ResultScanner(TableEngineImpl table, Scan scan, byte[] columnKey, byte[] value) {
+    public ResultScanner(TableEngineImpl table, Scan scan, Key columnKey, ColumnValue value) {
 	this.table = table;
-	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
+	NavigableMap<Key, NavigableSet<Key>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
-	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
+	    for (Key columnFamilyKey : columnFamilies.keySet()) {
 		ColumnFamilyEngine columnFamily = table.getColumnFamilyEngine(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.find(columnKey, value));
 	    }
@@ -57,11 +55,11 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	}
     }
 
-    public ResultScanner(TableEngineImpl table, Scan scan, byte[] columnKey, byte[] fromValue, byte[] toValue) {
+    public ResultScanner(TableEngineImpl table, Scan scan, Key columnKey, ColumnValue fromValue, ColumnValue toValue) {
 	this.table = table;
-	NavigableMap<byte[], NavigableSet<byte[]>> columnFamilies = scan.getColumnFamilies();
+	NavigableMap<Key, NavigableSet<Key>> columnFamilies = scan.getColumnFamilies();
 	if (!columnFamilies.isEmpty()) {
-	    for (byte[] columnFamilyKey : columnFamilies.keySet()) {
+	    for (Key columnFamilyKey : columnFamilies.keySet()) {
 		ColumnFamilyEngine columnFamily = table.getColumnFamilyEngine(columnFamilyKey);
 		cfScanners.put(columnFamilyKey, columnFamily.find(columnKey, fromValue, toValue));
 	    }
@@ -105,12 +103,12 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 
     private void readNextResult() {
 	Key minimum = null;
-	for (Entry<byte[], ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
+	for (Entry<Key, ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
 	    ColumnFamilyScanner scanner = scannerEntry.getValue();
 	    ColumnFamilyRow row = scanner.peek();
 	    if (row != null) {
 		Key rowKey = row.getRowKey();
-		if ((minimum == null) || (BYTE_ARRAY_COMPARATOR.compare(rowKey.getKey(), minimum.getKey()) < 0)) {
+		if ((minimum == null) || (rowKey.compareTo(minimum) < 0)) {
 		    minimum = rowKey;
 		}
 	    }
@@ -119,13 +117,13 @@ public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterab
 	    nextResult = null;
 	    return;
 	}
-	Result result = new Result(minimum.getKey());
-	for (Entry<byte[], ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
+	Result result = new Result(minimum);
+	for (Entry<Key, ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
 	    ColumnFamilyScanner scanner = scannerEntry.getValue();
 	    ColumnFamilyRow row = scanner.peek();
 	    if (row != null) {
 		Key rowKey = row.getRowKey();
-		if (BYTE_ARRAY_COMPARATOR.compare(rowKey.getKey(), minimum.getKey()) == 0) {
+		if (rowKey.compareTo(minimum) == 0) {
 		    result.add(scannerEntry.getKey(), row.getColumnMap());
 		    scanner.skip();
 		}

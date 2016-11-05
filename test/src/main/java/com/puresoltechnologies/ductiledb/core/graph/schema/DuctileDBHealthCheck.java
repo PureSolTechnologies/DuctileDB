@@ -25,11 +25,13 @@ import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 /**
  * This class is used to check for consistency in DuctileDB. It is primarily
@@ -89,10 +91,10 @@ public class DuctileDBHealthCheck {
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
 	    TableEngine vertexTypesTable = storageEngine.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
 	    for (String type : vertex.getTypes()) {
-		Result result = vertexTypesTable.get(new Get(Bytes.toBytes(type)));
+		Result result = vertexTypesTable.get(new Get(Key.of(type)));
 		assertFalse("Could not find row for type '" + type + "' in vertex type index.", result.isEmpty());
-		byte[] value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes())
-			.get(IdEncoder.encodeRowId(vertex.getId()));
+		ColumnValue value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey())
+			.get(Key.of(IdEncoder.encodeRowId(vertex.getId())));
 		assertNotNull("Could not find vertex type index entry for type '" + type + "' for vertex with id '"
 			+ vertex.getId() + "'", value);
 	    }
@@ -101,14 +103,14 @@ public class DuctileDBHealthCheck {
 		    DatabaseTable.VERTEX_PROPERTIES.getName());
 	    for (String key : vertex.getPropertyKeys()) {
 		Object value = vertex.getProperty(key);
-		Result result = vertexPropertiesTable.get(new Get(Bytes.toBytes(key)));
+		Result result = vertexPropertiesTable.get(new Get(Key.of(key)));
 		assertFalse("Could not find row for property '" + key + "' in vertex property index.",
 			result.isEmpty());
-		NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
+		ColumnMap familyMap = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 		assertNotNull("Could not find vertex property index entry for property '" + key
 			+ "' for vertex with id '" + vertex.getId() + "'", familyMap);
-		Object deserialized = Serializer
-			.deserializePropertyValue(familyMap.get(IdEncoder.encodeRowId(vertex.getId())));
+		Object deserialized = Serializer.deserializePropertyValue(
+			familyMap.get(Key.of(IdEncoder.encodeRowId(vertex.getId()))).getBytes());
 		assertEquals("Value for vertex property '" + key + "' for vertex '" + vertex.getId()
 			+ "' is not as expected. ", value, deserialized);
 	    }
@@ -135,25 +137,25 @@ public class DuctileDBHealthCheck {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String type = edge.getType();
 	    TableEngine table = storageEngine.getTable(namespace, DatabaseTable.EDGE_TYPES.getName());
-	    Result result = table.get(new Get(Bytes.toBytes(type)));
+	    Result result = table.get(new Get(Key.of(type)));
 	    assertFalse("Could not find row for type '" + type + "' in edge type index.", result.isEmpty());
-	    byte[] value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes())
-		    .get(IdEncoder.encodeRowId(edge.getId()));
+	    ColumnValue value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey())
+		    .get(Key.of(IdEncoder.encodeRowId(edge.getId())));
 	    assertNotNull("Could not find edge type index entry for type '" + type + "' for edge with id '"
 		    + edge.getId() + "'", value);
 
 	    table = storageEngine.getTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName());
 	    for (String key : edge.getPropertyKeys()) {
 		Object propertyValue = edge.getProperty(key);
-		Result tableResult = table.get(new Get(Bytes.toBytes(key)));
+		Result tableResult = table.get(new Get(Key.of(key)));
 		assertFalse("Could not find row for property '" + key + "' in edge property index.",
 			tableResult.isEmpty());
-		NavigableMap<byte[], byte[]> familyMap = tableResult
-			.getFamilyMap(DatabaseColumnFamily.INDEX.getNameBytes());
+		NavigableMap<Key, ColumnValue> familyMap = tableResult
+			.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 		assertNotNull("Could not find edge property index entry for property '" + key + "' for edge with id '"
 			+ edge.getId() + "'", familyMap);
-		Object deserialized = Serializer
-			.deserializePropertyValue(familyMap.get(IdEncoder.encodeRowId(edge.getId())));
+		Object deserialized = Serializer.deserializePropertyValue(
+			familyMap.get(Key.of(IdEncoder.encodeRowId(edge.getId()))).getBytes());
 		assertEquals(
 			"Value for edge property '" + key + "' for edge '" + edge.getId() + "' is not as expected. ",
 			propertyValue, deserialized);

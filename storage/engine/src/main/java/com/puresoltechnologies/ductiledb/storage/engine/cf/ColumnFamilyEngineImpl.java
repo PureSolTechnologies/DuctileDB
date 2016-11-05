@@ -56,7 +56,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public final byte[] getName() {
+    public final Key getName() {
 	return columnFamilyDescriptor.getName();
     }
 
@@ -104,8 +104,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	    int count = Integer.parseInt(properties.getProperty("index.columns.count"));
 	    for (int id = 0; id < count; ++id) {
 		String hexName = properties.getProperty("index.columns." + String.valueOf(id));
-		byte[] column = Bytes.fromHexString(hexName);
-		columns.add(column);
+		columns.add(Key.fromHexString(hexName));
 	    }
 	    SecondaryIndexDescriptor secondaryIndexDescriptor = new SecondaryIndexDescriptor(directory.getName(),
 		    columnFamilyDescriptor, columns, indexType);
@@ -125,11 +124,11 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     public String toString() {
 	TableDescriptor table = columnFamilyDescriptor.getTable();
 	return "CFEngine:" + table.getNamespace().getName() + "." + table.getName() + "/"
-		+ Bytes.toHumanReadableString(columnFamilyDescriptor.getName());
+		+ columnFamilyDescriptor.getName();
     }
 
     @Override
-    public void put(byte[] rowKey, ColumnMap columnMap) {
+    public void put(Key rowKey, ColumnMap columnMap) {
 	super.put(rowKey, columnMap);
 	if (hasIndizes()) {
 	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
@@ -140,12 +139,13 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	}
     }
 
-    private void addToIndex(SecondaryIndexDescriptor value, byte[] rowKey, ColumnMap columnMap) {
+    private void addToIndex(SecondaryIndexDescriptor value, Key rowKey, ColumnMap columnMap) {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
-	byte[] indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
+	Key indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
 	if (value.getIndexType() == IndexType.HEAP) {
 	    ColumnMap values = new ColumnMap();
-	    values.put(Bytes.toBytes("key"), rowKey);
+	    byte[] keyBytes = rowKey.getBytes();
+	    values.put(Key.of("key"), ColumnValue.of(keyBytes));
 	    indexEngine.put(indexRowKey, values);
 	} else {
 	    indexEngine.put(indexRowKey, columnMap);
@@ -153,7 +153,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public void delete(byte[] rowKey) {
+    public void delete(Key rowKey) {
 	super.delete(rowKey);
 	if (hasIndizes()) {
 	    ColumnMap columnMap = get(rowKey);
@@ -166,7 +166,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public void delete(byte[] rowKey, Set<byte[]> columns) {
+    public void delete(Key rowKey, Set<Key> columns) {
 	super.delete(rowKey, columns);
 	if (hasIndizes()) {
 	    ColumnMap columnMap = get(rowKey);
@@ -178,9 +178,9 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	}
     }
 
-    private void removeFromIndex(SecondaryIndexDescriptor value, byte[] rowKey, ColumnMap columnMap) {
+    private void removeFromIndex(SecondaryIndexDescriptor value, Key rowKey, ColumnMap columnMap) {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
-	byte[] indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
+	Key indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
 	indexEngine.delete(indexRowKey);
 
     }
@@ -190,7 +190,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public ColumnFamilyScanner find(byte[] columnKey, byte[] value) {
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue value) {
 	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
@@ -199,23 +199,25 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		convertToToValue(value));
     }
 
-    private byte[] convertToFromValue(byte[] value) {
-	byte[] fromValue = new byte[value.length + 4];
-	System.arraycopy(Bytes.toBytes(value.length), 0, fromValue, 0, 4);
-	System.arraycopy(value, 0, fromValue, 4, value.length);
-	return fromValue;
+    private ColumnValue convertToFromValue(ColumnValue value) {
+	byte[] bytes = value.getBytes();
+	byte[] fromValue = new byte[bytes.length + 4];
+	System.arraycopy(Bytes.toBytes(bytes.length), 0, fromValue, 0, 4);
+	System.arraycopy(bytes, 0, fromValue, 4, bytes.length);
+	return ColumnValue.of(fromValue);
     }
 
-    private byte[] convertToToValue(byte[] value) {
-	byte[] toValue = new byte[value.length + 5];
-	System.arraycopy(Bytes.toBytes(value.length), 0, toValue, 0, 4);
-	System.arraycopy(value, 0, toValue, 4, value.length);
-	toValue[4 + value.length] = (byte) 0xFF;
-	return toValue;
+    private ColumnValue convertToToValue(ColumnValue value) {
+	byte[] bytes = value.getBytes();
+	byte[] toValue = new byte[bytes.length + 5];
+	System.arraycopy(Bytes.toBytes(bytes.length), 0, toValue, 0, 4);
+	System.arraycopy(bytes, 0, toValue, 4, bytes.length);
+	toValue[4 + bytes.length] = (byte) 0xFF;
+	return ColumnValue.of(toValue);
     }
 
     @Override
-    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue) {
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue) {
 	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
@@ -224,7 +226,7 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		convertToToValue(toValue));
     }
 
-    public SecondaryIndexEngine findIndexEngine(byte[] columnKey) {
+    public SecondaryIndexEngine findIndexEngine(Key columnKey) {
 	if (indizes.isEmpty()) {
 	    return null;
 	}
@@ -241,12 +243,12 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
     }
 
     @Override
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue) {
+    public long incrementColumnValue(Key rowKey, Key column, long incrementValue) {
 	return incrementColumnValue(rowKey, column, 1l, incrementValue);
     }
 
     @Override
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue) {
+    public long incrementColumnValue(Key rowKey, Key column, long startValue, long incrementValue) {
 	long result = startValue;
 	getWriteLock().lock();
 	try {
@@ -254,14 +256,14 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	    if (columnMap != null) {
 		ColumnValue oldValueBytes = columnMap.get(column);
 		if (oldValueBytes != null) {
-		    long oldValue = Bytes.toLong(oldValueBytes.getValue());
+		    long oldValue = Bytes.toLong(oldValueBytes.getBytes());
 		    result = oldValue + incrementValue;
 		}
 	    } else {
 		columnMap = new ColumnMap();
 	    }
-	    columnMap.put(column, new ColumnValue(Bytes.toBytes(result), null));
-	    writeCommitLog(new Key(rowKey), null, columnMap);
+	    columnMap.put(column, ColumnValue.of(Bytes.toBytes(result)));
+	    writeCommitLog(rowKey, null, columnMap);
 	} finally {
 	    getWriteLock().unlock();
 	}
@@ -285,8 +287,8 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 		ColumnKeySet columns = indexDescriptor.getColumns();
 		properties.put("index.type", indexDescriptor.getIndexType().name());
 		properties.put("index.columns.count", String.valueOf(columns.size()));
-		for (byte[] column : columns) {
-		    properties.put("index.columns." + String.valueOf(id), Bytes.toHexString(column));
+		for (Key column : columns) {
+		    properties.put("index.columns." + String.valueOf(id), column.toHexString());
 		    id++;
 		}
 		properties.store(metadata, "Column configuration of index.");

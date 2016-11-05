@@ -6,9 +6,10 @@ import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
@@ -17,16 +18,16 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 public class GraphSchema {
 
     public static final String PROPERTY_TYPE_COLUMN = "PropertyType";
-    public static final byte[] PROPERTY_TYPE_COLUMN_BYTES = Bytes.toBytes(PROPERTY_TYPE_COLUMN);
+    public static final Key PROPERTY_TYPE_KEY = Key.of(PROPERTY_TYPE_COLUMN);
 
     public static final String ELEMENT_TYPE_COLUMN = "ElementType";
-    public static final byte[] ELEMENT_TYPE_COLUMN_BYTES = Bytes.toBytes(ELEMENT_TYPE_COLUMN);
+    public static final Key ELEMENT_TYPE_COLUMN_KEY = Key.of(ELEMENT_TYPE_COLUMN);
 
     public static final String UNIQUENESS_COLUMN = "unique";
-    public static final byte[] UNIQUENESS_COLUMN_BYTES = Bytes.toBytes(UNIQUENESS_COLUMN);
+    public static final Key UNIQUENESS_COLUMN_KEY = Key.of(UNIQUENESS_COLUMN);
 
     public static final String ID_ROW = "IdRow";
-    public static final byte[] ID_ROW_BYTES = Bytes.toBytes(ID_ROW);
+    public static final Key ID_ROW_KEY = Key.of(ID_ROW);
 
     public static final String DUCTILEDB_ID_PROPERTY = "~ductiledb.id";
     public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
@@ -67,24 +68,24 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.METADATA.getName()) == null) {
 	    TableDescriptor tableDescription = schemaManager.createTable(namespace, DatabaseTable.METADATA.getName());
-	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.METADATA.getNameBytes());
-	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getNameBytes());
+	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.METADATA.getKey());
+	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getKey());
 
 	    TableEngine table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
-	    Put vertexIdPut = new Put(ID_ROW_BYTES);
-	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.VERTEX_ID.getNameBytes(),
-		    Bytes.toBytes(1l));
-	    Put edgeIdPut = new Put(ID_ROW_BYTES);
-	    edgeIdPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(), DatabaseColumn.EDGE_ID.getNameBytes(),
-		    Bytes.toBytes(1l));
-	    Put schemaVersionPut = new Put(DatabaseColumn.SCHEMA_VERSION.getNameBytes());
+	    Put vertexIdPut = new Put(ID_ROW_KEY);
+	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getKey(), DatabaseColumn.VERTEX_ID.getKey(),
+		    ColumnValue.of(1l));
+	    Put edgeIdPut = new Put(ID_ROW_KEY);
+	    edgeIdPut.addColumn(DatabaseColumnFamily.METADATA.getKey(), DatabaseColumn.EDGE_ID.getKey(),
+		    ColumnValue.of(1l));
+	    Put schemaVersionPut = new Put(DatabaseColumn.SCHEMA_VERSION.getKey());
 	    String version = BuildInformation.getVersion();
 	    if (version.startsWith("${")) {
 		// fallback for test environments, but backed up by test.
 		version = "0.2.0";
 	    }
-	    schemaVersionPut.addColumn(DatabaseColumnFamily.METADATA.getNameBytes(),
-		    DatabaseColumn.SCHEMA_VERSION.getNameBytes(), Bytes.toBytes(version));
+	    schemaVersionPut.addColumn(DatabaseColumnFamily.METADATA.getKey(), DatabaseColumn.SCHEMA_VERSION.getKey(),
+		    ColumnValue.of(version));
 	    table.put(Arrays.asList(vertexIdPut, edgeIdPut, schemaVersionPut));
 	}
     }
@@ -93,8 +94,8 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGE_DEFINITION.getKey());
 	}
     }
 
@@ -102,8 +103,8 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGE_DEFINITION.getKey());
 	}
     }
 
@@ -111,9 +112,9 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.VERTICES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.VERTICES.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.TYPES.getNameBytes());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGES.getNameBytes());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.PROPERTIES.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.TYPES.getKey());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGES.getKey());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.PROPERTIES.getKey());
 	}
     }
 
@@ -121,9 +122,9 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.EDGES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.EDGES.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.TYPES.getNameBytes());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.PROPERTIES.getNameBytes());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERICES.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.TYPES.getKey());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.PROPERTIES.getKey());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERICES.getKey());
 	}
     }
 
@@ -131,7 +132,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
@@ -139,7 +140,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
@@ -147,7 +148,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.EDGE_TYPES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.EDGE_TYPES.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
@@ -155,7 +156,7 @@ public class GraphSchema {
 	    throws SchemaException, StorageException {
 	if (schemaManager.getTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName()) == null) {
 	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getNameBytes());
+	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 

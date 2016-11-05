@@ -13,12 +13,13 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.Delete;
 import com.puresoltechnologies.ductiledb.storage.engine.Get;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
@@ -45,7 +46,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> propertyNames = new HashSet<>();
-	scanner.forEach((result) -> propertyNames.add(Bytes.toString(result.getRowKey())));
+	scanner.forEach((result) -> propertyNames.add(result.getRowKey().toString()));
 	return propertyNames;
     }
 
@@ -59,23 +60,23 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	}
 
 	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
-	Put put = new Put(Bytes.toBytes(definition.getPropertyKey()));
+	Put put = new Put(Key.of(definition.getPropertyKey()));
 	switch (definition.getElementType()) {
 	case VERTEX:
-	    put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), GraphSchema.PROPERTY_TYPE_COLUMN_BYTES,
-		    Bytes.toBytes(definition.getPropertyType().getName()));
-	    put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), GraphSchema.ELEMENT_TYPE_COLUMN_BYTES,
-		    Bytes.toBytes(definition.getElementType().name()));
-	    put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), GraphSchema.UNIQUENESS_COLUMN_BYTES,
-		    Bytes.toBytes(definition.getUniqueConstraint().name()));
+	    put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getKey(), GraphSchema.PROPERTY_TYPE_KEY,
+		    ColumnValue.of(definition.getPropertyType().getName()));
+	    put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getKey(), GraphSchema.ELEMENT_TYPE_COLUMN_KEY,
+		    ColumnValue.of(definition.getElementType().name()));
+	    put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getKey(), GraphSchema.UNIQUENESS_COLUMN_KEY,
+		    ColumnValue.of(definition.getUniqueConstraint().name()));
 	    break;
 	case EDGE:
-	    put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes(), GraphSchema.PROPERTY_TYPE_COLUMN_BYTES,
-		    Bytes.toBytes(definition.getPropertyType().getName()));
-	    put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes(), GraphSchema.ELEMENT_TYPE_COLUMN_BYTES,
-		    Bytes.toBytes(definition.getElementType().name()));
-	    put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes(), GraphSchema.UNIQUENESS_COLUMN_BYTES,
-		    Bytes.toBytes(definition.getUniqueConstraint().name()));
+	    put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getKey(), GraphSchema.PROPERTY_TYPE_KEY,
+		    ColumnValue.of(definition.getPropertyType().getName()));
+	    put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getKey(), GraphSchema.ELEMENT_TYPE_COLUMN_KEY,
+		    ColumnValue.of(definition.getElementType().name()));
+	    put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getKey(), GraphSchema.UNIQUENESS_COLUMN_KEY,
+		    ColumnValue.of(definition.getUniqueConstraint().name()));
 	    break;
 	default:
 	    throw new DuctileDBSchemaManagerException(
@@ -95,14 +96,14 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	try {
 	    TableEngine table = graph.getStorageEngine().getTable(namespace,
 		    DatabaseTable.PROPERTY_DEFINITIONS.getName());
-	    Get get = new Get(Bytes.toBytes(propertyKey));
-	    byte[] columnFamily = null;
+	    Get get = new Get(Key.of(propertyKey));
+	    Key columnFamily = null;
 	    switch (elementType) {
 	    case VERTEX:
-		columnFamily = DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes();
+		columnFamily = DatabaseColumnFamily.VERTEX_DEFINITION.getKey();
 		break;
 	    case EDGE:
-		columnFamily = DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes();
+		columnFamily = DatabaseColumnFamily.EDGE_DEFINITION.getKey();
 		break;
 	    default:
 		throw new DuctileDBSchemaManagerException("Cannot read property for element '" + elementType + "'.");
@@ -112,15 +113,14 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    if (result == null) {
 		return null;
 	    }
-	    NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(columnFamily);
+	    NavigableMap<Key, ColumnValue> familyMap = result.getFamilyMap(columnFamily);
 	    if (familyMap == null) {
 		return null;
 	    }
 	    @SuppressWarnings("unchecked")
-	    Class<T> type = (Class<T>) Class
-		    .forName(Bytes.toString(familyMap.get(GraphSchema.PROPERTY_TYPE_COLUMN_BYTES)));
+	    Class<T> type = (Class<T>) Class.forName(familyMap.get(GraphSchema.PROPERTY_TYPE_KEY).toString());
 	    UniqueConstraint unique = UniqueConstraint
-		    .valueOf(Bytes.toString(familyMap.get(GraphSchema.UNIQUENESS_COLUMN_BYTES)));
+		    .valueOf(familyMap.get(GraphSchema.UNIQUENESS_COLUMN_KEY).toString());
 	    PropertyDefinition<T> definition = new PropertyDefinition<>(elementType, propertyKey, type, unique);
 	    return definition;
 	} catch (ClassNotFoundException e) {
@@ -133,13 +133,13 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     @Override
     public void removePropertyDefinition(ElementType elementType, String propertyKey) {
 	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
-	Delete delete = new Delete(Bytes.toBytes(propertyKey));
+	Delete delete = new Delete(Key.of(propertyKey));
 	switch (elementType) {
 	case VERTEX:
-	    delete.addFamily(DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
+	    delete.addFamily(DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
 	    break;
 	case EDGE:
-	    delete.addFamily(DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes());
+	    delete.addFamily(DatabaseColumnFamily.EDGE_DEFINITION.getKey());
 	    break;
 	default:
 	    throw new DuctileDBSchemaManagerException(
@@ -158,7 +158,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> typeNames = new HashSet<>();
-	scanner.forEach((result) -> typeNames.add(Bytes.toString(result.getRowKey())));
+	scanner.forEach((result) -> typeNames.add(result.getRowKey().toString()));
 	return typeNames;
     }
 
@@ -184,18 +184,17 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	}
 	DatabaseEngine storageEngine = graph.getStorageEngine();
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
-	Put put = new Put(Bytes.toBytes(typeName));
+	Put put = new Put(Key.of(typeName));
 	switch (elementType) {
 	case VERTEX:
 	    for (String propertyKey : propertyKeys) {
-		put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes(), Bytes.toBytes(propertyKey),
-			Bytes.empty());
+		put.addColumn(DatabaseColumnFamily.VERTEX_DEFINITION.getKey(), Key.of(propertyKey),
+			ColumnValue.empty());
 	    }
 	    break;
 	case EDGE:
 	    for (String propertyKey : propertyKeys) {
-		put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes(), Bytes.toBytes(propertyKey),
-			Bytes.empty());
+		put.addColumn(DatabaseColumnFamily.EDGE_DEFINITION.getKey(), Key.of(propertyKey), ColumnValue.empty());
 	    }
 	    break;
 	default:
@@ -212,14 +211,14 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     @Override
     public Set<String> getTypeDefinition(ElementType elementType, String typeName) {
 	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
-	Get get = new Get(Bytes.toBytes(typeName));
-	byte[] columnFamily = null;
+	Get get = new Get(Key.of(typeName));
+	Key columnFamily = null;
 	switch (elementType) {
 	case VERTEX:
-	    columnFamily = DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes();
+	    columnFamily = DatabaseColumnFamily.VERTEX_DEFINITION.getKey();
 	    break;
 	case EDGE:
-	    columnFamily = DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes();
+	    columnFamily = DatabaseColumnFamily.EDGE_DEFINITION.getKey();
 	    break;
 	default:
 	    throw new DuctileDBSchemaManagerException("Cannot read type for element '" + elementType + "'.");
@@ -234,13 +233,13 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	if (result == null) {
 	    return null;
 	}
-	NavigableMap<byte[], byte[]> familyMap = result.getFamilyMap(columnFamily);
+	NavigableMap<Key, ColumnValue> familyMap = result.getFamilyMap(columnFamily);
 	if (familyMap == null) {
 	    return null;
 	}
 	Set<String> propertyKeys = new HashSet<>();
-	for (byte[] propertyKeyBytes : familyMap.keySet()) {
-	    propertyKeys.add(Bytes.toString(propertyKeyBytes));
+	for (Key propertyKey : familyMap.keySet()) {
+	    propertyKeys.add(propertyKey.toString());
 	}
 	return propertyKeys;
     }
@@ -249,13 +248,13 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     public void removeTypeDefinition(ElementType elementType, String typeName) {
 	DatabaseEngine storageEngine = graph.getStorageEngine();
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
-	Delete delete = new Delete(Bytes.toBytes(typeName));
+	Delete delete = new Delete(Key.of(typeName));
 	switch (elementType) {
 	case VERTEX:
-	    delete.addFamily(DatabaseColumnFamily.VERTEX_DEFINITION.getNameBytes());
+	    delete.addFamily(DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
 	    break;
 	case EDGE:
-	    delete.addFamily(DatabaseColumnFamily.EDGE_DEFINITION.getNameBytes());
+	    delete.addFamily(DatabaseColumnFamily.EDGE_DEFINITION.getKey());
 	    break;
 	default:
 	    throw new DuctileDBSchemaManagerException(

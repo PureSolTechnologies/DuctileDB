@@ -19,25 +19,25 @@ public class DataOutputStream extends DuctileDBOutputStream {
     }
 
     public synchronized void writeRow(Key rowKey, Instant tombstone, ColumnMap columns) throws IOException {
-	byte[] key = rowKey.getKey();
+	byte[] key = rowKey.getBytes();
 	// Row key
 	writeData(Bytes.toBytes(key.length));
 	writeData(key);
 	// Row tombstone
 	writeTombstone(tombstone);
 	// Column number
-	Set<Entry<byte[], ColumnValue>> entrySet = columns.entrySet();
+	Set<Entry<Key, ColumnValue>> entrySet = columns.entrySet();
 	writeData(Bytes.toBytes(entrySet.size()));
 	// Columns
-	for (Entry<byte[], ColumnValue> column : entrySet) {
+	for (Entry<Key, ColumnValue> column : entrySet) {
 	    // Column key
-	    byte[] columnKey = column.getKey();
-	    writeData(Bytes.toBytes(columnKey.length));
-	    writeData(columnKey);
+	    Key columnKey = column.getKey();
+	    writeData(Bytes.toBytes(columnKey.getBytes().length));
+	    writeData(columnKey.getBytes());
 	    // Column value
 	    ColumnValue columnValue = column.getValue();
 	    writeTombstone(columnValue.getTombstone());
-	    byte[] value = columnValue.getValue();
+	    byte[] value = columnValue.getBytes();
 	    writeData(Bytes.toBytes(value.length));
 	    if (value.length > 0) {
 		writeData(value);

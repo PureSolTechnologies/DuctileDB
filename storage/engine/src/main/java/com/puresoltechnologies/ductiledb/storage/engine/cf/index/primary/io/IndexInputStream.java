@@ -56,7 +56,7 @@ public class IndexInputStream extends DuctileDBInputStream {
 	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken index file.");
 	}
 	long offset = Bytes.toLong(buffer);
-	return new IndexEntry(new Key(rowKey), dataFile, offset);
+	return new IndexEntry(Key.of(rowKey), dataFile, offset);
     }
 
 }

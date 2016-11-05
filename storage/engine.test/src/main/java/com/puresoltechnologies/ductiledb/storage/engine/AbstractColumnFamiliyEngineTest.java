@@ -3,7 +3,6 @@ package com.puresoltechnologies.ductiledb.storage.engine;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -29,7 +28,7 @@ public class AbstractColumnFamiliyEngineTest extends AbstractDatabaseEngineTest 
 	namespace = schemaManager.createNamespaceIfNotPresent(namespaceName);
 	tableDescriptor = schemaManager.createTableIfNotPresent(namespace, tableName);
 	columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		Bytes.toBytes(columnFamilyName));
+		Key.of(columnFamilyName));
 	storage = engine.getStorage();
 	table = engine.getTable(tableDescriptor);
 	columnFamily = ((TableEngineImpl) table).getColumnFamilyEngine(columnFamilyDescriptor.getName());

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -35,16 +36,17 @@ public class SecondaryIndexEngineImpl extends LogStructuredStoreImpl implements 
 	}
     }
 
-    public byte[] createRowKey(byte[] rowKey, ColumnMap columnMap) {
+    public Key createRowKey(Key rowKey, ColumnMap columnMap) {
 	ColumnKeySet columns = indexDescription.getColumns();
 	List<byte[]> values = new ArrayList<>();
 	int keySize = 0;
-	for (byte[] column : columns) {
-	    byte[] value = columnMap.get(column).getValue();
+	for (Key column : columns) {
+	    byte[] value = columnMap.get(column).getBytes();
 	    keySize += 4 + value.length;
 	    values.add(value);
 	}
-	keySize += 4 + rowKey.length;
+	byte[] key = rowKey.getBytes();
+	keySize += 4 + key.length;
 	byte[] indexKey = new byte[keySize];
 	int pos = 0;
 	for (byte[] value : values) {
@@ -53,10 +55,10 @@ public class SecondaryIndexEngineImpl extends LogStructuredStoreImpl implements 
 	    System.arraycopy(value, 0, indexKey, pos, value.length);
 	    pos += value.length;
 	}
-	System.arraycopy(Bytes.toBytes(rowKey.length), 0, indexKey, pos, 4);
+	System.arraycopy(Bytes.toBytes(key.length), 0, indexKey, pos, 4);
 	pos += 4;
-	System.arraycopy(rowKey, 0, indexKey, pos, rowKey.length);
-	return indexKey;
+	System.arraycopy(key, 0, indexKey, pos, key.length);
+	return Key.of(indexKey);
     }
 
 }

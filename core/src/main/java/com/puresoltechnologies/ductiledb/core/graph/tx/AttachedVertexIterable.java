@@ -51,8 +51,8 @@ public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 	    private void findNext() {
 		while ((next == null) && (resultIterator.hasNext())) {
 		    Result result = resultIterator.next();
-		    DuctileDBVertex vertex = ResultDecoder.toVertex(transaction, IdEncoder.decodeRowId(result.getRowKey()),
-			    result);
+		    DuctileDBVertex vertex = ResultDecoder.toVertex(transaction,
+			    IdEncoder.decodeRowId(result.getRowKey().getBytes()), result);
 		    if (!transaction.wasVertexRemoved(vertex.getId())) {
 			next = new DuctileDBAttachedVertex(transaction, vertex.getId());
 		    }

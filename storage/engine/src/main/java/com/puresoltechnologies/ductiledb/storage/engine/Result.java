@@ -1,34 +1,30 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.util.NavigableMap;
 import java.util.Set;
-import java.util.TreeMap;
 
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyMap;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.ByteArrayComparator;
 
 public class Result {
 
-    private final byte[] rowKey;
+    private final Key rowKey;
     private final ColumnFamilyMap columnFamilies = new ColumnFamilyMap();
 
-    public Result(byte[] rowKey) {
+    public Result(Key rowKey) {
 	this.rowKey = rowKey;
     }
 
-    public Set<byte[]> getFamilies() {
+    public Set<Key> getFamilies() {
 	return columnFamilies.keySet();
     }
 
-    public NavigableMap<byte[], byte[]> getFamilyMap(byte[] columnFamily) {
-	TreeMap<byte[], byte[]> resultMap = new TreeMap<>(ByteArrayComparator.getInstance());
+    public ColumnMap getFamilyMap(Key columnFamily) {
+	ColumnMap resultMap = new ColumnMap();
 	ColumnMap columnMap = columnFamilies.get(columnFamily);
 	if (columnMap == null) {
 	    return null;
 	}
-	columnMap.forEach((key, value) -> resultMap.put(key, value.getValue()));
+	columnMap.forEach((key, value) -> resultMap.put(key, value));
 	return resultMap;
     }
 
@@ -36,11 +32,11 @@ public class Result {
 	return columnFamilies.isEmpty();
     }
 
-    public byte[] getRowKey() {
+    public Key getRowKey() {
 	return rowKey;
     }
 
-    public void add(byte[] columnFamily, ColumnMap columns) {
+    public void add(Key columnFamily, ColumnMap columns) {
 	if (!columns.isEmpty()) {
 	    columnFamilies.put(columnFamily, columns);
 	}
@@ -50,7 +46,7 @@ public class Result {
     public String toString() {
 	StringBuilder buffer = new StringBuilder();
 	buffer.append("Key: ");
-	buffer.append(Bytes.toHumanReadableString(rowKey));
+	buffer.append(rowKey);
 	buffer.append("\n");
 	buffer.append(columnFamilies.toString());
 	return buffer.toString();

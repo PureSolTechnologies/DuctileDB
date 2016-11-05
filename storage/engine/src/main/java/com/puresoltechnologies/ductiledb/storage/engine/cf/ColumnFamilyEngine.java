@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.storage.engine.cf;
 
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.lss.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
@@ -12,7 +13,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescr
  */
 public interface ColumnFamilyEngine extends LogStructuredStore {
 
-    public byte[] getName();
+    public Key getName();
 
     public ColumnFamilyDescriptor getDescriptor();
 
@@ -28,7 +29,7 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      *         results. If there is not index for the column, <code>null</code>
      *         is returned.
      */
-    public ColumnFamilyScanner find(byte[] columnKey, byte[] value);
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue value);
 
     /**
      * This method searches the store for a specified column/value pair.
@@ -45,7 +46,7 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      *         results. If there is not index for the column, <code>null</code>
      *         is returned.
      */
-    public ColumnFamilyScanner find(byte[] columnKey, byte[] fromValue, byte[] toValue);
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue);
 
     /**
      * Increments (or decrements) a value in atomic way.
@@ -54,7 +55,7 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      * @param column
      * @param incrementValue
      */
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long incrementValue);
+    public long incrementColumnValue(Key rowKey, Key column, long incrementValue);
 
     /**
      * Increments (or decrements) a value in atomic way.
@@ -64,7 +65,7 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      * @param startValue
      * @param incrementValue
      */
-    public long incrementColumnValue(byte[] rowKey, byte[] column, long startValue, long incrementValue);
+    public long incrementColumnValue(Key rowKey, Key column, long startValue, long incrementValue);
 
     public void createIndex(SecondaryIndexDescriptor indexDescriptor);
 

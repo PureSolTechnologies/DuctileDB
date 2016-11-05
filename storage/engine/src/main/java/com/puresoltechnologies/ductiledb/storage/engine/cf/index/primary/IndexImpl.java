@@ -74,7 +74,7 @@ public class IndexImpl implements Index {
 
     @Override
     public IndexEntry get(byte[] rowKey) {
-	return indexTree.get(new Key(rowKey));
+	return indexTree.get(Key.of(rowKey));
     }
 
     @Override

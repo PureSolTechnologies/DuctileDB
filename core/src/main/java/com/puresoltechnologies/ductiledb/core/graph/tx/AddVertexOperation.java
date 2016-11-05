@@ -17,8 +17,9 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
 public class AddVertexOperation extends AbstractTxOperation {
 
@@ -53,22 +54,22 @@ public class AddVertexOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	long vertexId = vertex.getId();
 	byte[] id = IdEncoder.encodeRowId(vertexId);
-	Put put = new Put(id);
+	Put put = new Put(Key.of(id));
 	List<Put> typeIndex = new ArrayList<>();
 	for (String type : types) {
-	    put.addColumn(DatabaseColumnFamily.TYPES.getNameBytes(), Bytes.toBytes(type), new byte[0]);
+	    put.addColumn(DatabaseColumnFamily.TYPES.getKey(), Key.of(type), ColumnValue.empty());
 	    typeIndex.add(OperationsHelper.createVertexTypeIndexPut(vertexId, type));
 	}
 	List<Put> propertyIndex = new ArrayList<>();
-	put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_ID_PROPERTY),
-		Serializer.serializePropertyValue(vertexId));
-	put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
-		Serializer.serializePropertyValue(new Date()));
+	put.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(DUCTILEDB_ID_PROPERTY),
+		ColumnValue.of(Serializer.serializePropertyValue(vertexId)));
+	put.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(DUCTILEDB_CREATE_TIMESTAMP_PROPERTY),
+		ColumnValue.of(Serializer.serializePropertyValue(new Date())));
 	for (Entry<String, Object> property : properties.entrySet()) {
 	    String key = property.getKey();
 	    Object value = property.getValue();
-	    put.addColumn(DatabaseColumnFamily.PROPERTIES.getNameBytes(), Bytes.toBytes(key),
-		    Serializer.serializePropertyValue((Serializable) value));
+	    put.addColumn(DatabaseColumnFamily.PROPERTIES.getKey(), Key.of(key),
+		    ColumnValue.of(Serializer.serializePropertyValue((Serializable) value)));
 	    propertyIndex.add(OperationsHelper.createVertexPropertyIndexPut(vertexId, property.getKey(),
 		    (Serializable) property.getValue()));
 	}

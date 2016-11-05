@@ -11,9 +11,9 @@ import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexType;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
@@ -55,9 +55,9 @@ public class CreateIndexImpl implements CreateIndex {
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
 	    TableDescriptor tableDescriptor = schemaManager.getTable(namespaceDescriptor, table);
 	    ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.getColumnFamily(tableDescriptor,
-		    Bytes.toBytes(columnFamily));
+		    Key.of(columnFamily));
 
-	    Set<byte[]> columns = new HashSet<>();
+	    Set<Key> columns = new HashSet<>();
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor(name, columnFamilyDescriptor,
 		    columns, IndexType.HEAP);
 	    schemaManager.createIndex(columnFamilyDescriptor, indexDescriptor);

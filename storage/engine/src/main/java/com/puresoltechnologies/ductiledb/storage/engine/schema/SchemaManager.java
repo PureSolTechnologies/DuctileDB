@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.storage.engine.schema;
 
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
+import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 
 /**
@@ -35,13 +36,13 @@ public interface SchemaManager {
 
     public Iterable<ColumnFamilyDescriptor> getColumnFamilies(TableDescriptor tableDescriptor);
 
-    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName);
+    public ColumnFamilyDescriptor getColumnFamily(TableDescriptor tableDescriptor, Key columnFamilyName);
 
-    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, byte[] columnFamilyName)
+    public ColumnFamilyDescriptor createColumnFamily(TableDescriptor tableDescriptor, Key columnFamilyName)
 	    throws SchemaException, StorageException;
 
-    public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor,
-	    byte[] columnFamilyName) throws SchemaException, StorageException;
+    public ColumnFamilyDescriptor createColumnFamilyIfNotPresent(TableDescriptor tableDescriptor, Key columnFamilyName)
+	    throws SchemaException, StorageException;
 
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws SchemaException;
 
