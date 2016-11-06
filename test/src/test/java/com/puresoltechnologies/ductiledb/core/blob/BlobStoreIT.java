@@ -36,21 +36,24 @@ public class BlobStoreIT extends AbstractDuctileDBTest {
 	HashId hashId = HashUtilities.createHashId(blobContent);
 	assertFalse("BLOB should not exist.", blobStore.isBlobAvailable(hashId));
 
-	ByteArrayInputStream inputStream = new ByteArrayInputStream(blobContent.getBytes(Charset.defaultCharset()));
-	blobStore.storeBlob(hashId, inputStream);
-	assertTrue("BLOB should exist.", blobStore.isBlobAvailable(hashId));
+	try (ByteArrayInputStream inputStream = new ByteArrayInputStream(
+		blobContent.getBytes(Charset.defaultCharset()))) {
+	    blobStore.storeBlob(hashId, inputStream);
+	    assertTrue("BLOB should exist.", blobStore.isBlobAvailable(hashId));
+	}
 
-	InputStream readBlobStream = blobStore.readBlob(hashId);
-	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	ByteStreams.copy(readBlobStream, outputStream);
-	assertEquals("Read BLOB should match stored BLOB.", blobContent,
-		new String(outputStream.toByteArray(), Charset.defaultCharset()));
+	try (InputStream readBlobStream = blobStore.readBlob(hashId)) {
+	    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	    ByteStreams.copy(readBlobStream, outputStream);
+	    assertEquals("Read BLOB should match stored BLOB.", blobContent,
+		    new String(outputStream.toByteArray(), Charset.defaultCharset()));
+	}
 
 	long size = blobStore.getBlobSize(hashId);
 	assertEquals("Size of BLOB should match original.", blobContent.getBytes(Charset.defaultCharset()).length,
 		size);
 
-	blobStore.removeBlob(hashId);
+	assertTrue(blobStore.removeBlob(hashId));
 	assertFalse("BLOB should not exist anymore.", blobStore.isBlobAvailable(hashId));
     }
 }
