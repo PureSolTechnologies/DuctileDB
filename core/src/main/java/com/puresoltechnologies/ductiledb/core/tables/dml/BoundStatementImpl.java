@@ -13,7 +13,7 @@ import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 
 public class BoundStatementImpl extends StatementImpl implements BoundStatement {
 
-    private final Map<Integer, Object> placeholderValues = new HashMap<>();
+    private final Map<Integer, Comparable<?>> placeholderValues = new HashMap<>();
     private final AbstractPreparedStatementImpl preparedStatement;
 
     public BoundStatementImpl(AbstractPreparedStatementImpl preparedStatement) {

@@ -40,7 +40,7 @@ public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValues) {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValues) {
 	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
 		.getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);

@@ -195,8 +195,10 @@ public class ColumnFamilyEngineImpl extends LogStructuredStoreImpl implements Co
 	if (indexEngine == null) {
 	    return null;
 	}
-	return new IndexedColumnFamilyScannerImpl(this, indexEngine, convertToFromValue(value),
-		convertToToValue(value));
+	ColumnValue fromValue = convertToFromValue(value);
+	ColumnValue toValue = convertToToValue(value);
+	return new IndexedColumnFamilyScannerImpl(this, indexEngine, fromValue,
+		toValue);
     }
 
     private ColumnValue convertToFromValue(ColumnValue value) {

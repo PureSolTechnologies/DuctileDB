@@ -4,8 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
+import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 
 public abstract class AbstractPreparedStatementImpl implements PreparedStatement {
 
@@ -25,6 +29,21 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 	return tableDefinition;
     }
 
+    public final String getNamespace() {
+	return tableDefinition.getNamespace();
+    }
+
+    public final String getTableName() {
+	return tableDefinition.getName();
+    }
+
+    protected final TableEngineImpl getTableEngine(TableStore tableStore) {
+	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
+		.getNamespaceEngine(getNamespace());
+	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(getTableName());
+	return tableEngine;
+    }
+
     @Override
     public final BoundStatement bind() {
 	return new BoundStatementImpl(this);
@@ -39,6 +58,7 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 	return boundStatement;
     }
 
+    @Override
     public final void addPlaceholder(Placeholder placeholder) {
 	placeholders.put(placeholder.getIndex(), placeholder);
     }
@@ -60,6 +80,7 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 	return -1;
     }
 
-    public abstract TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValue);
+    public abstract TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
+	    throws ExecutionException;
 
 }

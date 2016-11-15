@@ -713,7 +713,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	Iterable<NamespaceDefinition> namespaces = ddl.getNamespaces();
 	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
-	    TableRowImpl tableRow = new TableRowImpl(tableDefinition);
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
 	    tableRow.add("TABLE_CAT", Bytes.toBytes(namespace.getName()));
 	    return tableRow;
 	}));
@@ -728,7 +728,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 	tableTypes.add("TABLE");
 	tableTypes.add("SYSTEM TABLE");
 	return new DuctileResultSet(connection, new TableRowIterableImpl<>(tableTypes, tableType -> {
-	    TableRowImpl tableRow = new TableRowImpl(tableDefinition);
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
 	    tableRow.add("TABLE_TYPE", Bytes.toBytes(tableType));
 	    return tableRow;
 	}));
@@ -892,7 +892,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
 	Iterable<NamespaceDefinition> namespaces = new EmptyIterable<>();
 	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
-	    return new TableRowImpl(tableDefinition);
+	    return new TableRowImpl(tableDefinition, null);
 	}));
     }
 

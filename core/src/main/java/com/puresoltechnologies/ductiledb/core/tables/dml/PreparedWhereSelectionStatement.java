@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
+import java.util.Collection;
+
 /**
  * This interface represents a prepared statement which has a where selector.
  * 
@@ -26,6 +28,11 @@ public interface PreparedWhereSelectionStatement extends PreparedStatement {
      * @param value
      *            is the value to look for in the given column.
      */
-    public void addWhereSelection(String columnFamily, String column, CompareOperator operator, Object value);
+    public <T extends Comparable<T>> void addWhereSelection(String columnFamily, String column,
+	    CompareOperator operator, T value);
+
+    public <T extends Comparable<T>> void addWhereSelection(WhereClause<T> selection);
+
+    public void addWhereSelections(Collection<WhereClause<?>> selections);
 
 }

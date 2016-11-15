@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.engine;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -8,6 +7,8 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
+import com.puresoltechnologies.commons.misc.io.CloseableIterable;
+import com.puresoltechnologies.commons.misc.io.PeekingCloseableIterator;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnFamilyScanner;
@@ -18,7 +19,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class ResultScanner implements Closeable, PeekingIterator<Result>, Iterable<Result> {
+public class ResultScanner implements PeekingCloseableIterator<Result>, CloseableIterable<Result> {
 
     private final NavigableMap<Key, ColumnFamilyScanner> cfScanners = new TreeMap<>();
 

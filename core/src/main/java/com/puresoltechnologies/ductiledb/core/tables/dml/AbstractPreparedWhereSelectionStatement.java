@@ -1,7 +1,10 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 
@@ -15,7 +18,7 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPreparedStatementImpl
 	implements PreparedWhereSelectionStatement {
 
-    private final List<WhereClause> whereClauses = new ArrayList<>();
+    private final Set<WhereClause<?>> whereClauses = new HashSet<>();
 
     public AbstractPreparedWhereSelectionStatement(TableDefinition tableDefinition) {
 	super(tableDefinition);
@@ -28,11 +31,50 @@ public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPr
     }
 
     @Override
-    public final void addWhereSelection(String columnFamily, String column, CompareOperator operator, Object value) {
-	whereClauses.add(new WhereClause(columnFamily, column, operator, value));
+    public final <T extends Comparable<T>> void addWhereSelection(String columnFamily, String column,
+	    CompareOperator operator, T value) {
+	addWhereSelection(new WhereClause<>(columnFamily, column, operator, value));
     }
 
-    public final List<WhereClause> getSelections() {
+    @Override
+    public <T extends Comparable<T>> void addWhereSelection(WhereClause<T> selection) {
+	whereClauses.add(selection);
+    }
+
+    @Override
+    public void addWhereSelections(Collection<WhereClause<?>> selections) {
+	for (WhereClause<?> whereClause : selections) {
+	    whereClauses.add(whereClause);
+	}
+    }
+
+    /**
+     * This method returns the static selections, because placeholders cannot be
+     * taken into account.
+     * 
+     * @return
+     */
+    public final Set<WhereClause<?>> getStaticSelections() {
+	return whereClauses;
+    }
+
+    /**
+     * This method returns the static selections, because placeholders cannot be
+     * taken into account.
+     * 
+     * @return
+     */
+    public final Set<WhereClause<?>> getSelections(Map<Integer, Comparable<?>> placeholderValues) {
+	Set<WhereClause<?>> whereClauses = new HashSet<>(this.whereClauses);
+	for (Entry<Integer, Comparable<?>> placeholderValueEntry : placeholderValues.entrySet()) {
+	    Placeholder placeholder = getPlaceholder(placeholderValueEntry.getKey());
+	    if (WherePlaceholder.class.isAssignableFrom(placeholder.getClass())) {
+		WherePlaceholder wherePlaceholder = (WherePlaceholder) placeholder;
+		Comparable<?> value = placeholderValueEntry.getValue();
+		whereClauses.add(new WhereClause(wherePlaceholder.getColumnFamily(), wherePlaceholder.getColumn(),
+			wherePlaceholder.getOperator(), value));
+	    }
+	}
 	return whereClauses;
     }
 

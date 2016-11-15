@@ -12,7 +12,7 @@ public class PreparedTruncateImpl extends AbstractPreparedStatementImpl implemen
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Object> placeholderValue) {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue) {
 	// TODO Auto-generated method stub
 	return null;
     }
