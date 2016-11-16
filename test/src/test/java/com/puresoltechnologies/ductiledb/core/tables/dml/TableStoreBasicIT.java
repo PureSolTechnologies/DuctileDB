@@ -246,4 +246,79 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	}
     }
 
+    @Test
+    public void testUdateSelection() throws ExecutionException, IOException {
+	final String TABLE = "testUdateSelection";
+	final String CF = "testcf";
+
+	TableStoreImpl tableStore = getTableStore();
+
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	createTable.addColumn(CF, "static", ColumnType.INTEGER);
+	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
+	createTable.setPrimaryKey("static");
+	createTable.execute(tableStore);
+
+	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
+
+	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 1);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("A").execute(tableStore);
+
+	insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 2);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("B").execute(tableStore);
+
+	insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 3);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("C").execute(tableStore);
+
+	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
+
+	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
+	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	    Iterator<TableRow> iterator = result.iterator();
+	    assertTrue(iterator.hasNext());
+	    TableRow row = iterator.next();
+	    assertEquals(1, (int) row.get("static"));
+	    assertEquals("A", row.get("dynamic"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertEquals(2, (int) row.get("static"));
+	    assertEquals("B", row.get("dynamic"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertEquals(3, (int) row.get("static"));
+	    assertEquals("C", row.get("dynamic"));
+	    assertFalse(iterator.hasNext());
+	}
+
+	PreparedUpdate update = dml.prepareUpdate(NAMESPACE, TABLE);
+	update.addWhereSelection(CF, "static", CompareOperator.EQUALS, 2);
+	update.addValue(CF, "dynamic", "BB");
+	update.bind().execute(tableStore);
+
+	select = dml.prepareSelect(NAMESPACE, TABLE);
+	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	    Iterator<TableRow> iterator = result.iterator();
+	    assertTrue(iterator.hasNext());
+	    TableRow row = iterator.next();
+	    assertEquals(1, (int) row.get("static"));
+	    assertEquals("A", row.get("dynamic"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertEquals(2, (int) row.get("static"));
+	    assertEquals("BB", row.get("dynamic"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertEquals(3, (int) row.get("static"));
+	    assertEquals("C", row.get("dynamic"));
+	    assertFalse(iterator.hasNext());
+	}
+    }
+
 }

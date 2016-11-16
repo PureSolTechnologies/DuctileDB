@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
+
 /**
  * This interface is implemented by all provided column types for tables part of
  * DuctileDB.
@@ -15,5 +17,13 @@ public interface ColumnTypeDefinition<Type> {
     public byte[] toBytes(Object value);
 
     public Type fromBytes(byte[] value);
+
+    public default ColumnValue toColumnValue(Object value) {
+	return ColumnValue.of(toBytes(value));
+    }
+
+    public default Type fromColumnValue(ColumnValue value) {
+	return fromBytes(value.getBytes());
+    }
 
 }
