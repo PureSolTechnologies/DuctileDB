@@ -17,6 +17,10 @@
 			<artifactId>storage.engine</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.parsers</groupId>
+			<artifactId>parsers</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.puresoltechnologies.versioning</groupId>
 			<artifactId>versioning</artifactId>
 		</dependency>

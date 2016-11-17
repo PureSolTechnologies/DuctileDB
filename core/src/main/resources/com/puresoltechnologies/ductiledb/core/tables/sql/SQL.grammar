@@ -1,0 +1,69 @@
+/****************************************************************************
+ * SQL 2003 Grammar File for PureSol Technologies' Parsers
+ * (c) by 2016 PureSol Technologies
+ * Author: Rick-Rainer Ludwig
+ ****************************************************************************/
+
+/*
+ * All naming is taken from the SQL specification.
+ */
+
+/****************************************************************************
+ * O P T I O N S
+ ****************************************************************************/
+ OPTIONS
+        grammar.name="Fortran-2008";                                    // name of the grammar
+        grammar.checks=true;                                                    // check grammar for plausibility?
+        grammar.ignore-case=true;                                               // is grammar case-insensitive?
+        grammar.normalize_to_bnf=false;                                 // defines whether the grammar needs to be normalized to BNF
+        preprocessor.use=true;                                                  // usage of preprocessor required?
+        preprocessor="com.puresoltechnologies.purifinity.coding.lang.c11.preprocessor.C11Preprocessor"; // usage of preprocessor required?
+        lexer="com.puresoltechnologies.parsers.lexer.RegExpLexer";      // use this lexer
+        parser="com.puresoltechnologies.parsers.parser.lr.LR1Parser";   // use this parser
+        parser.backtracking=true;                                               // backtracking switched on?
+        parser.backtracking.depth=100;                                  // keep maximum backtrack locations
+        parser.timeout=10;                                                              // timeout of parser after this amount of seconds
+
+/****************************************************************************
+ * H E L P E R
+ ****************************************************************************/
+ HELPER
+
+        /* **********************************
+         *
+         * 3.1 Processor character set
+         *
+         * *********************************
+         */
+
+        LETTER : "[A-Z]";
+        ALPHANUMERIC_CHARACTER :
+                 "(" LETTER "|" DIGIT "|_)"
+        ;
+        DIGIT : "[0-9]";
+
+        DIGIT_STRING : "\\d+";
+
+        HEX_DIGIT : "[0-9A-F]";
+
+        /* *************************
+         *
+         * 4 Types
+         *
+         * ************************
+         */
+
+        /*
+         * Integer type
+         */
+
+        SIGN : "[+-]";
+        SIGNED_DIGIT_STRING : SIGN "?" DIGIT_STRING;
+
+        KIND_PARAM : "(" DIGIT_STRING "|"
+                        NAME_LITERAL ")";
+        SIGNED_INT_LITERAL_CONSTANT : SIGN "?"
+                        INT_LITERAL_CONSTANT;
+
+        /*
+         * Real type
