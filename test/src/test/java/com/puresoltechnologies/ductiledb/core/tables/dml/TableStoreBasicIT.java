@@ -165,7 +165,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	}
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
-	select.addWhereSelection(CF, "static", CompareOperator.EQUALS, 2);
+	select.addWhereSelection("static", CompareOperator.EQUALS, 2);
 	try (TableRowIterable result = select.bind().execute(tableStore)) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
@@ -228,7 +228,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	}
 
 	PreparedDelete delete = dml.prepareDelete(NAMESPACE, TABLE);
-	delete.addWhereSelection(CF, "static", CompareOperator.EQUALS, 2);
+	delete.addWhereSelection("static", CompareOperator.EQUALS, 2);
 	delete.bind().execute(tableStore);
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
@@ -298,7 +298,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	}
 
 	PreparedUpdate update = dml.prepareUpdate(NAMESPACE, TABLE);
-	update.addWhereSelection(CF, "static", CompareOperator.EQUALS, 2);
+	update.addWhereSelection("static", CompareOperator.EQUALS, 2);
 	update.addValue(CF, "dynamic", "BB");
 	update.bind().execute(tableStore);
 

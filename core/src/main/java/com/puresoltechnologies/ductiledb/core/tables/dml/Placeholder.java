@@ -9,16 +9,16 @@ public class Placeholder {
 
     private final int index;
     private final String columnFamily;
-    private final String column;
+    private final String columnName;
 
-    public Placeholder(int index, String columnFamily, String column) {
+    public Placeholder(int index, String columnFamily, String columnName) {
 	super();
 	if (index <= 0) {
 	    throw new IllegalArgumentException("Column index has to be larger than zero.");
 	}
 	this.index = index;
 	this.columnFamily = columnFamily;
-	this.column = column;
+	this.columnName = columnName;
     }
 
     public final int getIndex() {
@@ -30,7 +30,7 @@ public class Placeholder {
     }
 
     public final String getColumn() {
-	return column;
+	return columnName;
     }
 
 }

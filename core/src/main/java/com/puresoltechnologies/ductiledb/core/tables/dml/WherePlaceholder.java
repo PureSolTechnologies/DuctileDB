@@ -4,8 +4,8 @@ public class WherePlaceholder extends Placeholder {
 
     private final CompareOperator operator;
 
-    public WherePlaceholder(int index, String columnFamily, String column, CompareOperator operator) {
-	super(index, columnFamily, column);
+    public WherePlaceholder(int index, String columnFamily, String columnName, CompareOperator operator) {
+	super(index, columnFamily, columnName);
 	this.operator = operator;
     }
 

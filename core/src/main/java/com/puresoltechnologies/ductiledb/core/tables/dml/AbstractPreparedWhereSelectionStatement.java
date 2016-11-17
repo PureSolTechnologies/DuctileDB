@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 
 /**
@@ -25,27 +26,41 @@ public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPr
     }
 
     @Override
-    public final void addWherePlaceholder(String columnFamily, String column, CompareOperator operator, int index) {
+    public final PreparedWhereSelectionStatement addWherePlaceholder(String columnFamily, String column,
+	    CompareOperator operator, int index) {
 	WherePlaceholder value = new WherePlaceholder(index, columnFamily, column, operator);
 	addPlaceholder(value);
+	return this;
     }
 
     @Override
-    public final <T extends Comparable<T>> void addWhereSelection(String columnFamily, String column,
+    public final <T extends Comparable<T>> PreparedWhereSelectionStatement addWhereSelection(
+	    ColumnDefinition<T> columnDefinition, CompareOperator operator, T value) {
+	addWhereSelection(new WhereClause<>(getTableDefinition(), columnDefinition, operator, value));
+	return this;
+    }
+
+    @Override
+    public <T extends Comparable<T>> PreparedWhereSelectionStatement addWhereSelection(String column,
 	    CompareOperator operator, T value) {
-	addWhereSelection(new WhereClause<>(columnFamily, column, operator, value));
+	TableDefinition tableDefinition = getTableDefinition();
+	ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(column);
+	addWhereSelection(new WhereClause(tableDefinition, columnDefinition, operator, value));
+	return this;
     }
 
     @Override
-    public <T extends Comparable<T>> void addWhereSelection(WhereClause<T> selection) {
+    public <T extends Comparable<T>> PreparedWhereSelectionStatement addWhereSelection(WhereClause<T> selection) {
 	whereClauses.add(selection);
+	return this;
     }
 
     @Override
-    public void addWhereSelections(Collection<WhereClause<?>> selections) {
+    public PreparedWhereSelectionStatement addWhereSelections(Collection<WhereClause<?>> selections) {
 	for (WhereClause<?> whereClause : selections) {
 	    whereClauses.add(whereClause);
 	}
+	return this;
     }
 
     /**
@@ -65,13 +80,15 @@ public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPr
      * @return
      */
     public final Set<WhereClause<?>> getSelections(Map<Integer, Comparable<?>> placeholderValues) {
+	TableDefinition tableDefinition = getTableDefinition();
 	Set<WhereClause<?>> whereClauses = new HashSet<>(this.whereClauses);
 	for (Entry<Integer, Comparable<?>> placeholderValueEntry : placeholderValues.entrySet()) {
 	    Placeholder placeholder = getPlaceholder(placeholderValueEntry.getKey());
 	    if (WherePlaceholder.class.isAssignableFrom(placeholder.getClass())) {
 		WherePlaceholder wherePlaceholder = (WherePlaceholder) placeholder;
 		Comparable<?> value = placeholderValueEntry.getValue();
-		whereClauses.add(new WhereClause(wherePlaceholder.getColumnFamily(), wherePlaceholder.getColumn(),
+		whereClauses.add(new WhereClause(tableDefinition,
+			tableDefinition.getColumnDefinition(wherePlaceholder.getColumn()),
 			wherePlaceholder.getOperator(), value));
 	    }
 	}

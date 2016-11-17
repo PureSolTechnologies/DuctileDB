@@ -1,26 +1,27 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
+import com.puresoltechnologies.ductiledb.storage.engine.Result;
+
 public class WhereClause<T extends Comparable<T>> {
 
-    private final String columnFamily;
-    private final String column;
+    private final TableDefinition tableDefinition;
+    private final ColumnDefinition<T> columnDefinition;
     private final CompareOperator operator;
     private final T value;
 
-    public WhereClause(String columnFamily, String column, CompareOperator operator, T value) {
+    public WhereClause(TableDefinition tableDefinition, ColumnDefinition<T> columnDefinition, CompareOperator operator,
+	    T value) {
 	super();
-	this.columnFamily = columnFamily;
-	this.column = column;
+	this.tableDefinition = tableDefinition;
+	this.columnDefinition = columnDefinition;
 	this.operator = operator;
 	this.value = value;
     }
 
-    public String getColumnFamily() {
-	return columnFamily;
-    }
-
-    public String getColumn() {
-	return column;
+    public ColumnDefinition<T> getColumnDefinition() {
+	return columnDefinition;
     }
 
     public CompareOperator getOperator() {
@@ -31,8 +32,10 @@ public class WhereClause<T extends Comparable<T>> {
 	return value;
     }
 
-    public boolean matches(TableRow row) {
-	T value = row.get(column);
+    public boolean matches(Result result) {
+	TableRow row = TableRowCreator.create(tableDefinition, result);
+	@SuppressWarnings("unchecked")
+	T value = columnDefinition.getType().fromObject(row.get(columnDefinition.getName()));
 	return operator.matches(this.value, value);
     }
 
@@ -40,8 +43,7 @@ public class WhereClause<T extends Comparable<T>> {
     public int hashCode() {
 	final int prime = 31;
 	int result = 1;
-	result = prime * result + ((column == null) ? 0 : column.hashCode());
-	result = prime * result + ((columnFamily == null) ? 0 : columnFamily.hashCode());
+	result = prime * result + ((columnDefinition == null) ? 0 : columnDefinition.hashCode());
 	result = prime * result + ((operator == null) ? 0 : operator.hashCode());
 	result = prime * result + ((value == null) ? 0 : value.hashCode());
 	return result;
@@ -56,15 +58,10 @@ public class WhereClause<T extends Comparable<T>> {
 	if (getClass() != obj.getClass())
 	    return false;
 	WhereClause<?> other = (WhereClause<?>) obj;
-	if (column == null) {
-	    if (other.column != null)
+	if (columnDefinition == null) {
+	    if (other.columnDefinition != null)
 		return false;
-	} else if (!column.equals(other.column))
-	    return false;
-	if (columnFamily == null) {
-	    if (other.columnFamily != null)
-		return false;
-	} else if (!columnFamily.equals(other.columnFamily))
+	} else if (!columnDefinition.equals(other.columnDefinition))
 	    return false;
 	if (operator != other.operator)
 	    return false;

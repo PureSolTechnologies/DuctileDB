@@ -26,4 +26,9 @@ public interface ColumnTypeDefinition<Type> {
 	return fromBytes(value.getBytes());
     }
 
+    public default Type fromObject(Object value) {
+	@SuppressWarnings("unchecked")
+	Type t = (Type) value;
+	return t;
+    }
 }

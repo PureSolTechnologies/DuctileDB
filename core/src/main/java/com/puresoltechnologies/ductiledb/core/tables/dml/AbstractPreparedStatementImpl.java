@@ -59,8 +59,9 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
     }
 
     @Override
-    public final void addPlaceholder(Placeholder placeholder) {
+    public final PreparedStatement addPlaceholder(Placeholder placeholder) {
 	placeholders.put(placeholder.getIndex(), placeholder);
+	return this;
     }
 
     public final Map<Integer, Placeholder> getPlaceholders() {

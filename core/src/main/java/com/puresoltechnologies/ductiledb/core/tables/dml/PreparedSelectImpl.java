@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,8 +12,20 @@ import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 
 public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement implements PreparedSelect {
 
+    private final Map<String, String> columnSelection = new HashMap<>();
+
     public PreparedSelectImpl(TableDefinition tableDefinition) {
 	super(tableDefinition);
+    }
+
+    public PreparedSelect selectColumn(String column) {
+	columnSelection.put(column, column);
+	return this;
+    }
+
+    public PreparedSelect selectColumn(String column, String alias) {
+	columnSelection.put(alias, column);
+	return this;
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.util.Collection;
 
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
+
 /**
  * This interface represents a prepared statement which has a where selector.
  * 
@@ -18,7 +20,8 @@ public interface PreparedWhereSelectionStatement extends PreparedStatement {
      * @param index
      *            is the index to be used for a later bind index.
      */
-    public void addWherePlaceholder(String columnFamily, String column, CompareOperator operator, int index);
+    public PreparedWhereSelectionStatement addWherePlaceholder(String columnFamily, String column,
+	    CompareOperator operator, int index);
 
     /**
      * This method adds a new where selection.
@@ -28,11 +31,14 @@ public interface PreparedWhereSelectionStatement extends PreparedStatement {
      * @param value
      *            is the value to look for in the given column.
      */
-    public <T extends Comparable<T>> void addWhereSelection(String columnFamily, String column,
+    public <T extends Comparable<T>> PreparedWhereSelectionStatement addWhereSelection(
+	    ColumnDefinition<T> columnDefinition, CompareOperator operator, T value);
+
+    public <T extends Comparable<T>> PreparedWhereSelectionStatement addWhereSelection(String column,
 	    CompareOperator operator, T value);
 
-    public <T extends Comparable<T>> void addWhereSelection(WhereClause<T> selection);
+    public <T extends Comparable<T>> PreparedWhereSelectionStatement addWhereSelection(WhereClause<T> selection);
 
-    public void addWhereSelections(Collection<WhereClause<?>> selections);
+    public PreparedWhereSelectionStatement addWhereSelections(Collection<WhereClause<?>> selections);
 
 }

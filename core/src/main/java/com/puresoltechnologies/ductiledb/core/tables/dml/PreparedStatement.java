@@ -14,7 +14,7 @@ public interface PreparedStatement {
      * 
      * @param placeholder
      */
-    public void addPlaceholder(Placeholder placeholder);
+    public PreparedStatement addPlaceholder(Placeholder placeholder);
 
     /**
      * Takes the prepared statement and creates a bound statement out of it.

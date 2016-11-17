@@ -20,7 +20,7 @@ public class TableRowIterableImpl<T> implements TableRowIterable {
 
     private final CloseableIterable<T> sourceIterable;
     private final Function<T, TableRow> converter;
-    private final Predicate<TableRow> filter;
+    private final Predicate<T> filter;
 
     public TableRowIterableImpl(Iterable<T> sourceIterable, Function<T, TableRow> converter) {
 	super();
@@ -48,7 +48,7 @@ public class TableRowIterableImpl<T> implements TableRowIterable {
     }
 
     public TableRowIterableImpl(CloseableIterable<T> sourceIterable, Function<T, TableRow> converter,
-	    Predicate<TableRow> filter) {
+	    Predicate<T> filter) {
 	super();
 	this.sourceIterable = sourceIterable;
 	this.converter = converter;
@@ -73,14 +73,12 @@ public class TableRowIterableImpl<T> implements TableRowIterable {
 		    if (next == null) {
 			return null;
 		    }
-		    TableRow row = converter.apply(next);
-		    if (filter.test(row)) {
-			return row;
+		    if (filter.test(next)) {
+			return converter.apply(next);
 		    }
 		}
 		return null;
 	    }
-
 	};
     }
 
