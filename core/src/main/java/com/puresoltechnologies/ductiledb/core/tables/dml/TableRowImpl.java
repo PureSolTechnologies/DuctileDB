@@ -18,6 +18,7 @@ public class TableRowImpl implements TableRow {
 
     private final Key rowKey;
     private final Map<String, byte[]> values = new HashMap<>();
+    private final Map<String, String> aliases = new HashMap<>();
     private final TableDefinition tableDefinition;
 
     public TableRowImpl(TableDefinition tableDefinition, Key rowKey) {
@@ -32,10 +33,20 @@ public class TableRowImpl implements TableRow {
 
     @Override
     public <T> T get(String columnName) {
-	ColumnDefinition<?> columnDefinition = tableDefinition.getColumnDefinition(columnName);
+	ColumnDefinition<?> columnDefinition;
+	String originalColumn = aliases.get(columnName);
+	if (originalColumn != null) {
+	    columnDefinition = tableDefinition.getColumnDefinition(originalColumn);
+	} else {
+	    columnDefinition = tableDefinition.getColumnDefinition(columnName);
+	}
 	ColumnTypeDefinition<?> type = columnDefinition.getType();
+	byte[] value = values.get(columnName);
+	if (value == null) {
+	    return null;
+	}
 	@SuppressWarnings("unchecked")
-	T t = (T) type.fromBytes(values.get(columnName));
+	T t = (T) type.fromBytes(value);
 	return t;
     }
 
@@ -51,6 +62,11 @@ public class TableRowImpl implements TableRow {
 
     public void add(String column, byte[] value) {
 	values.put(column, value);
+    }
+
+    public void add(String column, String alias, byte[] value) {
+	values.put(alias, value);
+	aliases.put(alias, column);
     }
 
 }

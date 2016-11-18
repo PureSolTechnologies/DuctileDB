@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -172,6 +173,80 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	    TableRow row = iterator.next();
 	    assertEquals(2, (int) row.get("static"));
 	    assertEquals("B", row.get("dynamic"));
+	    assertFalse(iterator.hasNext());
+	}
+    }
+
+    @Test
+    public void testPartAndAliasSelection() throws ExecutionException, IOException {
+	final String TABLE = "testPartAndAliasSelection";
+	final String CF = "testcf";
+
+	TableStoreImpl tableStore = getTableStore();
+
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	createTable.addColumn(CF, "static", ColumnType.INTEGER);
+	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
+	createTable.setPrimaryKey("static");
+	createTable.execute(tableStore);
+
+	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
+
+	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 1);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("A").execute(tableStore);
+
+	insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 2);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("B").execute(tableStore);
+
+	insert = dml.prepareInsert(NAMESPACE, TABLE);
+	insert.addValue(CF, "static", 3);
+	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
+	insert.bind("C").execute(tableStore);
+
+	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
+
+	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
+	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	    Iterator<TableRow> iterator = result.iterator();
+	    assertTrue(iterator.hasNext());
+	    TableRow row = iterator.next();
+	    assertEquals(1, (int) row.get("static"));
+	    assertEquals("A", row.get("dynamic"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertEquals(2, (int) row.get("static"));
+	    assertEquals("B", row.get("dynamic"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertEquals(3, (int) row.get("static"));
+	    assertEquals("C", row.get("dynamic"));
+	    assertFalse(iterator.hasNext());
+	}
+
+	select = dml.prepareSelect(NAMESPACE, TABLE);
+	select.selectColumn("static", "alias");
+	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	    Iterator<TableRow> iterator = result.iterator();
+	    assertTrue(iterator.hasNext());
+	    TableRow row = iterator.next();
+	    assertNull(row.get("static"));
+	    assertNull(row.get("dynamic"));
+	    assertEquals(1, (int) row.get("alias"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertNull(row.get("static"));
+	    assertNull(row.get("dynamic"));
+	    assertEquals(2, (int) row.get("alias"));
+	    assertTrue(iterator.hasNext());
+	    row = iterator.next();
+	    assertNull(row.get("static"));
+	    assertNull(row.get("dynamic"));
+	    assertEquals(3, (int) row.get("alias"));
 	    assertFalse(iterator.hasNext());
 	}
     }

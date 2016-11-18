@@ -18,13 +18,9 @@ public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement 
 	super(tableDefinition);
     }
 
-    public PreparedSelect selectColumn(String column) {
-	columnSelection.put(column, column);
-	return this;
-    }
-
+    @Override
     public PreparedSelect selectColumn(String column, String alias) {
-	columnSelection.put(alias, column);
+	columnSelection.put(column, alias);
 	return this;
     }
 
@@ -33,8 +29,8 @@ public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement 
 	TableEngineImpl tableEngine = getTableEngine(tableStore);
 	ResultScanner scanner = tableEngine.getScanner(new Scan());
 	Set<WhereClause<?>> selections = getSelections(placeholderValue);
-	return new TableRowIterableImpl<>(scanner, result -> TableRowCreator.create(getTableDefinition(), result),
-		row -> {
+	return new TableRowIterableImpl<>(scanner,
+		result -> TableRowCreator.create(getTableDefinition(), result, columnSelection), row -> {
 		    for (WhereClause<?> selection : selections) {
 			if (!selection.matches(row)) {
 			    return false;

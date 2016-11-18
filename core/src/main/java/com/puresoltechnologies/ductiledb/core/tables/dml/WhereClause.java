@@ -1,5 +1,8 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.Result;
@@ -33,9 +36,11 @@ public class WhereClause<T extends Comparable<T>> {
     }
 
     public boolean matches(Result result) {
-	TableRow row = TableRowCreator.create(tableDefinition, result);
-	@SuppressWarnings("unchecked")
-	T value = columnDefinition.getType().fromObject(row.get(columnDefinition.getName()));
+	Map<String, String> columns = new HashMap<>();
+	String columnName = columnDefinition.getName();
+	columns.put(columnName, columnName);
+	TableRow row = TableRowCreator.create(tableDefinition, result, columns);
+	T value = columnDefinition.getType().fromObject(row.get(columnName));
 	return operator.matches(this.value, value);
     }
 
