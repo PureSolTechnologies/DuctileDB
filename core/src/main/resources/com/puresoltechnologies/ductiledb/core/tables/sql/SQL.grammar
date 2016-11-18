@@ -12,58 +12,241 @@
  * O P T I O N S
  ****************************************************************************/
  OPTIONS
-        grammar.name="Fortran-2008";                                    // name of the grammar
-        grammar.checks=true;                                                    // check grammar for plausibility?
-        grammar.ignore-case=true;                                               // is grammar case-insensitive?
-        grammar.normalize_to_bnf=false;                                 // defines whether the grammar needs to be normalized to BNF
-        preprocessor.use=true;                                                  // usage of preprocessor required?
-        preprocessor="com.puresoltechnologies.purifinity.coding.lang.c11.preprocessor.C11Preprocessor"; // usage of preprocessor required?
-        lexer="com.puresoltechnologies.parsers.lexer.RegExpLexer";      // use this lexer
-        parser="com.puresoltechnologies.parsers.parser.lr.LR1Parser";   // use this parser
-        parser.backtracking=true;                                               // backtracking switched on?
-        parser.backtracking.depth=100;                                  // keep maximum backtrack locations
-        parser.timeout=10;                                                              // timeout of parser after this amount of seconds
+        grammar.name="SQL 2003";                                      // name of the grammar
+        grammar.checks=true;                                          // check grammar for plausibility?
+        grammar.ignore-case=true;                                     // is grammar case-insensitive?
+        grammar.normalize_to_bnf=false;                               // defines whether the grammar needs to be normalized to BNF
+        preprocessor.use=false;                                       // usage of preprocessor required?
+        preprocessor="";                                              // usage of preprocessor required?
+        lexer="com.puresoltechnologies.parsers.lexer.RegExpLexer";    // use this lexer
+        parser="com.puresoltechnologies.parsers.parser.lr.LR1Parser"; // use this parser
+        parser.backtracking=false;                                    // backtracking switched on?
+        parser.backtracking.depth=0;                                  // keep maximum backtrack locations
+        parser.timeout=10;                                            // timeout of parser after this amount of seconds
 
 /****************************************************************************
  * H E L P E R
  ****************************************************************************/
- HELPER
 
-        /* **********************************
-         *
-         * 3.1 Processor character set
-         *
-         * *********************************
-         */
+HELPER
 
-        LETTER : "[A-Z]";
-        ALPHANUMERIC_CHARACTER :
-                 "(" LETTER "|" DIGIT "|_)"
-        ;
-        DIGIT : "[0-9]";
+LanguageCharacter : SimpleLatinLetter | Digit | SpecialCharacter;
 
-        DIGIT_STRING : "\\d+";
+SimpleLatinLetter : SimpleLatinUpperCaseLetter | SimpleLatinLowerCaseLetter;
 
-        HEX_DIGIT : "[0-9A-F]";
+SimpleLatinUpperCaseLetter : "[A-Z]";
 
-        /* *************************
-         *
-         * 4 Types
-         *
-         * ************************
-         */
+SimpleLatinLowerCaseLetter : "[a-z]";
 
-        /*
-         * Integer type
-         */
+Digit : "[0-9]";
 
-        SIGN : "[+-]";
-        SIGNED_DIGIT_STRING : SIGN "?" DIGIT_STRING;
+DoubleQuote : "\"";
 
-        KIND_PARAM : "(" DIGIT_STRING "|"
-                        NAME_LITERAL ")";
-        SIGNED_INT_LITERAL_CONSTANT : SIGN "?"
-                        INT_LITERAL_CONSTANT;
+Percent : "%";
 
-        /*
-         * Real type
+Ampersand : "&";
+
+Quote : "'";
+
+LeftParen : "\\(";
+
+RightParen : "\\)";
+
+Asterisk : "\\*";
+
+PlusSign : "\\+";
+
+MinusSign : "\\-";
+
+Solidus : "/";
+
+Colon : ":";
+
+LessThanOperator : "<";
+
+EqualsOperator : "=";
+
+GreaterThanOperator : ">";
+
+QuestionMark : "\\?";
+
+LeftBracket : "\\[";
+
+RightBracket : "\\]";
+
+Circumflex : "^";
+
+Underscore : "_";
+
+VerticalBar : "|";
+
+LeftBrace : "\\{";
+
+RightBrace : "\\}";
+
+IdentifierString : SimpleLatinLetter "(" SimpleLatinLetter | Digit ")"*;
+
+/****************************************************************************
+ * T O K E N S
+ ****************************************************************************/
+
+TOKENS
+
+Space : "( |\\t|\\f)" [hide];
+
+CREATE : "create";
+DROP : "drop";
+ALTER : "alter";
+TABLE : "table";
+INDEX : "index";
+
+INSERT : "insert";
+UPDATE : "update";
+DELETE : "delete";
+SELECT : "select";
+
+AS : "as";
+WHERE : "where";
+AND : "and";
+
+FROM : "from";
+INTO : "into";
+
+BEGIN : "begin";
+END : "end";
+
+COMMA : ",";
+SEMICOLON : ";";
+PERIOD : "\\.";
+
+IDENTIFIER : DoubleQuote IdentifierString DoubleQuote | IdentifierString; 
+
+/****************************************************************************
+ * P R O D U C T I O N S
+ ****************************************************************************/
+
+PRODUCTIONS
+
+_START_ : 
+  statement
+| block-statement
+;
+
+block-statement :
+  BEGIN statement + END
+;
+
+statement :
+  ddl-statement SEMICOLON
+| dml-statement SEMICOLON
+//| dcl-statement SEMICOLON
+;
+
+/*
+ * Parts
+ */
+table-identifier :
+  IDENTIFIER PERIOD IDENTIFIER 
+| IDENTIFIER 
+;
+
+/*
+ * Data Definition Language
+ */
+
+ddl-statement :
+  table-definition-statement
+| index-definition-statement
+;
+
+table-definition-statement :
+  create-table-statement
+| drop-table-statement
+| alter-table-statement
+;
+
+create-table-statement :
+  CREATE TABLE
+;
+
+drop-table-statement :
+  DROP TABLE
+;
+
+alter-table-statement :
+  ALTER TABLE
+;
+
+index-definition-statement :
+  create-index-statement
+| drop-index-statement
+| alter-index-statement
+;
+
+create-index-statement :
+  CREATE INDEX
+;
+
+drop-index-statement :
+  DROP INDEX
+;
+
+alter-index-statement :
+  ALTER INDEX
+;
+
+/*
+ * Data Manipulation Language
+ */
+dml-statement :
+  select-statement
+| delete-statement
+| update-statement
+| insert-statement
+;
+
+select-statement :
+  SELECT column-selection-list FROM table-identifier where-clauses ?
+;
+
+column-selection-list :
+  column-selection
+| column-selection-list COMMA column-selection
+;
+
+column-selection :
+  IDENTIFIER
+| IDENTIFIER AS IDENTIFIER
+;
+
+where-clauses :
+  WHERE where-clause-list
+;
+
+where-clause-list :
+  where-clause
+| where-clause-list AND where-clause
+;
+
+where-clause :
+  IDENTIFIER
+;
+
+delete-statement :
+  DELETE table-identifier FROM
+;
+
+update-statement :
+  UPDATE table-identifier
+;
+
+insert-statement :
+  INSERT INTO table-identifier
+;
+
+/*
+ * Data Control Language
+ */
+ dcl-statement :
+ ;
+ 
