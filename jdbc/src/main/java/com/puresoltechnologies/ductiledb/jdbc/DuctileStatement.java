@@ -10,6 +10,13 @@ public class DuctileStatement implements Statement, DuctileWrapper {
 
     private final DuctileConnection connection;
 
+    private int maxFieldSize = 0;
+    private int maxRows = 0;
+    private int queryTimeout = 0;
+    private int fetchSize = 1000;
+    private SQLWarning warnings = null;
+    private int fetchDirection = ResultSet.FETCH_FORWARD;
+
     public DuctileStatement(DuctileConnection connection) {
 	super();
 	this.connection = connection;
@@ -40,26 +47,22 @@ public class DuctileStatement implements Statement, DuctileWrapper {
 
     @Override
     public int getMaxFieldSize() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return maxFieldSize;
     }
 
     @Override
     public void setMaxFieldSize(int max) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.maxFieldSize = max;
     }
 
     @Override
     public int getMaxRows() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return maxRows;
     }
 
     @Override
     public void setMaxRows(int max) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.maxRows = max;
     }
 
     @Override
@@ -70,14 +73,12 @@ public class DuctileStatement implements Statement, DuctileWrapper {
 
     @Override
     public int getQueryTimeout() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return queryTimeout;
     }
 
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.queryTimeout = seconds;
     }
 
     @Override
@@ -88,14 +89,12 @@ public class DuctileStatement implements Statement, DuctileWrapper {
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.warnings = null;
     }
 
     @Override
@@ -130,26 +129,26 @@ public class DuctileStatement implements Statement, DuctileWrapper {
 
     @Override
     public void setFetchDirection(int direction) throws SQLException {
-	// TODO Auto-generated method stub
-
+	if ((direction != ResultSet.FETCH_FORWARD) && (direction != ResultSet.FETCH_REVERSE)
+		&& (direction != ResultSet.FETCH_UNKNOWN)) {
+	    throw new SQLException("Unknown fetch direction '" + direction + "'.");
+	}
+	this.fetchDirection = direction;
     }
 
     @Override
     public int getFetchDirection() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return fetchDirection;
     }
 
     @Override
     public void setFetchSize(int rows) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.fetchSize = rows;
     }
 
     @Override
     public int getFetchSize() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return fetchSize;
     }
 
     @Override

@@ -94,11 +94,13 @@ TOKENS
 
 Space : "( |\\t|\\f)" [hide];
 
+DESCRIBE : "describe";
 CREATE : "create";
 DROP : "drop";
 ALTER : "alter";
 TABLE : "table";
 INDEX : "index";
+NAMESPACE : "namespace";
 
 INSERT : "insert";
 UPDATE : "update";
@@ -146,8 +148,11 @@ statement :
  * Parts
  */
 table-identifier :
-  IDENTIFIER PERIOD IDENTIFIER 
-| IDENTIFIER 
+  IDENTIFIER PERIOD IDENTIFIER
+;
+
+namespace-identifier :
+  IDENTIFIER
 ;
 
 /*
@@ -155,8 +160,27 @@ table-identifier :
  */
 
 ddl-statement :
-  table-definition-statement
+  description-statement
+| table-definition-statement
 | index-definition-statement
+;
+
+description-statement :
+  describe-namespaces-statement
+| describe-namespace-statement
+| describe-table-statement
+;
+
+describe-namespaces-statement :
+  DESCRIBE 'NAMESPACES'
+;
+
+describe-namespace-statement :
+  DESCRIBE NAMESPACE namespace-identifier
+;
+
+describe-table-statement :
+  DESCRIBE TABLE table-identifier
 ;
 
 table-definition-statement :
@@ -166,15 +190,15 @@ table-definition-statement :
 ;
 
 create-table-statement :
-  CREATE TABLE
+  CREATE TABLE table-identifier
 ;
 
 drop-table-statement :
-  DROP TABLE
+  DROP TABLE table-identifier
 ;
 
 alter-table-statement :
-  ALTER TABLE
+  ALTER TABLE table-identifier
 ;
 
 index-definition-statement :

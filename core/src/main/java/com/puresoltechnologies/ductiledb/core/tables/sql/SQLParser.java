@@ -1,11 +1,22 @@
 package com.puresoltechnologies.ductiledb.core.tables.sql;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
+import com.puresoltechnologies.parsers.analyzer.AnalyzerFactory;
 import com.puresoltechnologies.parsers.grammar.Grammar;
 import com.puresoltechnologies.parsers.grammar.GrammarException;
 import com.puresoltechnologies.parsers.grammar.GrammarReader;
+import com.puresoltechnologies.parsers.lexer.Lexer;
+import com.puresoltechnologies.parsers.lexer.LexerException;
+import com.puresoltechnologies.parsers.lexer.TokenStream;
+import com.puresoltechnologies.parsers.parser.ParseTreeNode;
+import com.puresoltechnologies.parsers.parser.Parser;
+import com.puresoltechnologies.parsers.parser.ParserException;
+import com.puresoltechnologies.parsers.source.SourceCode;
+import com.puresoltechnologies.parsers.source.UnspecifiedSourceCodeLocation;
 
 /**
  * This class is used to parser SQL statements.
@@ -29,5 +40,19 @@ public class SQLParser {
 
     static Grammar getGrammar() {
 	return grammar;
+    }
+
+    public static ParseTreeNode parse(String statement) throws ExecutionException {
+	try {
+	    Grammar grammar = getGrammar();
+	    AnalyzerFactory factory = AnalyzerFactory.createFactory(grammar, SQLParser.class.getClassLoader());
+	    Lexer lexer = factory.createLexer();
+	    TokenStream tokenStream = lexer.lex(SourceCode.read(new ByteArrayInputStream(statement.getBytes()),
+		    new UnspecifiedSourceCodeLocation()));
+	    Parser parser = factory.createParser();
+	    return parser.parse(tokenStream);
+	} catch (GrammarException | LexerException | IOException | ParserException e) {
+	    throw new ExecutionException("Could not parse statement '" + statement + "'.", e);
+	}
     }
 }
