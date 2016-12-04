@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.tinkerpop.test;
+package com.puresoltechnologies.ductiledb.tinkerpop.compliance;
 
 import java.io.IOException;
 

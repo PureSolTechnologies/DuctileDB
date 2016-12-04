@@ -1,11 +1,9 @@
 package com.puresoltechnologies.ductiledb.jdbc;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeThat;
 
 import java.io.File;
 import java.sql.Connection;
@@ -16,11 +14,17 @@ import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 
-public class DuctileDriverTest extends AbstractJDBCTest {
+public class DuctileDriverTest {
+
+    @BeforeClass
+    public static void initialization() throws ClassNotFoundException {
+	Class.forName(DuctileDriver.class.getName());
+    }
 
     @Test
     public void testDriverManagerRegistration() {
@@ -52,7 +56,7 @@ public class DuctileDriverTest extends AbstractJDBCTest {
     @Test
     public void testVersion() throws SQLException {
 	Driver driver = DriverManager.getDriver("jdbc:ductile:file:/opt/hbase/conf/hbase-site.xml");
-	assumeThat(driver.getClass(), equalTo(DuctileDriver.class));
+	assertEquals(DuctileDriver.class, driver.getClass());
 	String[] versionSplit = BuildInformation.getVersion().split("\\.");
 	assertEquals((int) Integer.valueOf(versionSplit[0]), driver.getMajorVersion());
 	assertEquals((int) Integer.valueOf(versionSplit[1]), driver.getMinorVersion());
@@ -61,7 +65,7 @@ public class DuctileDriverTest extends AbstractJDBCTest {
     @Test
     public void testGetPropertyInfo() throws SQLException {
 	Driver driver = DriverManager.getDriver("jdbc:ductile:file:/opt/hbase/conf/hbase-site.xml");
-	assumeThat(driver.getClass(), equalTo(DuctileDriver.class));
+	assertEquals(DuctileDriver.class, driver.getClass());
 	DriverPropertyInfo[] propertyInfo = driver.getPropertyInfo("jdbc:ductile:file:/opt/hbase/conf/hbase-site.xml",
 		new Properties());
 	assertNotNull(propertyInfo);

@@ -18,11 +18,27 @@
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
 			<artifactId>storage.os</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>tinkerpop</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.commons</groupId>
 			<artifactId>types</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tinkerpop</groupId>
+			<artifactId>gremlin-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tinkerpop</groupId>
+			<artifactId>gremlin-groovy-test</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

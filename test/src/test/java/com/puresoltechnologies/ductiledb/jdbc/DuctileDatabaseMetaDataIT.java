@@ -4,14 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,17 +21,8 @@ public class DuctileDatabaseMetaDataIT extends AbstractJDBCTest {
     private static DatabaseMetaData metaData;
 
     @BeforeClass
-    public static void connect() throws SQLException {
-	connection = DriverManager.getConnection(
-		"jdbc:ductile:file:" + new File("src/test/resources/ductiledb-test.yml").getAbsolutePath());
-	assertEquals(DuctileConnection.class, connection.getClass());
-
+    public static void readMetaData() throws SQLException {
 	metaData = connection.getMetaData();
-    }
-
-    @AfterClass
-    public static void disconnect() throws SQLException {
-	connection.close();
     }
 
     @Test
