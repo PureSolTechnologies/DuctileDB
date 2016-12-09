@@ -84,14 +84,12 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public Statement createStatement() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return new DuctileStatement(this);
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return new DuctilePreparedStatement(this, sql);
     }
 
     @Override

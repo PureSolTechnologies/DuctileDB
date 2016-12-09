@@ -48,10 +48,6 @@ Ampersand : "&";
 
 Quote : "'";
 
-LeftParen : "\\(";
-
-RightParen : "\\)";
-
 Asterisk : "\\*";
 
 PlusSign : "\\+";
@@ -120,6 +116,8 @@ END : "end";
 COMMA : ",";
 SEMICOLON : ";";
 PERIOD : "\\.";
+LEFT_PAREN : "\\(";
+RIGHT_PAREN : "\\)";
 
 IDENTIFIER : DoubleQuote IdentifierString DoubleQuote | IdentifierString; 
 
@@ -190,7 +188,33 @@ table-definition-statement :
 ;
 
 create-table-statement :
-  CREATE TABLE table-identifier
+  CREATE TABLE table-identifier LEFT_PAREN column-definitions RIGHT_PAREN
+;
+
+column-definitions :
+  column-definition
+| column-definitions COMMA column-definition
+;
+
+column-definition :
+  column-identifier column-type
+;
+
+column-identifier :
+  IDENTIFIER
+;
+
+column-type :
+  'VARCHAR'
+| 'BOOLEAN'
+| 'INTEGER'
+| 'BIGINT'
+| 'REAL'
+| 'FLOAT'
+| 'DOUBLE' 'PRECISION'
+| 'DATE'
+| 'TIME'
+| 'TIMESTAMP'
 ;
 
 drop-table-statement :

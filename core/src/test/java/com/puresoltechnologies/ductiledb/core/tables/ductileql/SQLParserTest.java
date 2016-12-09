@@ -1,10 +1,11 @@
-package com.puresoltechnologies.ductiledb.core.tables.sql;
+package com.puresoltechnologies.ductiledb.core.tables.ductileql;
 
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
+import com.puresoltechnologies.ductiledb.core.tables.ductileql.SQLParser;
 import com.puresoltechnologies.parsers.parser.ParseTreeNode;
 
 public class SQLParserTest {

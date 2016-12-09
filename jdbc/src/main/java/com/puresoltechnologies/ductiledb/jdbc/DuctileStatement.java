@@ -16,6 +16,7 @@ public class DuctileStatement implements Statement, DuctileWrapper {
     private int fetchSize = 1000;
     private SQLWarning warnings = null;
     private int fetchDirection = ResultSet.FETCH_FORWARD;
+    private boolean escapeProcessing;
 
     public DuctileStatement(DuctileConnection connection) {
 	super();
@@ -67,8 +68,7 @@ public class DuctileStatement implements Statement, DuctileWrapper {
 
     @Override
     public void setEscapeProcessing(boolean enable) throws SQLException {
-	// TODO Auto-generated method stub
-
+	escapeProcessing = enable;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables.sql;
+package com.puresoltechnologies.ductiledb.core.tables.ductileql;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
