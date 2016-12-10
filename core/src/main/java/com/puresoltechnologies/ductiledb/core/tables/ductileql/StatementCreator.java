@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ductileql;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.Statement;
+import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
@@ -16,7 +16,8 @@ import com.puresoltechnologies.trees.TreeException;
 public class StatementCreator {
 
     /**
-     * Checks whether an SQL statement is a query (having results) or not.
+     * Checks whether an SQL PreparedStatement is a query (having results) or
+     * not.
      * 
      * @return
      */
@@ -51,7 +52,7 @@ public class StatementCreator {
 	return tableIdentifier.getChildren().get(2).getToken().getText();
     }
 
-    public Statement create(ParseTreeNode statement) throws ExecutionException {
+    public PreparedStatement create(ParseTreeNode statement) throws ExecutionException {
 	try {
 	    if ("block-statement".equals(statement.getName())) {
 		return createBlockStatement(statement);
@@ -65,7 +66,7 @@ public class StatementCreator {
 	}
     }
 
-    private Statement createBlockStatement(ParseTreeNode blockStatement)
+    private PreparedStatement createBlockStatement(ParseTreeNode blockStatement)
 	    throws TreeException, UnknownSQLStatementException, UnsupportedSQLStatementException {
 	// for (ParseTreeNode singleStatement :
 	// blockStatement.getChildren("statement")) {
@@ -75,7 +76,7 @@ public class StatementCreator {
 	throw new UnsupportedSQLStatementException(blockStatement);
     }
 
-    private Statement createSingleStatement(ParseTreeNode statement)
+    private PreparedStatement createSingleStatement(ParseTreeNode statement)
 	    throws UnknownSQLStatementException, TreeException, UnsupportedSQLStatementException {
 	ParseTreeNode ddlStatement = statement.getChild("ddl-statement");
 	if (ddlStatement != null) {
@@ -88,7 +89,7 @@ public class StatementCreator {
 	throw new UnknownSQLStatementException(statement);
     }
 
-    private Statement createDDLStatement(ParseTreeNode ddlStatement)
+    private PreparedStatement createDDLStatement(ParseTreeNode ddlStatement)
 	    throws UnsupportedSQLStatementException, TreeException {
 	ParseTreeNode descriptionStatement = ddlStatement.getChild("description-statement");
 	if (descriptionStatement != null) {
@@ -105,13 +106,13 @@ public class StatementCreator {
 	throw new UnsupportedSQLStatementException(ddlStatement);
     }
 
-    private Statement createDescriptionStatement(ParseTreeNode descriptionStatement)
+    private PreparedStatement createDescriptionStatement(ParseTreeNode descriptionStatement)
 	    throws UnsupportedSQLStatementException {
 	// TODO Auto-generated method stub
 	throw new UnsupportedSQLStatementException(descriptionStatement);
     }
 
-    private Statement createTableDefinitionStatement(ParseTreeNode tableDefinitionStatement)
+    private PreparedStatement createTableDefinitionStatement(ParseTreeNode tableDefinitionStatement)
 	    throws UnsupportedSQLStatementException, TreeException {
 	ParseTreeNode createTableStatement = tableDefinitionStatement.getChild("create-table-statement");
 	if (createTableStatement != null) {
@@ -128,7 +129,7 @@ public class StatementCreator {
 	throw new UnsupportedSQLStatementException(tableDefinitionStatement);
     }
 
-    private Statement createCreateTableStatement(ParseTreeNode createTableStatement) throws TreeException {
+    private PreparedStatement createCreateTableStatement(ParseTreeNode createTableStatement) throws TreeException {
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	ParseTreeNode tableIdentifier = createTableStatement.getChild("table-identifier");
 	CreateTable createTable = ddl.createCreateTable(getNamespace(tableIdentifier), getTable(tableIdentifier));
@@ -136,23 +137,23 @@ public class StatementCreator {
 	return createTable;
     }
 
-    private Statement createDropTableStatement(ParseTreeNode dropTableStatement) {
+    private PreparedStatement createDropTableStatement(ParseTreeNode dropTableStatement) {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    private Statement createAlterTableStatement(ParseTreeNode alterTableStatement) {
+    private PreparedStatement createAlterTableStatement(ParseTreeNode alterTableStatement) {
 	// TODO Auto-generated method stub
 	return null;
     }
 
-    private Statement createIndexDefinitionStatement(ParseTreeNode indexDefinitionStatement)
+    private PreparedStatement createIndexDefinitionStatement(ParseTreeNode indexDefinitionStatement)
 	    throws UnsupportedSQLStatementException {
 	// TODO Auto-generated method stub
 	throw new UnsupportedSQLStatementException(indexDefinitionStatement);
     }
 
-    private Statement createDMLStatement(ParseTreeNode dmlStatement)
+    private PreparedStatement createDMLStatement(ParseTreeNode dmlStatement)
 	    throws TreeException, UnknownSQLStatementException, UnsupportedSQLStatementException {
 	ParseTreeNode selectStatement = dmlStatement.getChild("select-statement");
 	if (selectStatement != null) {
@@ -173,22 +174,26 @@ public class StatementCreator {
 	throw new UnknownSQLStatementException(dmlStatement);
     }
 
-    private Statement createSelectStatement(ParseTreeNode selectStatement) throws UnsupportedSQLStatementException {
+    private PreparedStatement createSelectStatement(ParseTreeNode selectStatement)
+	    throws UnsupportedSQLStatementException {
 	// TODO Auto-generated method stub
 	throw new UnsupportedSQLStatementException(selectStatement);
     }
 
-    private Statement createInsertStatement(ParseTreeNode insertStatement) throws UnsupportedSQLStatementException {
+    private PreparedStatement createInsertStatement(ParseTreeNode insertStatement)
+	    throws UnsupportedSQLStatementException {
 	// TODO Auto-generated method stub
 	throw new UnsupportedSQLStatementException(insertStatement);
     }
 
-    private Statement createUpdateStatement(ParseTreeNode updateStatement) throws UnsupportedSQLStatementException {
+    private PreparedStatement createUpdateStatement(ParseTreeNode updateStatement)
+	    throws UnsupportedSQLStatementException {
 	// TODO Auto-generated method stub
 	throw new UnsupportedSQLStatementException(updateStatement);
     }
 
-    private Statement createDeleteStatement(ParseTreeNode deleteStatement) throws UnsupportedSQLStatementException {
+    private PreparedStatement createDeleteStatement(ParseTreeNode deleteStatement)
+	    throws UnsupportedSQLStatementException {
 	// TODO Auto-generated method stub
 	throw new UnsupportedSQLStatementException(deleteStatement);
     }

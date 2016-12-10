@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.puresoltechnologies.ductiledb.core.tables.AbstractPreparedStatement;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
@@ -11,13 +12,13 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 
-public abstract class AbstractPreparedStatementImpl implements PreparedStatement {
+public abstract class AbstractPreparedDMLStatement extends AbstractPreparedStatement implements PreparedDMLStatement {
 
     private final Map<Integer, Placeholder> placeholders = new HashMap<>();
 
     private final TableDefinition tableDefinition;
 
-    public AbstractPreparedStatementImpl(TableDefinition tableDefinition) {
+    public AbstractPreparedDMLStatement(TableDefinition tableDefinition) {
 	super();
 	if (tableDefinition == null) {
 	    throw new IllegalArgumentException("Table definition must not be null.");
@@ -45,21 +46,7 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
     }
 
     @Override
-    public final BoundStatement bind() {
-	return new BoundStatementImpl(this);
-    }
-
-    @Override
-    public final BoundStatement bind(Object... values) {
-	BoundStatementImpl boundStatement = new BoundStatementImpl(this);
-	for (int i = 0; i < values.length; ++i) {
-	    boundStatement.set(i + 1, values[i]);
-	}
-	return boundStatement;
-    }
-
-    @Override
-    public final PreparedStatement addPlaceholder(Placeholder placeholder) {
+    public final PreparedDMLStatement addPlaceholder(Placeholder placeholder) {
 	placeholders.put(placeholder.getIndex(), placeholder);
 	return this;
     }
@@ -81,6 +68,7 @@ public abstract class AbstractPreparedStatementImpl implements PreparedStatement
 	return -1;
     }
 
+    @Override
     public abstract TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
 	    throws ExecutionException;
 

@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import java.time.Instant;
+import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
@@ -14,7 +15,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
-public class CreateNamespaceImpl implements CreateNamespace {
+public class CreateNamespaceImpl extends AbstractDDLStatement implements CreateNamespace {
 
     private final TableStoreImpl tableStore;
     private final String name;
@@ -25,7 +26,8 @@ public class CreateNamespaceImpl implements CreateNamespace {
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
+	    throws ExecutionException {
 	if ("system".equals(name)) {
 	    throw new ExecutionException("Creation of 'system' namespace is not allowed.");
 	}

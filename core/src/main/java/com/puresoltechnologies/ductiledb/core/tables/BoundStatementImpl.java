@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables.dml;
+package com.puresoltechnologies.ductiledb.core.tables;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -7,16 +7,14 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.StatementImpl;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 
 public class BoundStatementImpl extends StatementImpl implements BoundStatement {
 
     private final Map<Integer, Comparable<?>> placeholderValues = new HashMap<>();
-    private final AbstractPreparedStatementImpl preparedStatement;
+    private final AbstractPreparedStatement preparedStatement;
 
-    public BoundStatementImpl(AbstractPreparedStatementImpl preparedStatement) {
+    public BoundStatementImpl(AbstractPreparedStatement preparedStatement) {
 	super();
 	this.preparedStatement = preparedStatement;
     }
@@ -100,84 +98,6 @@ public class BoundStatementImpl extends StatementImpl implements BoundStatement 
     @Override
     public BoundStatement setNull(int index) {
 	placeholderValues.put(index, null);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setBoolean(String name, boolean value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setByte(String name, byte value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setDate(String name, LocalDate value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setDateTime(String name, LocalDateTime value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setDouble(String name, double value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setInteger(String name, int value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setLong(String name, long value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setShort(String name, short value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setSingle(String name, float value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setTime(String name, LocalTime value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setTimestamp(String name, Instant value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setVarChar(String name, String value) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), value);
-	return this;
-    }
-
-    @Override
-    public BoundStatement setNull(String name) {
-	placeholderValues.put(preparedStatement.getPlaceholderIndex(name), null);
 	return this;
     }
 

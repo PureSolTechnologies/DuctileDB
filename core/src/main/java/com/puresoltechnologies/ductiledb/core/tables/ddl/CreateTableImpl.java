@@ -1,6 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
@@ -16,23 +17,32 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
-public class CreateTableImpl implements CreateTable {
+public class CreateTableImpl extends AbstractDDLStatement implements CreateTable {
 
-    private final TableStoreImpl tableStore;
     private final String namespace;
     private final String name;
     private final TableDefinitionImpl tableDefinition;
 
     public CreateTableImpl(TableStoreImpl tableStore, String namespace, String name) {
 	super();
-	this.tableStore = tableStore;
 	this.namespace = namespace;
 	this.name = name;
 	tableDefinition = new TableDefinitionImpl(namespace, name);
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public void addColumn(String columnFamily, String name, ColumnType type) {
+	tableDefinition.addColumn(columnFamily, name, type);
+    }
+
+    @Override
+    public void setPrimaryKey(String... columns) {
+	tableDefinition.setPrimaryKey(columns);
+    }
+
+    @Override
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
+	    throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}
@@ -57,16 +67,6 @@ public class CreateTableImpl implements CreateTable {
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create table '" + namespace + "." + name + "'.");
 	}
-    }
-
-    @Override
-    public void addColumn(String columnFamily, String name, ColumnType type) {
-	tableDefinition.addColumn(columnFamily, name, type);
-    }
-
-    @Override
-    public void setPrimaryKey(String... columns) {
-	tableDefinition.setPrimaryKey(columns);
     }
 
 }

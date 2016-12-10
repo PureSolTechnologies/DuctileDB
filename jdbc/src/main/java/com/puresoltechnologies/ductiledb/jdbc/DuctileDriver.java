@@ -103,7 +103,7 @@ public class DuctileDriver implements Driver {
 	    File file = new File(url.getPath());
 	    if (!file.exists()) {
 		throw new SQLException("URL '" + urlString
-			+ "' needs to be of type 'file:' and to point to a valid 'hbase.xml' file.");
+			+ "' needs to be of type 'file:' and to point to a valid DuctileDB Yaml configuretion file.");
 	    }
 	    return url;
 	} catch (MalformedURLException e) {

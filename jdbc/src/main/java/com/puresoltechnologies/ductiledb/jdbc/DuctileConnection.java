@@ -100,8 +100,8 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public String nativeSQL(String sql) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	// intentionally left empty
+	return sql;
     }
 
     @Override

@@ -18,4 +18,6 @@ public interface TableStore extends Closeable {
     public DataManipulationLanguage getDataManipulationLanguage();
 
     public DataControlLanguage getDataControlLanguage();
+
+    public PreparedStatement prepare(String query) throws ExecutionException;
 }

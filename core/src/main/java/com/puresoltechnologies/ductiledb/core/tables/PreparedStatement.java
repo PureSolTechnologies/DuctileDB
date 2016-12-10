@@ -1,4 +1,6 @@
-package com.puresoltechnologies.ductiledb.core.tables.dml;
+package com.puresoltechnologies.ductiledb.core.tables;
+
+import com.puresoltechnologies.ductiledb.core.tables.dml.BoundDMLStatement;
 
 /**
  * This is the central interface for all statements which can be prepared with
@@ -10,16 +12,9 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 public interface PreparedStatement {
 
     /**
-     * This method adds a new placeholder.
-     * 
-     * @param placeholder
-     */
-    public PreparedStatement addPlaceholder(Placeholder placeholder);
-
-    /**
      * Takes the prepared statement and creates a bound statement out of it.
      * 
-     * @return A {@link BoundStatement} is returned which can be used to be
+     * @return A {@link BoundDMLStatement} is returned which can be used to be
      *         executed.
      */
     public BoundStatement bind();
@@ -31,7 +26,7 @@ public interface PreparedStatement {
      *            is an array of values to be assigned to the defined
      *            placeholders. The assignment starts from 1 to the end
      *            successively.
-     * @return A {@link BoundStatement} is returned which can be used to be
+     * @return A {@link BoundDMLStatement} is returned which can be used to be
      *         executed.
      */
     public BoundStatement bind(Object... values);

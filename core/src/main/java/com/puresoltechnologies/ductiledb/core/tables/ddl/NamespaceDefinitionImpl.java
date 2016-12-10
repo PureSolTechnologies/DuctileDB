@@ -8,11 +8,22 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
  */
 public class NamespaceDefinitionImpl implements NamespaceDefinition {
 
+    private final String database;
     private final String name;
 
     public NamespaceDefinitionImpl(String name) {
+	this("table_store", name);
+    }
+
+    public NamespaceDefinitionImpl(String database, String name) {
 	super();
+	this.database = database;
 	this.name = name;
+    }
+
+    @Override
+    public String getDatabaseName() {
+	return database;
     }
 
     @Override

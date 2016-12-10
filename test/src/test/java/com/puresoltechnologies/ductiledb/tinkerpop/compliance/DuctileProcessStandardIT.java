@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphProvider;
 
-@Ignore
+@Ignore("Not fully implemented, yet.")
 @RunWith(ProcessStandardSuite.class)
 @GraphProviderClass(provider = DuctileGraphProvider.class, graph = DuctileGraph.class)
 public class DuctileProcessStandardIT {

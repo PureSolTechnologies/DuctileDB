@@ -3,6 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
@@ -20,7 +21,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
-public class CreateIndexImpl implements CreateIndex {
+public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex {
 
     private final List<String> columns = new ArrayList<>();
     private final TableStoreImpl tableStore;
@@ -45,7 +46,8 @@ public class CreateIndexImpl implements CreateIndex {
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
+	    throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}

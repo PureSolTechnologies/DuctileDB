@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.util.Collection;
 
+import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 
 /**
@@ -9,7 +10,7 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface PreparedWhereSelectionStatement extends PreparedStatement {
+public interface PreparedWhereSelectionStatement extends PreparedDMLStatement {
 
     /**
      * This method adds a new where clause placeholder with AND semantics to the

@@ -6,12 +6,14 @@ import java.sql.ResultSet;
 import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinition;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinitionImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterableImpl;
@@ -365,7 +367,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getSchemaTerm() throws SQLException {
-	return "schema";
+	return "namespace";
     }
 
     @Override
@@ -375,7 +377,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getCatalogTerm() throws SQLException {
-	return "namespace";
+	return "database";
     }
 
     @Override
@@ -700,8 +702,25 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getSchemas() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	tableDefinition.addColumn("metadata", "TABLE_SCHEM", ColumnType.VARCHAR);
+	tableDefinition.addColumn("metadata", "TABLE_CATALOG", ColumnType.VARCHAR);
+
+	List<NamespaceDefinition> namespaces = new ArrayList<>();
+	namespaces.add(new NamespaceDefinitionImpl("blob_store", "blobs"));
+	namespaces.add(new NamespaceDefinitionImpl("graph_store", "ductiledb"));
+
+	TableStore tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	Iterable<NamespaceDefinition> namespaceIterable = ddl.getNamespaces();
+	namespaces.addAll((Collection<? extends NamespaceDefinition>) namespaceIterable);
+
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
+	    tableRow.add("TABLE_SCHEM", Bytes.toBytes(namespace.getName()));
+	    tableRow.add("TABLE_CATALOG", Bytes.toBytes("table_store"));
+	    return tableRow;
+	}));
     }
 
     @Override
@@ -709,12 +728,14 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
 	tableDefinition.addColumn("metadata", "TABLE_CAT", ColumnType.VARCHAR);
 
-	TableStore tableStore = getTableStore();
-	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	Iterable<NamespaceDefinition> namespaces = ddl.getNamespaces();
-	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
+	List<String> catalogs = new ArrayList<>();
+	catalogs.add("blob_store");
+	catalogs.add("graph_store");
+	catalogs.add("table_store");
+
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(catalogs, catalog -> {
 	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
-	    tableRow.add("TABLE_CAT", Bytes.toBytes(namespace.getName()));
+	    tableRow.add("TABLE_CAT", Bytes.toBytes(catalog));
 	    return tableRow;
 	}));
     }

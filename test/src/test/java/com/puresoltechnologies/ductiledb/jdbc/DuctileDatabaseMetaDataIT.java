@@ -4,25 +4,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDatabaseMetaDataIT extends AbstractJDBCTest {
-
-    private static Connection connection;
     private static DatabaseMetaData metaData;
 
-    @BeforeClass
-    public static void readMetaData() throws SQLException {
-	metaData = connection.getMetaData();
+    @Before
+    public void readMetaData() throws SQLException {
+	metaData = getConnection().getMetaData();
     }
 
     @Test
@@ -56,15 +53,28 @@ public class DuctileDatabaseMetaDataIT extends AbstractJDBCTest {
     public void testGetCatalogs() throws SQLException {
 	ResultSet catalogs = metaData.getCatalogs();
 	assertTrue(catalogs.next());
-	boolean foundSystem = false;
+	int count = 0;
+	boolean foundTableStore = false;
+	boolean foundBlobStore = false;
+	boolean foundGraphStore = false;
 	do {
 	    String catalog = catalogs.getString("TABLE_CAT");
 	    assertNotNull(catalog);
-	    if ("system".equals(catalog)) {
-		foundSystem = true;
+	    if ("table_store".equals(catalog)) {
+		foundTableStore = true;
 	    }
+	    if ("blob_store".equals(catalog)) {
+		foundBlobStore = true;
+	    }
+	    if ("graph_store".equals(catalog)) {
+		foundGraphStore = true;
+	    }
+	    count++;
 	} while (catalogs.next());
-	assertTrue(foundSystem);
+	assertEquals(3, count);
+	assertTrue(foundTableStore);
+	assertTrue(foundBlobStore);
+	assertTrue(foundGraphStore);
     }
 
 }

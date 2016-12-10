@@ -73,7 +73,7 @@ public class TableRowIterableImpl<T> implements TableRowIterable {
 		    if (next == null) {
 			return null;
 		    }
-		    if (filter.test(next)) {
+		    if ((filter == null) || (filter.test(next))) {
 			return converter.apply(next);
 		    }
 		}

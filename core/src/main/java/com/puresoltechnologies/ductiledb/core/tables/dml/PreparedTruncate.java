@@ -1,5 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-public interface PreparedTruncate extends PreparedStatement {
+public interface PreparedTruncate extends PreparedDMLStatement {
 
 }

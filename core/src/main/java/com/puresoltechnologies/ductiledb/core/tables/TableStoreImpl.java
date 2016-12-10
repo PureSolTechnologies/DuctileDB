@@ -13,10 +13,13 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguageI
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguageImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ductileql.SQLParser;
+import com.puresoltechnologies.ductiledb.core.tables.ductileql.StatementCreator;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
+import com.puresoltechnologies.parsers.parser.ParseTreeNode;
 
 /**
  * This is the central class for the RDBMS functionality of DuctileDB.
@@ -94,4 +97,9 @@ public class TableStoreImpl implements TableStore {
 	return schema.getTableDefinition(namespace, table);
     }
 
+    @Override
+    public PreparedStatement prepare(String query) throws ExecutionException {
+	ParseTreeNode parsed = SQLParser.parse(query);
+	return new StatementCreator(this).create(parsed);
+    }
 }

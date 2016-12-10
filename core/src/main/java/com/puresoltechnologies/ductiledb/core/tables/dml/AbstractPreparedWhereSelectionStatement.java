@@ -16,7 +16,7 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
  * @author Rick-Rainer Ludwig
  *
  */
-public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPreparedStatementImpl
+public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPreparedDMLStatement
 	implements PreparedWhereSelectionStatement {
 
     private final Set<WhereClause<?>> whereClauses = new HashSet<>();

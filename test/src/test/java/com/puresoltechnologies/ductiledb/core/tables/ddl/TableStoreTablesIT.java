@@ -33,7 +33,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateNamespace createNamespace = ddl.createCreateNamespace("tablesit");
-	createNamespace.execute(tableStore);
+	createNamespace.bind().execute(tableStore);
 
 	TableStoreSchema schema = tableStore.getSchema();
 	NamespaceDefinition namespaceDefinition = schema.getNamespaceDefinition("tablesit");
@@ -64,7 +64,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	CreateTable createTable = ddl.createCreateTable("tablesit", "testtable");
 	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("testcolumn");
-	createTable.execute(tableStore);
+	createTable.bind().execute(tableStore);
 
 	tables = schemaManager.getTables(namespace);
 	tableIterator = tables.iterator();
@@ -82,7 +82,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	assertFalse(tableDefinitionIterator.hasNext());
 
 	DropTable dropTable = ddl.createDropTable("tablesit", "testtable");
-	dropTable.execute(tableStore);
+	dropTable.bind().execute(tableStore);
 
 	tables = schemaManager.getTables(namespace);
 	tableIterator = tables.iterator();
@@ -103,7 +103,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 
 	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	ddl.createCreateTable("system", "testtable").execute(tableStore);
+	ddl.createCreateTable("system", "testtable").bind().execute(tableStore);
     }
 
     @Test
@@ -113,6 +113,6 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 
 	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	ddl.createDropTable("system", "namespaces").execute(tableStore);
+	ddl.createDropTable("system", "namespaces").bind().execute(tableStore);
     }
 }

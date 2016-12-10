@@ -5,7 +5,7 @@ import java.util.Map;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 
-public class PreparedTruncateImpl extends AbstractPreparedStatementImpl implements PreparedTruncate {
+public class PreparedTruncateImpl extends AbstractPreparedDMLStatement implements PreparedTruncate {
 
     public PreparedTruncateImpl(TableDefinition tableDefinition) {
 	super(tableDefinition);

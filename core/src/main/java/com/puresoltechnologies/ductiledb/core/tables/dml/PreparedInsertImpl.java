@@ -17,7 +17,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 
-public class PreparedInsertImpl extends AbstractPreparedStatementImpl implements PreparedInsert {
+public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements PreparedInsert {
 
     private final String namespace;
     private final String table;

@@ -16,9 +16,9 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraph;
 import com.puresoltechnologies.ductiledb.tinkerpop.DuctileGraphProvider;
 
+@Ignore("Not fully implemented, yet.")
 @RunWith(StructureStandardSuite.class)
 @GraphProviderClass(provider = DuctileGraphProvider.class, graph = DuctileGraph.class)
-@Ignore
 public class DuctileStructureStandardIT {
 
     @BeforeClass

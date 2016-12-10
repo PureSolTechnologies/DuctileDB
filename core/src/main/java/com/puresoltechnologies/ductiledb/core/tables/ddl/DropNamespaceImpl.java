@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
+import java.util.Map;
+
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
@@ -10,7 +12,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescript
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
-public class DropNamespaceImpl implements DropNamespace {
+public class DropNamespaceImpl extends AbstractDDLStatement implements DropNamespace {
 
     private final TableStoreImpl tableStore;
     private final String name;
@@ -21,7 +23,8 @@ public class DropNamespaceImpl implements DropNamespace {
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
+	    throws ExecutionException {
 	if ("system".equals(name)) {
 	    throw new ExecutionException("Dropping of 'system' namespace is not allowed.");
 	}

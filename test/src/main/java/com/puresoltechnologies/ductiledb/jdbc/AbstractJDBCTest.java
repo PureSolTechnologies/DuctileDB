@@ -22,7 +22,7 @@ public abstract class AbstractJDBCTest extends AbstractDuctileDBTest {
 	Class.forName(DuctileDriver.class.getName());
     }
 
-    private Connection connection = null;
+    private DuctileConnection connection = null;
 
     @Before
     public void connect() throws SQLException {
@@ -30,6 +30,7 @@ public abstract class AbstractJDBCTest extends AbstractDuctileDBTest {
 	Connection connection = DriverManager.getConnection(
 		"jdbc:ductile:file:" + new File("src/test/resources/ductiledb-test.yml").getAbsolutePath());
 	assertEquals(DuctileConnection.class, connection.getClass());
+	this.connection = (DuctileConnection) connection;
     }
 
     @After
@@ -38,7 +39,7 @@ public abstract class AbstractJDBCTest extends AbstractDuctileDBTest {
 	connection.close();
     }
 
-    protected Connection getConnection() {
+    protected DuctileConnection getConnection() {
 	return connection;
     }
 
