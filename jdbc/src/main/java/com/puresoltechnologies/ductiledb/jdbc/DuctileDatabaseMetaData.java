@@ -7,19 +7,24 @@ import java.sql.RowIdLifetime;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinitionImpl;
+import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowImpl;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterableImpl;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.EmptyIterable;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper {
@@ -58,8 +63,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getUserName() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "system";
     }
 
     @Override
@@ -173,8 +177,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public String getIdentifierQuoteString() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return "\"";
     }
 
     @Override
@@ -239,25 +242,21 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean supportsConvert(int fromType, int toType) throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsTableCorrelationNames() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsDifferentTableCorrelationNames() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsExpressionsInOrderBy() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
@@ -293,7 +292,6 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean supportsMultipleResultSets() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
@@ -304,49 +302,41 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean supportsNonNullableColumns() throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	return true;
     }
 
     @Override
     public boolean supportsMinimumSQLGrammar() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsCoreSQLGrammar() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsExtendedSQLGrammar() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsANSI92EntryLevelSQL() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsANSI92IntermediateSQL() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsANSI92FullSQL() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsIntegrityEnhancementFacility() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
@@ -452,7 +442,6 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean supportsSelectForUpdate() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
@@ -518,37 +507,31 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public int getMaxBinaryLiteralLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxCharLiteralLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxColumnNameLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxColumnsInGroupBy() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxColumnsInIndex() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxColumnsInOrderBy() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
@@ -559,43 +542,37 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public int getMaxColumnsInTable() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxConnections() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxCursorNameLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxIndexLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxSchemaNameLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxProcedureNameLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxCatalogNameLength() throws SQLException {
-	return Integer.MAX_VALUE;
+	return 0;
     }
 
     @Override
@@ -605,8 +582,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean doesMaxRowSizeIncludeBlobs() throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	return true;
     }
 
     @Override
@@ -616,7 +592,6 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public int getMaxStatements() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
@@ -627,84 +602,121 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public int getMaxTablesInSelect() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getMaxUserNameLength() throws SQLException {
-	// TODO Auto-generated method stub
 	return 0;
     }
 
     @Override
     public int getDefaultTransactionIsolation() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return Connection.TRANSACTION_NONE;
     }
 
     @Override
     public boolean supportsTransactions() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsTransactionIsolationLevel(int level) throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	return level == Connection.TRANSACTION_NONE;
     }
 
     @Override
     public boolean supportsDataDefinitionAndDataManipulationTransactions() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsDataManipulationTransactionsOnly() throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean dataDefinitionCausesTransactionCommit() throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	return true;
     }
 
     @Override
     public boolean dataDefinitionIgnoredInTransactions() throws SQLException {
-	// TODO Auto-generated method stub
-	return false;
+	return true;
     }
 
     @Override
     public ResultSet getProcedures(String catalog, String schemaPattern, String procedureNamePattern)
 	    throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getProcedureColumns(String catalog, String schemaPattern, String procedureNamePattern,
 	    String columnNamePattern) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getTables(String catalog, String schemaPattern, String tableNamePattern, String[] types)
 	    throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	// TODO add filter
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "tables",
+		"Contains a list of all table in catalog '" + catalog + "'.");
+	tableDefinition.addColumn("tables", "TABLE_CAT", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TABLE_SCHEM", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TABLE_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TABLE_TYPE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "REMARKS", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TYPE_CAT", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TYPE_SCHEME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TYPE_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "SELF_REFERENCING_COL_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "REF_GENERATION", ColumnType.VARCHAR);
+
+	Map<String, Map<String, String>> tables = new HashMap<>();
+
+	TableStore tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	for (NamespaceDefinition namespace : ddl.getNamespaces()) {
+	    for (TableDefinition table : ddl.getTables(namespace.getName())) {
+		String tableName = namespace.getName() + "." + table.getName();
+		Map<String, String> tableMap = tables.get(tableName);
+		if (tableMap == null) {
+		    tableMap = new HashMap<>();
+		    tables.put(tableName, tableMap);
+		}
+		tableMap.put("TABLE_CAT", "table_store");
+		tableMap.put("TABLE_SCHEM", table.getNamespace());
+		tableMap.put("TABLE_NAME", table.getName());
+		tableMap.put("TABLE_TYPE", namespace.getName().equals("system") ? "SYSTEM TABLE" : "TABLE");
+		tableMap.put("REMARKS", table.getDescription());
+	    }
+	}
+
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(tables.entrySet(), tableEntry -> {
+	    Map<String, String> values = tableEntry.getValue();
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
+	    tableRow.add("TABLE_CAT", Bytes.toBytes("table_store"));
+	    tableRow.add("TABLE_SCHEM", Bytes.toBytes(values.get("TABLE_SCHEM")));
+	    tableRow.add("TABLE_NAME", Bytes.toBytes(values.get("TABLE_NAME")));
+	    tableRow.add("TABLE_TYPE", Bytes.toBytes(values.get("TABLE_TYPE")));
+	    tableRow.add("REMARKS", Bytes.toBytes(values.get("REMARKS")));
+	    tableRow.add("TYPE_CAT", null);
+	    tableRow.add("TYPE_SCHEME", null);
+	    tableRow.add("TYPE_NAME", null);
+	    tableRow.add("SELF_REFERENCING_COL_NAME", null);
+	    tableRow.add("REF_GENERATION", null);
+	    return tableRow;
+	}));
     }
 
     @Override
     public ResultSet getSchemas() throws SQLException {
-	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
-	tableDefinition.addColumn("metadata", "TABLE_SCHEM", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "TABLE_CATALOG", ColumnType.VARCHAR);
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces",
+		"Contains a list of all available schemas.");
+	tableDefinition.addColumn("schemas", "TABLE_SCHEM", ColumnType.VARCHAR);
+	tableDefinition.addColumn("schemas", "TABLE_CATALOG", ColumnType.VARCHAR);
 
 	List<NamespaceDefinition> namespaces = new ArrayList<>();
 	namespaces.add(new NamespaceDefinitionImpl("blob_store", "blobs"));
@@ -725,8 +737,9 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getCatalogs() throws SQLException {
-	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
-	tableDefinition.addColumn("metadata", "TABLE_CAT", ColumnType.VARCHAR);
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "databases",
+		"Contains a list of all available catalogs.");
+	tableDefinition.addColumn("databases", "TABLE_CAT", ColumnType.VARCHAR);
 
 	List<String> catalogs = new ArrayList<>();
 	catalogs.add("blob_store");
@@ -742,7 +755,8 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getTableTypes() throws SQLException {
-	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces",
+		"Contains a list of all supported table types.");
 	tableDefinition.addColumn("metadata", "TABLE_TYPE", ColumnType.VARCHAR);
 
 	List<String> tableTypes = new ArrayList<>();
@@ -758,35 +772,131 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
     @Override
     public ResultSet getColumns(String catalog, String schemaPattern, String tableNamePattern, String columnNamePattern)
 	    throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	// TODO add filter
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "tables",
+		"Contains a list of all table in catalog '" + catalog + "'.");
+
+	tableDefinition.addColumn("tables", "TABLE_CAT", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TABLE_SCHEM", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "TABLE_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "COLUMN_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "DATA_TYPE", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "TYPE_NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "COLUMN_SIZE", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "BUFFER_LENGTH", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "DECIMAL_DIGITS", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "NUM_PREC_RADIX", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "NULLABLE", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "REMARKS", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "COLUMN_DEF", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "SQL_DATA_TYPE", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "SQL_DATETIME_SUB", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "CHAR_OCTET_LENGTH", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "ORDINAL_POSITION", ColumnType.INTEGER);
+	tableDefinition.addColumn("tables", "IS_NULLABLE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "SCOPE_CATALOG", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "SCOPE_SCHEMA", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "SCOPE_TABLE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "SOURCE_DATA_TYPE", ColumnType.SHORT);
+	tableDefinition.addColumn("tables", "IS_AUTOINCREMENT", ColumnType.VARCHAR);
+	tableDefinition.addColumn("tables", "IS_GENERATEDCOLUMN", ColumnType.VARCHAR);
+
+	Map<String, Map<String, Object>> tables = new HashMap<>();
+
+	TableStore tableStore = getTableStore();
+	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
+	for (NamespaceDefinition namespace : ddl.getNamespaces()) {
+	    for (TableDefinition table : ddl.getTables(namespace.getName())) {
+		int position = 0;
+		for (ColumnDefinition<?> column : table.getColumnDefinitions()) {
+		    position++;
+		    String columnName = namespace.getName() + "." + table.getName() + "." + column.getName();
+		    Map<String, Object> columnMap = tables.get(columnName);
+		    if (columnMap == null) {
+			columnMap = new HashMap<>();
+			tables.put(columnName, columnMap);
+		    }
+		    columnMap.put("TABLE_CAT", "table_store");
+		    columnMap.put("TABLE_SCHEM", table.getNamespace());
+		    columnMap.put("TABLE_NAME", table.getName());
+		    columnMap.put("COLUMN_NAME", column.getName());
+		    columnMap.put("DATA_TYPE", column.getType().getDataType());
+		    columnMap.put("TYPE_NAME", column.getType().getName());
+		    // columnMap.put("COLUMN_SIZE", Bytes.toBytes((Integer)
+		    // values.get("COLUMN_SIZE")));
+		    // columnMap.put("DECIMAL_DIGITS", Bytes.toBytes((Integer)
+		    // values.get("DECIMAL_DIGITS")));
+		    // columnMap.put("NUM_PREC_RADIX", Bytes.toBytes((Integer)
+		    // values.get("NUM_PREC_RADIX")));
+		    columnMap.put("COLUMN_SIZE", 0);
+		    columnMap.put("DECIMAL_DIGITS", 0);
+		    columnMap.put("NUM_PREC_RADIX", 0);
+		    columnMap.put("REMARKS", column.getDescription());
+		    columnMap.put("CHAR_OCTET_LENGTH", 0);
+		    // columnMap.put("CHAR_OCTET_LENGTH",
+		    // Bytes.toBytes((Integer)
+		    // values.get("CHAR_OCTET_LENGTH")));
+		    columnMap.put("ORDINAL_POSITION", position);
+		}
+	    }
+	}
+
+	return new DuctileResultSet(connection, new TableRowIterableImpl<>(tables.entrySet(), tableEntry -> {
+	    Map<String, Object> values = tableEntry.getValue();
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
+	    tableRow.add("TABLE_CAT", Bytes.toBytes("table_store"));
+	    tableRow.add("TABLE_SCHEM", Bytes.toBytes((String) values.get("TABLE_SCHEM")));
+	    tableRow.add("TABLE_NAME", Bytes.toBytes((String) values.get("TABLE_NAME")));
+	    tableRow.add("COLUMN_NAME", Bytes.toBytes((String) values.get("COLUMN_NAME")));
+	    tableRow.add("DATA_TYPE", Bytes.toBytes((Integer) values.get("DATA_TYPE")));
+	    tableRow.add("TYPE_NAME", Bytes.toBytes((String) values.get("TYPE_NAME")));
+	    tableRow.add("COLUMN_SIZE", Bytes.toBytes((Integer) values.get("COLUMN_SIZE")));
+	    tableRow.add("BUFFER_LENGTH", null);
+	    tableRow.add("DECIMAL_DIGITS", Bytes.toBytes((Integer) values.get("DECIMAL_DIGITS")));
+	    tableRow.add("NUM_PREC_RADIX", Bytes.toBytes((Integer) values.get("NUM_PREC_RADIX")));
+	    tableRow.add("NULLABLE", Bytes.toBytes(columnNullable));
+	    tableRow.add("REMARKS", Bytes.toBytes((String) values.get("REMARKS")));
+	    tableRow.add("COLUMN_DEF", null);
+	    tableRow.add("SQL_DATA_TYPE", null);
+	    tableRow.add("SQL_DATETIME_SUB", null);
+	    tableRow.add("CHAR_OCTET_LENGTH", Bytes.toBytes((Integer) values.get("CHAR_OCTET_LENGTH")));
+	    tableRow.add("ORDINAL_POSITION", Bytes.toBytes((Integer) values.get("ORDINAL_POSITION")));
+	    tableRow.add("IS_NULLABLE", Bytes.toBytes(true));
+	    tableRow.add("SCOPE_CATALOG", null);
+	    tableRow.add("SCOPE_SCHEMA", null);
+	    tableRow.add("SCOPE_TABLE", null);
+	    tableRow.add("SOURCE_DATA_TYPE", null);
+	    tableRow.add("IS_AUTOINCREMENT", Bytes.toBytes("NO"));
+	    tableRow.add("IS_GENERATEDCOLUMN", Bytes.toBytes("NO"));
+
+	    return tableRow;
+	}));
     }
 
     @Override
     public ResultSet getColumnPrivileges(String catalog, String schema, String table, String columnNamePattern)
 	    throws SQLException {
 	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getTablePrivileges(String catalog, String schemaPattern, String tableNamePattern)
 	    throws SQLException {
 	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getBestRowIdentifier(String catalog, String schema, String table, int scope, boolean nullable)
 	    throws SQLException {
 	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getVersionColumns(String catalog, String schema, String table) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
@@ -797,21 +907,19 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getImportedKeys(String catalog, String schema, String table) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getExportedKeys(String catalog, String schema, String table) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
     public ResultSet getCrossReference(String parentCatalog, String parentSchema, String parentTable,
 	    String foreignCatalog, String foreignSchema, String foreignTable) throws SQLException {
 	// TODO Auto-generated method stub
-	return null;
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
@@ -829,13 +937,11 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public boolean supportsResultSetType(int type) throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
     @Override
     public boolean supportsResultSetConcurrency(int type, int concurrency) throws SQLException {
-	// TODO Auto-generated method stub
 	return false;
     }
 
@@ -902,19 +1008,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
     @Override
     public ResultSet getUDTs(String catalog, String schemaPattern, String typeNamePattern, int[] types)
 	    throws SQLException {
-	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
-	tableDefinition.addColumn("metadata", "TYPE_CAT", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "TYPE_SCHEM", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "TYPE_NAME", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "CLASS_NAME", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "DATA_TYPE", ColumnType.INTEGER);
-	tableDefinition.addColumn("metadata", "REMARKS", ColumnType.VARCHAR);
-	tableDefinition.addColumn("metadata", "BASE_TYPE", ColumnType.SHORT);
-
-	Iterable<NamespaceDefinition> namespaces = new EmptyIterable<>();
-	return new DuctileResultSet(connection, new TableRowIterableImpl<>(namespaces, namespace -> {
-	    return new TableRowImpl(tableDefinition, null);
-	}));
+	return DuctileResultSet.empty(connection);
     }
 
     @Override
@@ -1039,8 +1133,24 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
 
     @Override
     public ResultSet getClientInfoProperties() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces",
+		"Contains a list of al client info properties.");
+	tableDefinition.addColumn("client_info", "NAME", ColumnType.VARCHAR);
+	tableDefinition.addColumn("client_info", "MAX_LEN", ColumnType.INTEGER);
+	tableDefinition.addColumn("client_info", "DEFAULT_VALUE", ColumnType.VARCHAR);
+	tableDefinition.addColumn("client_info", "DESCRIPTION", ColumnType.VARCHAR);
+
+	Properties clientInfo = connection.getClientInfo();
+	TableRowIterable iterable = new TableRowIterableImpl<>(clientInfo.entrySet(), entry -> {
+	    TableRowImpl tableRow = new TableRowImpl(tableDefinition, null);
+	    tableRow.add("NAME", Bytes.toBytes(entry.getKey().toString()));
+	    tableRow.add("MAX_LEN", Bytes.toBytes(Integer.MAX_VALUE));
+	    tableRow.add("DEFAULT_VALUE", Bytes.toBytes("n/a"));
+	    tableRow.add("DESCRIPTION", Bytes.toBytes("n/a"));
+
+	    return tableRow;
+	});
+	return new DuctileResultSet(connection, iterable);
     }
 
     @Override

@@ -24,8 +24,8 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 	DatabaseEngine engine = getEngine();
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testSimpleCRUD");
+	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription, "testSimpleCRUD",
+		"");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		Key.of("testcf"));
 	TableEngine table = engine.getTable(tableDescription);

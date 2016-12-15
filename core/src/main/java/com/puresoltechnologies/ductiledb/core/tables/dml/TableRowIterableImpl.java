@@ -7,6 +7,7 @@ import java.util.function.Predicate;
 
 import com.puresoltechnologies.commons.misc.io.AbstractPeekingCloseableIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
+import com.puresoltechnologies.ductiledb.storage.engine.utils.EmptyIterable;
 
 /**
  * This is an implementation of {@link TableRowIterable} to wrap easily other
@@ -17,6 +18,10 @@ import com.puresoltechnologies.commons.misc.io.CloseableIterable;
  * @param <T>
  */
 public class TableRowIterableImpl<T> implements TableRowIterable {
+
+    public static <T> TableRowIterableImpl<T> empty() {
+	return new TableRowIterableImpl<>(new EmptyIterable<>(), null);
+    }
 
     private final CloseableIterable<T> sourceIterable;
     private final Function<T, TableRow> converter;

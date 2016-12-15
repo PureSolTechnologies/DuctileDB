@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import java.sql.Types;
 import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -14,6 +15,11 @@ public class TimestampColumnType implements ColumnTypeDefinition<Instant> {
     @Override
     public Class<Instant> getJavaClass() {
 	return Instant.class;
+    }
+
+    @Override
+    public int getDataType() {
+	return Types.TIMESTAMP;
     }
 
     @Override

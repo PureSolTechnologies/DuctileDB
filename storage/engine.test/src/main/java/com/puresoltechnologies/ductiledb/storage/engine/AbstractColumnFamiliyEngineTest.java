@@ -26,7 +26,7 @@ public class AbstractColumnFamiliyEngineTest extends AbstractDatabaseEngineTest 
 	engine = getEngine();
 	schemaManager = engine.getSchemaManager();
 	namespace = schemaManager.createNamespaceIfNotPresent(namespaceName);
-	tableDescriptor = schemaManager.createTableIfNotPresent(namespace, tableName);
+	tableDescriptor = schemaManager.createTableIfNotPresent(namespace, tableName, "");
 	columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
 		Key.of(columnFamilyName));
 	storage = engine.getStorage();

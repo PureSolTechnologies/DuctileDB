@@ -15,6 +15,8 @@ public interface TableDefinition {
 
     public String getName();
 
+    public String getDescription();
+
     public Set<ColumnDefinition<?>> getColumnDefinitions();
 
     public List<ColumnDefinition<?>> getPrimaryKey();

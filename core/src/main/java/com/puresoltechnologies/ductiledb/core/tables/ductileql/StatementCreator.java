@@ -132,7 +132,8 @@ public class StatementCreator {
     private PreparedStatement createCreateTableStatement(ParseTreeNode createTableStatement) throws TreeException {
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	ParseTreeNode tableIdentifier = createTableStatement.getChild("table-identifier");
-	CreateTable createTable = ddl.createCreateTable(getNamespace(tableIdentifier), getTable(tableIdentifier));
+	CreateTable createTable = ddl.createCreateTable(getNamespace(tableIdentifier), getTable(tableIdentifier),
+		"??? TODO ???");
 	// TODO Auto-generated method stub
 	return createTable;
     }

@@ -61,7 +61,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 	assertFalse(tableDefinitionIterator.hasNext());
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable("tablesit", "testtable");
+	CreateTable createTable = ddl.createCreateTable("tablesit", "testtable", "");
 	createTable.addColumn("testcf", "testcolumn", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("testcolumn");
 	createTable.bind().execute(tableStore);
@@ -103,7 +103,7 @@ public class TableStoreTablesIT extends AbstractTableStoreTest {
 
 	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	ddl.createCreateTable("system", "testtable").bind().execute(tableStore);
+	ddl.createCreateTable("system", "testtable", "").bind().execute(tableStore);
     }
 
     @Test

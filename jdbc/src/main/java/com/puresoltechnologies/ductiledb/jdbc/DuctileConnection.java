@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.NClob;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLClientInfoException;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -36,7 +37,7 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     private static final Logger logger = LoggerFactory.getLogger(DuctileConnection.class);
 
-    private DuctileDatabaseMetaData metaData = null;
+    private final DuctileDatabaseMetaData metaData;
     private boolean closed = false;
 
     private final URL url;
@@ -44,10 +45,23 @@ public class DuctileConnection implements Connection, DuctileWrapper {
     private DuctileDB ductileDB;
     private Graph graph;
 
+    private int transactionIsolation = Connection.TRANSACTION_NONE;
+
+    private SQLWarning warnings = null;
+
+    private int holdability = ResultSet.CLOSE_CURSORS_AT_COMMIT;
+
+    private String catalog = "table_store";
+
+    private String schema = "system";
+
+    private Properties clientInfo = new Properties();
+
     public DuctileConnection(URL url) throws SQLException {
 	this.url = url;
 	configFile = new File(url.getPath());
 	open();
+	metaData = new DuctileDatabaseMetaData(this);
 	logger.info("New connection to: '" + url + "'");
     }
 
@@ -145,9 +159,6 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public DatabaseMetaData getMetaData() throws SQLException {
-	if (metaData == null) {
-	    metaData = new DuctileDatabaseMetaData(this);
-	}
 	return metaData;
     }
 
@@ -165,38 +176,32 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public void setCatalog(String catalog) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.catalog = catalog;
     }
 
     @Override
     public String getCatalog() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return catalog;
     }
 
     @Override
     public void setTransactionIsolation(int level) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.transactionIsolation = level;
     }
 
     @Override
     public int getTransactionIsolation() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return transactionIsolation;
     }
 
     @Override
     public SQLWarning getWarnings() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return warnings;
     }
 
     @Override
     public void clearWarnings() throws SQLException {
-	// TODO Auto-generated method stub
-
+	warnings = null;
     }
 
     @Override
@@ -209,7 +214,7 @@ public class DuctileConnection implements Connection, DuctileWrapper {
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency)
 	    throws SQLException {
 	// TODO Auto-generated method stub
-	return null;
+	return new DuctilePreparedStatement(this, sql);
     }
 
     @Override
@@ -232,14 +237,12 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public void setHoldability(int holdability) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.holdability = holdability;
     }
 
     @Override
     public int getHoldability() throws SQLException {
-	// TODO Auto-generated method stub
-	return 0;
+	return holdability;
     }
 
     @Override
@@ -337,26 +340,22 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public void setClientInfo(String name, String value) throws SQLClientInfoException {
-	// TODO Auto-generated method stub
-
+	clientInfo.put(name, value);
     }
 
     @Override
     public void setClientInfo(Properties properties) throws SQLClientInfoException {
-	// TODO Auto-generated method stub
-
+	this.clientInfo.putAll(properties);
     }
 
     @Override
     public String getClientInfo(String name) throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return clientInfo.getProperty(name);
     }
 
     @Override
     public Properties getClientInfo() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return clientInfo;
     }
 
     @Override
@@ -373,14 +372,12 @@ public class DuctileConnection implements Connection, DuctileWrapper {
 
     @Override
     public void setSchema(String schema) throws SQLException {
-	// TODO Auto-generated method stub
-
+	this.schema = schema;
     }
 
     @Override
     public String getSchema() throws SQLException {
-	// TODO Auto-generated method stub
-	return null;
+	return schema;
     }
 
     @Override
@@ -392,7 +389,6 @@ public class DuctileConnection implements Connection, DuctileWrapper {
     @Override
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
 	// TODO Auto-generated method stub
-
     }
 
     @Override

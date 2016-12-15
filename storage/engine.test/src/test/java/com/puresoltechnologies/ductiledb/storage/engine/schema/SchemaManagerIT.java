@@ -52,7 +52,7 @@ public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 	    assertFalse("No table should be present.", tables.hasNext());
 	    assertNull("No table should be present.", schemaManager.getTable(namespace, "table"));
 
-	    TableDescriptor table = schemaManager.createTable(namespace, "table");
+	    TableDescriptor table = schemaManager.createTable(namespace, "table", "");
 	    assertNotNull(table);
 
 	    tables = schemaManager.getTables(namespace).iterator();
@@ -77,7 +77,7 @@ public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespace = schemaManager.createNamespace("namespace2");
 	try {
-	    TableDescriptor table = schemaManager.createTable(namespace, "table2");
+	    TableDescriptor table = schemaManager.createTable(namespace, "table2", "");
 
 	    Iterator<ColumnFamilyDescriptor> columnFamilies = schemaManager.getColumnFamilies(table).iterator();
 	    assertFalse("No column family should be present.", columnFamilies.hasNext());
@@ -115,7 +115,7 @@ public class SchemaManagerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespace = schemaManager.createNamespace("validNamespace");
 	try {
-	    schemaManager.createTable(namespace, "0123456789");
+	    schemaManager.createTable(namespace, "0123456789", "");
 	} finally {
 	    schemaManager.dropNamespace(namespace);
 	}

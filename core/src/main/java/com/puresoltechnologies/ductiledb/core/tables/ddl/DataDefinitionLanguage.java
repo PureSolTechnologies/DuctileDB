@@ -42,7 +42,7 @@ public interface DataDefinitionLanguage {
      * 
      * @return
      */
-    public CreateTable createCreateTable(String namespace, String table);
+    public CreateTable createCreateTable(String namespace, String table, String remark);
 
     /**
      * This method creates a new {@link DropTable} statement object.
@@ -50,6 +50,8 @@ public interface DataDefinitionLanguage {
      * @return
      */
     public DropTable createDropTable(String namespace, String table);
+
+    public Iterable<TableDefinition> getTables(String namespace);
 
     /**
      * This method returns the information to a table.

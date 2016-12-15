@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import java.sql.Types;
+
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class LongColumnType implements ColumnTypeDefinition<Long> {
@@ -12,6 +14,11 @@ public class LongColumnType implements ColumnTypeDefinition<Long> {
     @Override
     public Class<Long> getJavaClass() {
 	return Long.class;
+    }
+
+    @Override
+    public int getDataType() {
+	return Types.BIGINT;
     }
 
     @Override

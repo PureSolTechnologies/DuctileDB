@@ -26,8 +26,13 @@ import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRow;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
+import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterableImpl;
 
 public class DuctileResultSet implements ResultSet, DuctileWrapper {
+
+    public static DuctileResultSet empty(DuctileConnection connection) {
+	return new DuctileResultSet(connection, TableRowIterableImpl.empty());
+    }
 
     private final DuctileConnection connection;
     private final TableRowIterable rows;

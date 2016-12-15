@@ -8,22 +8,28 @@ import com.puresoltechnologies.ductiledb.storage.engine.Key;
 public class TableDescriptor {
 
     private final TreeMap<Key, ColumnFamilyDescriptor> columnFamilies = new TreeMap<>();
-    private final String name;
     private final NamespaceDescriptor namespace;
+    private final String name;
+    private final String description;
     private final File directory;
 
-    public TableDescriptor(NamespaceDescriptor namespace, String name) {
+    public TableDescriptor(NamespaceDescriptor namespace, String name, String description) {
 	this.namespace = namespace;
 	this.name = name;
+	this.description = description;
 	this.directory = new File(namespace.getDirectory(), name);
+    }
+
+    public final NamespaceDescriptor getNamespace() {
+	return namespace;
     }
 
     public final String getName() {
 	return name;
     }
 
-    public final NamespaceDescriptor getNamespace() {
-	return namespace;
+    public final String getDescription() {
+	return description;
     }
 
     public final File getDirectory() {

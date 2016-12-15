@@ -14,6 +14,8 @@ public interface ColumnTypeDefinition<Type> {
 
     public Class<Type> getJavaClass();
 
+    public int getDataType();
+
     public byte[] toBytes(Object value);
 
     public Type fromBytes(byte[] value);

@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import java.sql.Types;
+
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class BooleanColumnType implements ColumnTypeDefinition<Boolean> {
@@ -12,6 +14,11 @@ public class BooleanColumnType implements ColumnTypeDefinition<Boolean> {
     @Override
     public Class<Boolean> getJavaClass() {
 	return Boolean.class;
+    }
+
+    @Override
+    public int getDataType() {
+	return Types.BOOLEAN;
     }
 
     @Override

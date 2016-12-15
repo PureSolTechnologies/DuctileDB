@@ -23,16 +23,16 @@ public class CreateTableImpl extends AbstractDDLStatement implements CreateTable
     private final String name;
     private final TableDefinitionImpl tableDefinition;
 
-    public CreateTableImpl(TableStoreImpl tableStore, String namespace, String name) {
+    public CreateTableImpl(TableStoreImpl tableStore, String namespace, String name, String description) {
 	super();
 	this.namespace = namespace;
 	this.name = name;
-	tableDefinition = new TableDefinitionImpl(namespace, name);
+	tableDefinition = new TableDefinitionImpl(namespace, name, description);
     }
 
     @Override
-    public void addColumn(String columnFamily, String name, ColumnType type) {
-	tableDefinition.addColumn(columnFamily, name, type);
+    public void addColumn(String columnFamily, String name, ColumnType type, String description) {
+	tableDefinition.addColumn(columnFamily, name, type, description);
     }
 
     @Override
@@ -53,7 +53,8 @@ public class CreateTableImpl extends AbstractDDLStatement implements CreateTable
 	    DatabaseEngineImpl storageEngine = ((TableStoreImpl) tableStore).getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
-	    TableDescriptor tableDescriptor = schemaManager.createTable(namespaceDescriptor, name);
+	    TableDescriptor tableDescriptor = schemaManager.createTable(namespaceDescriptor, name,
+		    tableDefinition.getDescription());
 
 	    Set<String> columnFamilies = new HashSet<>();
 	    for (ColumnDefinition<?> columnDefinition : tableDefinition.getColumnDefinitions()) {

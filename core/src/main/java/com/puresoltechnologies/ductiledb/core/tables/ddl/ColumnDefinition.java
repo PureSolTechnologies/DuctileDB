@@ -14,6 +14,8 @@ public interface ColumnDefinition<T> {
 
     public String getName();
 
+    public String getDescription();
+
     public ColumnTypeDefinition<T> getType();
 
 }

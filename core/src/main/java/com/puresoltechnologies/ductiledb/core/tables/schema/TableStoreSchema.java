@@ -23,6 +23,7 @@ import com.puresoltechnologies.ductiledb.storage.engine.Result;
 import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.storage.engine.Scan;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
+import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -76,7 +77,8 @@ public class TableStoreSchema {
 	    throws StorageException, SchemaException {
 	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, DatabaseTable.NAMESPACES.getName());
 	if (tableDescriptor == null) {
-	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.NAMESPACES.getName());
+	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.NAMESPACES.getName(),
+		    "Contains all namespaces.");
 	    schemaManager.createColumnFamily(tableDescriptor, DatabaseColumnFamily.METADATA.getKey());
 	    TableEngine table = storageEngine.getTable(namespace.getName(), tableDescriptor.getName());
 
@@ -96,7 +98,8 @@ public class TableStoreSchema {
 	    throws StorageException, SchemaException {
 	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, DatabaseTable.TABLES.getName());
 	if (tableDescriptor == null) {
-	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.TABLES.getName());
+	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.TABLES.getName(),
+		    "Contains all tables.");
 	    schemaManager.createColumnFamily(tableDescriptor, DatabaseColumnFamily.METADATA.getKey());
 	    TableEngine table = storageEngine.getTable(namespace.getName(), tableDescriptor.getName());
 
@@ -132,7 +135,8 @@ public class TableStoreSchema {
 	    throws StorageException, SchemaException {
 	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, DatabaseTable.COLUMNS.getName());
 	if (tableDescriptor == null) {
-	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.COLUMNS.getName());
+	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.COLUMNS.getName(),
+		    "Contains all columns.");
 	    schemaManager.createColumnFamily(tableDescriptor, DatabaseColumnFamily.METADATA.getKey());
 	    schemaManager.createColumnFamily(tableDescriptor, DatabaseColumnFamily.DEFINITION.getKey());
 	    TableEngine table = storageEngine.getTable(namespace.getName(), tableDescriptor.getName());
@@ -271,7 +275,8 @@ public class TableStoreSchema {
     private void assureIndexesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
 	    throws StorageException, SchemaException {
 	if (schemaManager.getTable(namespace, DatabaseTable.INDEXES.getName()) == null) {
-	    TableDescriptor tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.INDEXES.getName());
+	    TableDescriptor tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.INDEXES.getName(),
+		    "Contains all indizes.");
 	    schemaManager.createColumnFamily(tableDescriptor, DatabaseColumnFamily.METADATA.getKey());
 	}
     }
@@ -310,7 +315,10 @@ public class TableStoreSchema {
 		CompoundKey compoundKey = CompoundKey.of(rowKey);
 		String namespaceName = Bytes.toString(compoundKey.getPart(0));
 		String tableName = Bytes.toString(compoundKey.getPart(1));
-		TableDefinitionImpl tableDefinition = new TableDefinitionImpl(namespaceName, tableName);
+		ColumnMap metadata = result.getFamilyMap(Key.of("metadata"));
+		ColumnValue description = metadata.get(Key.of("description"));
+		TableDefinitionImpl tableDefinition = new TableDefinitionImpl(namespaceName, tableName,
+			description != null ? description.toString() : "n/a");
 		tableDefinitions.get(namespaceName).put(tableName, tableDefinition);
 	    }
 	}

@@ -22,7 +22,7 @@ public class DuctileResultSetTest {
     public void test() throws SQLException {
 	DuctileConnection connection = Mockito.mock(DuctileConnection.class);
 
-	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces", "");
 	tableDefinition.addColumn("metadata", "TABLE_CAT", ColumnType.VARCHAR);
 
 	List<String> list = new ArrayList<>();

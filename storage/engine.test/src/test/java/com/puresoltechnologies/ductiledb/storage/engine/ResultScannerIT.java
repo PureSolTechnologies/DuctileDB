@@ -30,7 +30,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScanner");
+		"testEmptyScanner", "");
 	schemaManager.createColumnFamilyIfNotPresent(tableDescription, Key.of("testcf"));
 	TableEngine table = engine.getTable(tableDescription);
 
@@ -47,7 +47,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScannerAfterDeletion");
+		"testEmptyScannerAfterDeletion", "");
 	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		Key.of("testcf"));
 	TableEngine table = engine.getTable(tableDescription);
@@ -83,7 +83,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property");
+		"testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property", "");
 	Key columnFamilyName = Key.of("testcf");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		columnFamilyName);
@@ -127,7 +127,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns");
+		"testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns", "");
 	Key columnFamilyName = Key.of("testcf");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		columnFamilyName);
@@ -168,7 +168,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	SchemaManager schemaManager = engine.getSchemaManager();
 	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
 	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testScannerRangeScan");
+		"testScannerRangeScan", "");
 	Key columnFamilyName = Key.of("testcf");
 	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
 		columnFamilyName);

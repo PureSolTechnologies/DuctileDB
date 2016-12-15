@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import java.sql.Types;
+
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class ByteColumnType implements ColumnTypeDefinition<Byte> {
@@ -12,6 +14,11 @@ public class ByteColumnType implements ColumnTypeDefinition<Byte> {
     @Override
     public Class<Byte> getJavaClass() {
 	return Byte.class;
+    }
+
+    @Override
+    public int getDataType() {
+	return Types.TINYINT;
     }
 
     @Override

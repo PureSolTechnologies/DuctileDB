@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import java.sql.Types;
 import java.time.LocalTime;
 
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
@@ -14,6 +15,11 @@ public class TimeColumnType implements ColumnTypeDefinition<LocalTime> {
     @Override
     public Class<LocalTime> getJavaClass() {
 	return LocalTime.class;
+    }
+
+    @Override
+    public int getDataType() {
+	return Types.OTHER;
     }
 
     @Override

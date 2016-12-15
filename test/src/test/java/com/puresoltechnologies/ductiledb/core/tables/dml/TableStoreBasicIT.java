@@ -79,7 +79,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
@@ -122,7 +122,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
@@ -185,7 +185,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
@@ -259,7 +259,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
@@ -329,7 +329,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	TableStoreImpl tableStore = getTableStore();
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");

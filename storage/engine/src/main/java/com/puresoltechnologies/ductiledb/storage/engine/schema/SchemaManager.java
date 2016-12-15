@@ -26,11 +26,11 @@ public interface SchemaManager {
 
     public TableDescriptor getTable(NamespaceDescriptor namespaceDescriptor, String tableName);
 
-    public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName)
+    public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName, String description)
 	    throws SchemaException, StorageException;
 
-    public TableDescriptor createTableIfNotPresent(NamespaceDescriptor namespaceDescriptor, String tableName)
-	    throws SchemaException, StorageException;
+    public TableDescriptor createTableIfNotPresent(NamespaceDescriptor namespaceDescriptor, String tableName,
+	    String description) throws SchemaException, StorageException;
 
     public void dropTable(TableDescriptor tableDescriptor) throws SchemaException;
 

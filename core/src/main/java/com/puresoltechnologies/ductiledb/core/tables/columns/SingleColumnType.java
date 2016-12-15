@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.columns;
 
+import java.sql.Types;
+
 import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
 
 public class SingleColumnType implements ColumnTypeDefinition<Float> {
@@ -12,6 +14,11 @@ public class SingleColumnType implements ColumnTypeDefinition<Float> {
     @Override
     public Class<Float> getJavaClass() {
 	return Float.class;
+    }
+
+    @Override
+    public int getDataType() {
+	return Types.FLOAT;
     }
 
     @Override

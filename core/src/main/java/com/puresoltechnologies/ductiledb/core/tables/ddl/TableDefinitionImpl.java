@@ -11,12 +11,14 @@ public class TableDefinitionImpl implements TableDefinition {
 
     private final String namespace;
     private final String name;
+    private final String description;
     private List<ColumnDefinition<?>> primaryKey = new ArrayList<>();
     private Set<ColumnDefinition<?>> columns = new HashSet<>();
 
-    public TableDefinitionImpl(String namespace, String name) {
+    public TableDefinitionImpl(String namespace, String name, String description) {
 	this.namespace = namespace;
 	this.name = name;
+	this.description = description;
     }
 
     @Override
@@ -27,6 +29,11 @@ public class TableDefinitionImpl implements TableDefinition {
     @Override
     public String getName() {
 	return name;
+    }
+
+    @Override
+    public String getDescription() {
+	return description;
     }
 
     public void setPrimaryKey(String[] columns) {
@@ -61,7 +68,11 @@ public class TableDefinitionImpl implements TableDefinition {
     }
 
     public void addColumn(String columnFamily, String columnName, ColumnType type) {
-	columns.add(new ColumnDefinitionImpl<>(columnFamily, columnName, type.getType()));
+	addColumn(columnFamily, columnName, type, "");
+    }
+
+    public void addColumn(String columnFamily, String columnName, ColumnType type, String description) {
+	columns.add(new ColumnDefinitionImpl<>(columnFamily, columnName, type.getType(), description));
     }
 
     @Override

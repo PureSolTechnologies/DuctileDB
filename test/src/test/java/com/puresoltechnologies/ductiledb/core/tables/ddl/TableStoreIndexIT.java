@@ -37,7 +37,7 @@ public class TableStoreIndexIT extends AbstractTableStoreTest {
 	final String COLUMN_FAMILY = "default";
 	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	createTable.addColumn(COLUMN_FAMILY, "column1", ColumnType.VARCHAR);
 	createTable.addColumn(COLUMN_FAMILY, "column2", ColumnType.VARCHAR);
 	createTable.addColumn(COLUMN_FAMILY, "column3", ColumnType.VARCHAR);

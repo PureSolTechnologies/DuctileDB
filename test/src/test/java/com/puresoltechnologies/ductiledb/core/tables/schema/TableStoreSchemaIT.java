@@ -57,7 +57,7 @@ public class TableStoreSchemaIT extends AbstractTableStoreTest {
 	final String TABLE = "table1";
 	CreateNamespace createNamespace = ddl.createCreateNamespace(NAMESPACE);
 	createNamespace.bind().execute(tableStore);
-	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE);
+	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	int id = 0;
 	for (ColumnType type : ColumnType.values()) {
 	    ++id;

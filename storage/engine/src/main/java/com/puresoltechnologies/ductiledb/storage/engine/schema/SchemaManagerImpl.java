@@ -119,7 +119,7 @@ public class SchemaManagerImpl implements SchemaManager {
 		@Override
 		public TableDescriptor next() {
 		    File directory = iterator.next();
-		    return new TableDescriptor(namespace, directory.getName());
+		    return new TableDescriptor(namespace, directory.getName(), "??? TODO ???");
 		}
 	    };
 	}
@@ -243,7 +243,7 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName)
+    public TableDescriptor createTable(NamespaceDescriptor namespaceDescriptor, String tableName, String description)
 	    throws SchemaException, StorageException {
 	if (!checkIdentifier(tableName)) {
 	    throw new SchemaException("Table name '" + tableName + "' is invalid. Identifiers have to match pattern '"
@@ -266,12 +266,13 @@ public class SchemaManagerImpl implements SchemaManager {
 		Properties properties = new Properties();
 		properties.put("table.creation.time", new Date().toString());
 		properties.put("table.name", tableName);
+		properties.put("table.description", description);
 		properties.put("table.namespace.name", namespaceDescriptor.getName());
 		properties.put("table.storage.directory", storageDirectory.toString());
 		properties.put("table.storage.name", getStoreName());
 		properties.store(metadataFile, "Meta data for table.");
 
-		TableDescriptor tableDescriptor = new TableDescriptor(namespaceDescriptor, tableName);
+		TableDescriptor tableDescriptor = new TableDescriptor(namespaceDescriptor, tableName, description);
 		namespaceDescriptor.addTable(tableDescriptor);
 		databaseEngine.addTable(tableDescriptor);
 		return tableDescriptor;
@@ -282,11 +283,11 @@ public class SchemaManagerImpl implements SchemaManager {
     }
 
     @Override
-    public TableDescriptor createTableIfNotPresent(NamespaceDescriptor namespaceDescriptor, String tableName)
-	    throws SchemaException, StorageException {
+    public TableDescriptor createTableIfNotPresent(NamespaceDescriptor namespaceDescriptor, String tableName,
+	    String description) throws SchemaException, StorageException {
 	TableDescriptor tableDescriptor = getTable(namespaceDescriptor, tableName);
 	if (tableDescriptor == null) {
-	    return createTable(namespaceDescriptor, tableName);
+	    return createTable(namespaceDescriptor, tableName, description);
 	} else {
 	    return tableDescriptor;
 	}

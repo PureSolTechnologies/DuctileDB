@@ -38,13 +38,19 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     }
 
     @Override
-    public CreateTable createCreateTable(String namespace, String table) {
-	return new CreateTableImpl(tableStore, namespace, table);
+    public CreateTable createCreateTable(String namespace, String table, String remark) {
+	return new CreateTableImpl(tableStore, namespace, table, remark);
     }
 
     @Override
     public DropTable createDropTable(String namespace, String table) {
 	return new DropTableImpl(tableStore, namespace, table);
+    }
+
+    @Override
+    public Iterable<TableDefinition> getTables(String namespace) {
+	TableStoreSchema schema = tableStore.getSchema();
+	return schema.getTableDefinitions(namespace);
     }
 
     @Override

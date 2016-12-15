@@ -17,7 +17,7 @@ public class TableRowIterableImplTest {
 
     @Test
     public void test() throws IOException {
-	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces");
+	TableDefinitionImpl tableDefinition = new TableDefinitionImpl("system", "namespaces", "");
 	tableDefinition.addColumn("metadata", "TABLE_CAT", ColumnType.VARCHAR);
 
 	List<String> list = new ArrayList<>();
