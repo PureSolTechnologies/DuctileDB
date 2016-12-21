@@ -35,7 +35,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	super();
 	this.graph = graph;
 	this.namespace = graph.getConfiguration().getNamespace();
-	DatabaseEngine storageEngine = graph.getStorageEngine();
+	DatabaseEngine storageEngine = graph.getConnection();
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
 	namespaceDescriptor = schemaManager.getNamespace(namespace);
 	propertyDefinitionsTable = namespaceDescriptor.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
@@ -43,7 +43,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Iterable<String> getDefinedProperties() {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	TableEngine table = graph.getConnection().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> propertyNames = new HashSet<>();
 	scanner.forEach((result) -> propertyNames.add(result.getRowKey().toString()));
@@ -59,7 +59,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    throw new DuctileDBPropertyAlreadyDefinedException(definition);
 	}
 
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	TableEngine table = graph.getConnection().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	Put put = new Put(Key.of(definition.getPropertyKey()));
 	switch (definition.getElementType()) {
 	case VERTEX:
@@ -94,7 +94,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(ElementType elementType,
 	    String propertyKey) {
 	try {
-	    TableEngine table = graph.getStorageEngine().getTable(namespace,
+	    TableEngine table = graph.getConnection().getTable(namespace,
 		    DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	    Get get = new Get(Key.of(propertyKey));
 	    Key columnFamily = null;
@@ -132,7 +132,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public void removePropertyDefinition(ElementType elementType, String propertyKey) {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	TableEngine table = graph.getConnection().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	Delete delete = new Delete(Key.of(propertyKey));
 	switch (elementType) {
 	case VERTEX:
@@ -155,7 +155,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Iterable<String> getDefinedTypes() {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
+	TableEngine table = graph.getConnection().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> typeNames = new HashSet<>();
 	scanner.forEach((result) -> typeNames.add(result.getRowKey().toString()));
@@ -182,7 +182,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 			+ "' with unknown property definition for key  '" + propertyKey + "'.");
 	    }
 	}
-	DatabaseEngine storageEngine = graph.getStorageEngine();
+	DatabaseEngine storageEngine = graph.getConnection();
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	Put put = new Put(Key.of(typeName));
 	switch (elementType) {
@@ -210,7 +210,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Set<String> getTypeDefinition(ElementType elementType, String typeName) {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
+	TableEngine table = graph.getConnection().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	Get get = new Get(Key.of(typeName));
 	Key columnFamily = null;
 	switch (elementType) {
@@ -246,7 +246,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public void removeTypeDefinition(ElementType elementType, String typeName) {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
+	DatabaseEngine storageEngine = graph.getConnection();
 	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
 	Delete delete = new Delete(Key.of(typeName));
 	switch (elementType) {

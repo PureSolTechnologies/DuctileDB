@@ -2,17 +2,11 @@ package com.puresoltechnologies.ductiledb.core;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
-import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This test assures an empty storage directory and starts, stops, starts and
@@ -22,8 +16,8 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  *
  */
 public class DuctileDBStartStopStartStopIT {
+
     private static DuctileDBConfiguration configuration = null;
-    private static Storage storage = null;
 
     /**
      * Initializes the database.
@@ -35,26 +29,14 @@ public class DuctileDBStartStopStartStopIT {
      * @throws SchemaException
      */
     @BeforeClass
-    public static void initializeDuctileDB() throws SchemaException, IOException {
+    public static void initializeDuctileDB() throws IOException {
 	configuration = AbstractDuctileDBTest.readTestConfigration();
 	assertNotNull("No configuration loaded.", configuration);
-	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
-	cleanTestStorageDirectory();
-    }
 
-    private static void cleanTestStorageDirectory() throws FileNotFoundException, IOException {
-	for (File file : storage.list(new File("/"))) {
-	    FileStatus fileStatus = storage.getFileStatus(file);
-	    if (fileStatus.isDirectory()) {
-		storage.removeDirectory(file, true);
-	    } else {
-		storage.delete(file);
-	    }
-	}
     }
 
     @Test
-    public void test() throws SchemaException, IOException {
+    public void test() throws IOException, SQLException {
 	System.out.println("===== 1st start of database =====");
 	DuctileDBBootstrap.start(configuration);
 	DuctileDB ductileDB1 = DuctileDBBootstrap.getInstance();

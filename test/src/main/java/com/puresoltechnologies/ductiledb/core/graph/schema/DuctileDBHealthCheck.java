@@ -64,7 +64,7 @@ public class DuctileDBHealthCheck {
     public DuctileDBHealthCheck(GraphStoreImpl graph) throws IOException {
 	super();
 	this.graph = graph;
-	storageEngine = graph.getStorageEngine();
+	storageEngine = graph.getConnection();
 	namespace = graph.getConfiguration().getNamespace();
     }
 

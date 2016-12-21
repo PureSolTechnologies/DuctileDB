@@ -1,9 +1,8 @@
 package com.puresoltechnologies.ductiledb.core;
 
-import com.puresoltechnologies.ductiledb.core.blob.BlobStoreConfiguration;
+import com.puresoltechnologies.ductiledb.backend.DatabaseConfiguration;
+import com.puresoltechnologies.ductiledb.blobstore.BlobStoreConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
-import com.puresoltechnologies.ductiledb.core.tables.TableStoreConfiguration;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfiguration;
 
 /**
  * This object keeps all settings of DuctileDB and its subcomponents.
@@ -12,17 +11,16 @@ import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineConfigurat
  */
 public class DuctileDBConfiguration {
 
-    private DatabaseEngineConfiguration databaseEngine;
+    private DatabaseConfiguration database;
     private BlobStoreConfiguration blobStore;
     private DuctileDBGraphConfiguration graph;
-    private TableStoreConfiguration tableStore;
 
-    public DatabaseEngineConfiguration getDatabaseEngine() {
-	return databaseEngine;
+    public DatabaseConfiguration getDatabase() {
+	return database;
     }
 
-    public void setDatabaseEngine(DatabaseEngineConfiguration databaseEngine) {
-	this.databaseEngine = databaseEngine;
+    public void setDatabaseEngine(DatabaseConfiguration database) {
+	this.database = database;
     }
 
     public BlobStoreConfiguration getBlobStore() {
@@ -39,14 +37,6 @@ public class DuctileDBConfiguration {
 
     public void setGraph(DuctileDBGraphConfiguration graph) {
 	this.graph = graph;
-    }
-
-    public TableStoreConfiguration getTableStore() {
-	return tableStore;
-    }
-
-    public void setTableStore(TableStoreConfiguration rdbms) {
-	this.tableStore = rdbms;
     }
 
 }

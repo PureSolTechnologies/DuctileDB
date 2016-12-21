@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.core.graph;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +13,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
+import com.puresoltechnologies.ductiledb.blobstore.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchema;
@@ -23,15 +25,10 @@ import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBRollbackExceptio
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.tx.TransactionType;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class GraphStoreImpl implements GraphStore {
 
     private static Logger logger = LoggerFactory.getLogger(GraphStoreImpl.class);
-
-    public static String STORAGE_DIRECTORY = "graphs";
 
     private static final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
 
@@ -41,21 +38,21 @@ public class GraphStoreImpl implements GraphStore {
 
     private final DuctileDBGraphConfiguration configuration;
     private final BlobStoreImpl blobStore;
-    private final DatabaseEngineImpl storageEngine;
+    private final Connection connection;
     private final boolean autoCloseConnection;
 
-    public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
-	    DatabaseEngineImpl storageEngine) throws SchemaException, StorageException {
-	this(configuration, blobStore, storageEngine, false);
+    public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore, Connection connection)
+	    throws SQLException {
+	this(configuration, blobStore, connection, false);
     }
 
-    public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
-	    DatabaseEngineImpl storageEngine, boolean autoCloseConnection) throws SchemaException, StorageException {
+    public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore, Connection connection,
+	    boolean autoCloseConnection) throws SQLException {
 	this.configuration = configuration;
 	this.blobStore = blobStore;
-	this.storageEngine = storageEngine;
+	this.connection = connection;
 	this.autoCloseConnection = autoCloseConnection;
-	graphSchema = new GraphSchema(storageEngine, configuration);
+	graphSchema = new GraphSchema(connection, configuration);
 	graphSchema.checkAndCreateEnvironment();
 	schema = new DuctileDBSchema(this);
     }
@@ -64,21 +61,21 @@ public class GraphStoreImpl implements GraphStore {
 	return configuration;
     }
 
-    public final DatabaseEngineImpl getStorageEngine() {
-	return storageEngine;
-    }
-
-    public void runCompaction() {
-	storageEngine.runCompaction();
+    public final Connection getConnection() {
+	return connection;
     }
 
     @Override
     public void close() throws IOException {
 	if (autoCloseConnection) {
-	    if (!storageEngine.isClosed()) {
-		logger.info("Closes connection '" + storageEngine.toString() + "'...");
-		storageEngine.close();
-		logger.info("Connection '" + storageEngine.toString() + "' closed.");
+	    try {
+		if (!connection.isClosed()) {
+		    logger.info("Closing connection...");
+		    connection.close();
+		    logger.info("Connection closed.");
+		}
+	    } catch (SQLException e) {
+		throw new IOException("Could not close connection.", e);
 	    }
 	}
     }

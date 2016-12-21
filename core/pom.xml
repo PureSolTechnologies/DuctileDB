@@ -14,15 +14,15 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>storage.engine</artifactId>
+			<artifactId>backend</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>blobstore</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.parsers</groupId>
 			<artifactId>parsers</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.puresoltechnologies.versioning</groupId>
-			<artifactId>versioning</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.findbugs</groupId>
@@ -35,14 +35,6 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
 		</dependency>
 	</dependencies>
 

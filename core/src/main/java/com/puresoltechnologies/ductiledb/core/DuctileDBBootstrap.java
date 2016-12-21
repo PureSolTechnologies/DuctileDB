@@ -3,7 +3,12 @@ package com.puresoltechnologies.ductiledb.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -15,7 +20,10 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class DuctileDBBootstrap {
 
+    private static final Logger logger = LoggerFactory.getLogger(DuctileDBBootstrap.class);
     private static DuctileDBImpl instance = null;
+
+    private static Connection connection;
 
     public static DuctileDBConfiguration readConfiguration(URL configurationFile) throws IOException {
 	try (InputStream fileInputStream = configurationFile.openStream()) {
@@ -39,10 +47,13 @@ public class DuctileDBBootstrap {
      * 
      * @param configuration
      *            is the configuration to be used to create the acutal instance.
+     * @throws SQLException
      */
-    public synchronized static void start(DuctileDBConfiguration configuration) {
+    public synchronized static void start(DuctileDBConfiguration configuration) throws SQLException {
 	if (instance == null) {
-	    instance = new DuctileDBImpl(configuration);
+	    logger.info("Initializing PostgreSQL driver v" + org.postgresql.Driver.getVersion() + ".");
+	    connection = DriverManager.getConnection(configuration.getDatabase().getJdbcUrl());
+	    instance = new DuctileDBImpl(configuration, connection);
 	}
     }
 

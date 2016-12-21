@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.tx;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
 
 /**
  * This exception is thrown in cases of transaction issues.

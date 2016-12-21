@@ -1,10 +1,9 @@
-databaseEngine:
-  bufferSize: -1 # determine automatically by maxCommitLogSize and storage block size
-  maxCommitLogSize: 1048576 # 1MB
-  storage:
-    blockSize: 8192
-    properties: {storage.os.directory: "/tmp/storage_test"}
-#    properties: {storage.os.directory: "c:/users/rludwig/storage_test"}
+database:
+  host: "localhost"
+  port: 5432
+  database: "ductiledb"
+  username: "ductiledb"
+  password: "ductiledb"
 blobStore:
 graph:
   namespace: "ductiledb"

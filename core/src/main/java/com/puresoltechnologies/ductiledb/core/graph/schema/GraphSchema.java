@@ -1,12 +1,12 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
 import com.puresoltechnologies.ductiledb.storage.engine.Put;
 import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
@@ -32,17 +32,17 @@ public class GraphSchema {
     public static final String DUCTILEDB_ID_PROPERTY = "~ductiledb.id";
     public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
 
-    private final DatabaseEngine storageEngine;
+    private final Connection connection;
     private final String namespace;
 
-    public GraphSchema(DatabaseEngine storageEngine, DuctileDBGraphConfiguration configuration) {
+    public GraphSchema(Connection connection, DuctileDBGraphConfiguration configuration) {
 	super();
-	this.storageEngine = storageEngine;
+	this.connection = connection;
 	this.namespace = configuration.getNamespace();
     }
 
-    public void checkAndCreateEnvironment() throws SchemaException, StorageException {
-	SchemaManager schemaManager = storageEngine.getSchemaManager();
+    public void checkAndCreateEnvironment() throws SQLException {
+	SchemaManager schemaManager = connection.getSchemaManager();
 	NamespaceDescriptor namespace = assureNamespacePresence(schemaManager);
 	assureMetaDataTablePresence(schemaManager, namespace);
 	assurePropertiesTablePresence(schemaManager, namespace);
@@ -72,7 +72,7 @@ public class GraphSchema {
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.METADATA.getKey());
 	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getKey());
 
-	    TableEngine table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
+	    TableEngine table = connection.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
 	    Put vertexIdPut = new Put(ID_ROW_KEY);
 	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getKey(), DatabaseColumn.VERTEX_ID.getKey(),
 		    ColumnValue.of(1l));

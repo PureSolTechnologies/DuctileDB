@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.manager;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManager;
 
 /**

@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
 
 public class NoSuchGraphElementException extends DuctileDBException {
 

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 

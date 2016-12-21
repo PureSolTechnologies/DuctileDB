@@ -38,7 +38,7 @@ public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper
     }
 
     private TableStore getTableStore() {
-	return connection.getDuctileDB().getTableStore();
+	return connection.getDuctileDB().getConnection();
     }
 
     @Override

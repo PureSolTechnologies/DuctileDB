@@ -9,13 +9,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.io.ByteStreams;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashUtilities;
+import com.puresoltechnologies.ductiledb.blobstore.BlobStore;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.DuctileDB;
 
@@ -31,7 +32,7 @@ public class BlobStoreIT extends AbstractDuctileDBTest {
     }
 
     @Test
-    public void testCreateReadDelete() throws IOException {
+    public void testCreateReadDelete() throws SQLException, IOException {
 	String blobContent = "I am a BLOB content. :-)";
 	HashId hashId = HashUtilities.createHashId(blobContent);
 	assertFalse("BLOB should not exist.", blobStore.isBlobAvailable(hashId));
@@ -44,7 +45,7 @@ public class BlobStoreIT extends AbstractDuctileDBTest {
 
 	try (InputStream readBlobStream = blobStore.readBlob(hashId)) {
 	    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-	    ByteStreams.copy(readBlobStream, outputStream);
+	    // ByteStreams.copy(readBlobStream, outputStream);
 	    assertEquals("Read BLOB should match stored BLOB.", blobContent,
 		    new String(outputStream.toByteArray(), Charset.defaultCharset()));
 	}

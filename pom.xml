@@ -390,37 +390,22 @@
 			<!-- SELF -->
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>backend</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>blobstore</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>jdbc</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.engine</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.hadoop</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.os</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.spi</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -479,6 +464,11 @@
 			</dependency>
 			<!-- 3rd party -->
 			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>9.4.1212.jre7</version>
+			</dependency>
+			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>19.0</version>
@@ -489,14 +479,14 @@
 				<version>1.3.2</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.hadoop</groupId>
-				<artifactId>hadoop-common</artifactId>
-				<version>${hadoop.version}</version>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.5</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.hadoop</groupId>
-				<artifactId>hadoop-hdfs</artifactId>
-				<version>${hadoop.version}</version>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-pool2</artifactId>
+				<version>2.4.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.tinkerpop</groupId>
@@ -557,12 +547,6 @@
 				<groupId>org.yaml</groupId>
 				<artifactId>snakeyaml</artifactId>
 				<version>1.17</version>
-			</dependency>
-			<dependency>
-				<groupId>org.osgi</groupId>
-				<artifactId>org.osgi.core</artifactId>
-				<version>5.0.0</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -761,7 +745,8 @@
 	</reporting>
 
 	<modules>
-		<module>storage</module>
+		<module>backend</module>
+		<module>blobstore</module>
 		<module>core</module>
 		<module>tinkerpop</module>
 		<module>test</module>

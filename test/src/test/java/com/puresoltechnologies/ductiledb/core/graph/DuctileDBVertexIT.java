@@ -213,7 +213,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 
     @Test
     public void testFullVertexCreationPerformance() throws IOException, StorageException {
-	DatabaseEngineImpl storageEngine = graph.getStorageEngine();
+	DatabaseEngineImpl storageEngine = graph.getConnection();
 	storageEngine.setRunCompactions(true);
 	Set<DuctileDBVertex> vertices = new HashSet<>();
 	long start = System.currentTimeMillis();

@@ -1,5 +1,0 @@
-maxCommitLogSize: 1048576
-storage:
-  blockSize: 8192
-  properties: {storage.os.directory: "/tmp/storage_test"}
-#  properties: {storage.os.directory: "c:/Users/rludwig/storage_test"}

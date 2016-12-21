@@ -29,7 +29,7 @@ public class DuctileGraphProvider extends AbstractGraphProvider {
 	    logger.info("Delete ductile graph...");
 	    GraphStoreImpl ductileGraph = (GraphStoreImpl) ((DuctileGraph) graph).getBaseGraph();
 	    // DuctileDBTestHelper.removeGraph(ductileGraph);
-	    DatabaseEngineImpl storageEngine = ductileGraph.getStorageEngine();
+	    DatabaseEngineImpl storageEngine = ductileGraph.getConnection();
 	    graph.close();
 	    DuctileDBGraphConfiguration ductileDBConfiguration = ductileGraph.getConfiguration();
 	    Storage storage = storageEngine.getStorage();

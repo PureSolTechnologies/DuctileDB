@@ -17,8 +17,8 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
-import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
+import com.puresoltechnologies.ductiledb.blobstore.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
@@ -81,7 +81,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     public DuctileDBTransactionImpl(BlobStoreImpl blobStore, GraphStoreImpl graph, TransactionType type) {
 	this.blobStore = blobStore;
 	this.graph = graph;
-	this.storageEngine = graph.getStorageEngine();
+	this.storageEngine = graph.getConnection();
 	this.threadId = Thread.currentThread().getId();
 	this.type = type;
 	this.namespace = graph.getConfiguration().getNamespace();

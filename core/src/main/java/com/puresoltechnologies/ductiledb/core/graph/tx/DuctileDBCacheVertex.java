@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;

@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.graph.manager;
 
-import com.puresoltechnologies.ductiledb.core.DuctileDBException;
+import com.puresoltechnologies.ductiledb.backend.DuctileDBException;
 
 /**
  * This exception is thrown by {@link DuctileDBGraphManager} in cases of
