@@ -9,20 +9,20 @@ import com.puresoltechnologies.ductiledb.core.graph.ElementType;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBSchemaManagerException;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.engine.Delete;
+import com.puresoltechnologies.ductiledb.engine.Get;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.Put;
+import com.puresoltechnologies.ductiledb.engine.Result;
+import com.puresoltechnologies.ductiledb.engine.ResultScanner;
+import com.puresoltechnologies.ductiledb.engine.Scan;
+import com.puresoltechnologies.ductiledb.engine.TableEngine;
+import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.Delete;
-import com.puresoltechnologies.ductiledb.storage.engine.Get;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.Result;
-import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
-import com.puresoltechnologies.ductiledb.storage.engine.Scan;
-import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 

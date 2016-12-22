@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.io.Bytes;
 
 public enum DatabaseColumn {
 

@@ -6,8 +6,8 @@ import java.util.Map;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.io.Bytes;
 
 /**
  * This class represents a single table row.

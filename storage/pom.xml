@@ -15,8 +15,6 @@
 	<modules>
 		<module>spi</module>
 		<module>api</module>
-		<module>engine</module>
-		<module>engine.test</module>
 		<module>os</module>
 		<module>os.test</module>
 		<module>hadoop</module>

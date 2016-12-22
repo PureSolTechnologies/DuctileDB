@@ -23,9 +23,9 @@ import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBRollbackExceptio
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.tx.TransactionType;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class GraphStoreImpl implements GraphStore {
 

@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 
 import com.puresoltechnologies.commons.misc.io.AbstractPeekingCloseableIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
-import com.puresoltechnologies.ductiledb.storage.engine.utils.EmptyIterable;
+import com.puresoltechnologies.ductiledb.engine.utils.EmptyIterable;
 
 /**
  * This is an implementation of {@link TableRowIterable} to wrap easily other

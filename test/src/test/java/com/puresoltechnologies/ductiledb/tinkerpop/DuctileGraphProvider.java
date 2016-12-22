@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.core.AbstractDuctileDBTest;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DuctileGraphProvider extends AbstractGraphProvider {

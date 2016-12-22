@@ -23,10 +23,10 @@ import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 
 public class TableStoreBasicIT extends AbstractTableStoreTest {
 

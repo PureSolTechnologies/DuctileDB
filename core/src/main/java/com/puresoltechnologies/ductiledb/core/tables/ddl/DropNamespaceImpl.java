@@ -7,10 +7,10 @@ import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 
 public class DropNamespaceImpl extends AbstractDDLStatement implements DropNamespace {
 

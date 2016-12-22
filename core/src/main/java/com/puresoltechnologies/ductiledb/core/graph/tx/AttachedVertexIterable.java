@@ -6,8 +6,8 @@ import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedVertex;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
-import com.puresoltechnologies.ductiledb.storage.engine.Result;
-import com.puresoltechnologies.ductiledb.storage.engine.ResultScanner;
+import com.puresoltechnologies.ductiledb.engine.Result;
+import com.puresoltechnologies.ductiledb.engine.ResultScanner;
 
 public class AttachedVertexIterable implements Iterable<DuctileDBVertex> {
 

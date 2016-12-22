@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.columns;
 import java.sql.Types;
 import java.time.LocalDate;
 
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.engine.io.Bytes;
 
 public class DateColumnType implements ColumnTypeDefinition<LocalDate> {
 

@@ -10,16 +10,16 @@ import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.IndexType;
+import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.IndexType;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.TableDescriptor;
 
 public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex {
 

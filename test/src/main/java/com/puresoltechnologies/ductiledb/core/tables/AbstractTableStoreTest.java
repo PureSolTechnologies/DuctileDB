@@ -11,8 +11,8 @@ import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBTestHelper;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 
 public class AbstractTableStoreTest extends AbstractDuctileDBTest {
 

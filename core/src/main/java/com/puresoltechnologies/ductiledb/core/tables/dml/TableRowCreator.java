@@ -7,10 +7,10 @@ import java.util.NavigableMap;
 
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.storage.engine.CompoundKey;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.Result;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.engine.CompoundKey;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.Result;
+import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 
 public class TableRowCreator {
 

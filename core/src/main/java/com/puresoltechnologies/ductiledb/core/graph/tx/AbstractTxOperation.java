@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.List;
 
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerException;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.engine.Delete;
+import com.puresoltechnologies.ductiledb.engine.Put;
+import com.puresoltechnologies.ductiledb.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.Delete;
-import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.TableEngine;
 
 public abstract class AbstractTxOperation implements TxOperation {
 

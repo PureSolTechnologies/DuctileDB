@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.schema;
 
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.io.Bytes;
 
 /**
  * This enum contains all tables created for RDBMS part of DuctileDB.

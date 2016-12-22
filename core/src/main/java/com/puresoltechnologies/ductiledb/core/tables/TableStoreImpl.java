@@ -16,9 +16,9 @@ import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguag
 import com.puresoltechnologies.ductiledb.core.tables.ductileql.SQLParser;
 import com.puresoltechnologies.ductiledb.core.tables.ductileql.StatementCreator;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
 import com.puresoltechnologies.parsers.parser.ParseTreeNode;
 
 /**

@@ -405,7 +405,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.engine</artifactId>
+				<artifactId>engine</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -762,6 +762,8 @@
 
 	<modules>
 		<module>storage</module>
+		<module>engine</module>
+		<module>engine.test</module>
 		<module>core</module>
 		<module>tinkerpop</module>
 		<module>test</module>

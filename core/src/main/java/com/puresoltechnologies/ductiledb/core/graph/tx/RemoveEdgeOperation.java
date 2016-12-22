@@ -12,8 +12,8 @@ import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
-import com.puresoltechnologies.ductiledb.storage.engine.Delete;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.Delete;
+import com.puresoltechnologies.ductiledb.engine.Key;
 
 public class RemoveEdgeOperation extends AbstractTxOperation {
 

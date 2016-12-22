@@ -14,7 +14,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>storage.engine</artifactId>
+			<artifactId>engine</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.parsers</groupId>

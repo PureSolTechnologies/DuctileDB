@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.Key;
 
 /**
  * This class represents a single table row.

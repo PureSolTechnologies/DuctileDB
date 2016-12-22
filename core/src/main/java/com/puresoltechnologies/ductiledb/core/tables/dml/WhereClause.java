@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.storage.engine.Result;
+import com.puresoltechnologies.ductiledb.engine.Result;
 
 public class WhereClause<T extends Comparable<T>> {
 

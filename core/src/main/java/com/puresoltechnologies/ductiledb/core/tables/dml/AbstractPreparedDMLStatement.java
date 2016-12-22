@@ -9,8 +9,8 @@ import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.storage.engine.NamespaceEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
 
 public abstract class AbstractPreparedDMLStatement extends AbstractPreparedStatement implements PreparedDMLStatement {
 

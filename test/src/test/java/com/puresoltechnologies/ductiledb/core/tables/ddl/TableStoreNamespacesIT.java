@@ -13,9 +13,9 @@ import org.junit.rules.ExpectedException;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 
 public class TableStoreNamespacesIT extends AbstractTableStoreTest {
 

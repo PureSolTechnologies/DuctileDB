@@ -10,10 +10,10 @@ import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguag
 import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedInsert;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
-import com.puresoltechnologies.ductiledb.storage.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.engine.schema.SchemaManager;
 
 public class CreateNamespaceImpl extends AbstractDDLStatement implements CreateNamespace {
 

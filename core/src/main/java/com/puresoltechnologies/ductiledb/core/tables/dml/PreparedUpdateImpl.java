@@ -9,10 +9,10 @@ import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.storage.engine.Key;
-import com.puresoltechnologies.ductiledb.storage.engine.Put;
-import com.puresoltechnologies.ductiledb.storage.engine.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.storage.engine.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.engine.Put;
+import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 
 public class PreparedUpdateImpl extends AbstractPreparedWhereSelectionStatement implements PreparedUpdate {
 
