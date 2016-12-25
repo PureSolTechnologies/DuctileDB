@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class ColumnFamilyMap implements NavigableMap<Key, ColumnMap> {
 

@@ -18,6 +18,7 @@ import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

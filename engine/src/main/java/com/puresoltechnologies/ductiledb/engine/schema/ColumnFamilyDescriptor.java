@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.engine.schema;
 
 import java.io.File;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class ColumnFamilyDescriptor {
 

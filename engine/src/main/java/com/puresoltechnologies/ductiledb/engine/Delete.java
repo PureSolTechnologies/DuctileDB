@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.logstore.Key;
+
 public class Delete {
 
     private final Key key;

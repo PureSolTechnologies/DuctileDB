@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.io.InputStreamIterable;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.io.InputStreamIterable;
 
 public class SecondaryIndexEntryIterable extends InputStreamIterable<SecondaryIndexEntry> {
 

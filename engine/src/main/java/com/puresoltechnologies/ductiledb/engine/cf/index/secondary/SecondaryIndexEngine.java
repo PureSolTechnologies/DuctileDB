@@ -1,6 +1,6 @@
 package com.puresoltechnologies.ductiledb.engine.cf.index.secondary;
 
-import com.puresoltechnologies.ductiledb.engine.lss.LogStructuredStore;
+import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 
 /**
  * 

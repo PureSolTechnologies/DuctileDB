@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.core.tables.columns;
 import java.sql.Types;
 import java.time.Instant;
 
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class TimestampColumnType implements ColumnTypeDefinition<Instant> {
 

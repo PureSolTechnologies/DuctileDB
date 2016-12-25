@@ -11,11 +11,11 @@ import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinitio
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.engine.CompoundKey;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.Put;
 import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements PreparedInsert {
 

@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
+
 public class BinaryFileInputStream extends BufferedInputStream {
 
     private final byte[] intBuffer = new byte[4];

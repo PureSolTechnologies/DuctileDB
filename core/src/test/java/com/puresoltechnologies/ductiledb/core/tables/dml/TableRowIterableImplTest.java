@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class TableRowIterableImplTest {
 

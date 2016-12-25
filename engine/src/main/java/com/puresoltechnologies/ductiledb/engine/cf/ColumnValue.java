@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.engine.cf;
 import java.time.Instant;
 import java.util.Arrays;
 
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.engine.utils.ByteArrayComparator;
+import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public final class ColumnValue implements Comparable<ColumnValue> {
 

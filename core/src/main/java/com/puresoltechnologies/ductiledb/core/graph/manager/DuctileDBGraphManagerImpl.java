@@ -15,11 +15,11 @@ import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.engine.Delete;
 import com.puresoltechnologies.ductiledb.engine.Get;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.Put;
 import com.puresoltechnologies.ductiledb.engine.Result;
 import com.puresoltechnologies.ductiledb.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.versioning.Version;
 

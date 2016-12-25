@@ -12,12 +12,12 @@ import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.engine.AbstractDatabaseEngineTest;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class SchemaManagerIT extends AbstractDatabaseEngineTest {

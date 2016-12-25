@@ -12,7 +12,6 @@ import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBSchemaManag
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.engine.Delete;
 import com.puresoltechnologies.ductiledb.engine.Get;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.Put;
 import com.puresoltechnologies.ductiledb.engine.Result;
 import com.puresoltechnologies.ductiledb.engine.ResultScanner;
@@ -22,6 +21,7 @@ import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {

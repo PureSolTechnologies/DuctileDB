@@ -5,7 +5,6 @@ import java.util.Arrays;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.Put;
 import com.puresoltechnologies.ductiledb.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
@@ -13,6 +12,7 @@ import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class GraphSchema {

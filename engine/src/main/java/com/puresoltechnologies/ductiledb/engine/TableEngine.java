@@ -7,6 +7,7 @@ import java.util.Set;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 /**
  * This class is the central engine class for table storage. It is using the

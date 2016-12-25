@@ -24,7 +24,7 @@ import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterableImpl;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.versioning.Version;
 
 public class DuctileDatabaseMetaData implements DatabaseMetaData, DuctileWrapper {

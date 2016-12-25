@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.engine.cf.index.secondary.io;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterator;
-import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 /**
  * This interface is used for intex iterators which provide special features for

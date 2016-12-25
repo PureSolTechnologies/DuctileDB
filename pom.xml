@@ -395,17 +395,22 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>jdbc</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>storage.api</artifactId>
+				<artifactId>logstore</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>engine</artifactId>
+				<artifactId>storage.api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -762,6 +767,8 @@
 
 	<modules>
 		<module>storage</module>
+		<module>logstore</module>
+		<module>logstore.test</module>
 		<module>engine</module>
 		<module>engine.test</module>
 		<module>core</module>

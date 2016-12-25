@@ -24,13 +24,13 @@ import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedSelect;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.engine.Get;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.Result;
 import com.puresoltechnologies.ductiledb.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.engine.Scan;
 import com.puresoltechnologies.ductiledb.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 /**

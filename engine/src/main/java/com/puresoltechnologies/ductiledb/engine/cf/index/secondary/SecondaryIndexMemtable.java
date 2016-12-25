@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.engine.cf.index.secondary;
 import java.io.IOException;
 
 import com.puresoltechnologies.commons.misc.PeekingIterator;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.io.SecondaryIndexEntry;
 import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.io.SecondaryIndexIterator;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.trees.RedBlackTree;
 import com.puresoltechnologies.trees.RedBlackTreeNode;
 

@@ -4,8 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.io.FileReader;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.io.FileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class SecondaryIndexFileReader extends FileReader<SecondaryIndexInputStream> {

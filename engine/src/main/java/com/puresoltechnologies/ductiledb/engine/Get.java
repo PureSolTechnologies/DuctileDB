@@ -5,6 +5,8 @@ import java.util.NavigableSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import com.puresoltechnologies.ductiledb.logstore.Key;
+
 public class Get {
 
     private final Key key;

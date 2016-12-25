@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.engine.cf.index.secondary.io;
 import java.util.Arrays;
 import java.util.Objects;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 /**
  * This class provides the index result.

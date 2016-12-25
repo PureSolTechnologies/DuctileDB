@@ -7,8 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.io.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.engine.io.InputStreamIterable;
+import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
+import com.puresoltechnologies.ductiledb.logstore.io.DataInputStream;
+import com.puresoltechnologies.ductiledb.logstore.io.InputStreamIterable;
 
 public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow> {
 

@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.engine.cf.index.secondary.io;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.engine.io.DuctileDBOutputStream;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBOutputStream;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class SecondaryIndexOutputStream extends DuctileDBOutputStream {
 

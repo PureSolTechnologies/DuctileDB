@@ -7,12 +7,12 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class CompactorIT extends AbstractColumnFamiliyEngineTest {
@@ -48,7 +48,7 @@ public class CompactorIT extends AbstractColumnFamiliyEngineTest {
 
 	    result = columnFamilyEngine.get(rowKey);
 	    assertEquals(columnMap, result);
-	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertTrue(scanner.hasNext());
 
 	    Thread.sleep(100l);

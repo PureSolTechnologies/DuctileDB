@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.engine.cf.index.secondary;
 import java.io.File;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 /**
  * This class contains the definition of a Secondary Index for a column family.

@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.core.tables.columns;
 
 import java.sql.Types;
 
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class LongColumnType implements ColumnTypeDefinition<Long> {
 

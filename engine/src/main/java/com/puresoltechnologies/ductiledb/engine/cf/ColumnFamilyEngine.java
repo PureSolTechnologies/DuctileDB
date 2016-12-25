@@ -1,9 +1,11 @@
 package com.puresoltechnologies.ductiledb.engine.cf;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
+import java.util.Set;
+
 import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.engine.lss.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 
 /**
  * This class handles the storage of a single column family.
@@ -11,11 +13,45 @@ import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
  * @author Rick-Rainer Ludwig
  *
  */
-public interface ColumnFamilyEngine extends LogStructuredStore {
+public interface ColumnFamilyEngine extends AutoCloseable {
+
+    public void open();
 
     public Key getName();
 
     public ColumnFamilyDescriptor getDescriptor();
+
+    /**
+     * This method is used to put additional columns to the given row.
+     * 
+     * @param rowKey
+     * @param columnValues
+     */
+    public void put(Key rowKey, ColumnMap columnMap);
+
+    /**
+     * This method retrieves the columns from the given row.
+     * 
+     * @param rowKey
+     * @return
+     */
+    public ColumnMap get(Key rowKey);
+
+    /**
+     * This method returns a scanner for the column family.
+     * 
+     * @return
+     */
+    public RowScanner getScanner(Key startRowKey, Key endRowKey);
+
+    /**
+     * This method removes the given row.
+     * 
+     * @param rowKey
+     */
+    public void delete(Key rowKey);
+
+    public void delete(Key rowKey, Set<Key> columns);
 
     /**
      * This method searches the store for a specified column/value pair.
@@ -25,11 +61,11 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      *            value.
      * @param value
      *            is the value to be found in the specified column.
-     * @return A {@link ColumnFamilyScanner} is returned to scan over all found
-     *         results. If there is not index for the column, <code>null</code>
-     *         is returned.
+     * @return A {@link RowScanner} is returned to scan over all found results.
+     *         If there is not index for the column, <code>null</code> is
+     *         returned.
      */
-    public ColumnFamilyScanner find(Key columnKey, ColumnValue value);
+    public RowScanner find(Key columnKey, ColumnValue value);
 
     /**
      * This method searches the store for a specified column/value pair.
@@ -42,11 +78,11 @@ public interface ColumnFamilyEngine extends LogStructuredStore {
      *            is the minimum value to be found in the specified column.
      * @param toValue
      *            is the maximum value to be found in the specified column.
-     * @return A {@link ColumnFamilyScanner} is returned to scan over all found
-     *         results. If there is not index for the column, <code>null</code>
-     *         is returned.
+     * @return A {@link RowScanner} is returned to scan over all found results.
+     *         If there is not index for the column, <code>null</code> is
+     *         returned.
      */
-    public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue);
+    public RowScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue);
 
     /**
      * Increments (or decrements) a value in atomic way.

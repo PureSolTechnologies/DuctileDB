@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.engine.lss.LogStructuredStoreImpl;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreImpl;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

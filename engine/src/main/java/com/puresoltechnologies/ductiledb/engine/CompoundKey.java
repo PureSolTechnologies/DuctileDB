@@ -3,7 +3,8 @@ package com.puresoltechnologies.ductiledb.engine;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class CompoundKey extends Key {
 

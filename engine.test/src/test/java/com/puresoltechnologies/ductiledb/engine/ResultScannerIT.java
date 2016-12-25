@@ -10,24 +10,14 @@ import java.util.NavigableMap;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.engine.AbstractDatabaseEngineTest;
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.Delete;
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.ResultScanner;
-import com.puresoltechnologies.ductiledb.engine.Scan;
-import com.puresoltechnologies.ductiledb.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class ResultScannerIT extends AbstractDatabaseEngineTest {
@@ -68,8 +58,8 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	assertNull(scanner.peek());
 	assertNull(scanner.next());
 
-	Put put = new Put(new Key(Bytes.toBytes(1l)));
-	put.addColumn(columnFamily.getName(), new Key(Bytes.toBytes(12l)), ColumnValue.of(123l));
+	Put put = new Put(Key.of(1l));
+	put.addColumn(columnFamily.getName(), Key.of(12l), ColumnValue.of(123l));
 	table.put(put);
 
 	scanner = table.getScanner(new Scan());

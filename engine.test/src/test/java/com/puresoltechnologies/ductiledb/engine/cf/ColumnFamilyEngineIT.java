@@ -17,20 +17,20 @@ import org.junit.Test;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.io.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.engine.cf.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.engine.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
+import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
+import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

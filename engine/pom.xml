@@ -14,15 +14,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>storage.api</artifactId>
+			<artifactId>logstore</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.commons</groupId>
 			<artifactId>misc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.puresoltechnologies.graphs</groupId>
-			<artifactId>trees</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>

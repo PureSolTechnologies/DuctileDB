@@ -7,19 +7,13 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.engine.AbstractDatabaseEngineTest;
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.Get;
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.TableEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
@@ -37,7 +31,7 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 		Key.of("testcf"));
 	TableEngine table = engine.getTable(tableDescription);
 
-	Key key = new Key(new byte[] { 1 });
+	Key key = Key.of(new byte[] { 1 });
 	Put put = new Put(key);
 	put.addColumn(columnFamily.getName(), Key.of(new byte[] { 2 }), ColumnValue.of(new byte[] { 3 }));
 	table.put(put);

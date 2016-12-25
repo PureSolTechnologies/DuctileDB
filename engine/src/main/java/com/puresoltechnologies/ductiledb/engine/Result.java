@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class Result {
 

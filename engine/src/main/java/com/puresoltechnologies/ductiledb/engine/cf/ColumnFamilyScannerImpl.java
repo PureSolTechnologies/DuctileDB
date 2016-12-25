@@ -12,16 +12,17 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.IndexEntry;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.IndexIterator;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.Memtable;
-import com.puresoltechnologies.ductiledb.engine.cf.index.primary.io.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.engine.cf.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.engine.io.DataFileSet;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.RowScanner;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
+import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
+import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
+import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class ColumnFamilyScannerImpl implements ColumnFamilyScanner {
+public class ColumnFamilyScannerImpl implements RowScanner<ColumnFamilyRow> {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyScannerImpl.class);
 

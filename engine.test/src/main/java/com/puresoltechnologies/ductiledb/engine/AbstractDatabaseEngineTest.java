@@ -16,7 +16,7 @@ import org.yaml.snakeyaml.Yaml;
 
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineConfiguration;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.io.CurrentCommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.io.CurrentCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;

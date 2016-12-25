@@ -2,21 +2,21 @@ package com.puresoltechnologies.ductiledb.engine.cf.index.secondary;
 
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.RowScanner;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
-public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
+public class IndexedColumnFamilyScannerImpl implements RowScanner {
 
     private final ColumnFamilyEngine columnFamilyEngine;
     private final SecondaryIndexEngine indexEngine;
     private final ColumnValue fromValue;
     private final ColumnValue toValue;
-    private final ColumnFamilyScanner scanner;
+    private final RowScanner scanner;
 
     public IndexedColumnFamilyScannerImpl(ColumnFamilyEngine columnFamilyEngine, SecondaryIndexEngine indexEngine,
 	    ColumnValue fromValue, ColumnValue toValue) {
@@ -29,7 +29,7 @@ public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
     @Override
     public ColumnFamilyRow peek() {
-	Key key = scanner.peek().getRowKey();
+	Key key = scanner.peek().getKey();
 	return new ColumnFamilyRow(key, columnFamilyEngine.get(key));
     }
 
@@ -40,7 +40,7 @@ public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
     @Override
     public ColumnFamilyRow next() {
-	Key key = scanner.next().getRowKey();
+	Key key = scanner.next().getKey();
 	Key cfKey = extractCFKey(key);
 	if (indexEngine.getDescription().getIndexType() == IndexType.HEAP) {
 	    return new ColumnFamilyRow(cfKey, columnFamilyEngine.get(cfKey));

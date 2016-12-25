@@ -6,9 +6,9 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
-import com.puresoltechnologies.ductiledb.engine.io.Bytes;
-import com.puresoltechnologies.ductiledb.engine.io.DuctileDBInputStream;
+import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBInputStream;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class SecondaryIndexInputStream extends DuctileDBInputStream {
 

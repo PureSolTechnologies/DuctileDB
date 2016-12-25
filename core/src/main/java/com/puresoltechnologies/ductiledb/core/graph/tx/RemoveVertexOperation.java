@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.engine.Delete;
-import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class RemoveVertexOperation extends AbstractTxOperation {
 

@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.engine.cf;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.engine.Key;
+import com.puresoltechnologies.ductiledb.logstore.Key;
 
 /**
  * This is a set of column identifiers. These are sorted in the order of
