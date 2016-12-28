@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.engine.io;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 
 /**
  * This class is used to filter database files. The database files are compacted
@@ -13,7 +13,7 @@ import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
  */
 public class DataFilenameFilter implements FilenameFilter {
 
-    private static final String FILE_PREFIX = ColumnFamilyEngine.DB_FILE_PREFIX + "-";
+    private static final String FILE_PREFIX = LogStructuredStore.DB_FILE_PREFIX + "-";
 
     private final String timestamp;
 
@@ -28,8 +28,8 @@ public class DataFilenameFilter implements FilenameFilter {
     @Override
     public boolean accept(File dir, String name) {
 	if (timestamp == null) {
-	    return name.startsWith(FILE_PREFIX) && name.endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX);
+	    return name.startsWith(FILE_PREFIX) && name.endsWith(LogStructuredStore.DATA_FILE_SUFFIX);
 	}
-	return name.equals(FILE_PREFIX + timestamp + ColumnFamilyEngine.DATA_FILE_SUFFIX);
+	return name.equals(FILE_PREFIX + timestamp + LogStructuredStore.DATA_FILE_SUFFIX);
     }
 }

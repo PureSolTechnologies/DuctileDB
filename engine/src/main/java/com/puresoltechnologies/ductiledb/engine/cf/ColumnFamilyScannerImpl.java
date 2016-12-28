@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
@@ -22,7 +21,7 @@ import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class ColumnFamilyScannerImpl implements RowScanner<ColumnFamilyRow> {
+public class ColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
     private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyScannerImpl.class);
 

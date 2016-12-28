@@ -12,10 +12,4 @@ import com.puresoltechnologies.commons.misc.PeekingIterator;
  */
 public interface RowScanner extends PeekingIterator<Row>, Closeable {
 
-    @Override
-    public Row peek();
-
-    @Override
-    public Row next();
-
 }

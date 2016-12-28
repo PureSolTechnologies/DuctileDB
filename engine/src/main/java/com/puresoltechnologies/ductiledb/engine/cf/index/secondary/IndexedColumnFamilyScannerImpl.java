@@ -4,13 +4,14 @@ import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
-public class IndexedColumnFamilyScannerImpl implements RowScanner {
+public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
     private final ColumnFamilyEngine columnFamilyEngine;
     private final SecondaryIndexEngine indexEngine;

@@ -345,4 +345,20 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	return indexDescriptors.values();
     }
 
+    public void setMaxCommitLogSize(int maxCommitLogSize) {
+	store.setMaxCommitLogSize(maxCommitLogSize);
+    }
+
+    public void setMaxDataFileSize(int maxDataFileSize) {
+	store.setMaxDataFileSize(maxDataFileSize);
+    }
+
+    public void runCompaction() {
+	store.runCompaction();
+    }
+
+    public void setRunCompactions(boolean runCompactions) {
+	store.setRunCompactions(runCompactions);
+    }
+
 }

@@ -17,15 +17,11 @@ import org.junit.Test;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
@@ -324,10 +320,10 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	Storage storage = getStorage();
 	ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
 	for (File file : storage.list(columnFamilyDescriptor.getDirectory())) {
-	    if (file.getName().endsWith(ColumnFamilyEngine.DATA_FILE_SUFFIX)) {
+	    if (file.getName().endsWith(LogStructuredStore.DATA_FILE_SUFFIX)) {
 		dataFiles.add(file);
 	    }
-	    if (file.getName().endsWith(ColumnFamilyEngine.INDEX_FILE_SUFFIX)) {
+	    if (file.getName().endsWith(LogStructuredStore.INDEX_FILE_SUFFIX)) {
 		indexFiles.add(file);
 	    }
 	}
