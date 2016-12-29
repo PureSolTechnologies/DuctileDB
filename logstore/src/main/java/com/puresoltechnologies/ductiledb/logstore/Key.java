@@ -85,7 +85,7 @@ public class Key implements Comparable<Key> {
 
     @Override
     public String toString() {
-	return Bytes.toString(key);
+	return Bytes.toHumanReadableString(key);
     }
 
     public String toHexString() {

@@ -11,11 +11,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.yaml.snakeyaml.Yaml;
 
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngineConfiguration;
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.logstore.io.CurrentCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
@@ -58,6 +57,11 @@ public abstract class AbstractDatabaseEngineTest {
 		storage.delete(file);
 	    }
 	}
+    }
+
+    @Before
+    public void cleanup() throws IOException {
+	cleanTestStorageDirectory();
     }
 
     @AfterClass

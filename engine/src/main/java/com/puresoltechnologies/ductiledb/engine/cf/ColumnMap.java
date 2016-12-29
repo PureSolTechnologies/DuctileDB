@@ -29,6 +29,9 @@ import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 public final class ColumnMap implements NavigableMap<Key, ColumnValue> {
 
     public static ColumnMap fromBytes(byte[] bytes) throws IOException {
+	if (bytes == null) {
+	    return new ColumnMap();
+	}
 	try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
 	    byte[] buffer = new byte[12];
 	    // Read column count
@@ -95,7 +98,7 @@ public final class ColumnMap implements NavigableMap<Key, ColumnValue> {
     public String toString() {
 	StringBuilder buffer = new StringBuilder();
 	for (java.util.Map.Entry<? extends Key, ? extends ColumnValue> entry : entrySet()) {
-	    buffer.append(entry.getKey().toString());
+	    buffer.append(Bytes.toHumanReadableString(entry.getKey().getBytes()));
 	    buffer.append("=");
 	    ColumnValue value = entry.getValue();
 	    buffer.append(Bytes.toHumanReadableString(value.getBytes()));

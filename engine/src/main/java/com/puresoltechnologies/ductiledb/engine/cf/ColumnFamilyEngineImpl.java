@@ -185,7 +185,13 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     @Override
     public void put(Key rowKey, ColumnMap columnMap) {
 	try {
-	    store.put(rowKey, columnMap.toBytes());
+	    ColumnMap data = get(rowKey);
+	    if (data == null) {
+		data = columnMap;
+	    } else {
+		data.putAll(columnMap);
+	    }
+	    store.put(rowKey, data.toBytes());
 	    if (hasIndizes()) {
 		for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
 		    if (indexDescriptorEntry.getValue().matchesColumns(columnMap.getColumnKeySet())) {
@@ -233,7 +239,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	if (columnMap.isEmpty()) {
 	    store.delete(rowKey);
 	} else {
-	    put(rowKey, columnMap);
+	    try {
+		store.put(rowKey, columnMap.toBytes());
+	    } catch (IOException e) {
+		throw new StorageException("Could not delete data.", e);
+	    }
 	}
 	if (hasIndizes()) {
 	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {

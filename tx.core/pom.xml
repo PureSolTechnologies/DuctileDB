@@ -17,6 +17,10 @@
 			<artifactId>tx.api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>logstore</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>

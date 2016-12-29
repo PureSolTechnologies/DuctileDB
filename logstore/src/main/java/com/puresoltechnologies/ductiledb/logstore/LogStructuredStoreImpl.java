@@ -319,10 +319,10 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     @Override
-    public void put(Key rowKey, byte[] values) {
+    public void put(Key rowKey, byte[] data) {
 	writeLock.lock();
 	try {
-	    writeCommitLog(rowKey, null, values);
+	    writeCommitLog(rowKey, null, data);
 	} finally {
 	    writeLock.unlock();
 	}

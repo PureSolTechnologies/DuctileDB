@@ -61,8 +61,8 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(2, columns.size());
 	    Iterator<Key> columnIterator = columns.iterator();
 	    assertTrue(columnIterator.hasNext());
-	    assertEquals("column1", columnIterator.next().toString());
-	    assertEquals("column2", columnIterator.next().toString());
+	    assertEquals("column1", Bytes.toString(columnIterator.next().getBytes()));
+	    assertEquals("column2", Bytes.toString(columnIterator.next().getBytes()));
 	    assertFalse(columnIterator.hasNext());
 
 	    columnFamily.dropIndex("IDX_TEST");

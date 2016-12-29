@@ -16,6 +16,9 @@ import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 public final class ColumnFamilyRow {
 
     public static ColumnFamilyRow fromRow(Row row) throws IOException {
+	if (row == null) {
+	    return null;
+	}
 	return new ColumnFamilyRow(row.getKey(), ColumnMap.fromBytes(row.getData()), row.getTombstone());
     }
 

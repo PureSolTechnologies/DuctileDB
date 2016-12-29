@@ -23,6 +23,7 @@ import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
@@ -60,7 +61,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    assertEquals(indexDescriptor, index);
 	    ColumnKeySet columns = index.getColumns();
 	    assertEquals(1, columns.size());
-	    assertEquals("column1", columns.iterator().next().toString());
+	    assertEquals("column1", Bytes.toString(columns.iterator().next().getBytes()));
 
 	    columnFamily.dropIndex("IDX_TEST");
 
