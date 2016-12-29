@@ -11,9 +11,9 @@ import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.commons.misc.io.PeekingCloseableIterator;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 
 /**
  * This is class used to scan for results.
@@ -22,7 +22,7 @@ import com.puresoltechnologies.ductiledb.logstore.RowScanner;
  */
 public class ResultScanner implements PeekingCloseableIterator<Result>, CloseableIterable<Result> {
 
-    private final NavigableMap<Key, RowScanner> cfScanners = new TreeMap<>();
+    private final NavigableMap<Key, ColumnFamilyScanner> cfScanners = new TreeMap<>();
 
     private final TableEngine table;
     private Result nextResult = null;
@@ -105,8 +105,8 @@ public class ResultScanner implements PeekingCloseableIterator<Result>, Closeabl
 
     private void readNextResult() {
 	Key minimum = null;
-	for (Entry<Key, RowScanner> scannerEntry : cfScanners.entrySet()) {
-	    RowScanner scanner = scannerEntry.getValue();
+	for (Entry<Key, ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
+	    ColumnFamilyScanner scanner = scannerEntry.getValue();
 	    ColumnFamilyRow row = scanner.peek();
 	    if (row != null) {
 		Key rowKey = row.getRowKey();
@@ -120,8 +120,8 @@ public class ResultScanner implements PeekingCloseableIterator<Result>, Closeabl
 	    return;
 	}
 	Result result = new Result(minimum);
-	for (Entry<Key, RowScanner> scannerEntry : cfScanners.entrySet()) {
-	    RowScanner scanner = scannerEntry.getValue();
+	for (Entry<Key, ColumnFamilyScanner> scannerEntry : cfScanners.entrySet()) {
+	    ColumnFamilyScanner scanner = scannerEntry.getValue();
 	    ColumnFamilyRow row = scanner.peek();
 	    if (row != null) {
 		Key rowKey = row.getRowKey();

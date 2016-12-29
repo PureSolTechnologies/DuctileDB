@@ -10,6 +10,7 @@ import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
+import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
@@ -46,8 +47,11 @@ public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 	if (indexEngine.getDescription().getIndexType() == IndexType.HEAP) {
 	    return new ColumnFamilyRow(cfKey, columnFamilyEngine.get(cfKey));
 	} else {
-	    ColumnMap columnMap = indexEngine.get(key);
-	    return new ColumnFamilyRow(cfKey, columnMap);
+	    try {
+		return new ColumnFamilyRow(cfKey, ColumnMap.fromBytes(indexEngine.get(key)));
+	    } catch (IOException e) {
+		throw new StorageException("Could not read data.", e);
+	    }
 	}
     }
 

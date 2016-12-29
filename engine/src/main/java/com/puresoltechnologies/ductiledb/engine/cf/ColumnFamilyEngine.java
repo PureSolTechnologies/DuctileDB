@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.engine.cf;
 
+import java.io.Closeable;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 
 /**
  * This class handles the storage of a single column family.
@@ -13,7 +13,7 @@ import com.puresoltechnologies.ductiledb.logstore.RowScanner;
  * @author Rick-Rainer Ludwig
  *
  */
-public interface ColumnFamilyEngine extends AutoCloseable {
+public interface ColumnFamilyEngine extends Closeable {
 
     public void open();
 
@@ -42,7 +42,7 @@ public interface ColumnFamilyEngine extends AutoCloseable {
      * 
      * @return
      */
-    public RowScanner getScanner(Key startRowKey, Key endRowKey);
+    public ColumnFamilyScanner getScanner(Key startRowKey, Key endRowKey);
 
     /**
      * This method removes the given row.
@@ -61,11 +61,11 @@ public interface ColumnFamilyEngine extends AutoCloseable {
      *            value.
      * @param value
      *            is the value to be found in the specified column.
-     * @return A {@link RowScanner} is returned to scan over all found results.
-     *         If there is not index for the column, <code>null</code> is
-     *         returned.
+     * @return A {@link ColumnFamilyScanner} is returned to scan over all found
+     *         results. If there is not index for the column, <code>null</code>
+     *         is returned.
      */
-    public RowScanner find(Key columnKey, ColumnValue value);
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue value);
 
     /**
      * This method searches the store for a specified column/value pair.
@@ -78,11 +78,11 @@ public interface ColumnFamilyEngine extends AutoCloseable {
      *            is the minimum value to be found in the specified column.
      * @param toValue
      *            is the maximum value to be found in the specified column.
-     * @return A {@link RowScanner} is returned to scan over all found results.
-     *         If there is not index for the column, <code>null</code> is
-     *         returned.
+     * @return A {@link ColumnFamilyScanner} is returned to scan over all found
+     *         results. If there is not index for the column, <code>null</code>
+     *         is returned.
      */
-    public RowScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue);
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue);
 
     /**
      * Increments (or decrements) a value in atomic way.

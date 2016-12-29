@@ -2,12 +2,9 @@ package com.puresoltechnologies.ductiledb.engine.cf;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.io.DataInputStream;
-import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
+import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 /**
@@ -17,6 +14,11 @@ import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
  */
 
 public final class ColumnFamilyRow {
+
+    public static ColumnFamilyRow fromRow(Row row) throws IOException {
+	return new ColumnFamilyRow(row.getKey(), ColumnMap.fromBytes(row.getData()), row.getTombstone());
+    }
+
     private final Key rowKey;
     private final Instant tombstone;
     private final ColumnMap columnMap;
@@ -65,73 +67,4 @@ public final class ColumnFamilyRow {
 		+ columnMap.toString();
     }
 
-    @Override
-    public void writeTo(DataOutputStream outputStream) {
-	Set<Entry<Key, ColumnValue>> entrySet = entrySet();
-	outputStream.writeData(Bytes.toBytes(entrySet.size()));
-	// Columns
-	for (Entry<Key, ColumnValue> column : entrySet) {
-	    // Column key
-	    Key columnKey = column.getKey();
-	    outputStream.writeData(Bytes.toBytes(columnKey.getBytes().length));
-	    outputStream.writeData(columnKey.getBytes());
-	    // Column value
-	    ColumnValue columnValue = column.getValue();
-	    outputStream.writeTombstone(columnValue.getTombstone());
-	    byte[] value = columnValue.getBytes();
-	    outputStream.writeData(Bytes.toBytes(value.length));
-	    if (value.length > 0) {
-		outputStream.writeData(value);
-	    }
-	}
-    }
-
-    @Override
-    public void readFrom(DataInputStream inputStream, Key rowKey, Instant tombstone) {
-	byte[] buffer = new byte[12];
-	// Read column count
-	int len = inputStream.read(buffer, 0, 4);
-	if (len < 4) {
-	    throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
-	}
-	int columnCount = Bytes.toInt(buffer);
-	// Read columns
-	ColumnMap columns = new ColumnMap();
-	for (int i = 0; i < columnCount; ++i) {
-	    // Read column key...
-	    len = inputStream.read(buffer, 0, 4);
-	    if (len < 4) {
-		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
-	    }
-	    int length = Bytes.toInt(buffer);
-	    byte[] columnKey = new byte[length];
-	    len = inputStream.read(columnKey);
-	    if (len < length) {
-		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
-	    }
-	    // Read column tombstone...
-	    len = inputStream.read(buffer, 0, 12);
-	    if (len < 12) {
-		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
-	    }
-	    Instant columnTombstone = Bytes.toTombstone(buffer);
-	    // Read column value...
-	    len = inputStream.read(buffer, 0, 4);
-	    if (len < 4) {
-		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
-	    }
-	    length = Bytes.toInt(buffer);
-	    byte[] columnValue = new byte[length];
-	    if (length > 0) {
-		len = inputStream.read(columnValue);
-		if (len < length) {
-		    throw new IOException(
-			    "Could not read full number of bytes needed. It is maybe a broken data file.");
-		}
-	    }
-	    columns.put(Key.of(columnKey), ColumnValue.of(columnValue, columnTombstone));
-	}
-	return new ColumnFamilyRow(rowKey, columns, tombstone);
-
-    }
 }

@@ -22,6 +22,7 @@ import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
+import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
@@ -274,12 +275,12 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	    Key currentRowKey = null;
 	    long currentOffset = -1;
 	    Iterator<IndexEntry> indexIterator = index.iterator();
-	    Iterator<ColumnFamilyRow> dataIterator = reader.iterator();
+	    Iterator<Row> dataIterator = reader.iterator();
 	    while (indexIterator.hasNext() && dataIterator.hasNext()) {
 		IndexEntry indexEntry = indexIterator.next();
-		ColumnFamilyRow dataEntry = dataIterator.next();
+		Row dataEntry = dataIterator.next();
 		Key rowKey = indexEntry.getRowKey();
-		assertEquals(rowKey, dataEntry.getRowKey());
+		assertEquals(rowKey, dataEntry.getKey());
 		long offset = indexEntry.getOffset();
 		assertTrue(currentOffset < offset);
 		if (currentRowKey != null) {

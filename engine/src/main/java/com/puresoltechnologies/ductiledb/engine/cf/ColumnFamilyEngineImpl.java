@@ -125,7 +125,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 	store.close();
     }
 
@@ -138,36 +138,76 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public ColumnMap get(Key rowKey) {
-	return store.get(rowKey);
+	try {
+	    return ColumnMap.fromBytes(store.get(rowKey));
+	} catch (IOException e) {
+	    throw new StorageException("Could not read data.", e);
+	}
     }
 
     @Override
-    public RowScanner getScanner(Key startRowKey, Key endRowKey) {
-	return store.getScanner(startRowKey, endRowKey);
+    public ColumnFamilyScanner getScanner(Key startRowKey, Key endRowKey) {
+	return new ColumnFamilyScanner() {
+
+	    private final RowScanner rowScanner = store.getScanner(startRowKey, endRowKey);
+
+	    @Override
+	    public ColumnFamilyRow peek() {
+		try {
+		    return ColumnFamilyRow.fromRow(rowScanner.peek());
+		} catch (IOException e) {
+		    throw new StorageException("Could not read data.", e);
+		}
+	    }
+
+	    @Override
+	    public boolean hasNext() {
+		return rowScanner.hasNext();
+	    }
+
+	    @Override
+	    public ColumnFamilyRow next() {
+		try {
+		    return ColumnFamilyRow.fromRow(rowScanner.next());
+		} catch (IOException e) {
+		    throw new StorageException("Could not read data.", e);
+		}
+	    }
+
+	    @Override
+	    public void close() throws IOException {
+		rowScanner.close();
+	    }
+
+	};
     }
 
     @Override
     public void put(Key rowKey, ColumnMap columnMap) {
-	store.put(rowKey, columnMap);
-	if (hasIndizes()) {
-	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
-		if (indexDescriptorEntry.getValue().matchesColumns(columnMap.getColumnKeySet())) {
-		    addToIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
+	try {
+	    store.put(rowKey, columnMap.toBytes());
+	    if (hasIndizes()) {
+		for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
+		    if (indexDescriptorEntry.getValue().matchesColumns(columnMap.getColumnKeySet())) {
+			addToIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
+		    }
 		}
 	    }
+	} catch (IOException e) {
+	    throw new StorageException("Could not write data.", e);
 	}
     }
 
-    private void addToIndex(SecondaryIndexDescriptor value, Key rowKey, ColumnMap columnMap) {
+    private void addToIndex(SecondaryIndexDescriptor value, Key rowKey, ColumnMap columnMap) throws IOException {
 	SecondaryIndexEngineImpl indexEngine = indizes.get(value.getName());
 	Key indexRowKey = indexEngine.createRowKey(rowKey, columnMap);
 	if (value.getIndexType() == IndexType.HEAP) {
 	    ColumnMap values = new ColumnMap();
 	    byte[] keyBytes = rowKey.getBytes();
 	    values.put(Key.of("key"), ColumnValue.of(keyBytes));
-	    indexEngine.put(indexRowKey, values);
+	    indexEngine.put(indexRowKey, values.toBytes());
 	} else {
-	    indexEngine.put(indexRowKey, columnMap);
+	    indexEngine.put(indexRowKey, columnMap.toBytes());
 	}
     }
 
@@ -186,9 +226,16 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public void delete(Key rowKey, Set<Key> columns) {
-	store.delete(rowKey, columns);
+	ColumnMap columnMap = get(rowKey);
+	for (Key column : columns) {
+	    columnMap.remove(column);
+	}
+	if (columnMap.isEmpty()) {
+	    store.delete(rowKey);
+	} else {
+	    put(rowKey, columnMap);
+	}
 	if (hasIndizes()) {
-	    ColumnMap columnMap = get(rowKey);
 	    for (Entry<String, SecondaryIndexDescriptor> indexDescriptorEntry : indexDescriptors.entrySet()) {
 		if (indexDescriptorEntry.getValue().matchesColumns(new ColumnKeySet(columns))) {
 		    removeFromIndex(indexDescriptorEntry.getValue(), rowKey, columnMap);
@@ -209,7 +256,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public RowScanner find(Key columnKey, ColumnValue value) {
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue value) {
 	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
@@ -237,7 +284,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public RowScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue) {
+    public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue) {
 	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
@@ -283,7 +330,11 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 		columnMap = new ColumnMap();
 	    }
 	    columnMap.put(column, ColumnValue.of(Bytes.toBytes(result)));
-	    store.writeCommitLog(rowKey, null, columnMap);
+	    try {
+		store.writeCommitLog(rowKey, null, columnMap.toBytes());
+	    } catch (IOException e) {
+		throw new StorageException("Could not increment column value.", e);
+	    }
 	} finally {
 	    store.getWriteLock().unlock();
 	}
@@ -359,6 +410,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     public void setRunCompactions(boolean runCompactions) {
 	store.setRunCompactions(runCompactions);
+    }
+
+    public File getDirectory() {
+	return store.getDirectory();
     }
 
 }

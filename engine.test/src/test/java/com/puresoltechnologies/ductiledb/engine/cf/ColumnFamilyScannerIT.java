@@ -9,13 +9,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
@@ -27,7 +22,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     public void testEmptyScanner() throws SchemaException, StorageException {
 	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testEmptyScanner",
 		"testcf")) {
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());
@@ -45,7 +40,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
@@ -69,7 +64,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(rowKey, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(rowKey, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
@@ -93,7 +88,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, rowKey);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, rowKey);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
@@ -117,7 +112,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(rowKey, rowKey);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(rowKey, rowKey);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
@@ -141,7 +136,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    Key rowKey = Key.of(1l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(Key.of(0l), Key.of(123l));
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(Key.of(0l), Key.of(123l));
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 	    assertNotNull(scanner.peek());
@@ -165,7 +160,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    Key rowKey = Key.of(12345l);
 	    columnFamilyEngine.put(rowKey, values);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 
@@ -193,7 +188,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 		columnFamilyEngine.put(rowKey, values);
 	    }
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 
@@ -225,7 +220,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 		columnFamilyEngine.put(rowKey, values);
 	    }
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
 
@@ -259,10 +254,10 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columns.put(Key.of(10l), ColumnValue.of(100l));
 	    columnFamilyEngine.put(rowKey, columns);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(rowKey, scanner.next().getKey());
+	    assertEquals(rowKey, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check put with column extension
@@ -273,7 +268,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(rowKey, scanner.next().getKey());
+	    assertEquals(rowKey, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check put with column extensions with compaction
@@ -286,7 +281,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(rowKey, scanner.next().getKey());
+	    assertEquals(rowKey, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 	}
     }
@@ -323,12 +318,12 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columns3.put(Key.of(30l), ColumnValue.of(300l));
 	    columnFamilyEngine.put(rowKey3, columns3);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(rowKey1, scanner.next().getKey());
-	    assertEquals(rowKey2, scanner.next().getKey());
-	    assertEquals(rowKey3, scanner.next().getKey());
+	    assertEquals(rowKey1, scanner.next().getRowKey());
+	    assertEquals(rowKey2, scanner.next().getRowKey());
+	    assertEquals(rowKey3, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check put with column extension
@@ -337,8 +332,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(rowKey1, scanner.next().getKey());
-	    assertEquals(rowKey3, scanner.next().getKey());
+	    assertEquals(rowKey1, scanner.next().getRowKey());
+	    assertEquals(rowKey3, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 
 	    // Check after compaction
@@ -347,8 +342,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertTrue(scanner.hasNext());
-	    assertEquals(rowKey1, scanner.next().getKey());
-	    assertEquals(rowKey3, scanner.next().getKey());
+	    assertEquals(rowKey1, scanner.next().getRowKey());
+	    assertEquals(rowKey3, scanner.next().getRowKey());
 	    assertFalse(scanner.hasNext());
 	}
     }
@@ -359,7 +354,7 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 
-	    RowScanner scanner = columnFamilyEngine.getScanner(null, null);
+	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertFalse(scanner.hasNext());
 	    assertNull(scanner.peek());

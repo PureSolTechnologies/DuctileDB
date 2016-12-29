@@ -27,7 +27,7 @@ public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow
     protected ColumnFamilyRow readEntry() {
 	DataInputStream inputStream = (DataInputStream) getInputStream();
 	try {
-	    return inputStream.readRow();
+	    return ColumnFamilyRow.fromRow(inputStream.readRow());
 	} catch (IOException e) {
 	    logger.error("Error reading data file.", e);
 	    return null;

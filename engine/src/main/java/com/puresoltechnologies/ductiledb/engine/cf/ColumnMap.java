@@ -1,5 +1,10 @@
 package com.puresoltechnologies.ductiledb.engine.cf;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
@@ -12,6 +17,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 /**
@@ -21,6 +27,59 @@ import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
  * @author Rick-Rainer Ludwig
  */
 public final class ColumnMap implements NavigableMap<Key, ColumnValue> {
+
+    public static ColumnMap fromBytes(byte[] bytes) throws IOException {
+	try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
+	    byte[] buffer = new byte[12];
+	    // Read column count
+	    int len = inputStream.read(buffer, 0, 4);
+	    if (len < 4) {
+		throw new IOException("Could not read full number of bytes needed. It is maybe a broken data file.");
+	    }
+	    int columnCount = Bytes.toInt(buffer);
+	    // Read columns
+	    ColumnMap columnMap = new ColumnMap();
+	    for (int i = 0; i < columnCount; ++i) {
+		// Read column key...
+		len = inputStream.read(buffer, 0, 4);
+		if (len < 4) {
+		    throw new IOException(
+			    "Could not read full number of bytes needed. It is maybe a broken data file.");
+		}
+		int length = Bytes.toInt(buffer);
+		byte[] columnKey = new byte[length];
+		len = inputStream.read(columnKey);
+		if (len < length) {
+		    throw new IOException(
+			    "Could not read full number of bytes needed. It is maybe a broken data file.");
+		}
+		// Read column tombstone...
+		len = inputStream.read(buffer, 0, 12);
+		if (len < 12) {
+		    throw new IOException(
+			    "Could not read full number of bytes needed. It is maybe a broken data file.");
+		}
+		Instant columnTombstone = Bytes.toTombstone(buffer);
+		// Read column value...
+		len = inputStream.read(buffer, 0, 4);
+		if (len < 4) {
+		    throw new IOException(
+			    "Could not read full number of bytes needed. It is maybe a broken data file.");
+		}
+		length = Bytes.toInt(buffer);
+		byte[] columnValue = new byte[length];
+		if (length > 0) {
+		    len = inputStream.read(columnValue);
+		    if (len < length) {
+			throw new IOException(
+				"Could not read full number of bytes needed. It is maybe a broken data file.");
+		    }
+		}
+		columnMap.put(Key.of(columnKey), ColumnValue.of(columnValue, columnTombstone));
+	    }
+	    return columnMap;
+	}
+    }
 
     private final TreeMap<Key, ColumnValue> map = new TreeMap<>();
 
@@ -312,6 +371,31 @@ public final class ColumnMap implements NavigableMap<Key, ColumnValue> {
     @Override
     public void replaceAll(BiFunction<? super Key, ? super ColumnValue, ? extends ColumnValue> function) {
 	map.replaceAll(function);
+    }
+
+    public byte[] toBytes() throws IOException {
+	Set<Entry<Key, ColumnValue>> entrySet = entrySet();
+	try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
+	    try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(byteStream), 1024)) {
+		outputStream.writeData(Bytes.toBytes(entrySet.size()));
+		// Columns
+		for (Entry<Key, ColumnValue> column : entrySet) {
+		    // Column key
+		    Key columnKey = column.getKey();
+		    outputStream.writeData(Bytes.toBytes(columnKey.getBytes().length));
+		    outputStream.writeData(columnKey.getBytes());
+		    // Column value
+		    ColumnValue columnValue = column.getValue();
+		    outputStream.writeTombstone(columnValue.getTombstone());
+		    byte[] value = columnValue.getBytes();
+		    outputStream.writeData(Bytes.toBytes(value.length));
+		    if (value.length > 0) {
+			outputStream.writeData(value);
+		    }
+		}
+	    }
+	    return byteStream.toByteArray();
+	}
     }
 
 }

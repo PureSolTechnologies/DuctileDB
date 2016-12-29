@@ -17,14 +17,12 @@ import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.IndexType;
-import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
@@ -149,7 +147,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	    StopWatch readingTime = new StopWatch();
 	    readingTime.start();
 	    for (int i = 0; i < TEST_SIZE; ++i) {
-		RowScanner found = columnFamily.find(Key.of("indexed"), ColumnValue.of(i));
+		ColumnFamilyScanner found = columnFamily.find(Key.of("indexed"), ColumnValue.of(i));
 		for (int j = 0; j <= i; ++j) {
 		    assertTrue(found.hasNext());
 		    ColumnFamilyRow row = found.next();
