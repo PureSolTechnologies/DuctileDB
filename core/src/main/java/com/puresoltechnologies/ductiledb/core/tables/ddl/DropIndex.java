@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
+import com.puresoltechnologies.ductiledb.core.tables.Statement;
 
-public interface DropIndex extends PreparedStatement {
+public interface DropIndex extends Statement {
 
 }

@@ -54,7 +54,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateNamespace createNamespace = ddl.createCreateNamespace(NAMESPACE);
-	createNamespace.bind().execute(tableStore);
+	createNamespace.execute(tableStore);
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
@@ -83,7 +83,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.bind().execute(tableStore);
+	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
@@ -126,7 +126,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.bind().execute(tableStore);
+	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
@@ -189,7 +189,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.bind().execute(tableStore);
+	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
@@ -263,7 +263,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.bind().execute(tableStore);
+	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
@@ -333,7 +333,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.bind().execute(tableStore);
+	createTable.execute(tableStore);
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 

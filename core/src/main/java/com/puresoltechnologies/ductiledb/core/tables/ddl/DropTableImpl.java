@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import java.util.Map;
-
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
@@ -26,8 +24,7 @@ public class DropTableImpl extends AbstractDDLStatement implements DropTable {
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
-	    throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Dropping tables from 'system' namespace is not allowed.");
 	}

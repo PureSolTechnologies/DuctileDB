@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import java.util.Map;
-
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
@@ -16,7 +14,7 @@ public class DropIndexImpl extends AbstractDDLStatement implements DropIndex {
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue) {
+    public TableRowIterable execute(TableStore tableStore) {
 	// TODO Auto-generated method stub
 	return null;
     }

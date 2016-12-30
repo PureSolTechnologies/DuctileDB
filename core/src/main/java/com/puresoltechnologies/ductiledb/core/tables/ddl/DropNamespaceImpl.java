@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
-import java.util.Map;
-
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
@@ -23,8 +21,7 @@ public class DropNamespaceImpl extends AbstractDDLStatement implements DropNames
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
-	    throws ExecutionException {
+    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
 	if ("system".equals(name)) {
 	    throw new ExecutionException("Dropping of 'system' namespace is not allowed.");
 	}
