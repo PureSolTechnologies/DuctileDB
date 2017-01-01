@@ -15,31 +15,31 @@ public class DataManipulationLanguageImpl implements DataManipulationLanguage {
     @Override
     public PreparedInsert prepareInsert(String namespace, String table) {
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
-	return new PreparedInsertImpl(tableDefinition);
+	return new PreparedInsertImpl(tableStore, tableDefinition);
     }
 
     @Override
     public PreparedUpdate prepareUpdate(String namespace, String table) {
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
-	return new PreparedUpdateImpl(tableDefinition);
+	return new PreparedUpdateImpl(tableStore, tableDefinition);
     }
 
     @Override
     public PreparedDelete prepareDelete(String namespace, String table) {
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
-	return new PreparedDeleteImpl(tableDefinition);
+	return new PreparedDeleteImpl(tableStore, tableDefinition);
     }
 
     @Override
     public PreparedSelect prepareSelect(String namespace, String table) {
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
-	return new PreparedSelectImpl(tableDefinition);
+	return new PreparedSelectImpl(tableStore, tableDefinition);
     }
 
     @Override
     public PreparedTruncate prepareTruncate(String namespace, String table) {
 	TableDefinition tableDefinition = tableStore.getTableDefinition(namespace, table);
-	return new PreparedTruncateImpl(tableDefinition);
+	return new PreparedTruncateImpl(tableStore, tableDefinition);
     }
 
 }

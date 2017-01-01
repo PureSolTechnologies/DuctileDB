@@ -16,6 +16,13 @@ public interface DataDefinitionLanguage {
     public CreateNamespace createCreateNamespace(String namespace);
 
     /**
+     * This method creates a new {@link CreateNamespace} statement object.
+     * 
+     * @return
+     */
+    public CreateNamespace createCreateNamespaceIfNotExists(String namespace);
+
+    /**
      * This method creates a new {@link DropNamespace} statement object.
      * 
      * @return
@@ -45,6 +52,13 @@ public interface DataDefinitionLanguage {
     public CreateTable createCreateTable(String namespace, String table, String remark);
 
     /**
+     * This method creates a new {@link CreateTable} statement object.
+     * 
+     * @return
+     */
+    public CreateTable createCreateTableIfNotExists(String namespace, String table, String remark);
+
+    /**
      * This method creates a new {@link DropTable} statement object.
      * 
      * @return
@@ -68,6 +82,13 @@ public interface DataDefinitionLanguage {
      * @return
      */
     public CreateIndex createCreateIndex(String namespace, String table, String columnFamily, String index);
+
+    /**
+     * This method creates a new {@link CreateIndex} statement object.
+     * 
+     * @return
+     */
+    public CreateIndex createCreateIndexIfNotExists(String namespace, String table, String columnFamily, String index);
 
     /**
      * This method creates a new {@link DropIndex} statement object.

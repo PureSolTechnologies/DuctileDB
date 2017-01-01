@@ -1,6 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables;
-
-import com.puresoltechnologies.ductiledb.core.tables.dml.BoundDMLStatement;
+package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 /**
  * This is the central interface for all statements which can be prepared with

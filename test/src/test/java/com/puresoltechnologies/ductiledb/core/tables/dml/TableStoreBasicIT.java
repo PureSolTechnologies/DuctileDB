@@ -54,7 +54,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	CreateNamespace createNamespace = ddl.createCreateNamespace(NAMESPACE);
-	createNamespace.execute(tableStore);
+	createNamespace.execute();
 
 	namespaces = schemaManager.getNamespaces();
 	namespaceIterator = namespaces.iterator();
@@ -83,19 +83,19 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.execute(tableStore);
+	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 1);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("A").execute(tableStore);
+	insert.bind("A").execute();
 
 	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
 
 	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -105,10 +105,10 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	}
 
 	PreparedDelete delete = dml.prepareDelete(NAMESPACE, TABLE);
-	delete.bind().execute(tableStore);
+	delete.bind().execute();
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertFalse(iterator.hasNext());
 	}
@@ -126,29 +126,29 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.execute(tableStore);
+	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 1);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("A").execute(tableStore);
+	insert.bind("A").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 2);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("B").execute(tableStore);
+	insert.bind("B").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 3);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("C").execute(tableStore);
+	insert.bind("C").execute();
 
 	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
 
 	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -167,7 +167,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
 	select.addWhereSelection("static", CompareOperator.EQUALS, 2);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -189,29 +189,29 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.execute(tableStore);
+	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 1);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("A").execute(tableStore);
+	insert.bind("A").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 2);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("B").execute(tableStore);
+	insert.bind("B").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 3);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("C").execute(tableStore);
+	insert.bind("C").execute();
 
 	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
 
 	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -230,7 +230,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
 	select.selectColumn("static", "alias");
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -263,29 +263,29 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.execute(tableStore);
+	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 1);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("A").execute(tableStore);
+	insert.bind("A").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 2);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("B").execute(tableStore);
+	insert.bind("B").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 3);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("C").execute(tableStore);
+	insert.bind("C").execute();
 
 	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
 
 	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -304,10 +304,10 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 
 	PreparedDelete delete = dml.prepareDelete(NAMESPACE, TABLE);
 	delete.addWhereSelection("static", CompareOperator.EQUALS, 2);
-	delete.bind().execute(tableStore);
+	delete.bind().execute();
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -333,29 +333,29 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	createTable.addColumn(CF, "static", ColumnType.INTEGER);
 	createTable.addColumn(CF, "dynamic", ColumnType.VARCHAR);
 	createTable.setPrimaryKey("static");
-	createTable.execute(tableStore);
+	createTable.execute();
 
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 
 	PreparedInsert insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 1);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("A").execute(tableStore);
+	insert.bind("A").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 2);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("B").execute(tableStore);
+	insert.bind("B").execute();
 
 	insert = dml.prepareInsert(NAMESPACE, TABLE);
 	insert.addValue(CF, "static", 3);
 	insert.addPlaceholder(new Placeholder(1, CF, "dynamic"));
-	insert.bind("C").execute(tableStore);
+	insert.bind("C").execute();
 
 	consoleOutput.printTableContent(tableStore, NAMESPACE, TABLE);
 
 	PreparedSelect select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();
@@ -375,10 +375,10 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
 	PreparedUpdate update = dml.prepareUpdate(NAMESPACE, TABLE);
 	update.addWhereSelection("static", CompareOperator.EQUALS, 2);
 	update.addValue(CF, "dynamic", "BB");
-	update.bind().execute(tableStore);
+	update.bind().execute();
 
 	select = dml.prepareSelect(NAMESPACE, TABLE);
-	try (TableRowIterable result = select.bind().execute(tableStore)) {
+	try (TableRowIterable result = select.bind().execute()) {
 	    Iterator<TableRow> iterator = result.iterator();
 	    assertTrue(iterator.hasNext());
 	    TableRow row = iterator.next();

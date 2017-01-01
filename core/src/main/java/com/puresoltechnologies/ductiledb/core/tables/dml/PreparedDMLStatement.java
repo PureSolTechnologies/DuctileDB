@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
-
 /**
  * This is the central interface for all statements which can be prepared with
  * place holders.

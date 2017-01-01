@@ -1,11 +1,11 @@
 package com.puresoltechnologies.ductiledb.core.tables.ductileql;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
 import com.puresoltechnologies.ductiledb.core.tables.Statement;
 import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
+import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedStatement;
 import com.puresoltechnologies.parsers.parser.ParseTreeNode;
 import com.puresoltechnologies.trees.TreeException;
 

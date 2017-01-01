@@ -15,7 +15,7 @@
 		<xo.version>0.6.1</xo.version>
 		<commons.version>0.7.0-SNAPSHOT</commons.version>
 		<graphs.version>0.7.0-SNAPSHOT</graphs.version>
-		<parsers.version>0.5.0</parsers.version>
+		<parsers.version>0.6.0-SNAPSHOT</parsers.version>
 		<versioning.version>1.1.0</versioning.version>
 		<kryo.version>4.0.0</kryo.version>
 	</properties>

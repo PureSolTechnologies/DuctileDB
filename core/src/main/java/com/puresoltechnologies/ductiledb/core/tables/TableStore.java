@@ -5,6 +5,7 @@ import java.io.Closeable;
 import com.puresoltechnologies.ductiledb.core.tables.dcl.DataControlLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
+import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedStatement;
 
 /**
  * This is the central class for the RDBMS functionality of DuctileDB.

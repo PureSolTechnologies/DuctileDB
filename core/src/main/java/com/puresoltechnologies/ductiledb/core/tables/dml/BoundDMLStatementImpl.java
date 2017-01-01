@@ -7,9 +7,7 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.core.tables.BoundStatementImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 
 public class BoundDMLStatementImpl extends BoundStatementImpl implements BoundDMLStatement {
 
@@ -22,8 +20,8 @@ public class BoundDMLStatementImpl extends BoundStatementImpl implements BoundDM
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
-	return preparedStatement.execute(tableStore, placeholderValues);
+    public TableRowIterable execute() throws ExecutionException {
+	return preparedStatement.execute(placeholderValues);
     }
 
     @Override

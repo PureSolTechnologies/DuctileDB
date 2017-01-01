@@ -3,7 +3,6 @@ package com.puresoltechnologies.ductiledb.core.tables.ddl;
 import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedInsert;
@@ -16,24 +15,24 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class CreateNamespaceImpl extends AbstractDDLStatement implements CreateNamespace {
 
-    private final TableStoreImpl tableStore;
     private final String name;
 
-    public CreateNamespaceImpl(TableStoreImpl storageEngine, String name) {
-	this.tableStore = storageEngine;
+    public CreateNamespaceImpl(TableStoreImpl tableStore, String name) {
+	super(tableStore);
 	this.name = name;
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public TableRowIterable execute() throws ExecutionException {
 	if ("system".equals(name)) {
 	    throw new ExecutionException("Creation of 'system' namespace is not allowed.");
 	}
 	try {
-	    DatabaseEngine storageEngine = ((TableStoreImpl) tableStore).getStorageEngine();
+	    TableStoreImpl tableStore = getTableStore();
+	    DatabaseEngine storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    schemaManager.createNamespace(name);
-	    TableStoreSchema schema = ((TableStoreImpl) tableStore).getSchema();
+	    TableStoreSchema schema = tableStore.getSchema();
 	    schema.addNamespaceDefinition(new NamespaceDefinitionImpl(name));
 	    DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 	    PreparedInsert preparedInsert = dml.prepareInsert("system", "namespaces");

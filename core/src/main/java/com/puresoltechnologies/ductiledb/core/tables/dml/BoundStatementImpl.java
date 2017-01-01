@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.core.tables;
+package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -7,7 +7,8 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
+import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
+import com.puresoltechnologies.ductiledb.core.tables.StatementImpl;
 
 public class BoundStatementImpl extends StatementImpl implements BoundStatement {
 
@@ -15,13 +16,13 @@ public class BoundStatementImpl extends StatementImpl implements BoundStatement 
     private final AbstractPreparedStatement preparedStatement;
 
     public BoundStatementImpl(AbstractPreparedStatement preparedStatement) {
-	super();
+	super(preparedStatement.getTableStore());
 	this.preparedStatement = preparedStatement;
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
-	return preparedStatement.execute(tableStore, placeholderValues);
+    public TableRowIterable execute() throws ExecutionException {
+	return preparedStatement.execute(placeholderValues);
     }
 
     @Override

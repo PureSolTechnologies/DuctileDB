@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
@@ -23,8 +22,8 @@ public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements 
     private final String table;
     private final Map<String, Map<String, InsertValue>> values = new HashMap<>();
 
-    public PreparedInsertImpl(TableDefinition tableDefinition) {
-	super(tableDefinition);
+    public PreparedInsertImpl(TableStoreImpl tableStore, TableDefinition tableDefinition) {
+	super(tableStore, tableDefinition);
 	this.namespace = tableDefinition.getNamespace();
 	this.table = tableDefinition.getName();
     }
@@ -40,9 +39,9 @@ public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements 
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValues) {
-	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
-		.getNamespaceEngine(namespace);
+    public TableRowIterable execute(Map<Integer, Comparable<?>> placeholderValues) {
+	TableStoreImpl tableStore = getTableStore();
+	NamespaceEngineImpl namespaceEngine = tableStore.getStorageEngine().getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
 
 	TableDefinition tableDefinition = getTableDefinition();

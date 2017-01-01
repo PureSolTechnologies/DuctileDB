@@ -2,7 +2,6 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.util.Collection;
 
-import com.puresoltechnologies.ductiledb.core.tables.PreparedStatement;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 
 /**

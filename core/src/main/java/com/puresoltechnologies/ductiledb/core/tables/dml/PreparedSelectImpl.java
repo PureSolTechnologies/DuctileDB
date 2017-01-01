@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.engine.ResultScanner;
 import com.puresoltechnologies.ductiledb.engine.Scan;
@@ -14,8 +14,8 @@ public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement 
 
     private final Map<String, String> columnSelection = new HashMap<>();
 
-    public PreparedSelectImpl(TableDefinition tableDefinition) {
-	super(tableDefinition);
+    public PreparedSelectImpl(TableStoreImpl tableStore, TableDefinition tableDefinition) {
+	super(tableStore, tableDefinition);
     }
 
     @Override
@@ -25,8 +25,8 @@ public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement 
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue) {
-	TableEngineImpl tableEngine = getTableEngine(tableStore);
+    public TableRowIterable execute(Map<Integer, Comparable<?>> placeholderValue) {
+	TableEngineImpl tableEngine = getTableEngine();
 	ResultScanner scanner = tableEngine.getScanner(new Scan());
 	Set<WhereClause<?>> selections = getSelections(placeholderValue);
 	return new TableRowIterableImpl<>(scanner,

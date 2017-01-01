@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
@@ -23,7 +22,6 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex {
 
     private final List<String> columns = new ArrayList<>();
-    private final TableStoreImpl tableStore;
     private final String namespace;
     private final String table;
     private final String columnFamily;
@@ -31,8 +29,7 @@ public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex
 
     public CreateIndexImpl(TableStoreImpl tableStore, String namespace, String table, String columnFamily,
 	    String name) {
-	super();
-	this.tableStore = tableStore;
+	super(tableStore);
 	this.namespace = namespace;
 	this.table = table;
 	this.columnFamily = columnFamily;
@@ -45,12 +42,13 @@ public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public TableRowIterable execute() throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}
 	try {
-	    DatabaseEngineImpl storageEngine = ((TableStoreImpl) tableStore).getStorageEngine();
+	    TableStoreImpl tableStore = getTableStore();
+	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
 	    TableDescriptor tableDescriptor = schemaManager.getTable(namespaceDescriptor, table);
@@ -62,7 +60,7 @@ public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex
 		    columns, IndexType.HEAP);
 	    schemaManager.createIndex(columnFamilyDescriptor, indexDescriptor);
 
-	    ((TableStoreImpl) tableStore).getSchema().addIndexDefinition(namespace, indexDescriptor);
+	    tableStore.getSchema().addIndexDefinition(namespace, indexDescriptor);
 	    return null;
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create index '" + name + " in namespace " + namespace + "'.");

@@ -4,9 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.puresoltechnologies.ductiledb.core.tables.AbstractPreparedStatement;
-import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
@@ -18,8 +15,8 @@ public abstract class AbstractPreparedDMLStatement extends AbstractPreparedState
 
     private final TableDefinition tableDefinition;
 
-    public AbstractPreparedDMLStatement(TableDefinition tableDefinition) {
-	super();
+    public AbstractPreparedDMLStatement(TableStoreImpl tableStore, TableDefinition tableDefinition) {
+	super(tableStore);
 	if (tableDefinition == null) {
 	    throw new IllegalArgumentException("Table definition must not be null.");
 	}
@@ -38,9 +35,8 @@ public abstract class AbstractPreparedDMLStatement extends AbstractPreparedState
 	return tableDefinition.getName();
     }
 
-    protected final TableEngineImpl getTableEngine(TableStore tableStore) {
-	NamespaceEngineImpl namespaceEngine = ((TableStoreImpl) tableStore).getStorageEngine()
-		.getNamespaceEngine(getNamespace());
+    protected final TableEngineImpl getTableEngine() {
+	NamespaceEngineImpl namespaceEngine = getTableStore().getStorageEngine().getNamespaceEngine(getNamespace());
 	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(getTableName());
 	return tableEngine;
     }
@@ -67,9 +63,5 @@ public abstract class AbstractPreparedDMLStatement extends AbstractPreparedState
 	}
 	return -1;
     }
-
-    @Override
-    public abstract TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValue)
-	    throws ExecutionException;
 
 }

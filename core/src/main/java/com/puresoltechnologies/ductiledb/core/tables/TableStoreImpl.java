@@ -13,6 +13,7 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguageI
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguageImpl;
+import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedStatement;
 import com.puresoltechnologies.ductiledb.core.tables.ductileql.SQLParser;
 import com.puresoltechnologies.ductiledb.core.tables.ductileql.StatementCreator;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;

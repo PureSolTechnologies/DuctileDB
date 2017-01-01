@@ -56,7 +56,7 @@ public class TableStoreSchemaIT extends AbstractTableStoreTest {
 	final String NAMESPACE = "testSchemaSurvivesRestart";
 	final String TABLE = "table1";
 	CreateNamespace createNamespace = ddl.createCreateNamespace(NAMESPACE);
-	createNamespace.execute(tableStore);
+	createNamespace.execute();
 	CreateTable createTable = ddl.createCreateTable(NAMESPACE, TABLE, "");
 	int id = 0;
 	for (ColumnType type : ColumnType.values()) {
@@ -64,7 +64,7 @@ public class TableStoreSchemaIT extends AbstractTableStoreTest {
 	    createTable.addColumn("cf", "col" + id, type);
 	}
 	createTable.setPrimaryKey("col2", "col3");
-	createTable.execute(tableStore);
+	createTable.execute();
 
 	stopDatabase();
 	startDatabase();

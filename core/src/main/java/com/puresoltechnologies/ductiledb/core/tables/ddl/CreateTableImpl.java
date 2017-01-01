@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
@@ -23,7 +22,7 @@ public class CreateTableImpl extends AbstractDDLStatement implements CreateTable
     private final TableDefinitionImpl tableDefinition;
 
     public CreateTableImpl(TableStoreImpl tableStore, String namespace, String name, String description) {
-	super();
+	super(tableStore);
 	this.namespace = namespace;
 	this.name = name;
 	tableDefinition = new TableDefinitionImpl(namespace, name, description);
@@ -40,7 +39,7 @@ public class CreateTableImpl extends AbstractDDLStatement implements CreateTable
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore) throws ExecutionException {
+    public TableRowIterable execute() throws ExecutionException {
 	if ("system".equals(namespace)) {
 	    throw new ExecutionException("Creating tables in 'system' namespace is not allowed.");
 	}
@@ -48,7 +47,8 @@ public class CreateTableImpl extends AbstractDDLStatement implements CreateTable
 	    throw new ExecutionException("No primary key was defined.");
 	}
 	try {
-	    DatabaseEngineImpl storageEngine = ((TableStoreImpl) tableStore).getStorageEngine();
+	    TableStoreImpl tableStore = getTableStore();
+	    DatabaseEngineImpl storageEngine = tableStore.getStorageEngine();
 	    SchemaManager schemaManager = storageEngine.getSchemaManager();
 	    NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
 	    TableDescriptor tableDescriptor = schemaManager.createTable(namespaceDescriptor, name,
@@ -61,7 +61,7 @@ public class CreateTableImpl extends AbstractDDLStatement implements CreateTable
 	    for (String columnFamily : columnFamilies) {
 		schemaManager.createColumnFamily(tableDescriptor, Key.of(columnFamily));
 	    }
-	    ((TableStoreImpl) tableStore).getSchema().addTableDefinition(namespace, tableDefinition);
+	    tableStore.getSchema().addTableDefinition(namespace, tableDefinition);
 	    return null;
 	} catch (StorageException | SchemaException e) {
 	    throw new ExecutionException("Could not create table '" + namespace + "." + name + "'.");

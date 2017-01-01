@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 
@@ -21,8 +22,8 @@ public abstract class AbstractPreparedWhereSelectionStatement extends AbstractPr
 
     private final Set<WhereClause<?>> whereClauses = new HashSet<>();
 
-    public AbstractPreparedWhereSelectionStatement(TableDefinition tableDefinition) {
-	super(tableDefinition);
+    public AbstractPreparedWhereSelectionStatement(TableStoreImpl tableStore, TableDefinition tableDefinition) {
+	super(tableStore, tableDefinition);
     }
 
     @Override

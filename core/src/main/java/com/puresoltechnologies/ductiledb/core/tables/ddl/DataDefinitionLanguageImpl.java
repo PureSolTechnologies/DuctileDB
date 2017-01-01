@@ -21,6 +21,11 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     }
 
     @Override
+    public CreateNamespace createCreateNamespaceIfNotExists(String namespace) {
+	return new CreateNamespaceIfNotExistsImpl(tableStore, namespace);
+    }
+
+    @Override
     public DropNamespace createDropNamespace(String namespace) {
 	return new DropNamespaceImpl(tableStore, namespace);
     }
@@ -43,6 +48,11 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     }
 
     @Override
+    public CreateTable createCreateTableIfNotExists(String namespace, String table, String remark) {
+	return new CreateTableIfNotExistsImpl(tableStore, namespace, table, remark);
+    }
+
+    @Override
     public DropTable createDropTable(String namespace, String table) {
 	return new DropTableImpl(tableStore, namespace, table);
     }
@@ -62,6 +72,11 @@ public class DataDefinitionLanguageImpl implements DataDefinitionLanguage {
     @Override
     public CreateIndex createCreateIndex(String namespace, String table, String columnFamily, String index) {
 	return new CreateIndexImpl(tableStore, namespace, table, columnFamily, index);
+    }
+
+    @Override
+    public CreateIndex createCreateIndexIfNotExists(String namespace, String table, String columnFamily, String index) {
+	return new CreateIndexIfNotExistsImpl(tableStore, namespace, table, columnFamily, index);
     }
 
     @Override

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
@@ -20,8 +20,8 @@ public class PreparedUpdateImpl extends AbstractPreparedWhereSelectionStatement 
     private final String table;
     private final Map<String, Map<String, InsertValue>> values = new HashMap<>();
 
-    public PreparedUpdateImpl(TableDefinition tableDefinition) {
-	super(tableDefinition);
+    public PreparedUpdateImpl(TableStoreImpl tableStore, TableDefinition tableDefinition) {
+	super(tableStore, tableDefinition);
 	this.namespace = tableDefinition.getNamespace();
 	this.table = tableDefinition.getName();
     }
@@ -37,15 +37,15 @@ public class PreparedUpdateImpl extends AbstractPreparedWhereSelectionStatement 
     }
 
     @Override
-    public TableRowIterable execute(TableStore tableStore, Map<Integer, Comparable<?>> placeholderValues)
-	    throws ExecutionException {
+    public TableRowIterable execute(Map<Integer, Comparable<?>> placeholderValues) throws ExecutionException {
+	TableStoreImpl tableStore = getTableStore();
 	DataDefinitionLanguage ddl = tableStore.getDataDefinitionLanguage();
 	TableDefinition tableDefinition = ddl.getTable(getNamespace(), getTableName());
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 	PreparedSelect select = dml.prepareSelect(getNamespace(), getTableName());
 	select.addWhereSelections(getSelections(placeholderValues));
-	TableRowIterable rows = select.bind().execute(tableStore);
-	TableEngineImpl tableEngine = getTableEngine(tableStore);
+	TableRowIterable rows = select.bind().execute();
+	TableEngineImpl tableEngine = getTableEngine();
 	for (TableRow row : rows) {
 	    Put put = new Put(row.getRowKey());
 	    for (Entry<String, Map<String, InsertValue>> columnFamilyValue : values.entrySet()) {

@@ -226,6 +226,6 @@ public class DuctileDBHealthCheck {
 	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
 	PreparedSelect select = dml.prepareSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
 		com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable.TABLES.getName());
-	select.bind().execute(tableStore);
+	select.bind().execute();
     }
 }

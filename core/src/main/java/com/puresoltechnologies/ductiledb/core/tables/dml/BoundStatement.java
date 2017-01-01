@@ -1,6 +1,6 @@
-package com.puresoltechnologies.ductiledb.core.tables;
+package com.puresoltechnologies.ductiledb.core.tables.dml;
 
-import com.puresoltechnologies.ductiledb.core.tables.dml.DataSettersByIndex;
+import com.puresoltechnologies.ductiledb.core.tables.Statement;
 
 /**
  * This interface represents a statement which was bound already from a
