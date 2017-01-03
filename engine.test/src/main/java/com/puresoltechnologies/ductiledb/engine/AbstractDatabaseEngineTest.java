@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.yaml.snakeyaml.Yaml;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
 import com.puresoltechnologies.ductiledb.logstore.io.CurrentCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
@@ -26,7 +27,7 @@ public abstract class AbstractDatabaseEngineTest {
 
     private static final String DATABASE_ENGINE_NAME = "DatabaseEngineTest";
 
-    private static DatabaseEngineConfiguration configuration;
+    private static BigTableEngineConfiguration configuration;
 
     private static Storage storage = null;
     private static DatabaseEngineImpl storageEngine = null;
@@ -35,7 +36,7 @@ public abstract class AbstractDatabaseEngineTest {
     public static void readConfiguration() throws IOException, StorageFactoryServiceException, StorageException {
 	Yaml yaml = new Yaml();
 	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
-	    configuration = yaml.loadAs(inputStream, DatabaseEngineConfiguration.class);
+	    configuration = yaml.loadAs(inputStream, BigTableEngineConfiguration.class);
 	    assertNotNull(configuration);
 	}
 	storage = StorageFactory.getStorageInstance(configuration.getStorage());
@@ -75,11 +76,11 @@ public abstract class AbstractDatabaseEngineTest {
 	storageEngine = null;
     }
 
-    public static DatabaseEngineConfiguration getConfiguration() {
+    public static BigTableEngineConfiguration getConfiguration() {
 	return configuration;
     }
 
-    public static void setConfiguration(DatabaseEngineConfiguration configuration) {
+    public static void setConfiguration(BigTableEngineConfiguration configuration) {
 	AbstractDatabaseEngineTest.configuration = configuration;
     }
 

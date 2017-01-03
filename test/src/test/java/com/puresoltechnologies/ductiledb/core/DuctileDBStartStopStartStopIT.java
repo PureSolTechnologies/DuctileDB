@@ -38,7 +38,7 @@ public class DuctileDBStartStopStartStopIT {
     public static void initializeDuctileDB() throws SchemaException, IOException {
 	configuration = AbstractDuctileDBTest.readTestConfigration();
 	assertNotNull("No configuration loaded.", configuration);
-	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
+	storage = StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage());
 	cleanTestStorageDirectory();
     }
 

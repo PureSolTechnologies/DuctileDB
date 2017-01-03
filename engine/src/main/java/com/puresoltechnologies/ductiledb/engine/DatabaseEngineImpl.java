@@ -9,12 +9,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManagerImpl;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -32,12 +35,12 @@ public class DatabaseEngineImpl implements DatabaseEngine {
     private boolean closed = false;
     private final Storage storage;
     private final String storageName;
-    private final DatabaseEngineConfiguration configuration;
+    private final BigTableEngineConfiguration configuration;
     private final File storageDirectory;
     private final SchemaManager schemaManager;
     private final Map<String, NamespaceEngineImpl> namespaceEngines = new HashMap<>();
 
-    public DatabaseEngineImpl(Storage storage, String storageName, DatabaseEngineConfiguration configuration) {
+    public DatabaseEngineImpl(Storage storage, String storageName, BigTableEngineConfiguration configuration) {
 	this.storage = storage;
 	this.storageName = storageName;
 	this.configuration = configuration;

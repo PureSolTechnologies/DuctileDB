@@ -5,11 +5,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.engine.CompoundKey;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class TableRowCreator {

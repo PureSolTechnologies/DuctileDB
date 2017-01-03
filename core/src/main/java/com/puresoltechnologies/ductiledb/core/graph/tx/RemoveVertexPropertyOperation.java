@@ -2,11 +2,11 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.bigtable.Delete;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
-import com.puresoltechnologies.ductiledb.engine.Delete;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class RemoveVertexPropertyOperation extends AbstractTxOperation {

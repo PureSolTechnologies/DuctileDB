@@ -7,6 +7,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
+import com.puresoltechnologies.ductiledb.bigtable.Scan;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreConfiguration;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.NamespaceDefinition;
@@ -16,18 +26,8 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinitionImpl;
 import com.puresoltechnologies.ductiledb.engine.CompoundKey;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.ResultScanner;
-import com.puresoltechnologies.ductiledb.engine.Scan;
-import com.puresoltechnologies.ductiledb.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -57,11 +57,11 @@ public class TableStoreSchema {
 
     public void checkAndCreateEnvironment() throws StorageException, SchemaException {
 	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	NamespaceDescriptor namespace = assureSystemNamespacePresence(schemaManager);
-	assureNamespacesTablePresence(schemaManager, namespace);
-	assureTablesTablePresence(schemaManager, namespace);
-	assureColumnsTablePresence(schemaManager, namespace);
-	assureIndexesTablePresence(schemaManager, namespace);
+	NamespaceDescriptor namespaceDescriptor = assureSystemNamespacePresence(schemaManager);
+	assureNamespacesTablePresence(schemaManager, namespaceDescriptor);
+	assureTablesTablePresence(schemaManager, namespaceDescriptor);
+	assureColumnsTablePresence(schemaManager, namespaceDescriptor);
+	assureIndexesTablePresence(schemaManager, namespaceDescriptor);
     }
 
     private NamespaceDescriptor assureSystemNamespacePresence(SchemaManager schemaManager)
@@ -73,15 +73,15 @@ public class TableStoreSchema {
 	return namespaceDescriptor;
     }
 
-    private void assureNamespacesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
+    private void assureNamespacesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespaceDescriptor)
 	    throws StorageException, SchemaException {
-	TableDescriptor tableDescriptor = schemaManager.getTable(namespace, DatabaseTable.NAMESPACES.getName());
+	TableDescriptor tableDescriptor = schemaManager.getTable(namespaceDescriptor,
+		DatabaseTable.NAMESPACES.getName());
 	if (tableDescriptor == null) {
-	    tableDescriptor = schemaManager.createTable(namespace, DatabaseTable.NAMESPACES.getName(),
+	    tableDescriptor = schemaManager.createTable(namespaceDescriptor, DatabaseTable.NAMESPACES.getName(),
 		    "Contains all namespaces.");
 	    schemaManager.createColumnFamily(tableDescriptor, DatabaseColumnFamily.METADATA.getKey());
-	    TableEngine table = storageEngine.getTable(namespace.getName(), tableDescriptor.getName());
-
+	    TableEngine table = storageEngine.getTable(namespaceDescriptor.getName(), tableDescriptor.getName());
 	    defineSystemNamespace(table);
 	}
     }

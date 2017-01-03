@@ -14,7 +14,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>logstore</artifactId>
+			<artifactId>bigtable</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.commons</groupId>

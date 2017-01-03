@@ -37,7 +37,7 @@ public class AbstractDuctileDBTest {
     @BeforeClass
     public static void initializeDuctileDB() throws SchemaException, IOException {
 	configuration = readTestConfigration();
-	storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage());
+	storage = StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage());
 	cleanTestStorageDirectory(storage);
 	if (configuration == null) {
 	    configuration = readTestConfigration();

@@ -5,17 +5,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.index.IndexType;
+import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.dml.TableRowIterable;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.IndexType;
-import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 

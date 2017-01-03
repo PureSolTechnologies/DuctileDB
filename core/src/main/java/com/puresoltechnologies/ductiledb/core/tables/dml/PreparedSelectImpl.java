@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
+import com.puresoltechnologies.ductiledb.bigtable.Scan;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.engine.ResultScanner;
-import com.puresoltechnologies.ductiledb.engine.Scan;
-import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
 
 public class PreparedSelectImpl extends AbstractPreparedWhereSelectionStatement implements PreparedSelect {
 

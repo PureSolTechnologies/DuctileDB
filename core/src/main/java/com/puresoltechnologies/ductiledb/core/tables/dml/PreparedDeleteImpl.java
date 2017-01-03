@@ -2,11 +2,11 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.bigtable.Delete;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.engine.Delete;
-import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
 
 public class PreparedDeleteImpl extends AbstractPreparedWhereSelectionStatement implements PreparedDelete {
 

@@ -7,12 +7,16 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.Get;
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 

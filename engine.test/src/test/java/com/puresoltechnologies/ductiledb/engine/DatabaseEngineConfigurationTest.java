@@ -8,7 +8,7 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngineConfiguration;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
 
 public class DatabaseEngineConfigurationTest {
 
@@ -16,7 +16,7 @@ public class DatabaseEngineConfigurationTest {
     public void test() throws IOException {
 	Yaml yaml = new Yaml();
 	try (InputStream inputStream = getClass().getResourceAsStream("/database-engine.yml")) {
-	    DatabaseEngineConfiguration configuration = yaml.loadAs(inputStream, DatabaseEngineConfiguration.class);
+	    BigTableEngineConfiguration configuration = yaml.loadAs(inputStream, BigTableEngineConfiguration.class);
 	    assertNotNull(configuration);
 	}
     }

@@ -7,10 +7,10 @@ import java.io.IOException;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;

@@ -15,10 +15,13 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.EngineChecks;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.index.secondary.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -191,6 +194,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
+	    databaseEngine.addNamespace(new NamespaceDescriptor(storage, namespaceDirectory));
 	    try (BufferedOutputStream metadataFile = storage
 		    .create(new File(namespaceDirectory, "metadata.properties"))) {
 		Properties properties = new Properties();
@@ -262,6 +266,7 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File tableDirectory = new File(namespaceDescriptor.getDirectory(), tableName);
 	    storage.createDirectory(tableDirectory);
+	    databaseEngine.addTable(new TableDescriptor(namespaceDescriptor, tableName, description));
 	    try (BufferedOutputStream metadataFile = storage.create(new File(tableDirectory, "metadata.properties"))) {
 		Properties properties = new Properties();
 		properties.put("table.creation.time", new Date().toString());
@@ -345,6 +350,8 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    storage.createDirectory(columnFamilyDirectory);
 	    storage.createDirectory(columnFamilyDescriptor.getIndexDirectory());
+	    databaseEngine.addColumnFamily(
+		    new ColumnFamilyDescriptor(columnFamilyName, tableDescriptor, columnFamilyDirectory));
 	    try (BufferedOutputStream metadataFile = storage
 		    .create(new File(columnFamilyDirectory, "metadata.properties"))) {
 		Properties properties = new Properties();

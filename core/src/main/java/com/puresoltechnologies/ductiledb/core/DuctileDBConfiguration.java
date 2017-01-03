@@ -1,9 +1,9 @@
 package com.puresoltechnologies.ductiledb.core;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreConfiguration;
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngineConfiguration;
 
 /**
  * This object keeps all settings of DuctileDB and its subcomponents.
@@ -12,17 +12,17 @@ import com.puresoltechnologies.ductiledb.engine.DatabaseEngineConfiguration;
  */
 public class DuctileDBConfiguration {
 
-    private DatabaseEngineConfiguration databaseEngine;
+    private BigTableEngineConfiguration bigTableEngine;
     private BlobStoreConfiguration blobStore;
     private DuctileDBGraphConfiguration graph;
     private TableStoreConfiguration tableStore;
 
-    public DatabaseEngineConfiguration getDatabaseEngine() {
-	return databaseEngine;
+    public BigTableEngineConfiguration getBigTableEngine() {
+	return bigTableEngine;
     }
 
-    public void setDatabaseEngine(DatabaseEngineConfiguration databaseEngine) {
-	this.databaseEngine = databaseEngine;
+    public void setBigTableEngine(BigTableEngineConfiguration bigTableEngine) {
+	this.bigTableEngine = bigTableEngine;
     }
 
     public BlobStoreConfiguration getBlobStore() {

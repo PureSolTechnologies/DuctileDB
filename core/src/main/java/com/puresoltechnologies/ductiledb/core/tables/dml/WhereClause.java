@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.core.tables.dml;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.puresoltechnologies.ductiledb.bigtable.Result;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.engine.Result;
 
 public class WhereClause<T extends Comparable<T>> {
 

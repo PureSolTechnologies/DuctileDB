@@ -8,6 +8,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;

@@ -21,13 +21,13 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CountingInputStream;
 import com.puresoltechnologies.commons.misc.hash.HashId;
 import com.puresoltechnologies.commons.misc.hash.HashIdCreatorInputStream;
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class AddBlobVertexOperation extends AbstractTxOperation {

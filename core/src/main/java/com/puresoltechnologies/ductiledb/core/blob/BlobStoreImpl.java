@@ -26,16 +26,15 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  */
 public class BlobStoreImpl implements BlobStore {
 
+    private static final Logger logger = LoggerFactory.getLogger(BlobStoreImpl.class);
+    private final Storage storage;
     /**
      * Root directory for DuctileDB's BLOB store.
      */
-    private static final File filePath = new File(NAMESPACE);
+    private final File filePath;
 
-    private static final Logger logger = LoggerFactory.getLogger(BlobStoreImpl.class);
-    private final Storage storage;
-
-    public BlobStoreImpl(DuctileDBConfiguration configuration) throws StorageFactoryServiceException {
-	this(StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage()));
+    public BlobStoreImpl(DuctileDBConfiguration configuration, String directory) throws StorageFactoryServiceException {
+	this(StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage()), directory);
     }
 
     /**
@@ -44,9 +43,10 @@ public class BlobStoreImpl implements BlobStore {
      * @param fileSystem
      *            is the {@link FileSystem} of Hadoop to store objects to.
      */
-    public BlobStoreImpl(Storage storage) {
+    public BlobStoreImpl(Storage storage, String directory) {
 	super();
 	this.storage = storage;
+	this.filePath = new File(directory, NAMESPACE);
 	initialize();
     }
 

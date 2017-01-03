@@ -11,6 +11,13 @@ import java.util.NavigableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.bigtable.Get;
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
+import com.puresoltechnologies.ductiledb.bigtable.Scan;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
@@ -23,13 +30,6 @@ import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguag
 import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedSelect;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.Get;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.ResultScanner;
-import com.puresoltechnologies.ductiledb.engine.Scan;
-import com.puresoltechnologies.ductiledb.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 

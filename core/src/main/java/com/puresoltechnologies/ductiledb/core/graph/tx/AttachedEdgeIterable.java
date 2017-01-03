@@ -2,12 +2,12 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 
 import java.util.Iterator;
 
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.ResultScanner;
 
 public class AttachedEdgeIterable implements Iterable<DuctileDBEdge> {
 

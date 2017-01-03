@@ -31,8 +31,6 @@ public class GraphStoreImpl implements GraphStore {
 
     private static Logger logger = LoggerFactory.getLogger(GraphStoreImpl.class);
 
-    public static String STORAGE_DIRECTORY = "graphs";
-
     private static final ThreadLocal<DuctileDBTransaction> transactions = ThreadLocal.withInitial(() -> null);
 
     private final List<Consumer<Status>> transactionListeners = new ArrayList<>();

@@ -10,13 +10,20 @@ import java.util.NavigableMap;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.schema.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.Delete;
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
+import com.puresoltechnologies.ductiledb.bigtable.Scan;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 

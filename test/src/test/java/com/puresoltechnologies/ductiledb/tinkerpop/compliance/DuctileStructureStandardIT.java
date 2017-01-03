@@ -25,7 +25,7 @@ public class DuctileStructureStandardIT {
     public static void clear() throws IOException, StorageFactoryServiceException {
 	AbstractDuctileDBTest.readTestConfigration();
 	DuctileDBConfiguration configuration = AbstractDuctileDBTest.readTestConfigration();
-	try (Storage storage = StorageFactory.getStorageInstance(configuration.getDatabaseEngine().getStorage())) {
+	try (Storage storage = StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage())) {
 	    AbstractDuctileDBTest.cleanTestStorageDirectory(storage);
 	}
     }

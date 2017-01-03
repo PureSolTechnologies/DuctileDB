@@ -3,6 +3,12 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.NavigableMap;
 
+import com.puresoltechnologies.ductiledb.bigtable.Delete;
+import com.puresoltechnologies.ductiledb.bigtable.Get;
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.Result;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
@@ -12,12 +18,6 @@ import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
-import com.puresoltechnologies.ductiledb.engine.Delete;
-import com.puresoltechnologies.ductiledb.engine.Get;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.Result;
-import com.puresoltechnologies.ductiledb.engine.TableEngine;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 

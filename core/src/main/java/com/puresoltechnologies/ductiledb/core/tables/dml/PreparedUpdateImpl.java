@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class PreparedUpdateImpl extends AbstractPreparedWhereSelectionStatement implements PreparedUpdate {

@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.engine;
 
 import java.io.Closeable;
 
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 
 /**
  * This is the interface for namespace engines.

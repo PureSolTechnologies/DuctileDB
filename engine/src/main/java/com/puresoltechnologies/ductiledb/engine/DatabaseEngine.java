@@ -2,8 +2,9 @@ package com.puresoltechnologies.ductiledb.engine;
 
 import java.io.Closeable;
 
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
 
 /**
  * This class is the database engine class. It supports a schema, and multiple

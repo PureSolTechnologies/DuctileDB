@@ -7,8 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.engine.schema.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
+import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class NamespaceEngineImpl implements NamespaceEngine {
@@ -17,11 +19,11 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 
     private final Storage storage;
     private final NamespaceDescriptor namespaceDescriptor;
-    private final DatabaseEngineConfiguration configuration;
+    private final BigTableEngineConfiguration configuration;
     private final Map<String, TableEngineImpl> tableEngines = new HashMap<>();
 
     public NamespaceEngineImpl(Storage storage, NamespaceDescriptor namespaceDescriptor,
-	    DatabaseEngineConfiguration configuration) {
+	    BigTableEngineConfiguration configuration) {
 	this.storage = storage;
 	this.namespaceDescriptor = namespaceDescriptor;
 	this.configuration = configuration;

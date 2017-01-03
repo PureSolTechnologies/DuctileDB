@@ -7,4 +7,4 @@ databaseEngine:
 #    properties: {storage.os.directory: "c:/users/rludwig/storage_test"}
 blobStore:
 graph:
-  namespace: "ductiledb"
+  namespace: "graph"

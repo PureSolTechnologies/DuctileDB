@@ -13,12 +13,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.bigtable.Put;
+import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
-import com.puresoltechnologies.ductiledb.engine.Put;
-import com.puresoltechnologies.ductiledb.engine.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class AddVertexOperation extends AbstractTxOperation {

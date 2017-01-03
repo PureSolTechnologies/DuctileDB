@@ -390,6 +390,11 @@
 			<!-- SELF -->
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>bigtable</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -784,6 +789,8 @@
 		<module>storage</module>
 		<module>logstore</module>
 		<module>logstore.test</module>
+		<module>bigtable</module>
+		<module>bigtable.test</module>
 		<module>tx.api</module>
 		<module>tx.core</module>
 		<module>engine</module>
