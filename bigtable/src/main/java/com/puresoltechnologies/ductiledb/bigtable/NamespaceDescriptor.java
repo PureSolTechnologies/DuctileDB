@@ -27,6 +27,9 @@ public class NamespaceDescriptor {
 	this.storage = storage;
 	this.directory = directory;
 	this.name = directory.getName();
+	if (!directory.isAbsolute()) {
+	    throw new IllegalArgumentException("An absolute path to directory is needed.");
+	}
     }
 
     public final String getName() {

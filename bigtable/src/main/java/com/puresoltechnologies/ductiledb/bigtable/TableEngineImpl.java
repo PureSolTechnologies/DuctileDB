@@ -1,5 +1,9 @@
 package com.puresoltechnologies.ductiledb.bigtable;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -11,6 +15,7 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngine;
@@ -18,6 +23,7 @@ import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -36,7 +42,8 @@ public class TableEngineImpl implements TableEngine {
     private final BigTableEngineConfiguration configuration;
     private final TreeMap<Key, ColumnFamilyEngineImpl> columnFamilyEngines = new TreeMap<>();
 
-    public TableEngineImpl(Storage storage, TableDescriptor tableDescriptor, BigTableEngineConfiguration configuration) {
+    TableEngineImpl(Storage storage, TableDescriptor tableDescriptor, BigTableEngineConfiguration configuration)
+	    throws IOException {
 	super();
 	this.storage = storage;
 	this.tableDescriptor = tableDescriptor;
@@ -44,21 +51,52 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Starting table engine '" + tableDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	initializeColumnFamilyEngines();
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	try (BufferedOutputStream parameterFile = storage
+		.create(new File(tableDescriptor.getDirectory(), "configuration.json"))) {
+	    objectMapper.writeValue(parameterFile, configuration);
+	}
+	try (BufferedOutputStream parameterFile = storage
+		.create(new File(tableDescriptor.getDirectory(), "descriptor.json"))) {
+	    objectMapper.writeValue(parameterFile, tableDescriptor);
+	}
 	stopWatch.stop();
 	logger.info("Table engine '" + tableDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    private void initializeColumnFamilyEngines() {
-	for (ColumnFamilyDescriptor columnFamilyDescriptor : tableDescriptor.getColumnFamilies()) {
-	    addColumnFamily(columnFamilyDescriptor);
+    TableEngineImpl(Storage storage, File directory) throws IOException {
+	super();
+	this.storage = storage;
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	try (BufferedInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
+	    this.tableDescriptor = objectMapper.readValue(parameterFile, TableDescriptor.class);
+	}
+	logger.info("Starting table engine '" + tableDescriptor.getName() + "'...");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
+	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
+	    this.configuration = objectMapper.readValue(parameterFile, BigTableEngineConfiguration.class);
+	}
+	openColumnFamilies();
+	stopWatch.stop();
+	logger.info("Table engine '" + tableDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
+    }
+
+    private void openColumnFamilies() throws IOException {
+	Iterable<File> directories = storage.list(tableDescriptor.getDirectory());
+	for (File directory : directories) {
+	    if (storage.isDirectory(directory)) {
+		ColumnFamilyEngineImpl engine = (ColumnFamilyEngineImpl) ColumnFamilyEngine.reopen(storage, directory);
+		columnFamilyEngines.put(engine.getName(), engine);
+	    }
 	}
     }
 
     @Override
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	columnFamilyEngines.put(columnFamilyDescriptor.getName(),
-		new ColumnFamilyEngineImpl(storage, columnFamilyDescriptor, configuration));
+    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
+	ColumnFamilyEngineImpl engine = (ColumnFamilyEngineImpl) ColumnFamilyEngine.create(storage,
+		columnFamilyDescriptor, configuration.getLogStoreConfiguration());
+	columnFamilyEngines.put(columnFamilyDescriptor.getName(), engine);
     }
 
     @Override

@@ -13,14 +13,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.cf.index.IndexType;
 import com.puresoltechnologies.ductiledb.bigtable.cf.index.IndexedColumnFamilyScannerImpl;
 import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexEngine;
 import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexEngineImpl;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.LogStoreConfiguration;
+import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreImpl;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
@@ -44,14 +44,19 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private final Map<String, SecondaryIndexEngineImpl> indizes = new HashMap<>();
     private final Map<String, SecondaryIndexDescriptor> indexDescriptors = new HashMap<>();
 
-    public ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
-	    BigTableEngineConfiguration configuration) {
-	this.store = new LogStructuredStoreImpl(storage, //
+    ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
+	    LogStoreConfiguration configuration) throws IOException {
+	this.store = (LogStructuredStoreImpl) LogStructuredStore.create(storage, //
 		columnFamilyDescriptor.getDirectory(), //
-		configuration.getMaxCommitLogSize(), //
-		configuration.getMaxDataFileSize(), //
-		configuration.getBufferSize(), //
-		configuration.getMaxFileGenerations());
+		configuration);
+	this.columnFamilyDescriptor = columnFamilyDescriptor;
+	this.indexDirectory = new File(store.getDirectory(), "indizes");
+	open();
+    }
+
+    ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
+	this.store = (LogStructuredStoreImpl) LogStructuredStore.reopen(storage, //
+		columnFamilyDescriptor.getDirectory());
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.indexDirectory = new File(store.getDirectory(), "indizes");
 	open();
@@ -71,7 +76,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	return indexDirectory;
     }
 
-    public void readIndizes() {
+    public void readIndizes() throws IOException {
 	Storage storage = store.getStorage();
 	try {
 	    storage.createDirectory(indexDirectory);
@@ -86,11 +91,10 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	}
     }
 
-    private void readIndex(Storage storage, File directory) {
+    private void readIndex(Storage storage, File directory) throws IOException {
 	SecondaryIndexDescriptor secondaryIndexDescriptor = readSecondaryIndexDescriptor(directory);
 	SecondaryIndexEngineImpl indexStore = new SecondaryIndexEngineImpl(storage, secondaryIndexDescriptor,
-		store.getMaxCommitLogSize(), store.getMaxDataFileSize(), store.getBufferSize(),
-		store.getMaxFileGenerations());
+		store.getConfiguration());
 	indexStore.open();
 	indizes.put(secondaryIndexDescriptor.getName(), indexStore);
 	indexDescriptors.put(secondaryIndexDescriptor.getName(), secondaryIndexDescriptor);
@@ -118,7 +122,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public void open() {
+    public void open() throws IOException {
 	store.open();
 	readIndizes();
     }
@@ -130,9 +134,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 
     @Override
     public String toString() {
-	TableDescriptor table = columnFamilyDescriptor.getTable();
-	return "CFEngine:" + table.getNamespace().getName() + "." + table.getName() + "/"
-		+ columnFamilyDescriptor.getName();
+	return "CFEngine:" + columnFamilyDescriptor.getName();
     }
 
     @Override
@@ -351,7 +353,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     }
 
     @Override
-    public void createIndex(SecondaryIndexDescriptor indexDescriptor) {
+    public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws IOException {
 	logger.info("Creating new index '" + indexDescriptor + "' for '" + toString() + "'...");
 	Storage storage = store.getStorage();
 	File indexDirectory = new File(getIndexDirectory(), indexDescriptor.getName());
@@ -377,8 +379,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	    throw new StorageException("Could not create index with name '" + indexDescriptor.getName() + "'.", e);
 	}
 	SecondaryIndexEngineImpl indexStore = new SecondaryIndexEngineImpl(storage, indexDescriptor,
-		store.getMaxCommitLogSize(), store.getMaxDataFileSize(), store.getBufferSize(),
-		store.getMaxFileGenerations());
+		store.getConfiguration());
 	indexStore.open();
 	indizes.put(indexDescriptor.getName(), indexStore);
 	indexDescriptors.put(indexDescriptor.getName(), indexDescriptor);

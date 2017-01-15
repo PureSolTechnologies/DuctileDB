@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.core.tables.ddl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +63,7 @@ public class CreateIndexImpl extends AbstractDDLStatement implements CreateIndex
 
 	    tableStore.getSchema().addIndexDefinition(namespace, indexDescriptor);
 	    return null;
-	} catch (StorageException | SchemaException e) {
+	} catch (StorageException | SchemaException | IOException e) {
 	    throw new ExecutionException("Could not create index '" + name + " in namespace " + namespace + "'.");
 	}
     }

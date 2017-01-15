@@ -2,6 +2,8 @@ package com.puresoltechnologies.ductiledb.logstore;
 
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
@@ -33,28 +35,29 @@ public class Key implements Comparable<Key> {
 	return new Key(Bytes.toBytes(s));
     }
 
-    public static Key of(byte[] bytes) {
+    @JsonCreator
+    public static Key of(@JsonProperty("bytes") byte[] bytes) {
 	return new Key(bytes);
     }
 
     private final int hashCode;
-    private final byte[] key;
+    private final byte[] bytes;
 
-    protected Key(byte[] key) {
+    protected Key(byte[] bytes) {
 	super();
-	if ((key == null) || (key.length == 0)) {
+	if ((bytes == null) || (bytes.length == 0)) {
 	    throw new IllegalArgumentException("Row keys must not be null or empty.");
 	}
-	this.key = key;
+	this.bytes = bytes;
 	int result = 1;
-	for (byte element : key) {
+	for (byte element : bytes) {
 	    result = 31 * result + element;
 	}
 	hashCode = result;
     }
 
     public byte[] getBytes() {
-	return key;
+	return bytes;
     }
 
     @Override
@@ -73,42 +76,42 @@ public class Key implements Comparable<Key> {
 	Key other = (Key) obj;
 	if (hashCode != other.hashCode)
 	    return false;
-	if (!Arrays.equals(key, other.key))
+	if (!Arrays.equals(bytes, other.bytes))
 	    return false;
 	return true;
     }
 
     @Override
     public int compareTo(Key o) {
-	return comparator.compare(key, o.key);
+	return comparator.compare(bytes, o.bytes);
     }
 
     @Override
     public String toString() {
-	return Bytes.toHumanReadableString(key);
+	return Bytes.toHumanReadableString(bytes);
     }
 
     public String toHexString() {
-	return Bytes.toHexString(key);
+	return Bytes.toHexString(bytes);
     }
 
     public String toHumanReadableString() {
-	return Bytes.toHumanReadableString(key);
+	return Bytes.toHumanReadableString(bytes);
     }
 
     public byte toByte() {
-	return Bytes.toByte(key);
+	return Bytes.toByte(bytes);
     }
 
     public short toShort() {
-	return Bytes.toShort(key);
+	return Bytes.toShort(bytes);
     }
 
     public int toInt() {
-	return Bytes.toInt(key);
+	return Bytes.toInt(bytes);
     }
 
     public long toLong() {
-	return Bytes.toLong(key);
+	return Bytes.toLong(bytes);
     }
 }

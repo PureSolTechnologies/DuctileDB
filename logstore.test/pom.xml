@@ -19,6 +19,7 @@
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
 			<artifactId>storage.os</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

@@ -17,9 +17,22 @@
 			<artifactId>bigtable</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>logstore.test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.puresoltechnologies.ductiledb</groupId>
+			<artifactId>storage.os</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
 		</dependency>
 	</dependencies>
 </project>

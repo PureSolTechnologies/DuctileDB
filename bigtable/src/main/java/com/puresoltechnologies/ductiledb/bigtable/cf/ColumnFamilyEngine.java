@@ -1,10 +1,18 @@
 package com.puresoltechnologies.ductiledb.bigtable.cf;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.LogStoreConfiguration;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This class handles the storage of a single column family.
@@ -14,7 +22,28 @@ import com.puresoltechnologies.ductiledb.logstore.Key;
  */
 public interface ColumnFamilyEngine extends Closeable {
 
-    public void open();
+    public static ColumnFamilyEngine reopen(Storage storage, File directory) throws IOException {
+	try (BufferedInputStream descriptorFile = storage.open(new File(directory, "descriptor.json"))) {
+	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	    ColumnFamilyDescriptor descriptor = objectMapper.readValue(descriptorFile, ColumnFamilyDescriptor.class);
+	    return new ColumnFamilyEngineImpl(storage, descriptor);
+	}
+    }
+
+    public static ColumnFamilyEngine create(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
+	    LogStoreConfiguration configuration) throws IOException {
+	if (!storage.exists(columnFamilyDescriptor.getDirectory())) {
+	    storage.createDirectory(columnFamilyDescriptor.getDirectory());
+	}
+	try (BufferedOutputStream parameterFile = storage
+		.create(new File(columnFamilyDescriptor.getDirectory(), "descriptor.json"))) {
+	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	    objectMapper.writeValue(parameterFile, columnFamilyDescriptor);
+	}
+	return new ColumnFamilyEngineImpl(storage, columnFamilyDescriptor, configuration);
+    }
+
+    public void open() throws IOException;
 
     public Key getName();
 
@@ -102,7 +131,7 @@ public interface ColumnFamilyEngine extends Closeable {
      */
     public long incrementColumnValue(Key rowKey, Key column, long startValue, long incrementValue);
 
-    public void createIndex(SecondaryIndexDescriptor indexDescriptor);
+    public void createIndex(SecondaryIndexDescriptor indexDescriptor) throws IOException;
 
     public void dropIndex(String name);
 

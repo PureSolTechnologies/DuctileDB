@@ -1,7 +1,14 @@
 package com.puresoltechnologies.ductiledb.logstore;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This is the central interface for a simple Log Structured Storage engine. It
@@ -12,7 +19,7 @@ import java.time.Instant;
  * @author Rick-Rainer Ludwig
  *
  */
-public interface LogStructuredStore extends AutoCloseable {
+public interface LogStructuredStore extends StorageOperations, AutoCloseable {
 
     public static final String DB_FILE_PREFIX = "DB";
     public static final String DATA_FILE_SUFFIX = ".data";
@@ -22,6 +29,28 @@ public interface LogStructuredStore extends AutoCloseable {
     public static final String MD5_FILE_SUFFIX = ".md5";
     public static final String METADATA_SUFFIX = ".metadata";
     public static final String COMMIT_LOG_PREFIX = "CommitLog";
+
+    public static LogStructuredStore create(Storage storage, File directory, LogStoreConfiguration configuration)
+	    throws IOException {
+	storage.createDirectory(directory);
+	try (BufferedOutputStream parameterFile = storage.create(new File(directory, "configuration.json"))) {
+	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	    objectMapper.writeValue(parameterFile, configuration);
+	}
+	LogStructuredStoreImpl store = new LogStructuredStoreImpl(storage, directory, configuration);
+	store.open();
+	return store;
+    }
+
+    public static LogStructuredStore reopen(Storage storage, File directory) throws IOException {
+	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
+	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	    LogStoreConfiguration configuration = objectMapper.readValue(parameterFile, LogStoreConfiguration.class);
+	    LogStructuredStoreImpl store = new LogStructuredStoreImpl(storage, directory, configuration);
+	    store.open();
+	    return store;
+	}
+    }
 
     public static String createFilename(String filePrefix, Instant timestamp, int number, String suffix) {
 	StringBuilder buffer = new StringBuilder(filePrefix);
@@ -72,39 +101,10 @@ public interface LogStructuredStore extends AutoCloseable {
 		LogStructuredStore.COMPACTED_FILE_SUFFIX));
     }
 
+    @Override
     public void open();
 
     @Override
     public void close();
-
-    /**
-     * This method is used to put additional columns to the given row.
-     * 
-     * @param rowKey
-     * @param columnValues
-     */
-    public void put(Key rowKey, byte[] columnValues);
-
-    /**
-     * This metho retrieves the columns from the given row.
-     * 
-     * @param rowKey
-     * @return
-     */
-    public byte[] get(Key rowKey);
-
-    /**
-     * This method returns a scanner for the column family.
-     * 
-     * @return
-     */
-    public RowScanner getScanner(Key startRowKey, Key endRowKey);
-
-    /**
-     * This method removes the given row.
-     * 
-     * @param rowKey
-     */
-    public void delete(Key rowKey);
 
 }

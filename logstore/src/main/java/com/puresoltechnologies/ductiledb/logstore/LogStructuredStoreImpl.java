@@ -58,25 +58,16 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private final Storage storage;
     private final File directory;
-    private long maxCommitLogSize;
-    private long maxDataFileSize;
-    private final int bufferSize;
-    private final int maxFileGenerations;
+    private final LogStoreConfiguration configuration;
 
-    public LogStructuredStoreImpl(//
+    LogStructuredStoreImpl(//
 	    Storage storage, //
 	    File directory, //
-	    long maxCommitLogSize, //
-	    long maxDataFileSize, //
-	    int bufferSize, //
-	    int maxFileGenerations) {
+	    LogStoreConfiguration configuration) {
 	super();
 	this.storage = storage;
 	this.directory = directory;
-	this.maxCommitLogSize = maxCommitLogSize;
-	this.maxDataFileSize = maxDataFileSize;
-	this.bufferSize = bufferSize;
-	this.maxFileGenerations = maxFileGenerations;
+	this.configuration = configuration;
     }
 
     public final Storage getStorage() {
@@ -87,28 +78,32 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	return directory;
     }
 
+    public LogStoreConfiguration getConfiguration() {
+	return configuration;
+    }
+
     public final long getMaxCommitLogSize() {
-	return maxCommitLogSize;
+	return configuration.getMaxCommitLogSize();
     }
 
     public final void setMaxCommitLogSize(long maxCommitLogSize) {
-	this.maxCommitLogSize = maxCommitLogSize;
+	configuration.setMaxCommitLogSize(maxCommitLogSize);
     }
 
     public final long getMaxDataFileSize() {
-	return maxDataFileSize;
+	return configuration.getMaxDataFileSize();
     }
 
     public final void setMaxDataFileSize(long maxDataFileSize) {
-	this.maxDataFileSize = maxDataFileSize;
+	configuration.setMaxDataFileSize(maxDataFileSize);
     }
 
     public final int getBufferSize() {
-	return bufferSize;
+	return configuration.getBufferSize();
     }
 
     public final int getMaxFileGenerations() {
-	return maxFileGenerations;
+	return configuration.getMaxFileGenerations();
     }
 
     public final boolean isRunCompactions() {
@@ -197,8 +192,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		offset = dataStream.getOffset();
 		row = dataStream.readRow();
 	    }
-	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName), bufferSize,
-		    commitLog)) {
+	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName),
+		    configuration.getBufferSize(), commitLog)) {
 		for (IndexEntry entry : memtable) {
 		    indexStream.writeIndexEntry(entry.getRowKey(), entry.getOffset());
 		}
@@ -217,7 +212,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    memtable.clear();
 	    commitLogFile = new File(directory,
 		    LogStructuredStore.createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
-	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), bufferSize);
+	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), configuration.getBufferSize());
 	} catch (IOException e) {
 	    throw new StorageException("Could not create empty " + commitLogFile.getName() + ".", e);
 	}
@@ -264,8 +259,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		@Override
 		public void run() {
 		    try {
-			Compactor.run(storage, directory, commitLogFile, bufferSize, maxDataFileSize,
-				maxFileGenerations);
+			Compactor.run(storage, directory, commitLogFile, configuration.getBufferSize(),
+				configuration.getMaxDataFileSize(), configuration.getMaxFileGenerations());
 			openDataFiles();
 			deleteCommitLogFiles(commitLogFile);
 		    } catch (Exception e) {
@@ -287,7 +282,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    if (commitLogStream == null) {
 		return;
 	    }
-	    logger.info("Roll over " + commitLogFile.getName() + " with " + maxCommitLogSize + " bytes.");
+	    logger.info("Roll over " + commitLogFile.getName() + " with " + configuration.getMaxCommitLogSize()
+		    + " bytes.");
 	    if (commitLogStream.getOffset() == 0) {
 		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
 		return;
@@ -307,8 +303,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
-	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile), bufferSize,
-		commitLogFile)) {
+	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile),
+		configuration.getBufferSize(), commitLogFile)) {
 	    for (IndexEntry indexEntry : memtable) {
 		indexStream.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
 	    }
@@ -429,7 +425,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    commitLogStream.writeRow(rowKey, tombstone, values);
 	    commitLogStream.flush();
 	    memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
-	    if (commitLogStream.getOffset() >= maxCommitLogSize) {
+	    if (commitLogStream.getOffset() >= configuration.getMaxCommitLogSize()) {
 		rolloverCommitLog();
 	    }
 	} catch (IOException e) {

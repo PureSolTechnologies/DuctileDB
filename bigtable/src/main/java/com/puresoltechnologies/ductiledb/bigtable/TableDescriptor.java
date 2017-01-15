@@ -1,28 +1,27 @@
 package com.puresoltechnologies.ductiledb.bigtable;
 
 import java.io.File;
-import java.util.TreeMap;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TableDescriptor {
 
-    private final TreeMap<Key, ColumnFamilyDescriptor> columnFamilies = new TreeMap<>();
-    private final NamespaceDescriptor namespace;
     private final String name;
     private final String description;
     private final File directory;
 
-    public TableDescriptor(NamespaceDescriptor namespace, String name, String description) {
-	this.namespace = namespace;
+    @JsonCreator
+    public TableDescriptor(//
+	    @JsonProperty("name") String name, //
+	    @JsonProperty("descriptor") String description, //
+	    @JsonProperty("directory") File directory) {
 	this.name = name;
 	this.description = description;
-	this.directory = new File(namespace.getDirectory(), name);
-    }
-
-    public final NamespaceDescriptor getNamespace() {
-	return namespace;
+	this.directory = directory;
+	if (!directory.isAbsolute()) {
+	    throw new IllegalArgumentException("An absolute path to directory is needed.");
+	}
     }
 
     public final String getName() {
@@ -39,7 +38,7 @@ public class TableDescriptor {
 
     @Override
     public String toString() {
-	return "table:" + namespace.getName() + "." + name;
+	return "table:" + name;
     }
 
     @Override
@@ -48,7 +47,6 @@ public class TableDescriptor {
 	int result = 1;
 	result = prime * result + ((directory == null) ? 0 : directory.hashCode());
 	result = prime * result + ((name == null) ? 0 : name.hashCode());
-	result = prime * result + ((namespace == null) ? 0 : namespace.hashCode());
 	return result;
     }
 
@@ -71,28 +69,6 @@ public class TableDescriptor {
 		return false;
 	} else if (!name.equals(other.name))
 	    return false;
-	if (namespace == null) {
-	    if (other.namespace != null)
-		return false;
-	} else if (!namespace.equals(other.namespace))
-	    return false;
 	return true;
     }
-
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	columnFamilies.put(columnFamilyDescriptor.getName(), columnFamilyDescriptor);
-    }
-
-    public void removeColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	columnFamilies.remove(columnFamilyDescriptor.getName());
-    }
-
-    public Iterable<ColumnFamilyDescriptor> getColumnFamilies() {
-	return columnFamilies.values();
-    }
-
-    public ColumnFamilyDescriptor getColumnFamily(Key columnFamilyName) {
-	return columnFamilies.get(columnFamilyName);
-    }
-
 }

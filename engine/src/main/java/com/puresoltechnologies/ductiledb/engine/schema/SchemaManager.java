@@ -1,5 +1,7 @@
 package com.puresoltechnologies.ductiledb.engine.schema;
 
+import java.io.IOException;
+
 import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
@@ -54,7 +56,7 @@ public interface SchemaManager {
     public SecondaryIndexDescriptor getIndex(ColumnFamilyDescriptor columnFamilyDescriptor, String name);
 
     public void createIndex(ColumnFamilyDescriptor columnFamilyDescriptor, SecondaryIndexDescriptor indexDescriptor)
-	    throws SchemaException;
+	    throws SchemaException, IOException;
 
     public void dropIndex(String name, ColumnFamilyDescriptor columnFamilyDescriptor);
 

@@ -194,7 +194,6 @@ public class SchemaManagerImpl implements SchemaManager {
 	try {
 	    File namespaceDirectory = new File(storageDirectory, namespaceName);
 	    storage.createDirectory(namespaceDirectory);
-	    databaseEngine.addNamespace(new NamespaceDescriptor(storage, namespaceDirectory));
 	    try (BufferedOutputStream metadataFile = storage
 		    .create(new File(namespaceDirectory, "metadata.properties"))) {
 		Properties properties = new Properties();
@@ -409,7 +408,7 @@ public class SchemaManagerImpl implements SchemaManager {
 
     @Override
     public void createIndex(ColumnFamilyDescriptor columnFamilyDescriptor, SecondaryIndexDescriptor indexDescriptor)
-	    throws SchemaException {
+	    throws SchemaException, IOException {
 	try {
 	    ColumnFamilyEngineImpl columnFamilyEngine = databaseEngine.getColumnFamilyEngine(columnFamilyDescriptor);
 	    columnFamilyEngine.createIndex(indexDescriptor);

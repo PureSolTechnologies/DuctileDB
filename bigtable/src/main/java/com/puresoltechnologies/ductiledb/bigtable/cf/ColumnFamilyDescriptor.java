@@ -2,42 +2,45 @@ package com.puresoltechnologies.ductiledb.bigtable.cf;
 
 import java.io.File;
 
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class ColumnFamilyDescriptor {
 
     private final Key name;
-    private final TableDescriptor table;
     private final File directory;
     private final File indexDirectory;
 
-    public ColumnFamilyDescriptor(Key name, TableDescriptor table, File directory) {
+    @JsonCreator
+    public ColumnFamilyDescriptor(//
+	    @JsonProperty("name") Key name, //
+	    @JsonProperty("directory") File directory) {
 	this.name = name;
-	this.table = table;
 	this.directory = directory;
 	this.indexDirectory = new File(directory, "indizes");
+	if (!directory.isAbsolute()) {
+	    throw new IllegalArgumentException("An absolute path to directory is needed.");
+	}
     }
 
     public final Key getName() {
 	return name;
     }
 
-    public final TableDescriptor getTable() {
-	return table;
-    }
-
     public final File getDirectory() {
 	return directory;
     }
 
+    @JsonIgnore
     public final File getIndexDirectory() {
 	return indexDirectory;
     }
 
     @Override
     public String toString() {
-	return "column family:" + table.getNamespace().getName() + "." + table.getName() + "/" + name;
+	return "column family:" + name;
     }
 
     @Override
@@ -46,7 +49,6 @@ public class ColumnFamilyDescriptor {
 	int result = 1;
 	result = prime * result + ((directory == null) ? 0 : directory.hashCode());
 	result = prime * result + ((name == null) ? 0 : name.hashCode());
-	result = prime * result + ((table == null) ? 0 : table.hashCode());
 	return result;
     }
 
@@ -68,11 +70,6 @@ public class ColumnFamilyDescriptor {
 	    if (other.name != null)
 		return false;
 	} else if (!name.equals(other.name))
-	    return false;
-	if (table == null) {
-	    if (other.table != null)
-		return false;
-	} else if (!table.equals(other.table))
 	    return false;
 	return true;
     }

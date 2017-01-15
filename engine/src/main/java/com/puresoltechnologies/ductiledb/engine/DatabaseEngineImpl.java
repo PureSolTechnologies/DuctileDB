@@ -147,7 +147,7 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	return namespaceEngine.addTable(tableDescriptor);
     }
 
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
+    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
 	TableDescriptor tableDescriptor = columnFamilyDescriptor.getTable();
 	NamespaceDescriptor namespaceDescriptor = tableDescriptor.getNamespace();
 	NamespaceEngineImpl namespaceEngine = namespaceEngines.get(namespaceDescriptor.getName());

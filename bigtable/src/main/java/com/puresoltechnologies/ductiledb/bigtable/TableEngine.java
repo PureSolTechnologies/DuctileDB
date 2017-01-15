@@ -1,6 +1,8 @@
 package com.puresoltechnologies.ductiledb.bigtable;
 
 import java.io.Closeable;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -8,6 +10,7 @@ import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngine;
 import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This class is the central engine class for table storage. It is using the
@@ -17,7 +20,16 @@ import com.puresoltechnologies.ductiledb.logstore.Key;
  */
 public interface TableEngine extends Closeable {
 
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor);
+    public static TableEngine reopen(Storage storage, File directory) throws IOException {
+	return new TableEngineImpl(storage, directory);
+    }
+
+    public static TableEngine create(Storage storage, TableDescriptor tableDescriptor,
+	    BigTableEngineConfiguration configuration) throws IOException {
+	return new TableEngineImpl(storage, tableDescriptor, configuration);
+    }
+
+    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException;
 
     public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor);
 

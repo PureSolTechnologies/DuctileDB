@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.junit.Ignore;
@@ -32,7 +33,7 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     private static final int TEST_SIZE = 150;
 
     @Test
-    public void testSecondaryIndexCreateGetDelete() throws SchemaException, StorageException {
+    public void testSecondaryIndexCreateGetDelete() throws SchemaException, StorageException, IOException {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE,
 		"testSecondaryIndexCreateGetDelete", "testcf")) {
 
@@ -80,17 +81,18 @@ public class CompoundSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 
     @Test
     @Ignore("Not implemented, yet.")
-    public void testSecondaryIndexGetByHeapIndex() throws SchemaException, StorageException {
+    public void testSecondaryIndexGetByHeapIndex() throws SchemaException, StorageException, IOException {
 	testIndex(IndexType.HEAP, "testSecondaryIndexGetByHeapIndex");
     }
 
     @Test
     @Ignore("Not implemented, yet.")
-    public void testSecondaryIndexGetByClusteredIndex() throws SchemaException, StorageException {
+    public void testSecondaryIndexGetByClusteredIndex() throws SchemaException, StorageException, IOException {
 	testIndex(IndexType.CLUSTERED, "testSecondaryIndexGetByClusteredIndex");
     }
 
-    private void testIndex(IndexType indexType, String tableName) throws StorageException, SchemaException {
+    private void testIndex(IndexType indexType, String tableName)
+	    throws StorageException, SchemaException, IOException {
 	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, tableName, "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Key.of("indexed1"));
