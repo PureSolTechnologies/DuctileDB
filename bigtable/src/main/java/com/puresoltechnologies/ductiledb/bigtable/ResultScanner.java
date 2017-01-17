@@ -9,10 +9,10 @@ import java.util.TreeMap;
 import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.commons.misc.io.PeekingCloseableIterator;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 /**

@@ -1,16 +1,23 @@
 package com.puresoltechnologies.ductiledb.engine;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
 import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
 import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class NamespaceEngineImpl implements NamespaceEngine {
@@ -22,21 +29,47 @@ public class NamespaceEngineImpl implements NamespaceEngine {
     private final BigTableEngineConfiguration configuration;
     private final Map<String, TableEngineImpl> tableEngines = new HashMap<>();
 
-    public NamespaceEngineImpl(Storage storage, NamespaceDescriptor namespaceDescriptor,
-	    BigTableEngineConfiguration configuration) {
+    NamespaceEngineImpl(Storage storage, NamespaceDescriptor namespaceDescriptor,
+	    BigTableEngineConfiguration configuration) throws IOException {
 	this.storage = storage;
 	this.namespaceDescriptor = namespaceDescriptor;
 	this.configuration = configuration;
 	logger.info("Starting namespace engine '" + namespaceDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	initializeTableEngines();
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	try (BufferedOutputStream parameterFile = storage
+		.create(new File(namespaceDescriptor.getDirectory(), "configuration.json"))) {
+	    objectMapper.writeValue(parameterFile, configuration);
+	}
+	try (BufferedOutputStream parameterFile = storage
+		.create(new File(namespaceDescriptor.getDirectory(), "descriptor.json"))) {
+	    objectMapper.writeValue(parameterFile, namespaceDescriptor);
+	}
 	stopWatch.stop();
 	logger.info(
 		"Namespace engine '" + namespaceDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    private void initializeTableEngines() {
+    NamespaceEngineImpl(Storage storage, File directory) throws IOException {
+	this.storage = storage;
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	try (BufferedInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
+	    this.namespaceDescriptor = objectMapper.readValue(parameterFile, NamespaceDescriptor.class);
+	}
+	logger.info("Starting namespace engine '" + namespaceDescriptor.getName() + "'...");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
+	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
+	    this.configuration = objectMapper.readValue(parameterFile, BigTableEngineConfiguration.class);
+	}
+	openTables();
+	stopWatch.stop();
+	logger.info(
+		"Namespace engine '" + namespaceDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
+    }
+
+    private void openTables() throws IOException {
 	for (TableDescriptor tableDescriptor : namespaceDescriptor.getTables()) {
 	    addTable(tableDescriptor);
 	}
@@ -51,8 +84,8 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 	tableEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
     }
 
-    public TableEngineImpl addTable(TableDescriptor tableDescriptor) {
-	TableEngineImpl tableEngine = new TableEngineImpl(storage, tableDescriptor, configuration);
+    public TableEngineImpl addTable(TableDescriptor tableDescriptor) throws IOException {
+	TableEngineImpl tableEngine = (TableEngineImpl) TableEngine.create(storage, tableDescriptor, configuration);
 	tableEngines.put(tableDescriptor.getName(), tableEngine);
 	return tableEngine;
     }

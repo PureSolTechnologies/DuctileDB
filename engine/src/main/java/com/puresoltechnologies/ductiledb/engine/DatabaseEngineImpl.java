@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.engine;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,16 +9,18 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
 import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
 import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManagerImpl;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -49,7 +52,25 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	this.schemaManager = initializeStorage(storage);
-	initializeNamespaceEngines();
+	stopWatch.stop();
+	logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
+    }
+
+    public DatabaseEngineImpl(Storage storage, File storageDirectory) throws IOException {
+	this.storage = storage;
+	this.storageDirectory = storageDirectory;
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "descriptor.json"))) {
+	    this.storageName = objectMapper.readValue(parameterFile, String.class);
+	}
+	logger.info("Starting database engine '" + storageName + "'...");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
+	try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "configuration.json"))) {
+	    this.configuration = objectMapper.readValue(parameterFile, BigTableEngineConfiguration.class);
+	}
+	this.schemaManager = initializeStorage(storage);
+	openTables();
 	stopWatch.stop();
 	logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
     }
@@ -63,7 +84,7 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	}
     }
 
-    private void initializeNamespaceEngines() {
+    private void openTables() {
 	for (NamespaceDescriptor namespaceDescriptor : schemaManager.getNamespaces()) {
 	    addNamespace(namespaceDescriptor);
 	}

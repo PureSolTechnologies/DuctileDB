@@ -2,9 +2,9 @@ package com.puresoltechnologies.ductiledb.bigtable;
 
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class Put {

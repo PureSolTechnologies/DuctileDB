@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -51,6 +51,7 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Starting table engine '" + tableDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
+	storage.createDirectory(tableDescriptor.getDirectory());
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	try (BufferedOutputStream parameterFile = storage
 		.create(new File(tableDescriptor.getDirectory(), "configuration.json"))) {
@@ -93,17 +94,18 @@ public class TableEngineImpl implements TableEngine {
     }
 
     @Override
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
+    public void addColumnFamily(Key name) throws IOException {
 	ColumnFamilyEngineImpl engine = (ColumnFamilyEngineImpl) ColumnFamilyEngine.create(storage,
-		columnFamilyDescriptor, configuration.getLogStoreConfiguration());
-	columnFamilyEngines.put(columnFamilyDescriptor.getName(), engine);
+		new ColumnFamilyDescriptor(name, new File(tableDescriptor.getDirectory(), "cf")),
+		configuration.getLogStoreConfiguration());
+	columnFamilyEngines.put(name, engine);
     }
 
     @Override
-    public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) {
-	ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(tableDescriptor.getName());
+    public void dropColumnFamily(Key name) {
+	ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(name);
 	if (columnFamilyEngine != null) {
-	    columnFamilyEngines.remove(columnFamilyDescriptor.getName());
+	    columnFamilyEngines.remove(name);
 	    columnFamilyEngine.close();
 	}
     }

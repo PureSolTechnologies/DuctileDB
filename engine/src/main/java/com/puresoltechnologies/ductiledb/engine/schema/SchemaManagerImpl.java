@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.EngineChecks;
 import com.puresoltechnologies.ductiledb.logstore.Key;

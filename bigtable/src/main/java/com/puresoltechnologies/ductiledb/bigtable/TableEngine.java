@@ -6,9 +6,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -29,9 +28,9 @@ public interface TableEngine extends Closeable {
 	return new TableEngineImpl(storage, tableDescriptor, configuration);
     }
 
-    public void addColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException;
+    public void addColumnFamily(Key name) throws IOException;
 
-    public void dropColumnFamily(ColumnFamilyDescriptor columnFamilyDescriptor);
+    public void dropColumnFamily(Key name);
 
     public Set<Key> getColumnFamilies();
 

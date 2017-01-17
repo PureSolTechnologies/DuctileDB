@@ -8,8 +8,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreTestUtils;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
@@ -24,13 +23,13 @@ public class TableEngineCreateAndReopenIT {
 	StorageConfiguration configuration = LogStructuredStoreTestUtils.createStorageConfiguration();
 	Storage storage = StorageFactory.getStorageInstance(configuration);
 
-	File directory = new File("/TableEngineCreateAndReopenIT.testCreationAndReopen");
+	File directory = new File("/" + TableEngineCreateAndReopenIT.class.getSimpleName() + ".testCreationAndReopen");
 	if (storage.exists(directory)) {
 	    storage.removeDirectory(directory, true);
 	}
 	TableDescriptor tableDescriptor = new TableDescriptor("table", "description", directory);
 	try (TableEngine store = TableEngine.create(storage, tableDescriptor, new BigTableEngineConfiguration())) {
-	    store.addColumnFamily(new ColumnFamilyDescriptor(Key.of("ColumnFamily"), new File("/cf")));
+	    store.addColumnFamily(Key.of("ColumnFamily"));
 	    Put put = new Put(Key.of("Row"));
 	    put.addColumn(Key.of("ColumnFamily"), Key.of("Column"), ColumnValue.of("Value"));
 	    store.put(put);
@@ -49,13 +48,14 @@ public class TableEngineCreateAndReopenIT {
 	StorageConfiguration configuration = LogStructuredStoreTestUtils.createStorageConfiguration();
 	Storage storage = StorageFactory.getStorageInstance(configuration);
 
-	File directory = new File("/TableEngineCreateAndReopenIT.testDoubleCreationNotAllowed");
+	File directory = new File(
+		"/" + TableEngineCreateAndReopenIT.class.getSimpleName() + ".testDoubleCreationNotAllowed");
 	if (storage.exists(directory)) {
 	    storage.removeDirectory(directory, true);
 	}
 	TableDescriptor tableDescriptor = new TableDescriptor("table", "description", directory);
 	try (TableEngine store = TableEngine.create(storage, tableDescriptor, new BigTableEngineConfiguration())) {
-	    store.addColumnFamily(new ColumnFamilyDescriptor(Key.of("ColumnFamily"), new File("/cf")));
+	    store.addColumnFamily(Key.of("ColumnFamily"));
 	    Put put = new Put(Key.of("Row"));
 	    put.addColumn(Key.of("ColumnFamily"), Key.of("Column"), ColumnValue.of("Value"));
 	    store.put(put);

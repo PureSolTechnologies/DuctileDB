@@ -389,6 +389,17 @@
 			<!-- SELF -->
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>columnfamily</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
+				<artifactId>columnfamily.test</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>bigtable</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -800,6 +811,8 @@
 		<module>storage</module>
 		<module>logstore</module>
 		<module>logstore.test</module>
+		<module>columnfamily</module>
+		<module>columnfamily.test</module>
 		<module>bigtable</module>
 		<module>bigtable.test</module>
 		<module>tx.api</module>

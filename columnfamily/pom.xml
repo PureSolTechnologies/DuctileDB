@@ -8,13 +8,13 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>bigtable</artifactId>
+	<artifactId>columnfamily</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>columnfamily</artifactId>
+			<artifactId>logstore</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
