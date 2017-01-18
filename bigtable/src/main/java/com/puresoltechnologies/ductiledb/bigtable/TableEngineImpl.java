@@ -23,6 +23,7 @@ import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngineImpl;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -96,7 +97,8 @@ public class TableEngineImpl implements TableEngine {
     @Override
     public void addColumnFamily(Key name) throws IOException {
 	ColumnFamilyEngineImpl engine = (ColumnFamilyEngineImpl) ColumnFamilyEngine.create(storage,
-		new ColumnFamilyDescriptor(name, new File(tableDescriptor.getDirectory(), "cf")),
+		new ColumnFamilyDescriptor(name,
+			new File(tableDescriptor.getDirectory(), Bytes.toHexString(name.getBytes()))),
 		configuration.getLogStoreConfiguration());
 	columnFamilyEngines.put(name, engine);
     }

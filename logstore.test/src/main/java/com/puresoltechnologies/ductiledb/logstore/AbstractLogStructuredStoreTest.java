@@ -24,7 +24,7 @@ public abstract class AbstractLogStructuredStoreTest {
     private static LogStructuredStore store = null;
 
     @BeforeClass
-    public static void readConfiguration() throws IOException, StorageFactoryServiceException, StorageException {
+    public static void startStore() throws IOException, StorageFactoryServiceException, StorageException {
 	StorageConfiguration configuration = LogStructuredStoreTestUtils.createStorageConfiguration();
 	storage = StorageFactory.getStorageInstance(configuration);
 	LogStructuredStoreTestUtils.cleanTestStorageDirectory(storage);
@@ -32,6 +32,7 @@ public abstract class AbstractLogStructuredStoreTest {
 	assertNull("Engine was started already.", store);
 	LogStoreConfiguration storeConfiguration = LogStructuredStoreTestUtils.createConfiguration();
 	store = LogStructuredStoreTestUtils.createStore(storage, storeConfiguration);
+	store.open();
     }
 
     @AfterClass

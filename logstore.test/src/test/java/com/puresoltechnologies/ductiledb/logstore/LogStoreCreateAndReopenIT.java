@@ -25,9 +25,11 @@ public class LogStoreCreateAndReopenIT {
 	    storage.removeDirectory(directory, true);
 	}
 	try (LogStructuredStore store = LogStructuredStore.create(storage, directory, new LogStoreConfiguration())) {
+	    store.open();
 	    store.put(Key.of("Key"), Bytes.toBytes("Value"));
 	}
 	try (LogStructuredStore store = LogStructuredStore.reopen(storage, directory)) {
+	    store.open();
 	    assertEquals("Value", Bytes.toString(store.get(Key.of("Key"))));
 	}
     }
@@ -42,6 +44,7 @@ public class LogStoreCreateAndReopenIT {
 	    storage.removeDirectory(directory, true);
 	}
 	try (LogStructuredStore store = LogStructuredStore.create(storage, directory, new LogStoreConfiguration())) {
+	    store.open();
 	    store.put(Key.of("Key"), Bytes.toBytes("Value"));
 	}
 	try (LogStructuredStore store = LogStructuredStore.create(storage, directory, new LogStoreConfiguration())) {

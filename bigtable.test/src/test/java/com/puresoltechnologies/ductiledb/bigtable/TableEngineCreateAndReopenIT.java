@@ -39,7 +39,8 @@ public class TableEngineCreateAndReopenIT {
 	    Get get = new Get(Key.of("Row"));
 	    get.addColumn(Key.of("ColumnFamily"), Key.of("Column"));
 	    Result result = store.get(get);
-	    assertEquals("Value", Bytes.toString(result.getFamilyMap(Key.of("ColumnFamily")).get("Column").getBytes()));
+	    assertEquals("Value",
+		    Bytes.toString(result.getFamilyMap(Key.of("ColumnFamily")).get(Key.of("Column")).getBytes()));
 	}
     }
 

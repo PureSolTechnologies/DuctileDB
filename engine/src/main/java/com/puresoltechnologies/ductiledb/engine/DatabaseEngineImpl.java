@@ -43,36 +43,43 @@ public class DatabaseEngineImpl implements DatabaseEngine {
     private final SchemaManager schemaManager;
     private final Map<String, NamespaceEngineImpl> namespaceEngines = new HashMap<>();
 
-    public DatabaseEngineImpl(Storage storage, String storageName, BigTableEngineConfiguration configuration) {
-	this.storage = storage;
-	this.storageName = storageName;
-	this.configuration = configuration;
-	this.storageDirectory = new File(storageName);
-	logger.info("Starting database engine '" + storageName + "'...");
-	StopWatch stopWatch = new StopWatch();
-	stopWatch.start();
-	this.schemaManager = initializeStorage(storage);
-	stopWatch.stop();
-	logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
-    }
-
-    public DatabaseEngineImpl(Storage storage, File storageDirectory) throws IOException {
+    /**
+     * Creates a new database.
+     * 
+     * @param storage
+     * @param storageName
+     * @param configuration
+     * @throws IOException
+     */
+    public DatabaseEngineImpl(Storage storage, File storageDirectory, String storageName,
+	    BigTableEngineConfiguration configuration) throws IOException {
 	this.storage = storage;
 	this.storageDirectory = storageDirectory;
-	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
-	try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "descriptor.json"))) {
-	    this.storageName = objectMapper.readValue(parameterFile, String.class);
+	if (storage.exists(storageDirectory) && storage.isDirectory(storageDirectory)) {
+	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	    try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "descriptor.json"))) {
+		this.storageName = objectMapper.readValue(parameterFile, String.class);
+	    }
+	    logger.info("Starting database engine '" + storageName + "'...");
+	    StopWatch stopWatch = new StopWatch();
+	    stopWatch.start();
+	    try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "configuration.json"))) {
+		this.configuration = objectMapper.readValue(parameterFile, BigTableEngineConfiguration.class);
+	    }
+	    this.schemaManager = initializeStorage(storage);
+	    openTables();
+	    stopWatch.stop();
+	    logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
+	} else {
+	    logger.info("Creating database engine '" + storageName + "'...");
+	    StopWatch stopWatch = new StopWatch();
+	    stopWatch.start();
+	    this.storageName = storageName;
+	    this.configuration = configuration;
+	    this.schemaManager = initializeStorage(storage);
+	    stopWatch.stop();
+	    logger.info("Database engine '" + storageName + "' created in " + stopWatch.getMillis() + "ms.");
 	}
-	logger.info("Starting database engine '" + storageName + "'...");
-	StopWatch stopWatch = new StopWatch();
-	stopWatch.start();
-	try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "configuration.json"))) {
-	    this.configuration = objectMapper.readValue(parameterFile, BigTableEngineConfiguration.class);
-	}
-	this.schemaManager = initializeStorage(storage);
-	openTables();
-	stopWatch.stop();
-	logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
     private SchemaManager initializeStorage(Storage storage) {

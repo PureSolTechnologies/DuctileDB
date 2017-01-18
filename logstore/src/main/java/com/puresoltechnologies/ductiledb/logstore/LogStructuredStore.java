@@ -37,18 +37,14 @@ public interface LogStructuredStore extends StorageOperations, AutoCloseable {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    objectMapper.writeValue(parameterFile, configuration);
 	}
-	LogStructuredStoreImpl store = new LogStructuredStoreImpl(storage, directory, configuration);
-	store.open();
-	return store;
+	return new LogStructuredStoreImpl(storage, directory, configuration);
     }
 
     public static LogStructuredStore reopen(Storage storage, File directory) throws IOException {
 	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    LogStoreConfiguration configuration = objectMapper.readValue(parameterFile, LogStoreConfiguration.class);
-	    LogStructuredStoreImpl store = new LogStructuredStoreImpl(storage, directory, configuration);
-	    store.open();
-	    return store;
+	    return new LogStructuredStoreImpl(storage, directory, configuration);
 	}
     }
 
