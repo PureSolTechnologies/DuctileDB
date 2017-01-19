@@ -37,7 +37,7 @@ public abstract class AbstractPreparedDMLStatement extends AbstractPreparedState
 
     protected final TableEngineImpl getTableEngine() {
 	NamespaceEngineImpl namespaceEngine = getTableStore().getStorageEngine().getNamespaceEngine(getNamespace());
-	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(getTableName());
+	TableEngineImpl tableEngine = namespaceEngine.getTable(getTableName());
 	return tableEngine;
     }
 

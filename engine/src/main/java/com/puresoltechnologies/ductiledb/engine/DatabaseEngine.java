@@ -1,15 +1,14 @@
 package com.puresoltechnologies.ductiledb.engine;
 
 import java.io.Closeable;
+import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 
 /**
  * This class is the database engine class. It supports a schema, and multiple
  * big table storages organized in column families. It is using the
- * {@link TableEngine} to store the separate tables.
+ * {@link BigTable} to store the separate tables.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -19,10 +18,10 @@ public interface DatabaseEngine extends Closeable {
 
     public String getStoreName();
 
-    public SchemaManager getSchemaManager();
+    public NamespaceEngine addNamespace(String namespace) throws IOException;
 
-    public TableEngine getTable(TableDescriptor tableDescriptor);
+    public NamespaceEngine getNamespace(String namespace);
 
-    public TableEngine getTable(String namespaceName, String tableName);
+    public boolean hasNamespace(String namespaceName);
 
 }

@@ -6,31 +6,37 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
-import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This class is the central engine class for table storage. It is using the
- * {@link ColumnFamilyEngine} to store the separated column families.
+ * {@link ColumnFamily} to store the separated column families.
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface TableEngine extends Closeable {
+public interface BigTable extends Closeable {
 
-    public static TableEngine reopen(Storage storage, File directory) throws IOException {
-	return new TableEngineImpl(storage, directory);
+    public static BigTable reopen(Storage storage, File directory) throws IOException {
+	return new BigTableImpl(storage, directory);
     }
 
-    public static TableEngine create(Storage storage, TableDescriptor tableDescriptor,
-	    BigTableEngineConfiguration configuration) throws IOException {
-	return new TableEngineImpl(storage, tableDescriptor, configuration);
+    public static BigTable create(Storage storage, TableDescriptor tableDescriptor, BigTableConfiguration configuration)
+	    throws IOException {
+	return new BigTableImpl(storage, tableDescriptor, configuration);
     }
 
-    public void addColumnFamily(Key name) throws IOException;
+    public String getName();
+
+    public ColumnFamily addColumnFamily(Key name) throws IOException;
 
     public void dropColumnFamily(Key name);
+
+    public ColumnFamily getColumnFamily(Key name);
+
+    public boolean hasColumnFamily(Key name);
 
     public Set<Key> getColumnFamilies();
 

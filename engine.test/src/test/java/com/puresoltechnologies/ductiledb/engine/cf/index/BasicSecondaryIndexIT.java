@@ -99,7 +99,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 
 	DatabaseEngineImpl engine = getEngine();
 	NamespaceEngineImpl namespaceEngine = engine.getNamespaceEngine(NAMESPACE);
-	TableEngineImpl tableEngine = namespaceEngine.getTableEngine("testSecondaryIndexSurvivesRestart");
+	TableEngineImpl tableEngine = namespaceEngine.getTable("testSecondaryIndexSurvivesRestart");
 	ColumnFamilyEngineImpl columnFamily = tableEngine.getColumnFamilyEngine(Key.of("testcf"));
 
 	Iterable<SecondaryIndexDescriptor> indizes = columnFamily.getIndizes();

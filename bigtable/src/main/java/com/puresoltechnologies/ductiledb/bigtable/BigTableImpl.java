@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.commons.misc.StopWatch;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngineImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
@@ -30,20 +30,20 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
  * This class is the central engine class for table storage. It is using the
- * {@link ColumnFamilyEngine} to store the separated column families.
+ * {@link ColumnFamily} to store the separated column families.
  * 
  * @author Rick-Rainer Ludwig
  */
-public class TableEngineImpl implements TableEngine {
+public class BigTableImpl implements BigTable {
 
-    private static final Logger logger = LoggerFactory.getLogger(TableEngine.class);
+    private static final Logger logger = LoggerFactory.getLogger(BigTable.class);
 
     private final Storage storage;
     private final TableDescriptor tableDescriptor;
-    private final BigTableEngineConfiguration configuration;
-    private final TreeMap<Key, ColumnFamilyEngineImpl> columnFamilyEngines = new TreeMap<>();
+    private final BigTableConfiguration configuration;
+    private final TreeMap<Key, ColumnFamilyImpl> columnFamilyEngines = new TreeMap<>();
 
-    TableEngineImpl(Storage storage, TableDescriptor tableDescriptor, BigTableEngineConfiguration configuration)
+    BigTableImpl(Storage storage, TableDescriptor tableDescriptor, BigTableConfiguration configuration)
 	    throws IOException {
 	super();
 	this.storage = storage;
@@ -66,7 +66,7 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Table engine '" + tableDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    TableEngineImpl(Storage storage, File directory) throws IOException {
+    BigTableImpl(Storage storage, File directory) throws IOException {
 	super();
 	this.storage = storage;
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
@@ -77,7 +77,7 @@ public class TableEngineImpl implements TableEngine {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
-	    this.configuration = objectMapper.readValue(parameterFile, BigTableEngineConfiguration.class);
+	    this.configuration = objectMapper.readValue(parameterFile, BigTableConfiguration.class);
 	}
 	openColumnFamilies();
 	stopWatch.stop();
@@ -88,28 +88,44 @@ public class TableEngineImpl implements TableEngine {
 	Iterable<File> directories = storage.list(tableDescriptor.getDirectory());
 	for (File directory : directories) {
 	    if (storage.isDirectory(directory)) {
-		ColumnFamilyEngineImpl engine = (ColumnFamilyEngineImpl) ColumnFamilyEngine.reopen(storage, directory);
+		ColumnFamilyImpl engine = (ColumnFamilyImpl) ColumnFamily.reopen(storage, directory);
 		columnFamilyEngines.put(engine.getName(), engine);
 	    }
 	}
     }
 
     @Override
-    public void addColumnFamily(Key name) throws IOException {
-	ColumnFamilyEngineImpl engine = (ColumnFamilyEngineImpl) ColumnFamilyEngine.create(storage,
+    public String getName() {
+	return tableDescriptor.getName();
+    }
+
+    @Override
+    public ColumnFamily addColumnFamily(Key name) throws IOException {
+	ColumnFamilyImpl engine = (ColumnFamilyImpl) ColumnFamily.create(storage,
 		new ColumnFamilyDescriptor(name,
 			new File(tableDescriptor.getDirectory(), Bytes.toHexString(name.getBytes()))),
 		configuration.getLogStoreConfiguration());
 	columnFamilyEngines.put(name, engine);
+	return engine;
     }
 
     @Override
     public void dropColumnFamily(Key name) {
-	ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(name);
+	ColumnFamilyImpl columnFamilyEngine = columnFamilyEngines.get(name);
 	if (columnFamilyEngine != null) {
 	    columnFamilyEngines.remove(name);
 	    columnFamilyEngine.close();
 	}
+    }
+
+    @Override
+    public ColumnFamily getColumnFamily(Key name) {
+	return columnFamilyEngines.get(name);
+    }
+
+    @Override
+    public boolean hasColumnFamily(Key name) {
+	return columnFamilyEngines.containsKey(name);
     }
 
     public void setRunCompactions(boolean runCompaction) {
@@ -125,7 +141,7 @@ public class TableEngineImpl implements TableEngine {
 	logger.info("Closing table engine '" + tableDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	for (ColumnFamilyEngineImpl columnFamilyEngine : columnFamilyEngines.values()) {
+	for (ColumnFamilyImpl columnFamilyEngine : columnFamilyEngines.values()) {
 	    columnFamilyEngine.close();
 	}
 	stopWatch.stop();
@@ -137,14 +153,14 @@ public class TableEngineImpl implements TableEngine {
 	return columnFamilyEngines.keySet();
     }
 
-    public ColumnFamilyEngineImpl getColumnFamilyEngine(Key columnFamily) {
+    public ColumnFamily getColumnFamilyEngine(Key columnFamily) {
 	return columnFamilyEngines.get(columnFamily);
     }
 
     @Override
     public void put(Put put) {
 	for (Key columnFamily : put.getColumnFamilies()) {
-	    ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
+	    ColumnFamilyImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
 	    columnFamilyEngine.put(put.getKey(), put.getColumnValues(columnFamily));
 	}
     }
@@ -163,7 +179,7 @@ public class TableEngineImpl implements TableEngine {
 	if (!columnFamilies.isEmpty()) {
 	    for (Key columnFamily : columnFamilies) {
 		Set<Key> columns = delete.getColumns(columnFamily);
-		ColumnFamilyEngineImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
+		ColumnFamilyImpl columnFamilyEngine = columnFamilyEngines.get(columnFamily);
 		if (columns.size() == 0) {
 		    columnFamilyEngine.delete(rowKey);
 		} else {
@@ -171,8 +187,8 @@ public class TableEngineImpl implements TableEngine {
 		}
 	    }
 	} else {
-	    for (Entry<Key, ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
-		ColumnFamilyEngineImpl columnFamilyEngine = columnFamily.getValue();
+	    for (Entry<Key, ColumnFamilyImpl> columnFamily : columnFamilyEngines.entrySet()) {
+		ColumnFamilyImpl columnFamilyEngine = columnFamily.getValue();
 		columnFamilyEngine.delete(rowKey);
 	    }
 	}
@@ -196,7 +212,7 @@ public class TableEngineImpl implements TableEngine {
 		result.add(columnFamily, columns);
 	    }
 	} else {
-	    for (Entry<Key, ColumnFamilyEngineImpl> columnFamily : columnFamilyEngines.entrySet()) {
+	    for (Entry<Key, ColumnFamilyImpl> columnFamily : columnFamilyEngines.entrySet()) {
 		ColumnMap columns = columnFamily.getValue().get(rowKey);
 		result.add(columnFamily.getKey(), columns);
 	    }
@@ -204,8 +220,8 @@ public class TableEngineImpl implements TableEngine {
 	return result;
     }
 
-    public Set<ColumnFamilyEngine> getColumnFamilyEngines() {
-	Set<ColumnFamilyEngine> columnFamilies = new HashSet<>();
+    public Set<ColumnFamily> getColumnFamilyEngines() {
+	Set<ColumnFamily> columnFamilies = new HashSet<>();
 	for (Key columnFamilyName : getColumnFamilies()) {
 	    columnFamilies.add(getColumnFamilyEngine(columnFamilyName));
 	}
@@ -244,7 +260,7 @@ public class TableEngineImpl implements TableEngine {
 
     @Override
     public long incrementColumnValue(Key rowKey, Key columnFamily, Key column, long incrementValue) {
-	ColumnFamilyEngineImpl columnFamilyEngine = getColumnFamilyEngine(columnFamily);
+	ColumnFamily columnFamilyEngine = getColumnFamilyEngine(columnFamily);
 	return columnFamilyEngine.incrementColumnValue(rowKey, column, incrementValue);
     }
 

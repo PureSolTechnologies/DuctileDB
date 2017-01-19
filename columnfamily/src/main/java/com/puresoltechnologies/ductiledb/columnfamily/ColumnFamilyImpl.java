@@ -33,9 +33,9 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  * @author Rick-Rainer Ludwig
  *
  */
-public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
+public class ColumnFamilyImpl implements ColumnFamily {
 
-    private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyEngineImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ColumnFamilyImpl.class);
 
     private final LogStructuredStoreImpl store;
 
@@ -44,7 +44,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
     private final Map<String, SecondaryIndexEngineImpl> indizes = new HashMap<>();
     private final Map<String, SecondaryIndexDescriptor> indexDescriptors = new HashMap<>();
 
-    ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
+    ColumnFamilyImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    LogStoreConfiguration configuration) throws IOException {
 	this.store = (LogStructuredStoreImpl) LogStructuredStore.create(storage, //
 		columnFamilyDescriptor.getDirectory(), //
@@ -54,7 +54,7 @@ public class ColumnFamilyEngineImpl implements ColumnFamilyEngine {
 	open();
     }
 
-    ColumnFamilyEngineImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
+    ColumnFamilyImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
 	this.store = (LogStructuredStoreImpl) LogStructuredStore.reopen(storage, //
 		columnFamilyDescriptor.getDirectory());
 	this.columnFamilyDescriptor = columnFamilyDescriptor;

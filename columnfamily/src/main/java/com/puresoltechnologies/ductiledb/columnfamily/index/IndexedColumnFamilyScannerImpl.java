@@ -2,7 +2,7 @@ package com.puresoltechnologies.ductiledb.columnfamily.index;
 
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
@@ -14,13 +14,13 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {
 
-    private final ColumnFamilyEngine columnFamilyEngine;
+    private final ColumnFamily columnFamilyEngine;
     private final SecondaryIndexEngine indexEngine;
     private final ColumnValue fromValue;
     private final ColumnValue toValue;
     private final RowScanner scanner;
 
-    public IndexedColumnFamilyScannerImpl(ColumnFamilyEngine columnFamilyEngine, SecondaryIndexEngine indexEngine,
+    public IndexedColumnFamilyScannerImpl(ColumnFamily columnFamilyEngine, SecondaryIndexEngine indexEngine,
 	    ColumnValue fromValue, ColumnValue toValue) {
 	this.columnFamilyEngine = columnFamilyEngine;
 	this.indexEngine = indexEngine;

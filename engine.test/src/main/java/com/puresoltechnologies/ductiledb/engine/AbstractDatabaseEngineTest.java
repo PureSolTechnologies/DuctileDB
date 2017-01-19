@@ -13,10 +13,11 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.yaml.snakeyaml.Yaml;
 
-import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
 import com.puresoltechnologies.ductiledb.logstore.io.CurrentCommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
@@ -27,16 +28,16 @@ public abstract class AbstractDatabaseEngineTest {
 
     private static final String DATABASE_ENGINE_NAME = "DatabaseEngineTest";
 
-    private static BigTableEngineConfiguration configuration;
+    private static BigTableConfiguration configuration;
 
     private static Storage storage = null;
     private static DatabaseEngineImpl storageEngine = null;
 
     @BeforeClass
     public static void readConfiguration() throws IOException, StorageFactoryServiceException, StorageException {
-	Yaml yaml = new Yaml();
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
-	    configuration = yaml.loadAs(inputStream, BigTableEngineConfiguration.class);
+	    configuration = objectMapper.readValue(inputStream, BigTableConfiguration.class);
 	    assertNotNull(configuration);
 	}
 	storage = StorageFactory.getStorageInstance(configuration.getStorage());
@@ -44,9 +45,10 @@ public abstract class AbstractDatabaseEngineTest {
 	startEngine();
     }
 
-    protected static void startEngine() {
+    protected static void startEngine() throws IOException {
 	assertNull("Engine was started already.", storageEngine);
-	storageEngine = new DatabaseEngineImpl(storage, DATABASE_ENGINE_NAME, configuration);
+	storageEngine = new DatabaseEngineImpl(storage, new File("/AbstractDatabaseEngineTest"), DATABASE_ENGINE_NAME,
+		configuration);
     }
 
     private static void cleanTestStorageDirectory() throws FileNotFoundException, IOException {
@@ -76,11 +78,11 @@ public abstract class AbstractDatabaseEngineTest {
 	storageEngine = null;
     }
 
-    public static BigTableEngineConfiguration getConfiguration() {
+    public static BigTableConfiguration getConfiguration() {
 	return configuration;
     }
 
-    public static void setConfiguration(BigTableEngineConfiguration configuration) {
+    public static void setConfiguration(BigTableConfiguration configuration) {
 	AbstractDatabaseEngineTest.configuration = configuration;
     }
 

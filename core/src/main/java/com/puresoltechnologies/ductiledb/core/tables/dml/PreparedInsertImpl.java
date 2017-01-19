@@ -42,7 +42,7 @@ public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements 
     public TableRowIterable execute(Map<Integer, Comparable<?>> placeholderValues) {
 	TableStoreImpl tableStore = getTableStore();
 	NamespaceEngineImpl namespaceEngine = tableStore.getStorageEngine().getNamespaceEngine(namespace);
-	TableEngineImpl tableEngine = namespaceEngine.getTableEngine(table);
+	TableEngineImpl tableEngine = namespaceEngine.getTable(table);
 
 	TableDefinition tableDefinition = getTableDefinition();
 	List<ColumnDefinition<?>> primaryKey = tableDefinition.getPrimaryKey();

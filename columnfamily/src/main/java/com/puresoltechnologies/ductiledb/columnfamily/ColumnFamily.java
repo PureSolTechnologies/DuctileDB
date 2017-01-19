@@ -20,17 +20,17 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  * @author Rick-Rainer Ludwig
  *
  */
-public interface ColumnFamilyEngine extends Closeable {
+public interface ColumnFamily extends Closeable {
 
-    public static ColumnFamilyEngine reopen(Storage storage, File directory) throws IOException {
+    public static ColumnFamily reopen(Storage storage, File directory) throws IOException {
 	try (BufferedInputStream descriptorFile = storage.open(new File(directory, "descriptor.json"))) {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    ColumnFamilyDescriptor descriptor = objectMapper.readValue(descriptorFile, ColumnFamilyDescriptor.class);
-	    return new ColumnFamilyEngineImpl(storage, descriptor);
+	    return new ColumnFamilyImpl(storage, descriptor);
 	}
     }
 
-    public static ColumnFamilyEngine create(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
+    public static ColumnFamily create(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    LogStoreConfiguration configuration) throws IOException {
 	if (!storage.exists(columnFamilyDescriptor.getDirectory())) {
 	    storage.createDirectory(columnFamilyDescriptor.getDirectory());
@@ -40,7 +40,7 @@ public interface ColumnFamilyEngine extends Closeable {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    objectMapper.writeValue(parameterFile, columnFamilyDescriptor);
 	}
-	return new ColumnFamilyEngineImpl(storage, columnFamilyDescriptor, configuration);
+	return new ColumnFamilyImpl(storage, columnFamilyDescriptor, configuration);
     }
 
     public void open() throws IOException;

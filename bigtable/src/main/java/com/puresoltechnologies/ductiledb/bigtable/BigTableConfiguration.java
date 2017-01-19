@@ -8,7 +8,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class BigTableEngineConfiguration {
+public class BigTableConfiguration {
 
     private LogStoreConfiguration logStoreConfiguration = new LogStoreConfiguration();
     private StorageConfiguration storage = new StorageConfiguration();

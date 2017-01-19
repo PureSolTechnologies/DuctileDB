@@ -1,49 +1,42 @@
 package com.puresoltechnologies.ductiledb.engine;
 
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import java.io.IOException;
+
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class AbstractColumnFamiliyEngineTest extends AbstractDatabaseEngineTest {
 
     private DatabaseEngineImpl engine;
-    private SchemaManager schemaManager;
-    private NamespaceDescriptor namespace;
-    private TableDescriptor tableDescriptor;
-    private ColumnFamilyDescriptor columnFamilyDescriptor;
+    private NamespaceEngine namespace;
+    private BigTable table;
+    private ColumnFamily columnFamily;
     private Storage storage;
-    private TableEngine table;
-    private ColumnFamilyEngine columnFamily;
 
-    protected ColumnFamilyEngineImpl createTestColumnFamily(String namespaceName, String tableName,
-	    String columnFamilyName) throws SchemaException, StorageException {
+    protected ColumnFamilyImpl createTestColumnFamily(String namespaceName, String tableName, String columnFamilyName)
+	    throws IOException {
 	engine = getEngine();
-	schemaManager = engine.getSchemaManager();
-	namespace = schemaManager.createNamespaceIfNotPresent(namespaceName);
-	tableDescriptor = schemaManager.createTableIfNotPresent(namespace, tableName, "");
-	columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescriptor,
-		Key.of(columnFamilyName));
+	if (!engine.hasNamespace(namespaceName)) {
+	    namespace = engine.addNamespace(namespaceName);
+	}
+	if (!namespace.hasTable(tableName)) {
+	    table = namespace.addTable(tableName, "description");
+	}
+	if (!table.hasColumnFamily(Key.of(columnFamilyName))) {
+	    columnFamily = table.addColumnFamily(Key.of(columnFamilyName));
+	}
 	storage = engine.getStorage();
-	table = engine.getTable(tableDescriptor);
-	columnFamily = ((TableEngineImpl) table).getColumnFamilyEngine(columnFamilyDescriptor.getName());
-	return (ColumnFamilyEngineImpl) columnFamily;
+	return (ColumnFamilyImpl) columnFamily;
     }
 
     protected Storage getStorage() {
 	return storage;
     }
 
-    protected ColumnFamilyDescriptor getColumnFamilyDescriptor() {
-	return columnFamilyDescriptor;
+    protected ColumnFamily getColumnFamily() {
+	return columnFamily;
     }
 }

@@ -9,7 +9,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
@@ -20,7 +20,7 @@ import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
 
-public class ColumnFamilyEngineCreateAndReopenIT {
+public class ColumnFamilyCreateAndReopenIT {
 
     @Test
     public void testCreationAndReopen() throws IOException {
@@ -28,19 +28,19 @@ public class ColumnFamilyEngineCreateAndReopenIT {
 	Storage storage = StorageFactory.getStorageInstance(configuration);
 
 	File directory = new File(
-		"/" + ColumnFamilyEngineCreateAndReopenIT.class.getSimpleName() + ".testCreationAndReopen");
+		"/" + ColumnFamilyCreateAndReopenIT.class.getSimpleName() + ".testCreationAndReopen");
 	if (storage.exists(directory)) {
 	    storage.removeDirectory(directory, true);
 	}
 	ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(Key.of("cf"), directory);
-	try (ColumnFamilyEngine store = ColumnFamilyEngine.create(storage, columnFamilyDescriptor,
+	try (ColumnFamily store = ColumnFamily.create(storage, columnFamilyDescriptor,
 		new LogStoreConfiguration())) {
 	    ColumnMap columnMap = new ColumnMap();
 	    columnMap.put(Key.of("Column"), ColumnValue.of("Value"));
 	    store.put(Key.of("Row"), columnMap);
 
 	}
-	try (ColumnFamilyEngine store = ColumnFamilyEngine.reopen(storage, directory)) {
+	try (ColumnFamily store = ColumnFamily.reopen(storage, directory)) {
 	    assertEquals("Value", Bytes.toString(store.get(Key.of("Row")).get(Key.of("Column")).getBytes()));
 	}
     }
@@ -51,18 +51,18 @@ public class ColumnFamilyEngineCreateAndReopenIT {
 	Storage storage = StorageFactory.getStorageInstance(configuration);
 
 	File directory = new File(
-		"/" + ColumnFamilyEngineCreateAndReopenIT.class.getSimpleName() + ".testDoubleCreationNotAllowed");
+		"/" + ColumnFamilyCreateAndReopenIT.class.getSimpleName() + ".testDoubleCreationNotAllowed");
 	if (storage.exists(directory)) {
 	    storage.removeDirectory(directory, true);
 	}
 	ColumnFamilyDescriptor columnFamilyDescriptor = new ColumnFamilyDescriptor(Key.of("cf"), directory);
-	try (ColumnFamilyEngine store = ColumnFamilyEngine.create(storage, columnFamilyDescriptor,
+	try (ColumnFamily store = ColumnFamily.create(storage, columnFamilyDescriptor,
 		new LogStoreConfiguration())) {
 	    ColumnMap columnMap = new ColumnMap();
 	    columnMap.put(Key.of("Column"), ColumnValue.of("Value"));
 	    store.put(Key.of("Row"), columnMap);
 	}
-	try (ColumnFamilyEngine store = ColumnFamilyEngine.create(storage, columnFamilyDescriptor,
+	try (ColumnFamily store = ColumnFamily.create(storage, columnFamilyDescriptor,
 		new LogStoreConfiguration())) {
 	    fail("Should not work.");
 	}

@@ -4,7 +4,8 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
-import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
 import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -16,7 +17,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 public interface NamespaceEngine extends Closeable {
 
     public static NamespaceEngine create(Storage storage, NamespaceDescriptor namespaceDescriptor,
-	    BigTableEngineConfiguration configuration) throws IOException {
+	    BigTableConfiguration configuration) throws IOException {
 	return new NamespaceEngineImpl(storage, namespaceDescriptor, configuration);
     }
 
@@ -24,11 +25,21 @@ public interface NamespaceEngine extends Closeable {
 	return new NamespaceEngineImpl(storage, directory);
     }
 
+    public String getName();
+
     /**
      * This method returns the descriptor of the namespace.
      * 
      * @return
      */
     public NamespaceDescriptor getDescriptor();
+
+    BigTable addTable(String name, String description) throws IOException;
+
+    BigTable getTable(String name);
+
+    boolean hasTable(String name);
+
+    void dropTable(String name);
 
 }
