@@ -1,43 +1,38 @@
 package com.puresoltechnologies.ductiledb.engine;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.util.Set;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 
     private static final String NAMESPACE = DatabaseEngineIT.class.getSimpleName();
 
     @Test
-    public void testSimpleCRUD() throws SchemaException, StorageException {
+    public void testSimpleCRUD() throws IOException {
 	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription, "testSimpleCRUD",
-		"");
-	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		Key.of("testcf"));
-	TableEngine table = engine.getTable(tableDescription);
+
+	Namespace namespace = engine.addNamespace(NAMESPACE);
+	BigTable table = namespace.addTable("testSimpleCRUD", "");
+	ColumnFamily columnFamily = table.addColumnFamily(Key.of("testcf"));
 
 	Key key = Key.of(new byte[] { 1 });
 	Put put = new Put(key);
-	put.addColumn(columnFamily.getName(), Key.of(new byte[] { 2 }), ColumnValue.of(new byte[] { 3 }));
+	put.addColumn(columnFamily.getName(), Key.of(2), ColumnValue.of(3));
 	table.put(put);
 
 	Result result = table.get(new Get(key));
@@ -46,6 +41,8 @@ public class DatabaseEngineIT extends AbstractDatabaseEngineTest {
 	Set<Key> families = result.getFamilies();
 	assertNotNull(families);
 	assertFalse(families.isEmpty());
+	ColumnMap familyMap = result.getFamilyMap(columnFamily.getName());
+	assertEquals(ColumnValue.of(3), familyMap.get(Key.of(2)));
     }
 
 }

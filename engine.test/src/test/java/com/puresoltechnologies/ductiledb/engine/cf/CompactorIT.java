@@ -4,16 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class CompactorIT extends AbstractColumnFamiliyEngineTest {
 
@@ -25,11 +25,12 @@ public class CompactorIT extends AbstractColumnFamiliyEngineTest {
      * 
      * @throws SchemaException
      * @throws InterruptedException
+     * @throws IOException
      */
     @Test
-    public void testRolloverOfEmptyCommitLog() throws SchemaException, StorageException, InterruptedException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
-		"testRolloverOfEmptyCommitLog", "testcf")) {
+    public void testRolloverOfEmptyCommitLog() throws InterruptedException, IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRolloverOfEmptyCommitLog",
+		"testcf")) {
 	    Key rowKey = Key.of(1l);
 
 	    ColumnMap result = columnFamilyEngine.get(rowKey);

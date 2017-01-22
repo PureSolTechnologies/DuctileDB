@@ -29,4 +29,18 @@ public class LogStoreConfigurationTest {
 
 	assertEquals(configuration, configuration2);
     }
+
+    @Test
+    public void testSerialization2() throws IOException {
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+	LogStoreConfiguration configuration = new LogStoreConfiguration();
+
+	String jsonString = objectMapper.writeValueAsString(configuration);
+
+	LogStoreConfiguration configuration2 = objectMapper.readValue(jsonString, LogStoreConfiguration.class);
+
+	assertEquals(configuration, configuration2);
+    }
 }

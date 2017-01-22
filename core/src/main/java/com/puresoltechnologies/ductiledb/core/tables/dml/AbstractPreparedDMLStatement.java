@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
 import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
-import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.NamespaceImpl;
 
 public abstract class AbstractPreparedDMLStatement extends AbstractPreparedStatement implements PreparedDMLStatement {
 
@@ -36,7 +36,7 @@ public abstract class AbstractPreparedDMLStatement extends AbstractPreparedState
     }
 
     protected final TableEngineImpl getTableEngine() {
-	NamespaceEngineImpl namespaceEngine = getTableStore().getStorageEngine().getNamespaceEngine(getNamespace());
+	NamespaceImpl namespaceEngine = getTableStore().getStorageEngine().getNamespaceEngine(getNamespace());
 	TableEngineImpl tableEngine = namespaceEngine.getTable(getTableName());
 	return tableEngine;
     }

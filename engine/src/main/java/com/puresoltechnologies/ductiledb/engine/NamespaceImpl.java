@@ -5,7 +5,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,21 +17,20 @@ import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableImpl;
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public class NamespaceEngineImpl implements NamespaceEngine {
+public class NamespaceImpl implements Namespace {
 
-    private static final Logger logger = LoggerFactory.getLogger(NamespaceEngine.class);
+    private static final Logger logger = LoggerFactory.getLogger(Namespace.class);
 
     private final Storage storage;
     private final NamespaceDescriptor namespaceDescriptor;
     private final BigTableConfiguration configuration;
     private final Map<String, BigTableImpl> tableEngines = new HashMap<>();
 
-    NamespaceEngineImpl(Storage storage, NamespaceDescriptor namespaceDescriptor, BigTableConfiguration configuration)
+    NamespaceImpl(Storage storage, NamespaceDescriptor namespaceDescriptor, BigTableConfiguration configuration)
 	    throws IOException {
 	this.storage = storage;
 	this.namespaceDescriptor = namespaceDescriptor;
@@ -38,6 +39,7 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	storage.createDirectory(namespaceDescriptor.getDirectory());
 	try (BufferedOutputStream parameterFile = storage
 		.create(new File(namespaceDescriptor.getDirectory(), "configuration.json"))) {
 	    objectMapper.writeValue(parameterFile, configuration);
@@ -51,7 +53,7 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 		"Namespace engine '" + namespaceDescriptor.getName() + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
-    NamespaceEngineImpl(Storage storage, File directory) throws IOException {
+    NamespaceImpl(Storage storage, File directory) throws IOException {
 	this.storage = storage;
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	try (BufferedInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
@@ -91,6 +93,15 @@ public class NamespaceEngineImpl implements NamespaceEngine {
 
     public void setRunCompactions(boolean runCompaction) {
 	tableEngines.values().forEach(engine -> engine.setRunCompactions(runCompaction));
+    }
+
+    @Override
+    public Set<String> getTables() {
+	Set<String> tableNames = new HashSet<>();
+	for (BigTable table : tableEngines.values()) {
+	    tableNames.add(table.getName());
+	}
+	return tableNames;
     }
 
     @Override

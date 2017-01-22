@@ -7,17 +7,15 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSetIT extends AbstractColumnFamiliyEngineTest {
@@ -25,9 +23,8 @@ public class DataFileSetIT extends AbstractColumnFamiliyEngineTest {
     private static String NAMESPACE = DataFileSetIT.class.getSimpleName();
 
     @Test
-    public void testIndexIterator() throws SchemaException, StorageException, IOException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testIndexIterator",
-		"testcf")) {
+    public void testIndexIterator() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testIndexIterator", "testcf")) {
 	    Storage storage = getStorage();
 
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);

@@ -1,16 +1,15 @@
-package com.puresoltechnologies.ductiledb.bigtable;
+package com.puresoltechnologies.ductiledb.engine;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class NamespaceDescriptor {
 
-    private final Map<String, TableDescriptor> tables = new HashMap<>();
     private final String name;
-    private final Storage storage;
     private final File directory;
 
     /**
@@ -23,8 +22,8 @@ public class NamespaceDescriptor {
      *            is the directory in the storage to be used to put data into
      *            which belongs to the namespace.
      */
-    public NamespaceDescriptor(Storage storage, File directory) {
-	this.storage = storage;
+    @JsonCreator
+    public NamespaceDescriptor(@JsonProperty("directory") File directory) {
 	this.directory = directory;
 	this.name = directory.getName();
 	if (!directory.isAbsolute()) {
@@ -32,6 +31,7 @@ public class NamespaceDescriptor {
 	}
     }
 
+    @JsonIgnore
     public final String getName() {
 	return name;
     }
@@ -74,22 +74,6 @@ public class NamespaceDescriptor {
 	} else if (!name.equals(other.name))
 	    return false;
 	return true;
-    }
-
-    public void addTable(TableDescriptor tableDescriptor) {
-	tables.put(tableDescriptor.getName(), tableDescriptor);
-    }
-
-    public void removeTable(TableDescriptor tableDescriptor) {
-	tables.remove(tableDescriptor.getName());
-    }
-
-    public Iterable<TableDescriptor> getTables() {
-	return tables.values();
-    }
-
-    public TableDescriptor getTable(String tableName) {
-	return tables.get(tableName);
     }
 
 }

@@ -6,27 +6,26 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 
     private static String NAMESPACE = ColumnFamilyScannerIT.class.getSimpleName();
 
     @Test
-    public void testEmptyScanner() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testEmptyScanner",
-		"testcf")) {
+    public void testEmptyScanner() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testEmptyScanner", "testcf")) {
 	    ColumnFamilyScanner scanner = columnFamilyEngine.getScanner(null, null);
 	    assertNotNull(scanner);
 	    assertFalse(scanner.hasNext());
@@ -37,8 +36,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSingleEntryScannerWithoutBounds() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testSingleEntryScannerWithoutBounds() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithoutBounds", "testcf")) {
 	    ColumnMap values = new ColumnMap();
 	    values.put(Key.of(12l), ColumnValue.of(123l));
@@ -61,8 +60,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSingleEntryScannerWithLowerBoundOnly() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testSingleEntryScannerWithLowerBoundOnly() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithLowerBoundOnly", "testcf")) {
 	    ColumnMap values = new ColumnMap();
 	    values.put(Key.of(12l), ColumnValue.of(123l));
@@ -85,8 +84,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSingleEntryScannerWithUpperBoundOnly() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testSingleEntryScannerWithUpperBoundOnly() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithUpperBoundOnly", "testcf")) {
 	    ColumnMap values = new ColumnMap();
 	    values.put(Key.of(12l), ColumnValue.of(123l));
@@ -109,8 +108,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSingleEntryScannerWithCloseBounds() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testSingleEntryScannerWithCloseBounds() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithCloseBounds", "testcf")) {
 	    ColumnMap values = new ColumnMap();
 	    values.put(Key.of(12l), ColumnValue.of(123l));
@@ -133,8 +132,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSingleEntryScannerWithWideBounds() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testSingleEntryScannerWithWideBounds() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testSingleEntryScannerWithWideBounds", "testcf")) {
 	    ColumnMap values = new ColumnMap();
 	    values.put(Key.of(12l), ColumnValue.of(123l));
@@ -157,9 +156,9 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testEmptyScannerAfterDeletion() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
-		"testEmptyScannerAfterDeletion", "testcf")) {
+    public void testEmptyScannerAfterDeletion() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testEmptyScannerAfterDeletion",
+		"testcf")) {
 	    ColumnMap values = new ColumnMap();
 	    values.put(Key.of(123l), ColumnValue.of(1234l));
 	    Key rowKey = Key.of(12345l);
@@ -181,8 +180,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testEmptyScannerAfterDeletionWithCompaction() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testEmptyScannerAfterDeletionWithCompaction() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testEmptyScannerAfterDeletionWithCompaction", "testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
@@ -212,8 +211,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testEmptyScannerAfterDeletionWithoutCompactionAfterRollover() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testEmptyScannerAfterDeletionWithoutCompactionAfterRollover() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testEmptyScannerAfterDeletionWithoutCompactionAfterRollover", "testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
@@ -244,8 +243,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testRowUpdateWithScanner() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRowUpdateWithScanner",
+    public void testRowUpdateWithScanner() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRowUpdateWithScanner",
 		"testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
@@ -292,8 +291,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testRowDeleteWithScanner() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRowDeleteWithScanner",
+    public void testRowDeleteWithScanner() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testRowDeleteWithScanner",
 		"testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
@@ -354,8 +353,8 @@ public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testRange() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testScanner", "testcf")) {
+    public void testRange() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testScanner", "testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(25 * 1024);
 

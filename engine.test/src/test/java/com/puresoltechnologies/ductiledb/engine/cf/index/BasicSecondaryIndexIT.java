@@ -11,22 +11,20 @@ import java.util.Iterator;
 import org.junit.Test;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyRow;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyScanner;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnKeySet;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.bigtable.cf.index.IndexType;
-import com.puresoltechnologies.ductiledb.bigtable.cf.index.SecondaryIndexDescriptor;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnKeySet;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.index.IndexType;
+import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.puresoltechnologies.ductiledb.engine.NamespaceImpl;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 
@@ -35,9 +33,9 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     private static final int TEST_SIZE = 150;
 
     @Test
-    public void testSecondaryIndexCreateGetDelete() throws SchemaException, StorageException, IOException {
-	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE,
-		"testSecondaryIndexCreateGetDelete", "testcf")) {
+    public void testSecondaryIndexCreateGetDelete() throws IOException {
+	try (ColumnFamilyImpl columnFamily = createTestColumnFamily(NAMESPACE, "testSecondaryIndexCreateGetDelete",
+		"testcf")) {
 
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Key.of("column1"));
@@ -77,10 +75,10 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSecondaryIndexSurvivesRestart() throws SchemaException, StorageException, IOException {
+    public void testSecondaryIndexSurvivesRestart() throws IOException {
 	SecondaryIndexDescriptor indexDescriptor;
-	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE,
-		"testSecondaryIndexSurvivesRestart", "testcf")) {
+	try (ColumnFamilyImpl columnFamily = createTestColumnFamily(NAMESPACE, "testSecondaryIndexSurvivesRestart",
+		"testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Key.of("testcol"));
 	    indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST", columnFamily.getDescriptor(), columnKeySet,
@@ -98,9 +96,9 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 	startEngine();
 
 	DatabaseEngineImpl engine = getEngine();
-	NamespaceEngineImpl namespaceEngine = engine.getNamespaceEngine(NAMESPACE);
-	TableEngineImpl tableEngine = namespaceEngine.getTable("testSecondaryIndexSurvivesRestart");
-	ColumnFamilyEngineImpl columnFamily = tableEngine.getColumnFamilyEngine(Key.of("testcf"));
+	NamespaceImpl namespaceEngine = (NamespaceImpl) engine.getNamespace(NAMESPACE);
+	BigTableImpl tableEngine = (BigTableImpl) namespaceEngine.getTable("testSecondaryIndexSurvivesRestart");
+	ColumnFamilyImpl columnFamily = (ColumnFamilyImpl) tableEngine.getColumnFamilyEngine(Key.of("testcf"));
 
 	Iterable<SecondaryIndexDescriptor> indizes = columnFamily.getIndizes();
 	Iterator<SecondaryIndexDescriptor> iterator = indizes.iterator();
@@ -110,18 +108,17 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testSecondaryIndexGetByHeapIndex() throws SchemaException, StorageException, IOException {
+    public void testSecondaryIndexGetByHeapIndex() throws IOException {
 	testIndex(IndexType.HEAP, "testSecondaryIndexGetByHeapIndex");
     }
 
     @Test
-    public void testSecondaryIndexGetByClusteredIndex() throws SchemaException, StorageException, IOException {
+    public void testSecondaryIndexGetByClusteredIndex() throws IOException {
 	testIndex(IndexType.CLUSTERED, "testSecondaryIndexGetByClusteredIndex");
     }
 
-    private void testIndex(IndexType indexType, String tableName)
-	    throws StorageException, SchemaException, IOException {
-	try (ColumnFamilyEngineImpl columnFamily = createTestColumnFamily(NAMESPACE, tableName, "testcf")) {
+    private void testIndex(IndexType indexType, String tableName) throws IOException {
+	try (ColumnFamilyImpl columnFamily = createTestColumnFamily(NAMESPACE, tableName, "testcf")) {
 	    ColumnKeySet columnKeySet = new ColumnKeySet();
 	    columnKeySet.add(Key.of("indexed"));
 	    SecondaryIndexDescriptor indexDescriptor = new SecondaryIndexDescriptor("IDX_TEST",

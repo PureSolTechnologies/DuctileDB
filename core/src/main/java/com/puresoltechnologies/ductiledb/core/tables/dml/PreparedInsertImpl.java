@@ -13,7 +13,7 @@ import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnTypeDefinitio
 import com.puresoltechnologies.ductiledb.core.tables.ddl.ColumnDefinition;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.TableDefinition;
 import com.puresoltechnologies.ductiledb.engine.CompoundKey;
-import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.NamespaceImpl;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements PreparedInsert {
@@ -41,7 +41,7 @@ public class PreparedInsertImpl extends AbstractPreparedDMLStatement implements 
     @Override
     public TableRowIterable execute(Map<Integer, Comparable<?>> placeholderValues) {
 	TableStoreImpl tableStore = getTableStore();
-	NamespaceEngineImpl namespaceEngine = tableStore.getStorageEngine().getNamespaceEngine(namespace);
+	NamespaceImpl namespaceEngine = tableStore.getStorageEngine().getNamespaceEngine(namespace);
 	TableEngineImpl tableEngine = namespaceEngine.getTable(table);
 
 	TableDefinition tableDefinition = getTableDefinition();

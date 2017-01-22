@@ -2,6 +2,7 @@ package com.puresoltechnologies.ductiledb.engine;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 
@@ -18,10 +19,14 @@ public interface DatabaseEngine extends Closeable {
 
     public String getStoreName();
 
-    public NamespaceEngine addNamespace(String namespace) throws IOException;
+    public Set<String> getNamespaces();
 
-    public NamespaceEngine getNamespace(String namespace);
+    public Namespace addNamespace(String namespace) throws IOException;
+
+    public Namespace getNamespace(String namespace);
 
     public boolean hasNamespace(String namespaceName);
+
+    public void dropNamespace(String namespaceName) throws IOException;
 
 }

@@ -16,13 +16,12 @@ import java.util.Set;
 import org.junit.Test;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.engine.io.DataFilenameFilter;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.Row;
@@ -39,9 +38,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
     private static String NAMESPACE = ColumnFamilyEngineIT.class.getSimpleName();
 
     @Test
-    public void testMemtableCRUD() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testMemtableCRUD",
-		"testcf")) {
+    public void testMemtableCRUD() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testMemtableCRUD", "testcf")) {
 	    // Check behavior of empty Memtable
 	    ColumnMap entry = columnFamilyEngine.get(Key.of(0l));
 	    assertTrue(entry.isEmpty());
@@ -109,8 +107,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testWideRow() throws SchemaException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testWideRow", "testcf")) {
+    public void testWideRow() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testWideRow", "testcf")) {
 	    ColumnMap entry = columnFamilyEngine.get(Key.of(12345l));
 	    assertTrue(entry.isEmpty());
 	    columnFamilyEngine.delete(Key.of(12345l));
@@ -135,7 +133,7 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
      * @throws SchemaException
      */
     @Test
-    public void testSmallDataAmount() throws SchemaException {
+    public void testSmallDataAmount() throws IOException {
 	Key rowKey1 = Key.of(1l);
 	Key rowKey2 = Key.of(2l);
 	Key rowKey3 = Key.of(3l);
@@ -152,8 +150,7 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	ColumnMap values3 = new ColumnMap();
 	values3.put(Key.of(31l), ColumnValue.of(311l));
 
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSmallDataAmount",
-		"testcf")) {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSmallDataAmount", "testcf")) {
 
 	    columnFamilyEngine.put(rowKey1, values1);
 	    columnFamilyEngine.put(rowKey2, values2);
@@ -227,8 +224,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
      * @throws IOException
      */
     @Test
-    public void testSingleDataFileCreation() throws SchemaException, FileNotFoundException, IOException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSingleDataFileCreation",
+    public void testSingleDataFileCreation() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testSingleDataFileCreation",
 		"testcf")) {
 	    Storage storage = getStorage();
 	    ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
@@ -299,9 +296,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testMultiDataFileCreationWithCompaction()
-	    throws SchemaException, FileNotFoundException, IOException, StorageException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
+    public void testMultiDataFileCreationWithCompaction() throws IOException, StorageException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
 		"testMultiDataFileCreationWithCompaction", "testcf")) {
 	    Storage storage = getStorage();
 	    ColumnFamilyDescriptor columnFamilyDescriptor = getColumnFamilyDescriptor();
@@ -337,9 +333,9 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
     }
 
     @Test
-    public void testLargerTriangularAmountOfData() throws StorageException, SchemaException {
-	try (ColumnFamilyEngineImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE,
-		"testLargerTriangularAmountOfData", "testcf")) {
+    public void testLargerTriangularAmountOfData() throws IOException {
+	try (ColumnFamilyImpl columnFamilyEngine = createTestColumnFamily(NAMESPACE, "testLargerTriangularAmountOfData",
+		"testcf")) {
 	    columnFamilyEngine.setMaxCommitLogSize(100 * 1024 * 1024);
 	    columnFamilyEngine.setMaxDataFileSize(1024 * 1024 * 1024);
 

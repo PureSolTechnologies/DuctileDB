@@ -6,40 +6,34 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.NavigableMap;
 
 import org.junit.Test;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableImpl;
 import com.puresoltechnologies.ductiledb.bigtable.Delete;
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
 import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
 import com.puresoltechnologies.ductiledb.bigtable.Scan;
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnFamilyEngineImpl;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class ResultScannerIT extends AbstractDatabaseEngineTest {
 
     private static final String NAMESPACE = ResultScannerIT.class.getSimpleName();
 
     @Test
-    public void testEmptyScanner() throws SchemaException, StorageException {
+    public void testEmptyScanner() throws IOException {
 	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScanner", "");
-	schemaManager.createColumnFamilyIfNotPresent(tableDescription, Key.of("testcf"));
-	TableEngine table = engine.getTable(tableDescription);
+
+	Namespace namespace = engine.addNamespace(NAMESPACE);
+	BigTable table = namespace.addTable("testEmptyScanner", "");
+	table.addColumnFamily(Key.of("testcf"));
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -49,15 +43,12 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
     }
 
     @Test
-    public void testEmptyScannerAfterDeletion() throws SchemaException, StorageException {
+    public void testEmptyScannerAfterDeletion() throws IOException {
 	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScannerAfterDeletion", "");
-	ColumnFamilyDescriptor columnFamily = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		Key.of("testcf"));
-	TableEngine table = engine.getTable(tableDescription);
+
+	Namespace namespace = engine.addNamespace(NAMESPACE);
+	BigTable table = namespace.addTable("testEmptyScannerAfterDeletion", "");
+	ColumnFamily columnFamily = table.addColumnFamily(Key.of("testcf"));
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -84,20 +75,16 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
     }
 
     @Test
-    public void testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property()
-	    throws SchemaException, StorageException {
+    public void testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property() throws IOException {
 	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property", "");
+	Namespace namespace = engine.addNamespace(NAMESPACE);
+	BigTableImpl table = (BigTableImpl) namespace
+		.addTable("testEmptyScannerAfterDeletionWithCompactionMultiVertex1Property", "");
 	Key columnFamilyName = Key.of("testcf");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		columnFamilyName);
-	TableEngineImpl table = (TableEngineImpl) engine.getTable(tableDescription);
-	ColumnFamilyEngineImpl columnFamilyEngine = table.getColumnFamilyEngine(columnFamilyName);
-	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
-	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	ColumnFamilyImpl columnFamily = (ColumnFamilyImpl) table.addColumnFamily(columnFamilyName);
+
+	columnFamily.setMaxCommitLogSize(5 * 1024);
+	columnFamily.setMaxDataFileSize(25 * 1024);
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -107,7 +94,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 
 	for (long i = 1; i <= 1000; ++i) {
 	    Put put = new Put(Key.of(i));
-	    put.addColumn(columnFamilyDescriptor.getName(), Key.of(i * 10), ColumnValue.of(i * 100));
+	    put.addColumn(columnFamily.getName(), Key.of(i * 10), ColumnValue.of(i * 100));
 	    table.put(put);
 	}
 
@@ -128,20 +115,16 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
     }
 
     @Test
-    public void testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns()
-	    throws SchemaException, StorageException {
+    public void testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns() throws IOException {
 	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns", "");
+	Namespace namespace = engine.addNamespace(NAMESPACE);
+	BigTableImpl table = (BigTableImpl) namespace
+		.addTable("testEmptyScannerAfterDeletionWithCompaction1VertexMultiColumns", "");
 	Key columnFamilyName = Key.of("testcf");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		columnFamilyName);
-	TableEngineImpl table = (TableEngineImpl) engine.getTable(tableDescription);
-	ColumnFamilyEngineImpl columnFamilyEngine = table.getColumnFamilyEngine(columnFamilyName);
-	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
-	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	ColumnFamilyImpl columnFamily = (ColumnFamilyImpl) table.addColumnFamily(columnFamilyName);
+
+	columnFamily.setMaxCommitLogSize(5 * 1024);
+	columnFamily.setMaxDataFileSize(25 * 1024);
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -151,7 +134,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 
 	for (long i = 1; i <= 1000; ++i) {
 	    Put put = new Put(Key.of(1l));
-	    put.addColumn(columnFamilyDescriptor.getName(), Key.of(i * 10), ColumnValue.of(i * 100));
+	    put.addColumn(columnFamily.getName(), Key.of(i * 10), ColumnValue.of(i * 100));
 	    table.put(put);
 	}
 
@@ -170,19 +153,15 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
     }
 
     @Test
-    public void testScannerRangeScan() throws StorageException, SchemaException {
+    public void testScannerRangeScan() throws IOException {
 	DatabaseEngine engine = getEngine();
-	SchemaManager schemaManager = engine.getSchemaManager();
-	NamespaceDescriptor namespaceDescription = schemaManager.createNamespaceIfNotPresent(NAMESPACE);
-	TableDescriptor tableDescription = schemaManager.createTableIfNotPresent(namespaceDescription,
-		"testScannerRangeScan", "");
+	Namespace namespace = engine.addNamespace(NAMESPACE);
+	BigTableImpl table = (BigTableImpl) namespace.addTable("testScannerRangeScan", "");
 	Key columnFamilyName = Key.of("testcf");
-	ColumnFamilyDescriptor columnFamilyDescriptor = schemaManager.createColumnFamilyIfNotPresent(tableDescription,
-		columnFamilyName);
-	TableEngineImpl table = (TableEngineImpl) engine.getTable(tableDescription);
-	ColumnFamilyEngineImpl columnFamilyEngine = table.getColumnFamilyEngine(columnFamilyName);
-	columnFamilyEngine.setMaxCommitLogSize(5 * 1024);
-	columnFamilyEngine.setMaxDataFileSize(25 * 1024);
+	ColumnFamilyImpl columnFamily = (ColumnFamilyImpl) table.addColumnFamily(columnFamilyName);
+
+	columnFamily.setMaxCommitLogSize(5 * 1024);
+	columnFamily.setMaxDataFileSize(25 * 1024);
 
 	ResultScanner scanner = table.getScanner(new Scan());
 	assertNotNull(scanner);
@@ -192,7 +171,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 
 	for (long i = 1; i <= 1000; ++i) {
 	    Put put = new Put(Key.of(i));
-	    put.addColumn(columnFamilyDescriptor.getName(), Key.of(i * 10), ColumnValue.of(i * 100));
+	    put.addColumn(columnFamily.getName(), Key.of(i * 10), ColumnValue.of(i * 100));
 	    table.put(put);
 	}
 
@@ -203,7 +182,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	while (scanner.hasNext()) {
 	    Result startResult = scanner.next();
 	    assertEquals(current, startResult.getRowKey().toLong());
-	    NavigableMap<Key, ColumnValue> familyMap = startResult.getFamilyMap(columnFamilyDescriptor.getName());
+	    NavigableMap<Key, ColumnValue> familyMap = startResult.getFamilyMap(columnFamily.getName());
 	    assertNotNull(familyMap);
 	    assertEquals(current * 100l, familyMap.get(Key.of(current * 10)).toLong());
 	    ++current;

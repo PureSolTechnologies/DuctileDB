@@ -12,7 +12,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
@@ -20,6 +19,7 @@ import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.core.tables.columns.ColumnType;
 import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 
 public class TableStoreTablesIT extends AbstractTableStoreTest {

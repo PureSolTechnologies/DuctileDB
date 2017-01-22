@@ -40,10 +40,9 @@ public class LogStoreConfiguration {
     public int getBufferSize() {
 	if (bufferSize <= 0) {
 	    int blockSize = StorageConfiguration.DEFAULT_BLOCKSIZE;
-	    return ((int) (getMaxCommitLogSize() / 10) / blockSize) * blockSize;
-	} else {
-	    return bufferSize;
+	    this.bufferSize = ((int) (getMaxCommitLogSize() / 10) / blockSize) * blockSize;
 	}
+	return bufferSize;
     }
 
     public int getMaxFileGenerations() {

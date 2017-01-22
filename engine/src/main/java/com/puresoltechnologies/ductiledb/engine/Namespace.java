@@ -3,10 +3,10 @@ package com.puresoltechnologies.ductiledb.engine;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
@@ -14,15 +14,15 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface NamespaceEngine extends Closeable {
+public interface Namespace extends Closeable {
 
-    public static NamespaceEngine create(Storage storage, NamespaceDescriptor namespaceDescriptor,
+    public static Namespace create(Storage storage, NamespaceDescriptor namespaceDescriptor,
 	    BigTableConfiguration configuration) throws IOException {
-	return new NamespaceEngineImpl(storage, namespaceDescriptor, configuration);
+	return new NamespaceImpl(storage, namespaceDescriptor, configuration);
     }
 
-    public static NamespaceEngine reopen(Storage storage, File directory) throws IOException {
-	return new NamespaceEngineImpl(storage, directory);
+    public static Namespace reopen(Storage storage, File directory) throws IOException {
+	return new NamespaceImpl(storage, directory);
     }
 
     public String getName();
@@ -33,6 +33,8 @@ public interface NamespaceEngine extends Closeable {
      * @return
      */
     public NamespaceDescriptor getDescriptor();
+
+    public Set<String> getTables();
 
     BigTable addTable(String name, String description) throws IOException;
 

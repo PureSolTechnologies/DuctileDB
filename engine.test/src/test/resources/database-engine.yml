@@ -7,6 +7,6 @@
   },
   "storage" : {
     "blockSize" : 8192,
-    "properties" : {storage.os.directory: "/tmp/storage_test"}
+    "properties" : {"storage.os.directory": "/tmp/storage_test"}
   }
 }

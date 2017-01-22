@@ -15,7 +15,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.puresoltechnologies.ductiledb.bigtable.NamespaceDescriptor;
 import com.puresoltechnologies.ductiledb.core.cli.DuctileDBConsoleOutput;
 import com.puresoltechnologies.ductiledb.core.tables.AbstractTableStoreTest;
 import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
@@ -25,7 +24,8 @@ import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateNamespace;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.CreateTable;
 import com.puresoltechnologies.ductiledb.core.tables.ddl.DataDefinitionLanguage;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.NamespaceEngineImpl;
+import com.puresoltechnologies.ductiledb.engine.NamespaceDescriptor;
+import com.puresoltechnologies.ductiledb.engine.NamespaceImpl;
 import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
 
 public class TableStoreBasicIT extends AbstractTableStoreTest {
@@ -33,7 +33,7 @@ public class TableStoreBasicIT extends AbstractTableStoreTest {
     private static final String NAMESPACE = "basicit";
     private static final DuctileDBConsoleOutput consoleOutput = new DuctileDBConsoleOutput(System.out);
 
-    private static NamespaceEngineImpl namespaceEngine;
+    private static NamespaceImpl namespaceEngine;
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
