@@ -21,7 +21,6 @@ import com.puresoltechnologies.ductiledb.core.DuctileDB;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.graph.utils.ElementUtils;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
@@ -30,7 +29,7 @@ public class AbstractDuctileDBGraphTest extends AbstractDuctileDBTest {
     private static GraphStoreImpl graph = null;
 
     @BeforeClass
-    public static void connect() throws IOException, SchemaException {
+    public static void connect() throws IOException {
 	ductileDB = getDuctileDB();
 	graph = (GraphStoreImpl) ductileDB.getGraph();
 	// Normally meaningless, but we do nevertheless, if tests change...

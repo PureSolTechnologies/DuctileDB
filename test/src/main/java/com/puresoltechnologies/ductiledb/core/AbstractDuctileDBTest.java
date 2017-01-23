@@ -10,16 +10,16 @@ import java.net.URL;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.yaml.snakeyaml.Yaml;
 
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class AbstractDuctileDBTest {
 
-    public static final URL DEFAULT_TEST_CONFIG_URL = AbstractDuctileDBTest.class.getResource("/ductiledb-test.yml");
+    public static final URL DEFAULT_TEST_CONFIG_URL = AbstractDuctileDBTest.class.getResource("/ductiledb-test.json");
 
     private static DuctileDBConfiguration configuration = null;
     private static DuctileDB ductileDB = null;
@@ -35,7 +35,7 @@ public class AbstractDuctileDBTest {
      * @throws SchemaException
      */
     @BeforeClass
-    public static void initializeDuctileDB() throws SchemaException, IOException {
+    public static void initializeDuctileDB() throws IOException {
 	configuration = readTestConfigration();
 	storage = StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage());
 	cleanTestStorageDirectory(storage);
@@ -63,9 +63,9 @@ public class AbstractDuctileDBTest {
     }
 
     public static DuctileDBConfiguration readTestConfigration() throws IOException {
-	Yaml yaml = new Yaml();
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	try (InputStream inputStream = DEFAULT_TEST_CONFIG_URL.openStream()) {
-	    return yaml.loadAs(inputStream, DuctileDBConfiguration.class);
+	    return objectMapper.readValue(inputStream, DuctileDBConfiguration.class);
 	}
     }
 

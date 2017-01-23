@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 import com.puresoltechnologies.ductiledb.bigtable.Delete;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;

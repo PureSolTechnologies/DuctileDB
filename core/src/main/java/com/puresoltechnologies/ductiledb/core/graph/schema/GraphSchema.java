@@ -1,19 +1,16 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
+import java.io.IOException;
 import java.util.Arrays;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBGraphConfiguration;
 import com.puresoltechnologies.ductiledb.core.utils.BuildInformation;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.Namespace;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class GraphSchema {
 
@@ -33,46 +30,41 @@ public class GraphSchema {
     public static final String DUCTILEDB_CREATE_TIMESTAMP_PROPERTY = "~ductiledb.timestamp.created";
 
     private final DatabaseEngine storageEngine;
-    private final String namespace;
+    private final String namespaceName;
 
     public GraphSchema(DatabaseEngine storageEngine, DuctileDBGraphConfiguration configuration) {
 	super();
 	this.storageEngine = storageEngine;
-	this.namespace = configuration.getNamespace();
+	this.namespaceName = configuration.getNamespace();
     }
 
-    public void checkAndCreateEnvironment() throws SchemaException, StorageException {
-	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	NamespaceDescriptor namespace = assureNamespacePresence(schemaManager);
-	assureMetaDataTablePresence(schemaManager, namespace);
-	assurePropertiesTablePresence(schemaManager, namespace);
-	assureTypesTablePresence(schemaManager, namespace);
-	assureVerticesTablePresence(schemaManager, namespace);
-	assureEdgesTablePresence(schemaManager, namespace);
-	assureVertexTypesIndexTablePresence(schemaManager, namespace);
-	assureVertexPropertiesIndexTablePresence(schemaManager, namespace);
-	assureEdgeTypesIndexTablePresence(schemaManager, namespace);
-	assureEdgePropertiesIndexTablePresence(schemaManager, namespace);
+    public void checkAndCreateEnvironment() throws IOException {
+	Namespace namespace = assureNamespacePresence(storageEngine);
+	assureMetaDataTablePresence(namespace);
+	assurePropertiesTablePresence(namespace);
+	assureTypesTablePresence(namespace);
+	assureVerticesTablePresence(namespace);
+	assureEdgesTablePresence(namespace);
+	assureVertexTypesIndexTablePresence(namespace);
+	assureVertexPropertiesIndexTablePresence(namespace);
+	assureEdgeTypesIndexTablePresence(namespace);
+	assureEdgePropertiesIndexTablePresence(namespace);
     }
 
-    private NamespaceDescriptor assureNamespacePresence(SchemaManager schemaManager)
-	    throws SchemaException, StorageException {
-	NamespaceDescriptor namespaceDescriptor = schemaManager.getNamespace(namespace);
-	if (namespaceDescriptor == null) {
-	    namespaceDescriptor = schemaManager.createNamespace(namespace);
+    private Namespace assureNamespacePresence(DatabaseEngine storageEngine) throws IOException {
+	Namespace namespace = storageEngine.getNamespace(namespaceName);
+	if (namespace == null) {
+	    namespace = storageEngine.addNamespace(namespaceName);
 	}
-	return namespaceDescriptor;
+	return namespace;
     }
 
-    private void assureMetaDataTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.METADATA.getName()) == null) {
-	    TableDescriptor tableDescription = schemaManager.createTable(namespace, DatabaseTable.METADATA.getName(),
-		    "Contains the graph metadata.");
-	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.METADATA.getKey());
-	    schemaManager.createColumnFamily(tableDescription, DatabaseColumnFamily.VARIABLES.getKey());
+    private void assureMetaDataTablePresence(Namespace namespace) throws IOException {
+	if (!namespace.hasTable(DatabaseTable.METADATA.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.METADATA.getName(), "Contains the graph metadata.");
+	    table.addColumnFamily(DatabaseColumnFamily.METADATA.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.VARIABLES.getKey());
 
-	    TableEngine table = storageEngine.getTable(namespace.getName(), DatabaseTable.METADATA.getName());
 	    Put vertexIdPut = new Put(ID_ROW_KEY);
 	    vertexIdPut.addColumn(DatabaseColumnFamily.METADATA.getKey(), DatabaseColumn.VERTEX_ID.getKey(),
 		    ColumnValue.of(1l));
@@ -91,81 +83,69 @@ public class GraphSchema {
 	}
     }
 
-    private void assurePropertiesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName(),
+    private void assurePropertiesTablePresence(Namespace namespace) throws IOException {
+	if (!namespace.hasTable(DatabaseTable.PROPERTY_DEFINITIONS.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.PROPERTY_DEFINITIONS.getName(),
 		    "Contains the properties.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGE_DEFINITION.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.EDGE_DEFINITION.getKey());
 	}
     }
 
-    private void assureTypesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName(),
-		    "Contains the types.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGE_DEFINITION.getKey());
+    private void assureTypesTablePresence(Namespace namespace) throws IOException {
+	if (!namespace.hasTable(DatabaseTable.TYPE_DEFINITIONS.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.TYPE_DEFINITIONS.getName(), "Contains the types.");
+	    table.addColumnFamily(DatabaseColumnFamily.VERTEX_DEFINITION.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.EDGE_DEFINITION.getKey());
 	}
     }
 
-    private void assureVerticesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.VERTICES.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.VERTICES.getName(),
-		    "Contains the vertices.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.TYPES.getKey());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.EDGES.getKey());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.PROPERTIES.getKey());
+    private void assureVerticesTablePresence(Namespace namespace) throws IOException {
+	if (!namespace.hasTable(DatabaseTable.VERTICES.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.VERTICES.getName(), "Contains the vertices.");
+	    table.addColumnFamily(DatabaseColumnFamily.TYPES.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.EDGES.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.PROPERTIES.getKey());
 	}
     }
 
-    private void assureEdgesTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.EDGES.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.EDGES.getName(),
-		    "Contains the edges.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.TYPES.getKey());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.PROPERTIES.getKey());
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.VERICES.getKey());
+    private void assureEdgesTablePresence(Namespace namespace) throws IOException {
+	if (!namespace.hasTable(DatabaseTable.EDGES.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.EDGES.getName(), "Contains the edges.");
+	    table.addColumnFamily(DatabaseColumnFamily.TYPES.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.PROPERTIES.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.VERICES.getKey());
 	}
     }
 
-    private void assureVertexTypesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.VERTEX_TYPES.getName(),
+    private void assureVertexTypesIndexTablePresence(Namespace namespace) throws IOException {
+	if (namespace.hasTable(DatabaseTable.VERTEX_TYPES.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.VERTEX_TYPES.getName(),
 		    "Contains the vertex type index.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
-    private void assureVertexPropertiesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName(),
+    private void assureVertexPropertiesIndexTablePresence(Namespace namespace) throws IOException {
+	if (namespace.hasTable(DatabaseTable.VERTEX_PROPERTIES.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.VERTEX_PROPERTIES.getName(),
 		    "Contains te vertex propery index.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
-    private void assureEdgeTypesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.EDGE_TYPES.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.EDGE_TYPES.getName(),
-		    "Contains the edge type index.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
+    private void assureEdgeTypesIndexTablePresence(Namespace namespace) throws IOException {
+	if (namespace.hasTable(DatabaseTable.EDGE_TYPES.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.EDGE_TYPES.getName(), "Contains the edge type index.");
+	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
-    private void assureEdgePropertiesIndexTablePresence(SchemaManager schemaManager, NamespaceDescriptor namespace)
-	    throws SchemaException, StorageException {
-	if (schemaManager.getTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName()) == null) {
-	    TableDescriptor table = schemaManager.createTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName(),
+    private void assureEdgePropertiesIndexTablePresence(Namespace namespace) throws IOException {
+	if (namespace.hasTable(DatabaseTable.EDGE_PROPERTIES.getName())) {
+	    BigTable table = namespace.addTable(DatabaseTable.EDGE_PROPERTIES.getName(),
 		    "Contains the edge property index.");
-	    schemaManager.createColumnFamily(table, DatabaseColumnFamily.INDEX.getKey());
+	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 

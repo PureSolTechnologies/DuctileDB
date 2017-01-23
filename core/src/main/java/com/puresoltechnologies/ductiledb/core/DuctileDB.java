@@ -4,7 +4,7 @@ import java.io.Closeable;
 
 import com.puresoltechnologies.ductiledb.core.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
+import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 
 /**
  * This is the central interface for DuctileDB.
@@ -23,8 +23,7 @@ public interface DuctileDB extends Closeable {
     /**
      * This method returns the {@link GraphStore} of DuctileDB.
      * 
-     * @return A {@link GraphStore} object is returned to use the graph
-     *         engine.
+     * @return A {@link GraphStore} object is returned to use the graph engine.
      */
     public GraphStore getGraph();
 
@@ -36,10 +35,10 @@ public interface DuctileDB extends Closeable {
     public BlobStore getBlobStore();
 
     /**
-     * This method returns the RDBMS part of DuctileDB.
+     * This method returns the big table part of DuctileDB.
      * 
-     * @return A {@link TableStore} object is returned.
+     * @return A {@link DatabaseEngine} object is returned.
      */
-    public TableStore getTableStore();
+    public DatabaseEngine getBigTableStore();
 
 }

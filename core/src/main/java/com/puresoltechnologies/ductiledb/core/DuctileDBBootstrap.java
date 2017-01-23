@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.yaml.snakeyaml.Yaml;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 
 /**
  * This is the central factory to connect to DuctileDB. The primary goal is to
@@ -28,10 +31,13 @@ public class DuctileDBBootstrap {
      * 
      * @param inputStream
      * @return
+     * @throws IOException
+     * @throws JsonMappingException
+     * @throws JsonParseException
      */
-    public static DuctileDBConfiguration readConfiguration(InputStream inputStream) {
-	Yaml yaml = new Yaml();
-	return yaml.loadAs(inputStream, DuctileDBConfiguration.class);
+    public static DuctileDBConfiguration readConfiguration(InputStream inputStream) throws IOException {
+	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
+	return objectMapper.readValue(inputStream, DuctileDBConfiguration.class);
     }
 
     /**

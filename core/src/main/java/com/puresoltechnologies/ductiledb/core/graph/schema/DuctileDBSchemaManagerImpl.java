@@ -5,45 +5,40 @@ import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Delete;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
 import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
 import com.puresoltechnologies.ductiledb.bigtable.Scan;
-import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.ElementType;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBSchemaManagerException;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
-import com.puresoltechnologies.ductiledb.engine.NamespaceDescriptor;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaManager;
+import com.puresoltechnologies.ductiledb.engine.Namespace;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     private final GraphStoreImpl graph;
-    private final String namespace;
-    private final NamespaceDescriptor namespaceDescriptor;
-    private final TableDescriptor propertyDefinitionsTable;
+    private final Namespace namespace;
+    private final BigTable propertyDefinitionsTable;
 
     public DuctileDBSchemaManagerImpl(GraphStoreImpl graph) {
 	super();
 	this.graph = graph;
-	this.namespace = graph.getConfiguration().getNamespace();
 	DatabaseEngine storageEngine = graph.getStorageEngine();
-	SchemaManager schemaManager = storageEngine.getSchemaManager();
-	namespaceDescriptor = schemaManager.getNamespace(namespace);
-	propertyDefinitionsTable = namespaceDescriptor.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	namespace = storageEngine.getNamespace(graph.getConfiguration().getNamespace());
+	propertyDefinitionsTable = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
     }
 
     @Override
     public Iterable<String> getDefinedProperties() {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> propertyNames = new HashSet<>();
 	scanner.forEach((result) -> propertyNames.add(result.getRowKey().toString()));
@@ -59,7 +54,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	    throw new DuctileDBPropertyAlreadyDefinedException(definition);
 	}
 
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	Put put = new Put(Key.of(definition.getPropertyKey()));
 	switch (definition.getElementType()) {
 	case VERTEX:
@@ -94,8 +89,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
     public <T extends Serializable> PropertyDefinition<T> getPropertyDefinition(ElementType elementType,
 	    String propertyKey) {
 	try {
-	    TableEngine table = graph.getStorageEngine().getTable(namespace,
-		    DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	    BigTable table = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	    Get get = new Get(Key.of(propertyKey));
 	    Key columnFamily = null;
 	    switch (elementType) {
@@ -132,7 +126,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public void removePropertyDefinition(ElementType elementType, String propertyKey) {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.PROPERTY_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	Delete delete = new Delete(Key.of(propertyKey));
 	switch (elementType) {
 	case VERTEX:
@@ -155,7 +149,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Iterable<String> getDefinedTypes() {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.TYPE_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> typeNames = new HashSet<>();
 	scanner.forEach((result) -> typeNames.add(result.getRowKey().toString()));
@@ -182,8 +176,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 			+ "' with unknown property definition for key  '" + propertyKey + "'.");
 	    }
 	}
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.TYPE_DEFINITIONS.getName());
 	Put put = new Put(Key.of(typeName));
 	switch (elementType) {
 	case VERTEX:
@@ -210,7 +203,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public Set<String> getTypeDefinition(ElementType elementType, String typeName) {
-	TableEngine table = graph.getStorageEngine().getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.TYPE_DEFINITIONS.getName());
 	Get get = new Get(Key.of(typeName));
 	Key columnFamily = null;
 	switch (elementType) {
@@ -246,8 +239,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 
     @Override
     public void removeTypeDefinition(ElementType elementType, String typeName) {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.TYPE_DEFINITIONS.getName());
+	BigTable table = namespace.getTable(DatabaseTable.TYPE_DEFINITIONS.getName());
 	Delete delete = new Delete(Key.of(typeName));
 	switch (elementType) {
 	case VERTEX:

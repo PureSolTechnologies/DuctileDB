@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.List;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Delete;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManagerException;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -37,7 +37,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 
     protected void put(String tableName, Put put) throws IOException {
 	try {
-	    TableEngine table = storageEngine.getTable(namespace, tableName);
+	    BigTable table = storageEngine.getNamespace(namespace).getTable(tableName);
 	    table.put(put);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not put to table.", e);
@@ -49,7 +49,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 	    return;
 	}
 	try {
-	    TableEngine table = storageEngine.getTable(namespace, tableName);
+	    BigTable table = storageEngine.getNamespace(namespace).getTable(tableName);
 	    table.put(puts);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not put to table.", e);
@@ -58,7 +58,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 
     protected void delete(String tableName, Delete delete) throws IOException {
 	try {
-	    TableEngine table = storageEngine.getTable(namespace, tableName);
+	    BigTable table = storageEngine.getNamespace(namespace).getTable(tableName);
 	    table.delete(delete);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not delete from table.", e);
@@ -70,7 +70,7 @@ public abstract class AbstractTxOperation implements TxOperation {
 	    return;
 	}
 	try {
-	    TableEngine table = storageEngine.getTable(namespace, tableName);
+	    BigTable table = storageEngine.getNamespace(namespace).getTable(tableName);
 	    table.delete(deletes);
 	} catch (StorageException e) {
 	    throw new DuctileDBGraphManagerException("Could not delete from table.", e);

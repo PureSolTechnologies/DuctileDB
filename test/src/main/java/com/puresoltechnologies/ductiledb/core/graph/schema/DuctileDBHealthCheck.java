@@ -11,24 +11,19 @@ import java.util.NavigableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
 import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
 import com.puresoltechnologies.ductiledb.bigtable.Scan;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
-import com.puresoltechnologies.ductiledb.core.tables.ExecutionException;
-import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
-import com.puresoltechnologies.ductiledb.core.tables.dml.DataManipulationLanguage;
-import com.puresoltechnologies.ductiledb.core.tables.dml.PreparedSelect;
-import com.puresoltechnologies.ductiledb.core.tables.schema.TableStoreSchema;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
@@ -89,7 +84,8 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBVertex vertex : vertices) {
 	    logger.info("Checking '" + vertex + "'...");
 	    assertEquals(vertex, graph.getVertex(vertex.getId()));
-	    TableEngine vertexTypesTable = storageEngine.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
+	    BigTable vertexTypesTable = storageEngine.getNamespace(namespace)
+		    .getTable(DatabaseTable.VERTEX_TYPES.getName());
 	    for (String type : vertex.getTypes()) {
 		Result result = vertexTypesTable.get(new Get(Key.of(type)));
 		assertFalse("Could not find row for type '" + type + "' in vertex type index.", result.isEmpty());
@@ -99,8 +95,8 @@ public class DuctileDBHealthCheck {
 			+ vertex.getId() + "'", value);
 	    }
 
-	    TableEngine vertexPropertiesTable = storageEngine.getTable(namespace,
-		    DatabaseTable.VERTEX_PROPERTIES.getName());
+	    BigTable vertexPropertiesTable = storageEngine.getNamespace(namespace)
+		    .getTable(DatabaseTable.VERTEX_PROPERTIES.getName());
 	    for (String key : vertex.getPropertyKeys()) {
 		Object value = vertex.getProperty(key);
 		Result result = vertexPropertiesTable.get(new Get(Key.of(key)));
@@ -136,7 +132,7 @@ public class DuctileDBHealthCheck {
 	for (DuctileDBEdge edge : edges) {
 	    assertEquals(edge, graph.getEdge(edge.getId()));
 	    String type = edge.getType();
-	    TableEngine table = storageEngine.getTable(namespace, DatabaseTable.EDGE_TYPES.getName());
+	    BigTable table = storageEngine.getNamespace(namespace).getTable(DatabaseTable.EDGE_TYPES.getName());
 	    Result result = table.get(new Get(Key.of(type)));
 	    assertFalse("Could not find row for type '" + type + "' in edge type index.", result.isEmpty());
 	    ColumnValue value = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey())
@@ -144,7 +140,7 @@ public class DuctileDBHealthCheck {
 	    assertNotNull("Could not find edge type index entry for type '" + type + "' for edge with id '"
 		    + edge.getId() + "'", value);
 
-	    table = storageEngine.getTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName());
+	    table = storageEngine.getNamespace(namespace).getTable(DatabaseTable.EDGE_PROPERTIES.getName());
 	    for (String key : edge.getPropertyKeys()) {
 		Object propertyValue = edge.getProperty(key);
 		Result tableResult = table.get(new Get(Key.of(key)));
@@ -215,17 +211,10 @@ public class DuctileDBHealthCheck {
 		 */
 		continue;
 	    }
-	    TableEngine table = storageEngine.getTable(namespace, schemaTable.getName());
+	    BigTable table = storageEngine.getNamespace(namespace).getTable(schemaTable.getName());
 	    ResultScanner scanner = table.getScanner(new Scan());
 	    assertNull("Row data was found, but database was expected to be empty. Row found in table '"
 		    + schemaTable.name() + "'.", scanner.next());
 	}
-    }
-
-    public static void runCheckForEmpty(TableStoreImpl tableStore) throws ExecutionException {
-	DataManipulationLanguage dml = tableStore.getDataManipulationLanguage();
-	PreparedSelect select = dml.prepareSelect(TableStoreSchema.SYSTEM_NAMESPACE_NAME,
-		com.puresoltechnologies.ductiledb.core.tables.schema.DatabaseTable.TABLES.getName());
-	select.bind().execute();
     }
 }

@@ -3,7 +3,7 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;

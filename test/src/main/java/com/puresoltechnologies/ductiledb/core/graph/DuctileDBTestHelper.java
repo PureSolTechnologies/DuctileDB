@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.ductiledb.core.graph.manager.DuctileDBGraphManager;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBHealthCheck;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DuctileDBSchemaManager;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 /**
@@ -76,9 +75,5 @@ public class DuctileDBTestHelper {
 	assertEquals(GraphStoreImpl.class, graph.getClass());
 	new DuctileDBHealthCheck((GraphStoreImpl) graph).runCheck();
 	logger.info("Ductile graph deleted.");
-    }
-
-    public static void removeRDBMS(TableStore graph) throws IOException, StorageException {
-	// TODO throw new IllegalStateException("Not implemented, yet!");
     }
 }

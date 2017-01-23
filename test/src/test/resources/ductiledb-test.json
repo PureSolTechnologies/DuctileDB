@@ -1,0 +1,20 @@
+{
+  "bigTableEngine" : {
+    "logStoreConfiguration" : {
+      "maxCommitLogSize" : 1048576,
+      "maxDataFileSize" : 1073741824,
+      "bufferSize" : 98304,
+      "maxFileGenerations" : 3
+    },
+    "storage" : {
+      "blockSize" : 8192,
+      "properties" : {"storage.os.directory": "/tmp/storage_test"}
+    }
+  },
+  "blobStore" : {
+    "maxFileSize" : 10485760
+  },
+  "graph" : {
+    "namespace" : "ductiledb"
+  }
+}

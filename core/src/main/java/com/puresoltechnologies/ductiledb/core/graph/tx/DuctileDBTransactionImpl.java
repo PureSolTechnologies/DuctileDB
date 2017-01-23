@@ -17,12 +17,12 @@ import java.util.NavigableMap;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
 import com.puresoltechnologies.ductiledb.bigtable.ResultScanner;
 import com.puresoltechnologies.ductiledb.bigtable.Scan;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBAttachedEdge;
@@ -183,7 +183,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    return vertex;
 	}
 	try {
-	    TableEngine vertexTable = openVertexTable();
+	    BigTable vertexTable = openVertexTable();
 	    byte[] id = IdEncoder.encodeRowId(vertexId);
 	    Get get = new Get(Key.of(id));
 	    Result result = vertexTable.get(get);
@@ -220,7 +220,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    return edge;
 	}
 	try {
-	    TableEngine table = openEdgeTable();
+	    BigTable table = openEdgeTable();
 	    byte[] id = IdEncoder.encodeRowId(edgeId);
 	    Get get = new Get(Key.of(id));
 	    Result result = table.get(get);
@@ -244,38 +244,38 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	return (edgeCache.containsKey(edgeId)) && (edgeCache.get(edgeId) == null);
     }
 
-    TableEngine openMetaDataTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+    BigTable openMetaDataTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.METADATA.getName());
     }
 
-    TableEngine openVertexTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.VERTICES.getName());
+    BigTable openVertexTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.VERTICES.getName());
     }
 
-    TableEngine openEdgeTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.EDGES.getName());
+    BigTable openEdgeTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.EDGES.getName());
     }
 
-    TableEngine openVertexPropertyTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.VERTEX_PROPERTIES.getName());
+    BigTable openVertexPropertyTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.VERTEX_PROPERTIES.getName());
     }
 
-    TableEngine openVertexTypesTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.VERTEX_TYPES.getName());
+    BigTable openVertexTypesTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.VERTEX_TYPES.getName());
     }
 
-    TableEngine openEdgePropertyTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.EDGE_PROPERTIES.getName());
+    BigTable openEdgePropertyTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.EDGE_PROPERTIES.getName());
     }
 
-    TableEngine openEdgeTypesTable() throws IOException {
-	return storageEngine.getTable(namespace, DatabaseTable.EDGE_TYPES.getName());
+    BigTable openEdgeTypesTable() throws IOException {
+	return storageEngine.getNamespace(namespace).getTable(DatabaseTable.EDGE_TYPES.getName());
     }
 
     final long createVertexId() {
 	if (vertexIdCounter >= ID_CACHE_SIZE) {
 	    try {
-		TableEngine metaDataTable = openMetaDataTable();
+		BigTable metaDataTable = openMetaDataTable();
 		nextVertexId = metaDataTable.incrementColumnValue(ID_ROW_KEY, DatabaseColumnFamily.METADATA.getKey(),
 			DatabaseColumn.VERTEX_ID.getKey(), ID_CACHE_SIZE);
 		vertexIdCounter = 0;
@@ -292,7 +292,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     final long createEdgeId() {
 	if (edgeIdCounter >= ID_CACHE_SIZE) {
 	    try {
-		TableEngine metaDataTable = openMetaDataTable();
+		BigTable metaDataTable = openMetaDataTable();
 		nextEdgeId = metaDataTable.incrementColumnValue(ID_ROW_KEY, DatabaseColumnFamily.METADATA.getKey(),
 			DatabaseColumn.EDGE_ID.getKey(), ID_CACHE_SIZE);
 		edgeIdCounter = 0;
@@ -350,7 +350,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public Iterable<DuctileDBEdge> getEdges() {
 	try {
-	    TableEngine table = openEdgeTable();
+	    BigTable table = openEdgeTable();
 	    ResultScanner result = table.getScanner(new Scan());
 	    return new AttachedEdgeIterable(this, result);
 	} catch (IOException e) {
@@ -364,7 +364,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    throw new IllegalArgumentException("Property key must not be null.");
 	}
 	try {
-	    TableEngine table = openEdgePropertyTable();
+	    BigTable table = openEdgePropertyTable();
 	    List<DuctileDBEdge> edges = new ArrayList<>();
 	    Result result = table.get(new Get(Key.of(propertyKey)));
 	    NavigableMap<Key, ColumnValue> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
@@ -414,7 +414,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    throw new IllegalArgumentException("Type must not be null.");
 	}
 	try {
-	    TableEngine table = openEdgeTypesTable();
+	    BigTable table = openEdgeTypesTable();
 	    Result result = table.get(new Get(Key.of(type)));
 	    NavigableMap<Key, ColumnValue> map = result.getFamilyMap(DatabaseColumnFamily.INDEX.getKey());
 	    List<DuctileDBEdge> edges = new ArrayList<>();
@@ -460,7 +460,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
     @Override
     public Iterable<DuctileDBVertex> getVertices() {
 	try {
-	    TableEngine table = openVertexTable();
+	    BigTable table = openVertexTable();
 	    ResultScanner result = table.getScanner(new Scan());
 	    return new AttachedVertexIterable(this, result);
 	} catch (IOException e) {
@@ -474,7 +474,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    throw new IllegalArgumentException("Property key must not be null.");
 	}
 	try {
-	    TableEngine table = openVertexPropertyTable();
+	    BigTable table = openVertexPropertyTable();
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
 	    Get get = new Get(Key.of(propertyKey));
 	    get.addFamily(DatabaseColumnFamily.INDEX.getKey());
@@ -525,7 +525,7 @@ public class DuctileDBTransactionImpl implements DuctileDBTransaction {
 	    throw new IllegalArgumentException("Type must not be null.");
 	}
 	try {
-	    TableEngine table = openVertexTypesTable();
+	    BigTable table = openVertexTypesTable();
 	    List<DuctileDBVertex> vertices = new ArrayList<>();
 	    Get get = new Get(Key.of(type));
 	    get.addFamily(DatabaseColumnFamily.INDEX.getKey());

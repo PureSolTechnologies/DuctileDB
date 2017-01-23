@@ -6,19 +6,19 @@ import java.util.HashSet;
 import java.util.NavigableMap;
 import java.util.Set;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Delete;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumn;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.Serializer;
-import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
+import com.puresoltechnologies.ductiledb.engine.Namespace;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.versioning.Version;
@@ -26,12 +26,12 @@ import com.puresoltechnologies.versioning.Version;
 public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     private final GraphStoreImpl graph;
-    private final String namespace;
+    private final Namespace namespace;
 
     public DuctileDBGraphManagerImpl(GraphStoreImpl graph) {
 	super();
 	this.graph = graph;
-	this.namespace = graph.getConfiguration().getNamespace();
+	this.namespace = graph.getStorageEngine().getNamespace(graph.getConfiguration().getNamespace());
     }
 
     @Override
@@ -41,8 +41,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public Version getVersion() {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	BigTable table = namespace.getTable(DatabaseTable.METADATA.getName());
 	Result result;
 	try {
 	    result = table.get(new Get(DatabaseColumn.SCHEMA_VERSION.getKey()));
@@ -56,8 +55,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public Iterable<String> getVariableNames() {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	BigTable table = namespace.getTable(DatabaseTable.METADATA.getName());
 	Set<String> variableNames = new HashSet<>();
 	Result result;
 	try {
@@ -78,8 +76,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
     @Override
     public <T extends Serializable> void setVariable(String variableName, T value) {
 	try {
-	    DatabaseEngine storageEngine = graph.getStorageEngine();
-	    TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	    BigTable table = namespace.getTable(DatabaseTable.METADATA.getName());
 	    Put put = new Put(DatabaseColumnFamily.VARIABLES.getKey());
 	    put.addColumn(DatabaseColumnFamily.VARIABLES.getKey(), Key.of(variableName),
 		    ColumnValue.of(Serializer.serializePropertyValue(value)));
@@ -92,8 +89,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public <T> T getVariable(String variableName) {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	BigTable table = namespace.getTable(DatabaseTable.METADATA.getName());
 	Result result;
 	try {
 	    result = table.get(new Get(DatabaseColumnFamily.VARIABLES.getKey()));
@@ -113,8 +109,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 
     @Override
     public void removeVariable(String variableName) {
-	DatabaseEngine storageEngine = graph.getStorageEngine();
-	TableEngine table = storageEngine.getTable(namespace, DatabaseTable.METADATA.getName());
+	BigTable table = namespace.getTable(DatabaseTable.METADATA.getName());
 	Delete delete = new Delete(DatabaseColumnFamily.VARIABLES.getKey());
 	delete.addColumns(DatabaseColumnFamily.VARIABLES.getKey(), Key.of(variableName));
 	try {

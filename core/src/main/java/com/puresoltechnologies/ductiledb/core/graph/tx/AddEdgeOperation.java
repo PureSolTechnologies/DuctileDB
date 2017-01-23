@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeValue;

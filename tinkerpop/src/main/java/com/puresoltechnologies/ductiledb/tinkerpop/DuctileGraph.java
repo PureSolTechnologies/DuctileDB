@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.tinkerpop;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ import com.puresoltechnologies.ductiledb.core.DuctileDBConfiguration;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.tinkerpop.compute.DuctileGraphComputerView;
 import com.puresoltechnologies.ductiledb.tinkerpop.features.DuctileFeatures;
 import com.puresoltechnologies.ductiledb.tinkerpop.gremlin.GremlinQueryExecutor;
@@ -45,8 +42,7 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
     public static final String DUCTILEDB_CONFIG_FILE_PROPERTY = "ductiledb.configuration.file";
     public static final String DUCTILEDB_NAMESPACE_PROPERTY = "ductiledb.configuration.namespace";
 
-    public static DuctileGraph open(Configuration configuration)
-	    throws FileNotFoundException, StorageException, SchemaException, IOException {
+    public static DuctileGraph open(Configuration configuration) throws IOException {
 	URL ductileDBConfigFile = new URL(configuration.getString(DUCTILEDB_CONFIG_FILE_PROPERTY));
 	DuctileDBConfiguration ductileDBConfiguration = DuctileDBBootstrap.readConfiguration(ductileDBConfigFile);
 	String namespace = configuration.getString(DUCTILEDB_NAMESPACE_PROPERTY);
@@ -58,8 +54,7 @@ public class DuctileGraph implements Graph, WrappedGraph<com.puresoltechnologies
 	return new DuctileGraph(ductileDB.getGraph(), configuration);
     }
 
-    public static DuctileGraph open(DuctileDB ductileDB)
-	    throws FileNotFoundException, StorageException, SchemaException, IOException {
+    public static DuctileGraph open(DuctileDB ductileDB) throws IOException {
 	return new DuctileGraph(ductileDB.getGraph(), new BaseConfiguration());
     }
 

@@ -18,10 +18,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>jdbc</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.puresoltechnologies.ductiledb</groupId>
 			<artifactId>storage.os</artifactId>
 		</dependency>
 		<dependency>

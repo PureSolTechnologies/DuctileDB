@@ -1,31 +1,32 @@
 package com.puresoltechnologies.ductiledb.core;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.ductiledb.bigtable.BigTableEngineConfiguration;
+import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStore;
 import com.puresoltechnologies.ductiledb.core.blob.BlobStoreImpl;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStore;
 import com.puresoltechnologies.ductiledb.core.graph.GraphStoreImpl;
-import com.puresoltechnologies.ductiledb.core.tables.TableStore;
-import com.puresoltechnologies.ductiledb.core.tables.TableStoreImpl;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngine;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
+import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;
 
 public class DuctileDBImpl implements DuctileDB {
 
     private final static Logger logger = LoggerFactory.getLogger(DuctileDBImpl.class);
 
-    private final static String DIRECTORY_NAME = "ductiledb";
+    private final static String DIRECTORY_NAME = "/graph";
 
     private final DuctileDBConfiguration configuration;
     private final BlobStoreImpl blobStore;
     private final GraphStoreImpl graph;
-    private final TableStoreImpl tableStore;
+    private final DatabaseEngineImpl tableStore;
 
     private boolean closed = false;
 
@@ -33,11 +34,10 @@ public class DuctileDBImpl implements DuctileDB {
 	try {
 	    this.configuration = configuration;
 	    this.blobStore = new BlobStoreImpl(configuration, DIRECTORY_NAME);
-	    DatabaseEngineImpl storageEngine = createDatabaseEngine(configuration.getBigTableEngine(), DIRECTORY_NAME);
-	    this.graph = new GraphStoreImpl(configuration.getGraph(), blobStore, storageEngine, true);
-	    this.tableStore = new TableStoreImpl(configuration.getTableStore(), storageEngine, true);
-	} catch (SchemaException e) {
-	    throw new StorageException("Could not create graph instance.", e);
+	    this.tableStore = createDatabaseEngine(configuration.getBigTableEngine(), DIRECTORY_NAME);
+	    this.graph = new GraphStoreImpl(configuration.getGraph(), blobStore, tableStore, true);
+	} catch (StorageFactoryServiceException | IOException e) {
+	    throw new StorageException("Could not start DuctileDB.", e);
 	}
     }
 
@@ -61,12 +61,15 @@ public class DuctileDBImpl implements DuctileDB {
      * 
      * @param configuration
      * @return
+     * @throws IOException
+     * @throws StorageFactoryServiceException
      */
-    private static DatabaseEngineImpl createDatabaseEngine(BigTableEngineConfiguration configuration,
-	    String directory) {
+    private static DatabaseEngineImpl createDatabaseEngine(BigTableConfiguration configuration, String directory)
+	    throws StorageFactoryServiceException, IOException {
 	logger.info("Creating connection to DuctileDB with configuration '" + configuration + "'...");
 	DatabaseEngineImpl storageEngine = new DatabaseEngineImpl(
-		StorageFactory.getStorageInstance(configuration.getStorage()), directory, configuration);
+		StorageFactory.getStorageInstance(configuration.getStorage()), new File(directory), "graph",
+		configuration);
 	logger.info("Connection '" + storageEngine + "' to DuctileDB created.");
 	return storageEngine;
     }
@@ -82,7 +85,7 @@ public class DuctileDBImpl implements DuctileDB {
     }
 
     @Override
-    public TableStore getTableStore() {
+    public DatabaseEngine getBigTableStore() {
 	return tableStore;
     }
 

@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;
 import com.puresoltechnologies.ductiledb.core.graph.utils.IdEncoder;

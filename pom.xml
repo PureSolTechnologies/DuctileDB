@@ -17,6 +17,7 @@
 		<parsers.version>0.6.0-SNAPSHOT</parsers.version>
 		<versioning.version>1.1.0</versioning.version>
 		<kryo.version>4.0.0</kryo.version>
+		<xo.version>0.6.1</xo.version>
 	</properties>
 
 	<groupId>com.puresoltechnologies.ductiledb</groupId>
@@ -421,11 +422,6 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.ductiledb</groupId>
-				<artifactId>jdbc</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.puresoltechnologies.ductiledb</groupId>
 				<artifactId>logstore</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -825,7 +821,6 @@
 		<!-- module>spark</module -->
 		<module>xo</module>
 		<module>xo.bundle</module>
-		<module>jdbc</module>
 		<module>website</module>
 	</modules>
 

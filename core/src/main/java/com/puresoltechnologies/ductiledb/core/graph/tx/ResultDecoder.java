@@ -10,7 +10,7 @@ import java.util.NavigableMap;
 import java.util.Set;
 
 import com.puresoltechnologies.ductiledb.bigtable.Result;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.DuctileDBException;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;

@@ -3,12 +3,12 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.io.Serializable;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnMap;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
@@ -63,7 +63,7 @@ public class SetEdgePropertyOperation extends AbstractTxOperation {
     public void perform() throws IOException {
 	try {
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
-	    TableEngine table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
+	    BigTable table = getStorageEngine().getNamespace(getNamespace()).getTable(DatabaseTable.VERTICES.getName());
 	    Result startVertexResult = table.get(new Get(Key.of(startVertexRowId)));
 	    if (startVertexResult.isEmpty()) {
 		throw new IllegalStateException("Start vertex of edge was not found in graph store.");

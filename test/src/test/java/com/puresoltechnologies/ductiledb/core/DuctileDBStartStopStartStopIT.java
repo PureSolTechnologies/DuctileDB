@@ -9,7 +9,6 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -35,7 +34,7 @@ public class DuctileDBStartStopStartStopIT {
      * @throws SchemaException
      */
     @BeforeClass
-    public static void initializeDuctileDB() throws SchemaException, IOException {
+    public static void initializeDuctileDB() throws IOException {
 	configuration = AbstractDuctileDBTest.readTestConfigration();
 	assertNotNull("No configuration loaded.", configuration);
 	storage = StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage());
@@ -54,7 +53,7 @@ public class DuctileDBStartStopStartStopIT {
     }
 
     @Test
-    public void test() throws SchemaException, IOException {
+    public void test() throws IOException {
 	System.out.println("===== 1st start of database =====");
 	DuctileDBBootstrap.start(configuration);
 	DuctileDB ductileDB1 = DuctileDBBootstrap.getInstance();

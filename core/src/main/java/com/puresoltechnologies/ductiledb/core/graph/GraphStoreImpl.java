@@ -24,8 +24,6 @@ import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransaction;
 import com.puresoltechnologies.ductiledb.core.graph.tx.DuctileDBTransactionImpl;
 import com.puresoltechnologies.ductiledb.core.graph.tx.TransactionType;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
-import com.puresoltechnologies.ductiledb.engine.schema.SchemaException;
-import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class GraphStoreImpl implements GraphStore {
 
@@ -43,12 +41,12 @@ public class GraphStoreImpl implements GraphStore {
     private final boolean autoCloseConnection;
 
     public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
-	    DatabaseEngineImpl storageEngine) throws SchemaException, StorageException {
+	    DatabaseEngineImpl storageEngine) throws IOException {
 	this(configuration, blobStore, storageEngine, false);
     }
 
     public GraphStoreImpl(DuctileDBGraphConfiguration configuration, BlobStoreImpl blobStore,
-	    DatabaseEngineImpl storageEngine, boolean autoCloseConnection) throws SchemaException, StorageException {
+	    DatabaseEngineImpl storageEngine, boolean autoCloseConnection) throws IOException {
 	this.configuration = configuration;
 	this.blobStore = blobStore;
 	this.storageEngine = storageEngine;

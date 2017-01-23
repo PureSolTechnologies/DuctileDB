@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import com.puresoltechnologies.ductiledb.bigtable.Put;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBVertex;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseColumnFamily;
 import com.puresoltechnologies.ductiledb.core.graph.schema.DatabaseTable;

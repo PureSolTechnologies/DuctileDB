@@ -3,12 +3,12 @@ package com.puresoltechnologies.ductiledb.core.graph.tx;
 import java.io.IOException;
 import java.util.NavigableMap;
 
+import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.Delete;
 import com.puresoltechnologies.ductiledb.bigtable.Get;
 import com.puresoltechnologies.ductiledb.bigtable.Put;
 import com.puresoltechnologies.ductiledb.bigtable.Result;
-import com.puresoltechnologies.ductiledb.bigtable.TableEngine;
-import com.puresoltechnologies.ductiledb.bigtable.cf.ColumnValue;
+import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.core.graph.DuctileDBEdge;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeDirection;
 import com.puresoltechnologies.ductiledb.core.graph.EdgeKey;
@@ -57,7 +57,7 @@ public class RemoveEdgePropertyOperation extends AbstractTxOperation {
     @Override
     public void perform() throws IOException {
 	try {
-	    TableEngine table = getStorageEngine().getTable(getNamespace(), DatabaseTable.VERTICES.getName());
+	    BigTable table = getStorageEngine().getNamespace(getNamespace()).getTable(DatabaseTable.VERTICES.getName());
 	    byte[] startVertexRowId = IdEncoder.encodeRowId(startVertexId);
 	    EdgeKey startVertexEdgeKey = new EdgeKey(EdgeDirection.OUT, edgeId, targetVertexId, type);
 	    Result startVertexResult = table.get(new Get(Key.of(startVertexRowId)));

@@ -36,7 +36,7 @@ public abstract class AbstractDatabaseEngineTest {
     @BeforeClass
     public static void readConfiguration() throws IOException, StorageFactoryServiceException, StorageException {
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
-	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.yml")) {
+	try (InputStream inputStream = AbstractDatabaseEngineTest.class.getResourceAsStream("/database-engine.json")) {
 	    configuration = objectMapper.readValue(inputStream, BigTableConfiguration.class);
 	    assertNotNull(configuration);
 	}
