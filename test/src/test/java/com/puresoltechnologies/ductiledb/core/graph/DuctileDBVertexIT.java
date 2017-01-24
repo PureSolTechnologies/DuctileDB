@@ -203,7 +203,7 @@ public class DuctileDBVertexIT extends AbstractDuctileDBGraphTest {
 	System.out.println("time: " + duration + "ms");
 	System.out.println("speed: " + speed + " vertices/s");
 	System.out.println("speed: " + 1000 / speed + " ms/vertex");
-	assertTrue(speed > 1000);
+	assertTrue(speed > 500);
 	for (DuctileDBVertex vertex : vertices) {
 	    vertex.remove();
 	}

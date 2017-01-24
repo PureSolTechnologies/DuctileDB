@@ -37,7 +37,7 @@ public class ResultDecoder {
 	NavigableMap<Key, ColumnValue> typesMap = result.getFamilyMap(DatabaseColumnFamily.TYPES.getKey());
 	if (typesMap != null) {
 	    for (Key type : typesMap.keySet()) {
-		types.add(type.toString());
+		types.add(type.toStringValue());
 	    }
 	}
 	// Reading properties...
@@ -45,7 +45,7 @@ public class ResultDecoder {
 	NavigableMap<Key, ColumnValue> propertyMap = result.getFamilyMap(DatabaseColumnFamily.PROPERTIES.getKey());
 	if (propertyMap != null) {
 	    for (Entry<Key, ColumnValue> entry : propertyMap.entrySet()) {
-		String key = entry.getKey().toString();
+		String key = entry.getKey().toStringValue();
 		if (!key.startsWith("~")) {
 		    Object value = Serializer.deserializePropertyValue(entry.getValue().getBytes());
 		    properties.put(key, value);
@@ -91,11 +91,11 @@ public class ResultDecoder {
 	    throw new DuctileDBException("Found edge with multiple types (id='" + edgeId
 		    + "'). This is not supported and an inconsistency in graph.");
 	}
-	String type = typeBytes.iterator().next().toString();
+	String type = typeBytes.iterator().next().toStringValue();
 	Map<String, Object> properties = new HashMap<>();
 	NavigableMap<Key, ColumnValue> propertiesMap = result.getFamilyMap(DatabaseColumnFamily.PROPERTIES.getKey());
 	for (Entry<Key, ColumnValue> property : propertiesMap.entrySet()) {
-	    String key = property.getKey().toString();
+	    String key = property.getKey().toStringValue();
 	    if (!key.startsWith("~")) {
 		Object value = Serializer.deserializePropertyValue(property.getValue().getBytes());
 		properties.put(key, value);

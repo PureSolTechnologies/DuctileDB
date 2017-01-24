@@ -181,7 +181,7 @@ public class ResultScannerIT extends AbstractDatabaseEngineTest {
 	long current = 100l;
 	while (scanner.hasNext()) {
 	    Result startResult = scanner.next();
-	    assertEquals(current, startResult.getRowKey().toLong());
+	    assertEquals(current, startResult.getRowKey().toLongValue());
 	    NavigableMap<Key, ColumnValue> familyMap = startResult.getFamilyMap(columnFamily.getName());
 	    assertNotNull(familyMap);
 	    assertEquals(current * 100l, familyMap.get(Key.of(current * 10)).toLong());

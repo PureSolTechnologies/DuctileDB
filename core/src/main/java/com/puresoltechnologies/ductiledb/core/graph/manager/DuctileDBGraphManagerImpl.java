@@ -68,7 +68,7 @@ public class DuctileDBGraphManagerImpl implements DuctileDBGraphManager {
 	    return variableNames;
 	}
 	for (Key column : familyMap.keySet()) {
-	    variableNames.add(column.toString());
+	    variableNames.add(column.toStringValue());
 	}
 	return variableNames;
     }

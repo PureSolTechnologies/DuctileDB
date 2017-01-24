@@ -21,7 +21,7 @@ public class DuctileDBImpl implements DuctileDB {
 
     private final static Logger logger = LoggerFactory.getLogger(DuctileDBImpl.class);
 
-    private final static String DIRECTORY_NAME = "/graph";
+    private final static String DIRECTORY_NAME = "/DuctileDB";
 
     private final DuctileDBConfiguration configuration;
     private final BlobStoreImpl blobStore;
@@ -68,7 +68,7 @@ public class DuctileDBImpl implements DuctileDB {
 	    throws StorageFactoryServiceException, IOException {
 	logger.info("Creating connection to DuctileDB with configuration '" + configuration + "'...");
 	DatabaseEngineImpl storageEngine = new DatabaseEngineImpl(
-		StorageFactory.getStorageInstance(configuration.getStorage()), new File(directory), "graph",
+		StorageFactory.getStorageInstance(configuration.getStorage()), new File(directory), "ductiledb",
 		configuration);
 	logger.info("Connection '" + storageEngine + "' to DuctileDB created.");
 	return storageEngine;

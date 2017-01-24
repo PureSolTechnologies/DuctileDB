@@ -39,9 +39,6 @@ public class AbstractDuctileDBTest {
 	configuration = readTestConfigration();
 	storage = StorageFactory.getStorageInstance(configuration.getBigTableEngine().getStorage());
 	cleanTestStorageDirectory(storage);
-	if (configuration == null) {
-	    configuration = readTestConfigration();
-	}
 	startDatabase();
 	assertNotNull("DuctileDB is null.", ductileDB);
     }

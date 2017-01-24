@@ -49,45 +49,49 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	    BigTableConfiguration configuration) throws IOException {
 	this.storage = storage;
 	this.storageDirectory = storageDirectory;
+	logger.info("Starting database engine '" + storageName + "'...");
+	StopWatch stopWatch = new StopWatch();
+	stopWatch.start();
+
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
-	if (storage.exists(storageDirectory) && storage.isDirectory(storageDirectory)) {
-	    try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "descriptor.json"))) {
+	File descriptorFile = new File(storageDirectory, "descriptor.json");
+	File configurationFile = new File(storageDirectory, "configuration.json");
+	if (!storage.exists(storageDirectory)) {
+	    storage.createDirectory(storageDirectory);
+	}
+	if (storage.exists(descriptorFile)) {
+	    try (BufferedInputStream parameterFile = storage.open(descriptorFile)) {
 		this.storageName = objectMapper.readValue(parameterFile, String.class);
 	    }
-	    logger.info("Starting database engine '" + storageName + "'...");
-	    StopWatch stopWatch = new StopWatch();
-	    stopWatch.start();
-	    try (BufferedInputStream parameterFile = storage.open(new File(storageDirectory, "configuration.json"))) {
-		this.configuration = objectMapper.readValue(parameterFile, BigTableConfiguration.class);
-	    }
-	    openNamespaces();
-	    stopWatch.stop();
-	    logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
 	} else {
-	    logger.info("Creating database engine '" + storageName + "'...");
-	    StopWatch stopWatch = new StopWatch();
-	    stopWatch.start();
 	    this.storageName = storageName;
-	    this.configuration = configuration;
-	    storage.createDirectory(storageDirectory);
-	    try (BufferedOutputStream parameterFile = storage.create(new File(storageDirectory, "descriptor.json"))) {
+	    try (BufferedOutputStream parameterFile = storage.create(descriptorFile)) {
 		objectMapper.writeValue(parameterFile, storageName);
 	    }
-	    try (BufferedOutputStream parameterFile = storage
-		    .create(new File(storageDirectory, "configuration.json"))) {
+	}
+	if (storage.exists(configurationFile)) {
+	    try (BufferedInputStream parameterFile = storage.open(configurationFile)) {
+		this.configuration = objectMapper.readValue(parameterFile, BigTableConfiguration.class);
+	    }
+	} else {
+	    this.configuration = configuration;
+	    try (BufferedOutputStream parameterFile = storage.create(configurationFile)) {
 		objectMapper.writeValue(parameterFile, configuration);
 	    }
-	    stopWatch.stop();
-	    logger.info("Database engine '" + storageName + "' created in " + stopWatch.getMillis() + "ms.");
 	}
+	openNamespaces();
+	stopWatch.stop();
+	logger.info("Database engine '" + storageName + "' started in " + stopWatch.getMillis() + "ms.");
     }
 
     private void openNamespaces() throws IOException {
 	Iterable<File> directories = storage.list(storageDirectory);
 	for (File directory : directories) {
 	    if (storage.isDirectory(directory)) {
-		NamespaceImpl engine = (NamespaceImpl) Namespace.reopen(storage, directory);
-		namespaceEngines.put(engine.getName(), engine);
+		if (storage.exists(new File(directory, "descriptor.json"))) {
+		    NamespaceImpl engine = (NamespaceImpl) Namespace.reopen(storage, directory);
+		    namespaceEngines.put(engine.getName(), engine);
+		}
 	    }
 	}
     }

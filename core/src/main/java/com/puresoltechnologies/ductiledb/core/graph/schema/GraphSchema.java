@@ -119,7 +119,7 @@ public class GraphSchema {
     }
 
     private void assureVertexTypesIndexTablePresence(Namespace namespace) throws IOException {
-	if (namespace.hasTable(DatabaseTable.VERTEX_TYPES.getName())) {
+	if (!namespace.hasTable(DatabaseTable.VERTEX_TYPES.getName())) {
 	    BigTable table = namespace.addTable(DatabaseTable.VERTEX_TYPES.getName(),
 		    "Contains the vertex type index.");
 	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
@@ -127,7 +127,7 @@ public class GraphSchema {
     }
 
     private void assureVertexPropertiesIndexTablePresence(Namespace namespace) throws IOException {
-	if (namespace.hasTable(DatabaseTable.VERTEX_PROPERTIES.getName())) {
+	if (!namespace.hasTable(DatabaseTable.VERTEX_PROPERTIES.getName())) {
 	    BigTable table = namespace.addTable(DatabaseTable.VERTEX_PROPERTIES.getName(),
 		    "Contains te vertex propery index.");
 	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
@@ -135,14 +135,14 @@ public class GraphSchema {
     }
 
     private void assureEdgeTypesIndexTablePresence(Namespace namespace) throws IOException {
-	if (namespace.hasTable(DatabaseTable.EDGE_TYPES.getName())) {
+	if (!namespace.hasTable(DatabaseTable.EDGE_TYPES.getName())) {
 	    BigTable table = namespace.addTable(DatabaseTable.EDGE_TYPES.getName(), "Contains the edge type index.");
 	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());
 	}
     }
 
     private void assureEdgePropertiesIndexTablePresence(Namespace namespace) throws IOException {
-	if (namespace.hasTable(DatabaseTable.EDGE_PROPERTIES.getName())) {
+	if (!namespace.hasTable(DatabaseTable.EDGE_PROPERTIES.getName())) {
 	    BigTable table = namespace.addTable(DatabaseTable.EDGE_PROPERTIES.getName(),
 		    "Contains the edge property index.");
 	    table.addColumnFamily(DatabaseColumnFamily.INDEX.getKey());

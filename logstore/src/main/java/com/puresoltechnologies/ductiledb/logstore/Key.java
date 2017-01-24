@@ -95,23 +95,27 @@ public class Key implements Comparable<Key> {
 	return Bytes.toHexString(bytes);
     }
 
+    public String toStringValue() {
+	return Bytes.toString(bytes);
+    }
+
     public String toHumanReadableString() {
 	return Bytes.toHumanReadableString(bytes);
     }
 
-    public byte toByte() {
+    public byte toByteValue() {
 	return Bytes.toByte(bytes);
     }
 
-    public short toShort() {
+    public short toShortValue() {
 	return Bytes.toShort(bytes);
     }
 
-    public int toInt() {
+    public int toIntValue() {
 	return Bytes.toInt(bytes);
     }
 
-    public long toLong() {
+    public long toLongValue() {
 	return Bytes.toLong(bytes);
     }
 }

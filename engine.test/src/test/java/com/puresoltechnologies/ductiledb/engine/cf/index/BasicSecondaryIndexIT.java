@@ -152,7 +152,7 @@ public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 		for (int j = 0; j <= i; ++j) {
 		    assertTrue(found.hasNext());
 		    ColumnFamilyRow row = found.next();
-		    assertEquals(row.getRowKey().toInt(), row.getColumnMap().get(Key.of("id")).toInt());
+		    assertEquals(row.getRowKey().toIntValue(), row.getColumnMap().get(Key.of("id")).toInt());
 		    assertEquals(i, row.getColumnMap().get(Key.of("indexed")).toInt());
 		}
 		assertFalse(found.hasNext());

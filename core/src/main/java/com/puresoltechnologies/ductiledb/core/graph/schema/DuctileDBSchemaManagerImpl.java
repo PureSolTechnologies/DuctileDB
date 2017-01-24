@@ -41,7 +41,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	BigTable table = namespace.getTable(DatabaseTable.PROPERTY_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> propertyNames = new HashSet<>();
-	scanner.forEach((result) -> propertyNames.add(result.getRowKey().toString()));
+	scanner.forEach((result) -> propertyNames.add(result.getRowKey().toStringValue()));
 	return propertyNames;
     }
 
@@ -152,7 +152,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	BigTable table = namespace.getTable(DatabaseTable.TYPE_DEFINITIONS.getName());
 	ResultScanner scanner = table.getScanner(new Scan());
 	Set<String> typeNames = new HashSet<>();
-	scanner.forEach((result) -> typeNames.add(result.getRowKey().toString()));
+	scanner.forEach((result) -> typeNames.add(result.getRowKey().toStringValue()));
 	return typeNames;
     }
 
@@ -232,7 +232,7 @@ public class DuctileDBSchemaManagerImpl implements DuctileDBSchemaManager {
 	}
 	Set<String> propertyKeys = new HashSet<>();
 	for (Key propertyKey : familyMap.keySet()) {
-	    propertyKeys.add(propertyKey.toString());
+	    propertyKeys.add(propertyKey.toStringValue());
 	}
 	return propertyKeys;
     }
