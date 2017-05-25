@@ -138,4 +138,10 @@ public interface ColumnFamily extends Closeable {
     public SecondaryIndexDescriptor getIndex(String name);
 
     public Iterable<SecondaryIndexDescriptor> getIndizes();
+
+    public void createFullIndex() throws IOException;
+
+    public void dropFullIndex() throws IOException;
+
+    public boolean hasFullIndex();
 }

@@ -1,11 +1,11 @@
-package com.puresoltechnologies.ductiledb.engine;
+package com.puresoltechnologies.ductiledb.columnfamily;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.engine.CompoundKey;
+import com.puresoltechnologies.ductiledb.columnfamily.CompoundKey;
 
 public class CompoundKeyTest {
 

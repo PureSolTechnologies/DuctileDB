@@ -1,14 +1,7 @@
 import {Component} from 'angular2/core';
-import {ROUTER_DIRECTIVES} from 'angular2/router';
-
-import {TwitterDuctileDBTimelineComponent} from './twitter-ductiledb-timeline.component';
 
 @Component({
 	selector: 'home',
-	directives: [
-	  TwitterDuctileDBTimelineComponent,
-	  ROUTER_DIRECTIVES
-	],
 	template:
 `<div class="container">
   <div class="row">

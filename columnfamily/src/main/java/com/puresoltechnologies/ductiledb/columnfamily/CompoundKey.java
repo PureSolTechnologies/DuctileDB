@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.engine;
+package com.puresoltechnologies.ductiledb.columnfamily;
 
 import java.util.ArrayList;
 import java.util.List;

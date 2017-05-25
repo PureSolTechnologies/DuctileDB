@@ -13,6 +13,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.columnfamily.fullindex.FullIndexEngine;
+import com.puresoltechnologies.ductiledb.columnfamily.fullindex.FullIndexEngineImpl;
 import com.puresoltechnologies.ductiledb.columnfamily.index.IndexType;
 import com.puresoltechnologies.ductiledb.columnfamily.index.IndexedColumnFamilyScannerImpl;
 import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexDescriptor;
@@ -41,24 +43,29 @@ public class ColumnFamilyImpl implements ColumnFamily {
 
     private final ColumnFamilyDescriptor columnFamilyDescriptor;
     private final File indexDirectory;
+    private final File fullIndexDirectory;
     private final Map<String, SecondaryIndexEngineImpl> indizes = new HashMap<>();
     private final Map<String, SecondaryIndexDescriptor> indexDescriptors = new HashMap<>();
+    private FullIndexEngine fullIndex = null;
 
     ColumnFamilyImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor,
 	    LogStoreConfiguration configuration) throws IOException {
-	this.store = (LogStructuredStoreImpl) LogStructuredStore.create(storage, //
+	this((LogStructuredStoreImpl) LogStructuredStore.create(storage, //
 		columnFamilyDescriptor.getDirectory(), //
-		configuration);
-	this.columnFamilyDescriptor = columnFamilyDescriptor;
-	this.indexDirectory = new File(store.getDirectory(), "indizes");
-	open();
+		configuration), columnFamilyDescriptor);
     }
 
     ColumnFamilyImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
-	this.store = (LogStructuredStoreImpl) LogStructuredStore.reopen(storage, //
-		columnFamilyDescriptor.getDirectory());
+	this((LogStructuredStoreImpl) LogStructuredStore.reopen(storage, //
+		columnFamilyDescriptor.getDirectory()), columnFamilyDescriptor);
+    }
+
+    private ColumnFamilyImpl(LogStructuredStoreImpl store, ColumnFamilyDescriptor columnFamilyDescriptor)
+	    throws IOException {
+	this.store = store;
 	this.columnFamilyDescriptor = columnFamilyDescriptor;
 	this.indexDirectory = new File(store.getDirectory(), "indizes");
+	this.fullIndexDirectory = new File(store.getDirectory(), "full_index");
 	open();
     }
 
@@ -88,6 +95,9 @@ public class ColumnFamilyImpl implements ColumnFamily {
 	    if (storage.isDirectory(directory)) {
 		readIndex(storage, directory);
 	    }
+	}
+	if (hasFullIndex()) {
+	    fullIndex = new FullIndexEngineImpl(storage, fullIndexDirectory, store.getConfiguration());
 	}
     }
 
@@ -268,6 +278,9 @@ public class ColumnFamilyImpl implements ColumnFamily {
 
     @Override
     public ColumnFamilyScanner find(Key columnKey, ColumnValue value) {
+	if (fullIndex != null) {
+	    return fullIndex.find(columnKey, value);
+	}
 	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
@@ -296,6 +309,9 @@ public class ColumnFamilyImpl implements ColumnFamily {
 
     @Override
     public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue) {
+	if (fullIndex != null) {
+	    return fullIndex.find(columnKey, fromValue, toValue);
+	}
 	SecondaryIndexEngine indexEngine = findIndexEngine(columnKey);
 	if (indexEngine == null) {
 	    return null;
@@ -426,4 +442,27 @@ public class ColumnFamilyImpl implements ColumnFamily {
 	return store.getDirectory();
     }
 
+    @Override
+    public void createFullIndex() throws IOException {
+	if (!hasFullIndex()) {
+	    store.getStorage().createDirectory(fullIndexDirectory);
+	    fullIndex = new FullIndexEngineImpl(store.getStorage(), fullIndexDirectory, store.getConfiguration());
+	}
+    }
+
+    @Override
+    public void dropFullIndex() throws IOException {
+	if (hasFullIndex()) {
+	    fullIndex.close();
+	    fullIndex = null;
+	    Storage storage = store.getStorage();
+	    storage.removeDirectory(fullIndexDirectory, true);
+	}
+    }
+
+    @Override
+    public boolean hasFullIndex() {
+	Storage storage = store.getStorage();
+	return (storage.exists(fullIndexDirectory) && storage.isDirectory(fullIndexDirectory));
+    }
 }

@@ -1,4 +1,4 @@
-import {Component} from 'angular2/core';
+import {Component} from '@angular/core';
 
 import {PureSolTechnologiesComponent} from './commons/puresol-technologies.component';
 import {PurifinityComponent} from './commons/purifinity.component';

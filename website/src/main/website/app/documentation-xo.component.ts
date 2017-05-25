@@ -1,14 +1,7 @@
-import {Component} from 'angular2/core';
-
-import {HighlighterComponent} from './commons/highlighter.component';
-import {DocumentationSelectorComponent} from './documentation-selector.component';
+import {Component} from '@angular/core';
 
 @Component({
 	selector: 'documentation-xo',
-	directives: [
-	  HighlighterComponent,
-	  DocumentationSelectorComponent,
-	],
 	templateUrl: '../html/documentation-xo.html'
 })
 export class DocumentationXOComponent {

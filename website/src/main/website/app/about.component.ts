@@ -1,14 +1,7 @@
-import {Component} from 'angular2/core';
-
-import {PureSolTechnologiesComponent} from './commons/puresol-technologies.component';
-import {PurifinityComponent} from './commons/purifinity.component';
+import {Component} from '@angular/core';
 
 @Component({
 	selector: 'about',
-	directives: [
-	  PureSolTechnologiesComponent,
-	  PurifinityComponent
-	],
 	template:
 `<div class="container"><div class="row">
   <div class="col-md-12">
