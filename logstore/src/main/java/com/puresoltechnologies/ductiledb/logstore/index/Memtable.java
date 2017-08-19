@@ -2,8 +2,8 @@ package com.puresoltechnologies.ductiledb.logstore.index;
 
 import java.io.IOException;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.streaming.StreamIterator;
 import com.puresoltechnologies.trees.RedBlackTree;
 import com.puresoltechnologies.trees.RedBlackTreeNode;
 
@@ -44,7 +44,7 @@ public class Memtable implements Iterable<IndexEntry> {
     public IndexIterator iterator() {
 	return new IndexIterator() {
 
-	    private final PeekingIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator();
+	    private final StreamIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator();
 
 	    @Override
 	    public boolean hasNext() {
@@ -82,7 +82,7 @@ public class Memtable implements Iterable<IndexEntry> {
     public IndexIterator iterator(Key startKey, Key endKey) {
 	return new IndexIterator() {
 
-	    private final PeekingIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator(startKey,
+	    private final StreamIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator(startKey,
 		    endKey);
 
 	    @Override

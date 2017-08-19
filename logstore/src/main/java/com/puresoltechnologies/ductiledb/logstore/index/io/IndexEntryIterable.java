@@ -6,11 +6,11 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.logstore.io.InputStreamIterable;
+import com.puresoltechnologies.streaming.StreamIterator;
 
 public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 
@@ -41,7 +41,7 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
     public IndexIterator iterator() {
 	return new IndexIterator() {
 
-	    private final PeekingIterator<IndexEntry> iterator = IndexEntryIterable.super.iterator();
+	    private final StreamIterator<IndexEntry> iterator = IndexEntryIterable.super.iterator();
 
 	    @Override
 	    public Key getStartRowKey() {
@@ -79,7 +79,7 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
 
     public IndexIterator iterator(Key startRowKey, Key stopRowKey) {
 	return new IndexIterator() {
-	    private final PeekingIterator<IndexEntry> iterator = IndexEntryIterable.super.iterator();
+	    private final StreamIterator<IndexEntry> iterator = IndexEntryIterable.super.iterator();
 
 	    @Override
 	    public Key getStartRowKey() {

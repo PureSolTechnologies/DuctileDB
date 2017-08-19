@@ -7,12 +7,12 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.streaming.StreamIterator;
 
 public class DataFileReader extends FileReader<DataInputStream> implements CloseableIterable<Row> {
 
@@ -62,8 +62,8 @@ public class DataFileReader extends FileReader<DataInputStream> implements Close
     }
 
     @Override
-    public PeekingIterator<Row> iterator() {
-	return new PeekingIterator<Row>() {
+    public StreamIterator<Row> iterator() {
+	return new StreamIterator<Row>() {
 
 	    private final DataInputStream stream = getStream();
 	    private Row nextEntry = null;

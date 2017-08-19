@@ -8,42 +8,29 @@
 		<version>0.2.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>test</artifactId>
+	<artifactId>server</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>server</artifactId>
+			<artifactId>core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>storage.os</artifactId>
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.ductiledb</groupId>
-			<artifactId>tinkerpop</artifactId>
+			<groupId>io.dropwizard</groupId>
+			<artifactId>dropwizard-assets</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.commons</groupId>
-			<artifactId>types</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tinkerpop</groupId>
-			<artifactId>gremlin-test</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tinkerpop</groupId>
-			<artifactId>gremlin-groovy-test</artifactId>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
 		</dependency>
 	</dependencies>
 </project>

@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.logstore.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
+import com.puresoltechnologies.streaming.StreamIterator;
 
 /**
  * This abstract class is used to create an {@link Iterable} out of an
@@ -36,8 +36,8 @@ public abstract class InputStreamIterable<T> implements CloseableIterable<T> {
     }
 
     @Override
-    public PeekingIterator<T> iterator() {
-	return new PeekingIterator<T>() {
+    public StreamIterator<T> iterator() {
+	return new StreamIterator<T>() {
 
 	    private T nextEntry = null;
 

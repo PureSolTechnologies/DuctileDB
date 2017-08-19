@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1485210143621
+Bnd-LastModified: 1503172059680
 Build-Jdk: 1.8.0_71
 Built-By: ludwig
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: com.puresoltechnologies.ductiledb.xo.Activator
-Bundle-ClassPath: .,dependencies/osgi-0.7.0-20161115.203236-11.jar,depen
+Bundle-ClassPath: .,dependencies/osgi-0.7.0-20170718.202444-12.jar,depen
  dencies/xo-0.2.0-SNAPSHOT.jar
 Bundle-Description: DuctileDB is PureSol Technologies' graph database.
 Bundle-DocURL: http://puresol-technologies.com
@@ -18,7 +18,7 @@ Created-By: Apache Maven Bundle Plugin
 Embed-Dependency: *;scope=compile|runtime;inline=false
 Embed-Directory: dependencies
 Embed-StripGroup: true
-Embedded-Artifacts: dependencies/osgi-0.7.0-20161115.203236-11.jar;g="co
+Embedded-Artifacts: dependencies/osgi-0.7.0-20170718.202444-12.jar;g="co
  m.puresoltechnologies.commons";a="osgi";v="0.7.0-SNAPSHOT",dependencies
  /xo-0.2.0-SNAPSHOT.jar;g="com.puresoltechnologies.ductiledb";a="xo";v="
  0.2.0-SNAPSHOT"

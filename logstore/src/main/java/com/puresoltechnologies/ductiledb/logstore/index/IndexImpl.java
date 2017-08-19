@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBInputStream;
@@ -12,6 +11,7 @@ import com.puresoltechnologies.ductiledb.logstore.io.MetaDataEntry;
 import com.puresoltechnologies.ductiledb.logstore.io.MetaDataEntryIterable;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.streaming.StreamIterator;
 import com.puresoltechnologies.trees.RedBlackTree;
 import com.puresoltechnologies.trees.RedBlackTreeNode;
 
@@ -113,7 +113,7 @@ public class IndexImpl implements Index {
     public IndexIterator iterator() {
 	return new IndexIterator() {
 
-	    private PeekingIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = indexTree.iterator();
+	    private StreamIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = indexTree.iterator();
 
 	    @Override
 	    public boolean hasNext() {

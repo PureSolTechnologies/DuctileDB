@@ -6,21 +6,20 @@ import java.util.NavigableMap;
 import java.util.NavigableSet;
 import java.util.TreeMap;
 
-import com.puresoltechnologies.commons.misc.PeekingIterator;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
-import com.puresoltechnologies.commons.misc.io.PeekingCloseableIterator;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamily;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.streaming.StreamIterator;
 
 /**
  * This is class used to scan for results.
  * 
  * @author Rick-Rainer Ludwig
  */
-public class ResultScanner implements PeekingCloseableIterator<Result>, CloseableIterable<Result> {
+public class ResultScanner implements StreamIterator<Result>, CloseableIterable<Result> {
 
     private final NavigableMap<Key, ColumnFamilyScanner> cfScanners = new TreeMap<>();
 
@@ -135,7 +134,7 @@ public class ResultScanner implements PeekingCloseableIterator<Result>, Closeabl
     }
 
     @Override
-    public PeekingIterator<Result> iterator() {
+    public StreamIterator<Result> iterator() {
 	return this;
     }
 }
