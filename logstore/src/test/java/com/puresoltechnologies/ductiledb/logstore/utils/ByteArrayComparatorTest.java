@@ -5,8 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 
 public class ByteArrayComparatorTest {
 
@@ -43,21 +42,21 @@ public class ByteArrayComparatorTest {
 
     @Test
     public void testConvertedLongs() {
-	assertEquals(0, comparator.compare(Bytes.toBytes(1l), Bytes.toBytes(1l)));
-	assertEquals(-1, comparator.compare(Bytes.toBytes(1l), Bytes.toBytes(2l)));
-	assertEquals(1, comparator.compare(Bytes.toBytes(2l), Bytes.toBytes(1l)));
+	assertEquals(0, comparator.compare(Bytes.fromLong(1l), Bytes.fromLong(1l)));
+	assertEquals(-1, comparator.compare(Bytes.fromLong(1l), Bytes.fromLong(2l)));
+	assertEquals(1, comparator.compare(Bytes.fromLong(2l), Bytes.fromLong(1l)));
 
 	for (long l1 = 0; l1 <= 1024; ++l1) {
 	    for (long l2 = 0; l2 <= 1024; ++l2) {
 		if (l1 == l2) {
 		    assertEquals("Invalid comparison result for l1=" + l1 + " and l2=" + l2, 0,
-			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)));
+			    comparator.compare(Bytes.fromLong(l1), Bytes.fromLong(l2)));
 		} else if (l1 < l2) {
 		    assertTrue("Invalid comparison result for l1=" + l1 + " and l2=" + l2,
-			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)) < 0);
+			    comparator.compare(Bytes.fromLong(l1), Bytes.fromLong(l2)) < 0);
 		} else {
 		    assertTrue("Invalid comparison result for l1=" + l1 + " and l2=" + l2,
-			    comparator.compare(Bytes.toBytes(l1), Bytes.toBytes(l2)) > 0);
+			    comparator.compare(Bytes.fromLong(l1), Bytes.fromLong(l2)) > 0);
 		}
 	    }
 	}

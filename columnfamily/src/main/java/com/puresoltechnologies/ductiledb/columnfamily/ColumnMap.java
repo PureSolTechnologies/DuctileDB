@@ -16,9 +16,9 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 /**
  * This map is used to store columns and their values. The underlying map is a
@@ -380,18 +380,18 @@ public final class ColumnMap implements NavigableMap<Key, ColumnValue> {
 	Set<Entry<Key, ColumnValue>> entrySet = entrySet();
 	try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
 	    try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(byteStream), 1024)) {
-		outputStream.writeData(Bytes.toBytes(entrySet.size()));
+		outputStream.writeData(Bytes.fromInt(entrySet.size()));
 		// Columns
 		for (Entry<Key, ColumnValue> column : entrySet) {
 		    // Column key
 		    Key columnKey = column.getKey();
-		    outputStream.writeData(Bytes.toBytes(columnKey.getBytes().length));
+		    outputStream.writeData(Bytes.fromInt(columnKey.getBytes().length));
 		    outputStream.writeData(columnKey.getBytes());
 		    // Column value
 		    ColumnValue columnValue = column.getValue();
 		    outputStream.writeTombstone(columnValue.getTombstone());
 		    byte[] value = columnValue.getBytes();
-		    outputStream.writeData(Bytes.toBytes(value.length));
+		    outputStream.writeData(Bytes.fromInt(value.length));
 		    if (value.length > 0) {
 			outputStream.writeData(value);
 		    }

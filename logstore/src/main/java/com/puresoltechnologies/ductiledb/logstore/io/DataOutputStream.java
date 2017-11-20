@@ -4,8 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class DataOutputStream extends DuctileDBOutputStream {
 
@@ -16,12 +16,12 @@ public class DataOutputStream extends DuctileDBOutputStream {
     public synchronized void writeRow(Key rowKey, Instant tombstone, byte[] data) throws IOException {
 	byte[] key = rowKey.getBytes();
 	// Row key
-	writeData(Bytes.toBytes(key.length));
+	writeData(Bytes.fromInt(key.length));
 	writeData(key);
 	// Row tombstone
 	writeTombstone(tombstone);
 	// Column number
-	writeData(Bytes.toBytes(data.length));
+	writeData(Bytes.fromInt(data.length));
 	writeData(data);
     }
 

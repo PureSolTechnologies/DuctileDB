@@ -20,11 +20,11 @@ import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.columnfamily.index.IndexType;
 import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexDescriptor;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.engine.DatabaseEngineImpl;
 import com.puresoltechnologies.ductiledb.engine.NamespaceImpl;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class BasicSecondaryIndexIT extends AbstractColumnFamiliyEngineTest {
 

@@ -15,9 +15,9 @@ import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class ColumnFamilyScannerIT extends AbstractColumnFamiliyEngineTest {
 

@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
@@ -26,7 +26,7 @@ public class LogStoreCreateAndReopenIT {
 	}
 	try (LogStructuredStore store = LogStructuredStore.create(storage, directory, new LogStoreConfiguration())) {
 	    store.open();
-	    store.put(Key.of("Key"), Bytes.toBytes("Value"));
+	    store.put(Key.of("Key"), Bytes.fromString("Value"));
 	}
 	try (LogStructuredStore store = LogStructuredStore.reopen(storage, directory)) {
 	    store.open();
@@ -45,7 +45,7 @@ public class LogStoreCreateAndReopenIT {
 	}
 	try (LogStructuredStore store = LogStructuredStore.create(storage, directory, new LogStoreConfiguration())) {
 	    store.open();
-	    store.put(Key.of("Key"), Bytes.toBytes("Value"));
+	    store.put(Key.of("Key"), Bytes.fromString("Value"));
 	}
 	try (LogStructuredStore store = LogStructuredStore.create(storage, directory, new LogStoreConfiguration())) {
 	    fail("Should not work.");

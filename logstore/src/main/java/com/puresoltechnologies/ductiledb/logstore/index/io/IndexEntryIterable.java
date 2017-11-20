@@ -12,7 +12,7 @@ import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.logstore.io.InputStreamIterable;
 import com.puresoltechnologies.streaming.StreamIterator;
 
-public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
+public class IndexEntryIterable extends InputStreamIterable<IndexInputStream, IndexEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
 
@@ -28,7 +28,7 @@ public class IndexEntryIterable extends InputStreamIterable<IndexEntry> {
     }
 
     @Override
-    protected IndexEntry readEntry() {
+    protected IndexEntry readEntry(IndexInputStream indexInputStream) {
 	try {
 	    return indexInputStream.readEntry();
 	} catch (IOException e) {

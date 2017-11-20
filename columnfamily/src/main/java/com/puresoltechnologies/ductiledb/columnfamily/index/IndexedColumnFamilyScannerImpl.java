@@ -7,9 +7,9 @@ import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyRow;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyScanner;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 
 public class IndexedColumnFamilyScannerImpl implements ColumnFamilyScanner {

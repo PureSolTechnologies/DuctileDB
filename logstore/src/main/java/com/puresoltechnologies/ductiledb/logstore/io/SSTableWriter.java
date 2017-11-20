@@ -8,11 +8,11 @@ import java.io.OutputStreamWriter;
 import java.security.MessageDigest;
 import java.time.Instant;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.index.io.IndexOutputStream;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 

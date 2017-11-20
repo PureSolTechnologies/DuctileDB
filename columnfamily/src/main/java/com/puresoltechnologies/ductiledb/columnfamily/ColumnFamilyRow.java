@@ -3,9 +3,9 @@ package com.puresoltechnologies.ductiledb.columnfamily;
 import java.io.IOException;
 import java.time.Instant;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.Row;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 /**
  * This class is used to keep the data of a single column family row.

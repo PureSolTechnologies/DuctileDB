@@ -12,11 +12,8 @@ import java.time.Duration;
 import org.junit.Test;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
-import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class MemtableTest {
 

@@ -1,7 +1,7 @@
 package com.puresoltechnologies.ductiledb.core.graph.schema;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public enum DatabaseColumnFamily {
 
@@ -22,7 +22,7 @@ public enum DatabaseColumnFamily {
 
     DatabaseColumnFamily(String name) {
 	this.name = name;
-	this.nameBytes = Bytes.toBytes(this.name);
+	this.nameBytes = Bytes.fromString(this.name);
 	this.key = Key.of(nameBytes);
     }
 

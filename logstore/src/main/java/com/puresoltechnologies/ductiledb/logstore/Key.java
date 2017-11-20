@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class Key implements Comparable<Key> {
 
@@ -16,23 +16,23 @@ public class Key implements Comparable<Key> {
     }
 
     public static Key of(byte b) {
-	return new Key(Bytes.toBytes(b));
+	return new Key(Bytes.fromByte(b));
     }
 
     public static Key of(short s) {
-	return new Key(Bytes.toBytes(s));
+	return new Key(Bytes.fromShort(s));
     }
 
     public static Key of(int i) {
-	return new Key(Bytes.toBytes(i));
+	return new Key(Bytes.fromInt(i));
     }
 
     public static Key of(long l) {
-	return new Key(Bytes.toBytes(l));
+	return new Key(Bytes.fromLong(l));
     }
 
     public static Key of(String s) {
-	return new Key(Bytes.toBytes(s));
+	return new Key(Bytes.fromString(s));
     }
 
     @JsonCreator

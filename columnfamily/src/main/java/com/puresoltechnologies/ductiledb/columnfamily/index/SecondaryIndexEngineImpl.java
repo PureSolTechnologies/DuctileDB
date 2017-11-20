@@ -6,12 +6,12 @@ import java.util.List;
 
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnKeySet;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStoreConfiguration;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreImpl;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -56,12 +56,12 @@ public class SecondaryIndexEngineImpl implements SecondaryIndexEngine {
 	byte[] indexKey = new byte[keySize];
 	int pos = 0;
 	for (byte[] value : values) {
-	    System.arraycopy(Bytes.toBytes(value.length), 0, indexKey, pos, 4);
+	    System.arraycopy(Bytes.fromInt(value.length), 0, indexKey, pos, 4);
 	    pos += 4;
 	    System.arraycopy(value, 0, indexKey, pos, value.length);
 	    pos += value.length;
 	}
-	System.arraycopy(Bytes.toBytes(key.length), 0, indexKey, pos, 4);
+	System.arraycopy(Bytes.fromInt(key.length), 0, indexKey, pos, 4);
 	pos += 4;
 	System.arraycopy(key, 0, indexKey, pos, key.length);
 	return Key.of(indexKey);

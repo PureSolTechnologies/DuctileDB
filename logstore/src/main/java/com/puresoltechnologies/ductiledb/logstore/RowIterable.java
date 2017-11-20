@@ -10,7 +10,7 @@ import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.logstore.io.DataInputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.InputStreamIterable;
 
-public class RowIterable extends InputStreamIterable<Row> {
+public class RowIterable extends InputStreamIterable<DataInputStream, Row> {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
 
@@ -23,9 +23,8 @@ public class RowIterable extends InputStreamIterable<Row> {
     }
 
     @Override
-    protected Row readEntry() {
+    protected Row readEntry(DataInputStream inputStream) {
 	try {
-	    DataInputStream inputStream = (DataInputStream) getInputStream();
 	    return inputStream.readRow();
 	} catch (IOException e) {
 	    logger.error("Error reading data file.", e);

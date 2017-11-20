@@ -11,7 +11,11 @@
 	<artifactId>commons</artifactId>
 	<name>DuctileDB: ${project.artifactId}</name>
 
-	<dependencies>		
+	<dependencies>
+		<dependency>
+			<groupId>com.puresoltechnologies.streaming</groupId>
+			<artifactId>binary</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-core</artifactId>

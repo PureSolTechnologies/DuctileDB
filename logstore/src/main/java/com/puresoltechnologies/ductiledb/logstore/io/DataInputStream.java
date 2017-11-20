@@ -4,9 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.time.Instant;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.Row;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class DataInputStream extends DuctileDBInputStream {
 

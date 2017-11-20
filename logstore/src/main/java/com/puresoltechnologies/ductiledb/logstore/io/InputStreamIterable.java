@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.streaming.StreamIterator;
+import com.puresoltechnologies.streaming.streams.InputStreamIterator;
 
 /**
  * This abstract class is used to create an {@link Iterable} out of an
@@ -17,64 +18,29 @@ import com.puresoltechnologies.streaming.StreamIterator;
  * @param <T>
  *            is the element type.
  */
-public abstract class InputStreamIterable<T> implements CloseableIterable<T> {
+public abstract class InputStreamIterable<I extends InputStream, T> implements CloseableIterable<T> {
 
-    private final DuctileDBInputStream inputStream;
+    private final I inputStream;
 
-    public InputStreamIterable(DuctileDBInputStream inputStream) {
+    public InputStreamIterable(I inputStream) {
 	super();
 	this.inputStream = inputStream;
     }
 
-    protected DuctileDBInputStream getInputStream() {
+    protected final I getInputStream() {
 	return inputStream;
     }
 
     @Override
-    public void close() throws IOException {
+    public final void close() throws IOException {
 	inputStream.close();
     }
 
     @Override
     public StreamIterator<T> iterator() {
-	return new StreamIterator<T>() {
-
-	    private T nextEntry = null;
-
-	    @Override
-	    public boolean hasNext() {
-		if (nextEntry != null) {
-		    return true;
-		}
-		nextEntry = readEntry();
-		return nextEntry != null;
-	    }
-
-	    @Override
-	    public T next() {
-		if (nextEntry == null) {
-		    return readEntry();
-		} else {
-		    T result = nextEntry;
-		    nextEntry = null;
-		    return result;
-		}
-	    }
-
-	    @Override
-	    public T peek() {
-		if (nextEntry == null) {
-		    nextEntry = readEntry();
-		}
-		return nextEntry;
-	    }
-	};
+	return new InputStreamIterator<>(inputStream, i -> readEntry(i));
     }
 
-    public long skip(long n) throws IOException {
-	return inputStream.skip(n);
-    }
-
-    protected abstract T readEntry();
+    protected abstract T readEntry(I inputStream);
 
 }

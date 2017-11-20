@@ -13,6 +13,7 @@ import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.streaming.StreamIterator;
+import com.puresoltechnologies.streaming.streams.InputStreamIterator;
 
 public class DataFileReader extends FileReader<DataInputStream> implements CloseableIterable<Row> {
 
@@ -63,52 +64,13 @@ public class DataFileReader extends FileReader<DataInputStream> implements Close
 
     @Override
     public StreamIterator<Row> iterator() {
-	return new StreamIterator<Row>() {
-
-	    private final DataInputStream stream = getStream();
-	    private Row nextEntry = null;
-
-	    @Override
-	    public boolean hasNext() {
-		if (nextEntry != null) {
-		    return true;
-		}
-		try {
-		    nextEntry = stream.readRow();
-		} catch (IOException e) {
-		    logger.error("Could not read column family row.", e);
-		}
-		return nextEntry != null;
+	return new InputStreamIterator<>(getStream(), inputStream -> {
+	    try {
+		return inputStream.readRow();
+	    } catch (IOException e) {
+		logger.error("Could not read column family row.", e);
+		return null;
 	    }
-
-	    @Override
-	    public Row next() {
-		if (nextEntry == null) {
-		    try {
-			return stream.readRow();
-		    } catch (IOException e) {
-			logger.error("Could not read column family row.", e);
-			return null;
-		    }
-		} else {
-		    Row result = nextEntry;
-		    nextEntry = null;
-		    return result;
-		}
-	    }
-
-	    @Override
-	    public Row peek() {
-		if (nextEntry == null) {
-		    try {
-			nextEntry = stream.readRow();
-		    } catch (IOException e) {
-			logger.error("Could not read column family row.", e);
-		    }
-		}
-		return nextEntry;
-	    }
-	};
-
+	});
     }
 }

@@ -5,10 +5,10 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
-public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
+public class MetaDataEntryIterable extends InputStreamIterable<DuctileDBInputStream, MetaDataEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(MetaDataEntryIterable.class);
 
@@ -31,9 +31,8 @@ public class MetaDataEntryIterable extends InputStreamIterable<MetaDataEntry> {
     }
 
     @Override
-    protected MetaDataEntry readEntry() {
+    protected MetaDataEntry readEntry(DuctileDBInputStream inputStream) {
 	try {
-	    DuctileDBInputStream inputStream = getInputStream();
 	    byte[] buffer = new byte[8];
 	    int len = inputStream.read(buffer, 0, 4);
 	    if (len < 0) {

@@ -8,7 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 
 /**
  * This is a special output stream to increase the buffer size, calculate MD5
@@ -73,7 +73,7 @@ public class DuctileDBOutputStream implements Closeable {
     }
 
     public void write(Instant instant) throws IOException {
-	writeData(Bytes.toBytes(instant));
+	writeData(Bytes.fromInstant(instant));
     }
 
     public synchronized void flush() throws IOException {

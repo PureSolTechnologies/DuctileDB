@@ -10,12 +10,12 @@ import org.junit.Test;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSetIT extends AbstractColumnFamiliyEngineTest {

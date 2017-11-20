@@ -11,7 +11,7 @@ import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.logstore.io.DataInputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.InputStreamIterable;
 
-public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow> {
+public class ColumnFamilyRowIterable extends InputStreamIterable<DataInputStream, ColumnFamilyRow> {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexEntryIterable.class);
 
@@ -24,8 +24,7 @@ public class ColumnFamilyRowIterable extends InputStreamIterable<ColumnFamilyRow
     }
 
     @Override
-    protected ColumnFamilyRow readEntry() {
-	DataInputStream inputStream = (DataInputStream) getInputStream();
+    protected ColumnFamilyRow readEntry(DataInputStream inputStream) {
 	try {
 	    return ColumnFamilyRow.fromRow(inputStream.readRow());
 	} catch (IOException e) {

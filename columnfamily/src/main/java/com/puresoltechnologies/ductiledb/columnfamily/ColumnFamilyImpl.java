@@ -20,12 +20,12 @@ import com.puresoltechnologies.ductiledb.columnfamily.index.IndexedColumnFamilyS
 import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexDescriptor;
 import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexEngine;
 import com.puresoltechnologies.ductiledb.columnfamily.index.SecondaryIndexEngineImpl;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStoreConfiguration;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreImpl;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -293,7 +293,7 @@ public class ColumnFamilyImpl implements ColumnFamily {
     private ColumnValue convertToFromValue(ColumnValue value) {
 	byte[] bytes = value.getBytes();
 	byte[] fromValue = new byte[bytes.length + 4];
-	System.arraycopy(Bytes.toBytes(bytes.length), 0, fromValue, 0, 4);
+	System.arraycopy(Bytes.fromInt(bytes.length), 0, fromValue, 0, 4);
 	System.arraycopy(bytes, 0, fromValue, 4, bytes.length);
 	return ColumnValue.of(fromValue);
     }
@@ -301,7 +301,7 @@ public class ColumnFamilyImpl implements ColumnFamily {
     private ColumnValue convertToToValue(ColumnValue value) {
 	byte[] bytes = value.getBytes();
 	byte[] toValue = new byte[bytes.length + 5];
-	System.arraycopy(Bytes.toBytes(bytes.length), 0, toValue, 0, 4);
+	System.arraycopy(Bytes.fromInt(bytes.length), 0, toValue, 0, 4);
 	System.arraycopy(bytes, 0, toValue, 4, bytes.length);
 	toValue[4 + bytes.length] = (byte) 0xFF;
 	return ColumnValue.of(toValue);
@@ -356,7 +356,7 @@ public class ColumnFamilyImpl implements ColumnFamily {
 	    } else {
 		columnMap = new ColumnMap();
 	    }
-	    columnMap.put(column, ColumnValue.of(Bytes.toBytes(result)));
+	    columnMap.put(column, ColumnValue.of(Bytes.fromLong(result)));
 	    try {
 		store.writeCommitLog(rowKey, null, columnMap.toBytes());
 	    } catch (IOException e) {

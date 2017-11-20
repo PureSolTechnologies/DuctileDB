@@ -2,10 +2,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<prerequisites>
-		<maven>3.2</maven>
-	</prerequisites>
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -13,7 +9,7 @@
 		<commons.version>0.7.0-SNAPSHOT</commons.version>
 		<graphs.version>0.7.0-SNAPSHOT</graphs.version>
 		<parsers.version>0.6.0-SNAPSHOT</parsers.version>
-		<streaming.version>0.2.0-SNAPSHOT</streaming.version>
+		<streaming.version>0.4.0-SNAPSHOT</streaming.version>
 
 		<gremlin.version>3.2.2</gremlin.version>
 		<hadoop.version>2.7.2</hadoop.version>
@@ -536,7 +532,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.puresoltechnologies.streaming</groupId>
-				<artifactId>streaming</artifactId>
+				<artifactId>binary</artifactId>
+				<version>${streaming.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.puresoltechnologies.streaming</groupId>
+				<artifactId>streams</artifactId>
 				<version>${streaming.version}</version>
 			</dependency>
 			<dependency>

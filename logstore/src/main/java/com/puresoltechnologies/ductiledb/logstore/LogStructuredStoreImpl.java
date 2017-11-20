@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
 import com.puresoltechnologies.ductiledb.logstore.index.io.IndexFileReader;
@@ -31,7 +32,6 @@ import com.puresoltechnologies.ductiledb.logstore.io.DataInputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.io.UsableCommitLogFilenameFilter;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -273,7 +273,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private void deleteCommitLogFiles(File commitLogFile) throws IOException {
 	try (BufferedOutputStream compacted = storage.create(LogStructuredStore.getCompactedName(commitLogFile))) {
-	    compacted.write(Bytes.toBytes(Instant.now()));
+	    compacted.write(Bytes.fromInstant(Instant.now()));
 	}
     }
 

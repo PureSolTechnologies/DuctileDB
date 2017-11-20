@@ -3,8 +3,8 @@ package com.puresoltechnologies.ductiledb.columnfamily;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class CompoundKey extends Key {
 
@@ -36,7 +36,7 @@ public class CompoundKey extends Key {
 	key[0] = (byte) keyParts.length;
 	int pos = 1;
 	for (byte[] keyPart : keyParts) {
-	    System.arraycopy(Bytes.toBytes(keyPart.length), 0, key, pos, 4);
+	    System.arraycopy(Bytes.fromInt(keyPart.length), 0, key, pos, 4);
 	    pos += 4;
 	    System.arraycopy(keyPart, 0, key, pos, keyPart.length);
 	    pos += keyPart.length;

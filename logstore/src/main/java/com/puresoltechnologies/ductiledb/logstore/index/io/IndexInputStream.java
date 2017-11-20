@@ -4,10 +4,10 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBInputStream;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public class IndexInputStream extends DuctileDBInputStream {
 

@@ -20,6 +20,7 @@ import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyDescriptor;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnFamilyImpl;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnMap;
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.Key;
@@ -29,7 +30,6 @@ import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -127,8 +127,8 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
     }
 
     /**
-     * This test checks for a small amount of data in memory functionality like
-     * put, get, re-put and delete.
+     * This test checks for a small amount of data in memory functionality like put,
+     * get, re-put and delete.
      * 
      * @throws SchemaException
      */

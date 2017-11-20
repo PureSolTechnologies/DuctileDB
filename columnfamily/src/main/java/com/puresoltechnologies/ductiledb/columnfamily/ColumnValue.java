@@ -3,31 +3,31 @@ package com.puresoltechnologies.ductiledb.columnfamily;
 import java.time.Instant;
 import java.util.Arrays;
 
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 
 public final class ColumnValue implements Comparable<ColumnValue> {
 
     private static final ByteArrayComparator COMPARATOR = ByteArrayComparator.getInstance();
 
     public static ColumnValue of(byte b) {
-	return new ColumnValue(Bytes.toBytes(b));
+	return new ColumnValue(Bytes.fromByte(b));
     }
 
     public static ColumnValue of(short s) {
-	return new ColumnValue(Bytes.toBytes(s));
+	return new ColumnValue(Bytes.fromShort(s));
     }
 
     public static ColumnValue of(int i) {
-	return new ColumnValue(Bytes.toBytes(i));
+	return new ColumnValue(Bytes.fromInt(i));
     }
 
     public static ColumnValue of(long l) {
-	return new ColumnValue(Bytes.toBytes(l));
+	return new ColumnValue(Bytes.fromLong(l));
     }
 
     public static ColumnValue of(String s) {
-	return new ColumnValue(Bytes.toBytes(s));
+	return new ColumnValue(Bytes.fromString(s));
     }
 
     public static ColumnValue of(byte[] keyBytes) {
@@ -35,23 +35,23 @@ public final class ColumnValue implements Comparable<ColumnValue> {
     }
 
     public static ColumnValue of(byte b, Instant timestamp) {
-	return new ColumnValue(Bytes.toBytes(b), timestamp);
+	return new ColumnValue(Bytes.fromByte(b), timestamp);
     }
 
     public static ColumnValue of(short s, Instant timestamp) {
-	return new ColumnValue(Bytes.toBytes(s), timestamp);
+	return new ColumnValue(Bytes.fromShort(s), timestamp);
     }
 
     public static ColumnValue of(int i, Instant timestamp) {
-	return new ColumnValue(Bytes.toBytes(i), timestamp);
+	return new ColumnValue(Bytes.fromInt(i), timestamp);
     }
 
     public static ColumnValue of(long l, Instant timestamp) {
-	return new ColumnValue(Bytes.toBytes(l), timestamp);
+	return new ColumnValue(Bytes.fromLong(l), timestamp);
     }
 
     public static ColumnValue of(String s, Instant timestamp) {
-	return new ColumnValue(Bytes.toBytes(s), timestamp);
+	return new ColumnValue(Bytes.fromString(s), timestamp);
     }
 
     public static ColumnValue of(byte[] columnValue, Instant timestamp) {

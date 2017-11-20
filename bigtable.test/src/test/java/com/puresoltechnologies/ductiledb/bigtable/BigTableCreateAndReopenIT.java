@@ -9,9 +9,9 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreTestUtils;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;

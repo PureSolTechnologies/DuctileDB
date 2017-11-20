@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
+import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
 import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
@@ -21,7 +22,6 @@ import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
 import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.io.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.io.SSTableWriter;
-import com.puresoltechnologies.ductiledb.logstore.utils.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.utils.LogStoreUtils;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -216,20 +216,20 @@ public class Compactor {
 	logger.info("Creating meta data for " + commitLogFile + "' (new: " + baseFilename + ")...");
 	try (BufferedOutputStream stream = storage
 		.create(new File(directory, baseFilename + LogStructuredStore.METADATA_SUFFIX))) {
-	    stream.write(Bytes.toBytes(fileCount + 1)); // Number of files
+	    stream.write(Bytes.fromInt(fileCount + 1)); // Number of files
 	    for (File file : index.keySet()) {
 		String fileName = file.getName();
-		stream.write(Bytes.toBytes(fileName.length()));
-		stream.write(Bytes.toBytes(fileName));
+		stream.write(Bytes.fromInt(fileName.length()));
+		stream.write(Bytes.fromString(fileName));
 		List<IndexEntry> indexEntries = index.get(file);
 		Collections.sort(indexEntries);
 		for (IndexEntry entry : indexEntries) {
 		    Key rowKey = entry.getRowKey();
-		    stream.write(Bytes.toBytes(rowKey.getBytes().length));
+		    stream.write(Bytes.fromInt(rowKey.getBytes().length));
 		    stream.write(rowKey.getBytes());
 
 		    long offset = entry.getOffset();
-		    stream.write(Bytes.toBytes(offset));
+		    stream.write(Bytes.fromLong(offset));
 		}
 	    }
 	} catch (Exception e) {
