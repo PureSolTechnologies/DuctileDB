@@ -149,38 +149,60 @@ public class DataFileSet implements Closeable {
 	    throw new IllegalStateException(
 		    "File overlapping index range for key '" + rowKey + "':\n" + startOffset + "\n" + endOffset);
 	}
-
-	File indexFile = getIndexName(dataFile);
-	IndexFileReader indexReader = indexReaders.get(indexFile);
-	if (indexReader == null) {
-	    try {
-		indexReader = new IndexFileReader(storage, indexFile);
-		indexReaders.put(indexFile, indexReader);
-	    } catch (FileNotFoundException e) {
-		logger.warn("Could not find index file.", e);
-		dataReaders.remove(indexFile);
-		return null;
-	    }
-	}
-	indexReader.goToOffset(0);
-	IndexEntry indexEntry = indexReader.get(rowKey);
+	IndexEntry indexEntry = findEntry(rowKey, dataFile);
 	if (indexEntry == null) {
 	    return null;
 	}
+	return readRow(dataFile, indexEntry);
+    }
 
-	DataFileReader dataReader = dataReaders.get(dataFile);
-	if (dataReader == null) {
-	    try {
-		dataReader = new DataFileReader(storage, dataFile);
-		dataReaders.put(dataFile, dataReader);
-	    } catch (FileNotFoundException e) {
-		logger.warn("Could not find data file.", e);
-		dataReaders.remove(dataFile);
-		return null;
+    private IndexEntry findEntry(Key rowKey, File dataFile) throws IOException {
+	IndexEntry indexEntry;
+	File indexFile = getIndexName(dataFile);
+	IndexFileReader indexReader = indexReaders.get(indexFile);
+	if (indexReader == null) {
+	    synchronized (indexReaders) {
+		indexReader = indexReaders.get(indexFile);
+		if (indexReader == null) {
+		    try {
+			indexReader = new IndexFileReader(storage, indexFile);
+			indexReaders.put(indexFile, indexReader);
+		    } catch (FileNotFoundException e) {
+			logger.warn("Could not find index file.", e);
+			indexEntry = null;
+		    }
+		}
 	    }
 	}
-	dataReader.goToOffset(indexEntry.getOffset());
-	return dataReader.getRow();
+	synchronized (indexReader) {
+	    indexReader.goToOffset(0);
+	    indexEntry = indexReader.get(rowKey);
+	}
+	return indexEntry;
+    }
+
+    private Row readRow(File dataFile, IndexEntry indexEntry) throws IOException {
+	DataFileReader dataReader = dataReaders.get(dataFile);
+	if (dataReader == null) {
+	    synchronized (dataReaders) {
+		dataReader = dataReaders.get(dataFile);
+		if (dataReader == null) {
+		    try {
+			dataReader = new DataFileReader(storage, dataFile);
+			dataReaders.put(dataFile, dataReader);
+		    } catch (FileNotFoundException e) {
+			logger.warn("Could not find data file.", e);
+			return null;
+		    }
+		}
+	    }
+	}
+	Row row;
+	synchronized (dataReader) {
+	    dataReader.goToOffset(indexEntry.getOffset());
+	    row = dataReader.getRow();
+	}
+	return row;
     }
 
     File getNextIndexFile(File indexFile) {

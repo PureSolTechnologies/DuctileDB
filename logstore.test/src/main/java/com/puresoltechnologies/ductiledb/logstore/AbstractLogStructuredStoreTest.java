@@ -46,11 +46,11 @@ public abstract class AbstractLogStructuredStoreTest {
 	store = null;
     }
 
-    protected LogStructuredStore getStore() {
+    protected static LogStructuredStore getStore() {
 	return store;
     }
 
-    protected Set<File> getCommitLogs(Storage storage, File directory) {
+    protected static Set<File> getCommitLogs(Storage storage, File directory) {
 	Set<File> commitLogs = new HashSet<>();
 	for (File commitLog : storage.list(directory, new CurrentCommitLogFilenameFilter(storage))) {
 	    commitLogs.add(commitLog);

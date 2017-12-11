@@ -35,7 +35,7 @@ public class OSStorage implements Storage, CloseListener {
     private final ReentrantReadWriteLock.ReadLock deletionReadLock = deletionLock.readLock();
     private final ReentrantReadWriteLock.WriteLock deletionWriteLock = deletionLock.writeLock();
 
-    private final Set<File> deletedFiles = new HashSet();
+    private final Set<File> deletedFiles = new HashSet<>();
     private final WeakHashMap<Closeable, File> registeredStreams = new WeakHashMap<>();
 
     private final StorageConfiguration configuration;

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 
+import com.codahale.metrics.Metric;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -14,7 +15,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
  * This is the central interface for a simple Log Structured Storage engine. It
  * only supports put, delete and get based on the primary index. This store can
  * be used as base implementation for a Column Family Engine and also for
- * secondary indizes.
+ * secondary indices.
  * 
  * @author Rick-Rainer Ludwig
  *
@@ -22,13 +23,14 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 public interface LogStructuredStore extends StorageOperations, AutoCloseable {
 
     public static final String DB_FILE_PREFIX = "DB";
+    public static final String COMMIT_LOG_PREFIX = "CommitLog";
+
     public static final String DATA_FILE_SUFFIX = ".data";
     public static final String INDEX_FILE_SUFFIX = ".index";
     public static final String DELETED_FILE_SUFFIX = ".delete";
     public static final String COMPACTED_FILE_SUFFIX = ".compacted";
     public static final String MD5_FILE_SUFFIX = ".md5";
     public static final String METADATA_SUFFIX = ".metadata";
-    public static final String COMMIT_LOG_PREFIX = "CommitLog";
 
     public static LogStructuredStore create(Storage storage, File directory, LogStoreConfiguration configuration)
 	    throws IOException {
@@ -103,4 +105,10 @@ public interface LogStructuredStore extends StorageOperations, AutoCloseable {
     @Override
     public void close();
 
+    /**
+     * This method returns the metric defined with {@link LogStructuredStoreMetric}.
+     * 
+     * @return A {@link Metric} is returned.
+     */
+    public Metric getMetric(LogStructuredStoreMetric metric);
 }

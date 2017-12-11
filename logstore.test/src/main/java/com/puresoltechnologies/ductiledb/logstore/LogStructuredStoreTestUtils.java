@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -49,6 +51,18 @@ public class LogStructuredStoreTestUtils {
     public static LogStructuredStore createStore(Storage storage, LogStoreConfiguration configuration)
 	    throws IOException {
 	return LogStructuredStore.create(storage, new File("lss"), configuration);
+    }
+
+    public static void fillStore(LogStructuredStore store, Supplier<Key> keySupplier,
+	    Function<Key, byte[]> valueSupplier) {
+	while (true) {
+	    Key key = keySupplier.get();
+	    if (key == null) {
+		break;
+	    }
+	    byte[] value = valueSupplier.apply(key);
+	    store.put(key, value);
+	}
     }
 
 }

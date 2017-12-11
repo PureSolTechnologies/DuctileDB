@@ -11,6 +11,14 @@ import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
 public class LogStructuredStoreIT extends AbstractLogStructuredStoreTest {
 
     @Test
+    public void testAllMetricsAreInitialized() {
+	LogStructuredStore store = getStore();
+	for (LogStructuredStoreMetric metric : LogStructuredStoreMetric.values()) {
+	    assertNotNull("Metric '" + metric.name() + "' not initialized.", store.getMetric(metric));
+	}
+    }
+
+    @Test
     public void testSimpleCRUD() {
 	Key rowKey = Key.of(1l);
 	byte[] value = new byte[] { 1, 2, 3 };

@@ -7,6 +7,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.utils.ByteArrayComparator;
 
+/**
+ * This class represents a key used as row key.
+ * 
+ * @author Rick-Rainer Ludwig
+ */
 public class Key implements Comparable<Key> {
 
     private static final ByteArrayComparator comparator = ByteArrayComparator.getInstance();

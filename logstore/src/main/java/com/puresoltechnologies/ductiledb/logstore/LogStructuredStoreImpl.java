@@ -19,6 +19,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+import com.codahale.metrics.Timer.Context;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
@@ -35,10 +40,18 @@ import com.puresoltechnologies.ductiledb.logstore.io.UsableCommitLogFilenameFilt
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
+/**
+ * This is the actual implementation of a {@link LogStructuredStore}.
+ * 
+ * @author Rick-Rainer Ludwig
+ */
 public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private static final Logger logger = LoggerFactory.getLogger(LogStructuredStoreImpl.class);
 
+    /**
+     * This executor is used to run scheduled compactions as a single thread.
+     */
     private final ExecutorService compactionExecutor = Executors.newSingleThreadExecutor(new ThreadFactory() {
 	@Override
 	public Thread newThread(Runnable r) {
@@ -60,6 +73,14 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     private final File directory;
     private final LogStoreConfiguration configuration;
 
+    /**
+     * This field contains the {@link MetricRegistry} for the metrics of the store.
+     */
+    private final MetricRegistry registry = new MetricRegistry();
+    private final Counter compactionCounter;
+    private final Timer compactionTime;
+    private final Timer sstableGenerationTimer;
+
     LogStructuredStoreImpl(//
 	    Storage storage, //
 	    File directory, //
@@ -68,6 +89,9 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	this.storage = storage;
 	this.directory = directory;
 	this.configuration = configuration;
+	compactionCounter = registry.counter(LogStructuredStoreMetric.COMPACTION_COUNTER.name());
+	compactionTime = registry.timer(LogStructuredStoreMetric.COMPACTION_TIMER.name());
+	sstableGenerationTimer = registry.timer(LogStructuredStoreMetric.SSTABLE_GENERATION_TIMER.name());
     }
 
     public final Storage getStorage() {
@@ -229,6 +253,11 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	dataSet = new DataFileSet(storage, directory);
     }
 
+    @Override
+    public Metric getMetric(LogStructuredStoreMetric metric) {
+	return registry.getMetrics().get(metric.name());
+    }
+
     public void runCompaction() {
 	for (File commitLog : getCurrentCommitLogs()) {
 	    runCompaction(commitLog);
@@ -259,10 +288,13 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		@Override
 		public void run() {
 		    try {
+			Context time = compactionTime.time();
 			Compactor.run(storage, directory, commitLogFile, configuration.getBufferSize(),
 				configuration.getMaxDataFileSize(), configuration.getMaxFileGenerations());
 			openDataFiles();
 			deleteCommitLogFiles(commitLogFile);
+			compactionCounter.inc();
+			time.stop();
 		    } catch (Exception e) {
 			logger.error("Could not run compaction.", e);
 		    }
@@ -288,8 +320,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
 		return;
 	    }
-	    File commitLogFileSave;
-	    commitLogFileSave = this.commitLogFile;
+	    File commitLogFileSave = this.commitLogFile;
 	    createIndexFile();
 	    createEmptyCommitLog();
 	    runCompaction(commitLogFileSave);
@@ -300,8 +331,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private void createIndexFile() throws IOException, StorageException {
 	logger.info("Creating new SSTtable index...");
-	StopWatch stopWatch = new StopWatch();
-	stopWatch.start();
+	Context timer = sstableGenerationTimer.time();
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
 	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile),
 		configuration.getBufferSize(), commitLogFile)) {
@@ -310,8 +340,8 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	    }
 	    indexStream.flush();
 	}
-	stopWatch.stop();
-	logger.info("New SSTtable index created in " + stopWatch.getMillis() + "ms.");
+	long millis = TimeUnit.NANOSECONDS.toMillis(timer.stop());
+	logger.info("New SSTtable index created in " + millis + "ms.");
     }
 
     @Override

@@ -236,7 +236,23 @@ public class Bytes {
     }
 
     public static Instant toTombstone(byte[] bytes) {
-	return converter.toTombstone(bytes);
+	boolean isEmpty = true;
+	for (byte b : bytes) {
+	    if (b != 0) {
+		isEmpty = false;
+		break;
+	    }
+	}
+	if (isEmpty) {
+	    return null;
+	}
+	boolean isTombstone = false;
+	for (byte b : bytes) {
+	    if (b > 0) {
+		isTombstone = true;
+	    }
+	}
+	return isTombstone ? toInstant(bytes) : null;
     }
 
     public static byte[] empty() {
