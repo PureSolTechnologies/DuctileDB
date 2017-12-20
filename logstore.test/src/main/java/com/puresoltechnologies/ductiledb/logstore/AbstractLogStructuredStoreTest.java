@@ -11,7 +11,7 @@ import java.util.Set;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import com.puresoltechnologies.ductiledb.logstore.io.CurrentCommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.CurrentCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactoryServiceException;

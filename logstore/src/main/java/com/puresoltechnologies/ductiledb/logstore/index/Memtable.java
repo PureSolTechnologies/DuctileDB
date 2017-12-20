@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.logstore.index;
 
-import java.io.IOException;
-
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.streaming.StreamIterator;
 import com.puresoltechnologies.trees.RedBlackTree;
@@ -41,30 +39,10 @@ public class Memtable implements Iterable<IndexEntry> {
     }
 
     @Override
-    public IndexIterator iterator() {
-	return new IndexIterator() {
+    public IndexEntryIterator iterator() {
+	return new IndexEntryIterator() {
 
 	    private final StreamIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator();
-
-	    @Override
-	    public boolean hasNext() {
-		return iterator.hasNext();
-	    }
-
-	    @Override
-	    public IndexEntry next() {
-		return iterator.next().getValue();
-	    }
-
-	    @Override
-	    public IndexEntry peek() {
-		return iterator.peek().getValue();
-	    }
-
-	    @Override
-	    public void close() throws IOException {
-		// intentionally left empty
-	    }
 
 	    @Override
 	    public Key getStartRowKey() {
@@ -76,11 +54,17 @@ public class Memtable implements Iterable<IndexEntry> {
 		return null;
 	    }
 
+	    @Override
+	    protected IndexEntry findNext() {
+		return iterator.hasNext() ? iterator.next().getValue() : null;
+
+	    }
+
 	};
     }
 
-    public IndexIterator iterator(Key startKey, Key endKey) {
-	return new IndexIterator() {
+    public IndexEntryIterator iterator(Key startKey, Key endKey) {
+	return new IndexEntryIterator() {
 
 	    private final StreamIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = values.iterator(startKey,
 		    endKey);
@@ -96,23 +80,8 @@ public class Memtable implements Iterable<IndexEntry> {
 	    }
 
 	    @Override
-	    public boolean hasNext() {
-		return iterator.hasNext();
-	    }
-
-	    @Override
-	    public IndexEntry next() {
-		return iterator.next().getValue();
-	    }
-
-	    @Override
-	    public IndexEntry peek() {
-		return iterator.peek().getValue();
-	    }
-
-	    @Override
-	    public void close() throws IOException {
-		// intentionally left empty
+	    protected IndexEntry findNext() {
+		return iterator.hasNext() ? iterator.next().getValue() : null;
 	    }
 
 	};

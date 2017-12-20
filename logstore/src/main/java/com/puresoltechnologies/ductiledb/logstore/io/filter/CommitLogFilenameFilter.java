@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.logstore.io;
+package com.puresoltechnologies.ductiledb.logstore.io.filter;
 
 import java.io.File;
 import java.io.FilenameFilter;

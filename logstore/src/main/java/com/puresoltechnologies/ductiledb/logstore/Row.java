@@ -6,8 +6,6 @@ import java.time.Instant;
  * This object is used to contain a generic row.
  * 
  * @author Rick-Rainer Ludwig
- *
- * @param <Value>
  */
 public class Row {
 

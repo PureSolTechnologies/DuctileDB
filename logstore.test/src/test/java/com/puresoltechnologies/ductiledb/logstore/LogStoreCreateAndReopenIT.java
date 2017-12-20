@@ -28,7 +28,7 @@ public class LogStoreCreateAndReopenIT {
 	    store.open();
 	    store.put(Key.of("Key"), Bytes.fromString("Value"));
 	}
-	try (LogStructuredStore store = LogStructuredStore.reopen(storage, directory)) {
+	try (LogStructuredStore store = LogStructuredStore.open(storage, directory)) {
 	    store.open();
 	    assertEquals("Value", Bytes.toString(store.get(Key.of("Key"))));
 	}

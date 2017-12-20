@@ -26,17 +26,16 @@ import com.codahale.metrics.Timer;
 import com.codahale.metrics.Timer.Context;
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileWriter;
 import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexFileReader;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexOutputStream;
-import com.puresoltechnologies.ductiledb.logstore.io.CommitLogFilenameFilter;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
-import com.puresoltechnologies.ductiledb.logstore.io.DataInputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
-import com.puresoltechnologies.ductiledb.logstore.io.MetadataFilenameFilter;
-import com.puresoltechnologies.ductiledb.logstore.io.UsableCommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.CommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.MetadataFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.UsableCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -205,21 +204,21 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     private void createIndex(File commitLog, File indexName) {
-	try (DataInputStream dataStream = new DataInputStream(storage.open(commitLog))) {
-	    long offset = dataStream.getOffset();
-	    Row row = dataStream.readRow();
+	try (DataFileReader dataFileReader = new DataFileReader(storage, commitLog)) {
+	    long offset = dataFileReader.getOffset();
+	    Row row = dataFileReader.readRow();
 	    Memtable memtable = new Memtable();
 	    while (row != null) {
 		if (row.getData() != null) {
 		    memtable.put(new IndexEntry(row.getKey(), indexName, offset));
 		}
-		offset = dataStream.getOffset();
-		row = dataStream.readRow();
+		offset = dataFileReader.getOffset();
+		row = dataFileReader.readRow();
 	    }
-	    try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexName),
+	    try (IndexFileWriter indexFileWriter = new IndexFileWriter(storage, indexName,
 		    configuration.getBufferSize(), commitLog)) {
 		for (IndexEntry entry : memtable) {
-		    indexStream.writeIndexEntry(entry.getRowKey(), entry.getOffset());
+		    indexFileWriter.writeIndexEntry(entry.getRowKey(), entry.getOffset());
 		}
 	    }
 	} catch (IOException e) {
@@ -333,12 +332,12 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	logger.info("Creating new SSTtable index...");
 	Context timer = sstableGenerationTimer.time();
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
-	try (IndexOutputStream indexStream = new IndexOutputStream(storage.create(indexFile),
-		configuration.getBufferSize(), commitLogFile)) {
+	try (IndexFileWriter indexFileWriter = new IndexFileWriter(storage, indexFile, configuration.getBufferSize(),
+		commitLogFile)) {
 	    for (IndexEntry indexEntry : memtable) {
-		indexStream.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
+		indexFileWriter.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
 	    }
-	    indexStream.flush();
+	    indexFileWriter.flush();
 	}
 	long millis = TimeUnit.NANOSECONDS.toMillis(timer.stop());
 	logger.info("New SSTtable index created in " + millis + "ms.");
@@ -356,32 +355,44 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     @Override
     public byte[] get(Key rowKey) {
-	Row row;
 	readLock.lock();
 	try {
-	    IndexEntry indexEntry = memtable.get(rowKey);
-	    if (indexEntry != null) {
-		long offset = indexEntry.getOffset();
-		try (DataInputStream dataInputStream = new DataInputStream(storage.open(commitLogFile))) {
-		    dataInputStream.skip(offset);
-		    row = dataInputStream.readRow();
-		    if (row != null) {
-			return row.wasDeleted() ? null : row.getData();
-		    }
-		} catch (IOException e) {
-		    throw new StorageException("Could not read data from current commit log '" + commitLogFile + "'.",
-			    e);
+	    // Read from memtable
+	    {
+		Row row = readFromMemtable(rowKey);
+		if (row != null) {
+		    return row.wasDeleted() ? null : row.getData();
 		}
 	    }
-	    row = readFromCommitLogs(rowKey);
-	    if (row != null) {
-		return row.wasDeleted() ? null : row.getData();
+	    // Read from commit logs
+	    {
+		Row row = readFromCommitLogs(rowKey);
+		if (row != null) {
+		    return row.wasDeleted() ? null : row.getData();
+		}
 	    }
-	    row = readFromDataFiles(rowKey);
+	    // Read from data files
+	    {
+		Row row = readFromDataFiles(rowKey);
+		return row != null ? row.getData() : null;
+	    }
 	} finally {
 	    readLock.unlock();
 	}
-	return row != null ? row.getData() : null;
+    }
+
+    private Row readFromMemtable(Key rowKey) {
+	IndexEntry indexEntry = memtable.get(rowKey);
+	if (indexEntry == null) {
+	    return null;
+	}
+	try (DataFileReader dataFileReader = new DataFileReader(storage, commitLogFile)) {
+	    dataFileReader.seek(indexEntry.getOffset());
+	    Row row = dataFileReader.readRow();
+	    return row == null || row.wasDeleted() ? null : row;
+	} catch (IOException e) {
+	    throw new StorageException("Could not read data from current commit log '" + commitLogFile + "'.", e);
+	}
     }
 
     private Row readFromDataFiles(Key rowKey) {
@@ -404,7 +415,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 		}
 		if (indexEntry != null) {
 		    try (DataFileReader reader = new DataFileReader(storage, commitLog)) {
-			Row row = reader.getRow(indexEntry);
+			Row row = reader.readRow(indexEntry);
 			if (row != null) {
 			    return row;
 			}

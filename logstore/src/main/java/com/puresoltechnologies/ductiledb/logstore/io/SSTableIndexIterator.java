@@ -1,5 +1,6 @@
 package com.puresoltechnologies.ductiledb.logstore.io;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 
@@ -7,13 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.index.Index;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntryIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-class SSTableIndexIterator implements IndexIterator {
+public class SSTableIndexIterator extends IndexEntryIterator implements Closeable {
 
     private static final Logger logger = LoggerFactory.getLogger(SSTableIndexIterator.class);
 
@@ -24,9 +26,8 @@ class SSTableIndexIterator implements IndexIterator {
     private final Index index;
     private File currentDataFile;
     private File currentIndexFile;
-    private IndexEntryIterable indexIterable;
-    private IndexIterator indexIterator;
-    private IndexEntry nextIndex = null;
+    private IndexFileReader indexFileReader;
+    private IndexEntryIterator indexIterator;
 
     public SSTableIndexIterator(DataFileSet dataFileSet, Key start, Key stop) throws IOException {
 	this.dataFileSet = dataFileSet;
@@ -45,8 +46,8 @@ class SSTableIndexIterator implements IndexIterator {
 	}
 	if (currentDataFile != null) {
 	    currentIndexFile = DataFileSet.getIndexName(currentDataFile);
-	    indexIterable = new IndexEntryIterable(storage.open(currentIndexFile));
-	    indexIterator = indexIterable.iterator(start, stop);
+	    indexFileReader = new IndexFileReader(storage, currentIndexFile);
+	    indexIterator = indexFileReader.iterator(start, stop);
 	    gotoStart(start);
 	}
     }
@@ -62,67 +63,43 @@ class SSTableIndexIterator implements IndexIterator {
     }
 
     @Override
-    public IndexEntry peek() {
-	if (nextIndex == null) {
-	    readNext();
-	}
-	return nextIndex;
-    }
-
-    @Override
-    public boolean hasNext() {
-	if (nextIndex == null) {
-	    readNext();
-	}
-	return nextIndex != null;
-    }
-
-    @Override
-    public IndexEntry next() {
-	if (nextIndex == null) {
-	    readNext();
-	}
-	IndexEntry result = nextIndex;
-	nextIndex = null;
-	return result;
-    }
-
-    private void readNext() {
+    protected IndexEntry findNext() {
 	if (indexIterator == null) {
-	    nextIndex = null;
-	    return;
+	    return null;
 	}
+	IndexEntry nextIndex = null;
 	if (indexIterator.hasNext()) {
 	    nextIndex = indexIterator.next();
 	} else {
 	    try {
 		try {
-		    indexIterable.close();
+		    indexFileReader.close();
 		} finally {
-		    indexIterable = null;
+		    indexFileReader = null;
 		    indexIterator = null;
 		}
 		currentIndexFile = dataFileSet.getNextIndexFile(currentIndexFile);
 		if (currentIndexFile != null) {
-		    indexIterable = new IndexEntryIterable(storage.open(currentIndexFile));
-		    indexIterator = indexIterable.iterator(start, stop);
+		    indexFileReader = new IndexFileReader(storage, currentIndexFile);
+		    indexIterator = indexFileReader.iterator(start, stop);
 		    nextIndex = indexIterator.next();
 		}
 	    } catch (IOException e) {
 		logger.error("Could not find next index file.", e);
-		nextIndex = null;
+		return null;
 	    }
 	}
 	if ((nextIndex != null) && (stop != null) && (nextIndex.getRowKey().compareTo(stop) > 0)) {
-	    nextIndex = null;
+	    return null;
 	}
+	return nextIndex;
     }
 
     @Override
     public void close() throws IOException {
-	if (indexIterable != null) {
-	    indexIterable.close();
-	    indexIterable = null;
+	if (indexFileReader != null) {
+	    indexFileReader.close();
+	    indexFileReader = null;
 	}
     }
 

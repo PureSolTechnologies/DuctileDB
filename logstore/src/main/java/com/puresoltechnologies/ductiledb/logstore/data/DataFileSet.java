@@ -1,4 +1,4 @@
-package com.puresoltechnologies.ductiledb.logstore.io;
+package com.puresoltechnologies.ductiledb.logstore.data;
 
 import java.io.Closeable;
 import java.io.File;
@@ -21,10 +21,11 @@ import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.index.Index;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexFactory;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntryIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.logstore.index.OffsetRange;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexFileReader;
+import com.puresoltechnologies.ductiledb.logstore.io.SSTableIndexIterator;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSet implements Closeable {
@@ -82,7 +83,7 @@ public class DataFileSet implements Closeable {
 	super();
 	this.storage = storage;
 	this.metadataFile = metadataFile;
-	this.index = IndexFactory.create(storage, directory, metadataFile);
+	this.index = Index.open(storage, directory, metadataFile);
 
 	index.forEach(indexEntry -> dataFiles.add(indexEntry.getDataFile()));
 	dataFiles.forEach(file -> {
@@ -103,11 +104,11 @@ public class DataFileSet implements Closeable {
 	this(storage, directory, getMetadataFile(directory, timestamp));
     }
 
-    Index getIndex() {
+    public Index getIndex() {
 	return index;
     }
 
-    Storage getStorage() {
+    public Storage getStorage() {
 	return storage;
     }
 
@@ -175,7 +176,7 @@ public class DataFileSet implements Closeable {
 	    }
 	}
 	synchronized (indexReader) {
-	    indexReader.goToOffset(0);
+	    indexReader.seek(0);
 	    indexEntry = indexReader.get(rowKey);
 	}
 	return indexEntry;
@@ -199,13 +200,13 @@ public class DataFileSet implements Closeable {
 	}
 	Row row;
 	synchronized (dataReader) {
-	    dataReader.goToOffset(indexEntry.getOffset());
-	    row = dataReader.getRow();
+	    dataReader.seek(indexEntry.getOffset());
+	    row = dataReader.readRow();
 	}
 	return row;
     }
 
-    File getNextIndexFile(File indexFile) {
+    public File getNextIndexFile(File indexFile) {
 	if (indexFile == null) {
 	    return null;
 	}
@@ -213,7 +214,7 @@ public class DataFileSet implements Closeable {
 	return num != null ? numToIndexFile.get(num + 1) : null;
     }
 
-    public IndexIterator getIndexIterator(Key startRowKey, Key stopRowKey) throws IOException {
+    public IndexEntryIterator getIndexIterator(Key startRowKey, Key stopRowKey) throws IOException {
 	return new SSTableIndexIterator(this, startRowKey, stopRowKey);
     }
 }

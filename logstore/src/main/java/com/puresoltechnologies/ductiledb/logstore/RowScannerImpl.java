@@ -12,12 +12,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntryIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class RowScannerImpl implements RowScanner {
@@ -25,12 +25,12 @@ public class RowScannerImpl implements RowScanner {
     private static final Logger logger = LoggerFactory.getLogger(RowScannerImpl.class);
 
     private final Storage storage;
-    private final IndexIterator memtableIterator;
+    private final IndexEntryIterator memtableIterator;
     private final Map<File, DataFileReader> dataFileReaders = new HashMap<>();
-    private final List<IndexEntryIterable> commitLogIndexIterables = new ArrayList<>();
-    private final List<IndexIterator> commitLogIndexIterators = new ArrayList<>();
+    private final List<IndexFileReader> commitLogIndexFileReaders = new ArrayList<>();
+    private final List<IndexEntryIterator> commitLogIndexIterators = new ArrayList<>();
     private final DataFileSet dataFiles;
-    private final IndexIterator dataFilesIndexIterator;
+    private final IndexEntryIterator dataFilesIndexIterator;
     private final Key startRowKey;
     private final Key endRowKey;
     private Row nextRow = null;
@@ -48,9 +48,9 @@ public class RowScannerImpl implements RowScanner {
 	for (File commitLog : commitLogs) {
 	    System.out.println("CommitLog:" + commitLog);
 	    File indexFile = DataFileSet.getIndexName(commitLog);
-	    IndexEntryIterable indexIterable = new IndexEntryIterable(storage.open(indexFile));
-	    commitLogIndexIterables.add(indexIterable);
-	    IndexIterator iterator = indexIterable.iterator();
+	    IndexFileReader indexFileReader = new IndexFileReader(storage, indexFile);
+	    commitLogIndexFileReaders.add(indexFileReader);
+	    IndexEntryIterator iterator = indexFileReader.iterator();
 	    iterator.gotoStart(startRowKey);
 	    commitLogIndexIterators.add(iterator);
 	}
@@ -67,14 +67,14 @@ public class RowScannerImpl implements RowScanner {
 	    }
 	});
 	dataFileReaders.clear();
-	commitLogIndexIterables.forEach(iterable -> {
+	commitLogIndexFileReaders.forEach(iterable -> {
 	    try {
 		iterable.close();
 	    } catch (IOException e) {
 		logger.warn("Could not close index iterable.", e);
 	    }
 	});
-	commitLogIndexIterables.clear();
+	commitLogIndexFileReaders.clear();
     }
 
     @Override
@@ -120,8 +120,8 @@ public class RowScannerImpl implements RowScanner {
 	    if (memtableIterator.hasNext()) {
 		minimum = memtableIterator.peek();
 	    }
-	    Set<IndexIterator> toBeDeleted = new HashSet<>();
-	    for (IndexIterator iterator : commitLogIndexIterators) {
+	    Set<IndexEntryIterator> toBeDeleted = new HashSet<>();
+	    for (IndexEntryIterator iterator : commitLogIndexIterators) {
 		if (iterator.hasNext()) {
 		    int compareResult = minimum != null ? minimum.compareTo(iterator.peek()) : 1;
 		    if (compareResult == 0) {
@@ -149,7 +149,7 @@ public class RowScannerImpl implements RowScanner {
 			memtableIterator.skip();
 		    }
 		}
-		for (IndexIterator iterator : commitLogIndexIterators) {
+		for (IndexEntryIterator iterator : commitLogIndexIterators) {
 		    if (iterator.hasNext()) {
 			if (iterator.peek().equals(minimum)) {
 			    iterator.skip();
@@ -177,8 +177,8 @@ public class RowScannerImpl implements RowScanner {
 	}
 	if (fileReader != null) {
 	    try {
-		fileReader.goToOffset(minimum.getOffset());
-		Row row = fileReader.getRow(minimum);
+		fileReader.seek(minimum.getOffset());
+		Row row = fileReader.readRow(minimum);
 		if (!row.wasDeleted()) {
 		    nextRow = row;
 		}

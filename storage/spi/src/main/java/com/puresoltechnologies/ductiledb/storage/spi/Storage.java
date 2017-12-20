@@ -21,7 +21,7 @@ import java.io.IOException;
 public interface Storage extends Closeable {
 
     /**
-     * This method returns the confituration of the storage device.
+     * This method returns the configuration of the storage device.
      * 
      * @return A {@link StorageConfiguration} object is returned.
      */
@@ -34,8 +34,7 @@ public interface Storage extends Closeable {
     public File getStorageDirectory();
 
     /**
-     * This method is used to check the preconditions and to initialize the
-     * storage.
+     * This method is used to check the preconditions and to initialize the storage.
      * 
      * @throws IOException
      *             is thrown in case the initialization fails.

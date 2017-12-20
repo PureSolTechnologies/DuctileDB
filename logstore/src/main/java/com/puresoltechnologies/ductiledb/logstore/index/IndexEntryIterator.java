@@ -1,9 +1,7 @@
 package com.puresoltechnologies.ductiledb.logstore.index;
 
-import java.io.Closeable;
-
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.streaming.StreamIterator;
+import com.puresoltechnologies.streaming.AbstractStreamIterator;
 
 /**
  * This interface is used for intex iterators which provide special features for
@@ -11,21 +9,21 @@ import com.puresoltechnologies.streaming.StreamIterator;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface IndexIterator extends StreamIterator<IndexEntry>, Closeable {
+public abstract class IndexEntryIterator extends AbstractStreamIterator<IndexEntry> {
 
     /**
      * Returns the start row key.
      * 
      * @return
      */
-    public Key getStartRowKey();
+    public abstract Key getStartRowKey();
 
     /**
      * Returns the end row key.
      * 
      * @return
      */
-    public Key getEndRowKey();
+    public abstract Key getEndRowKey();
 
     /**
      * This method moves the iterator to the element before the given element or the
@@ -33,7 +31,7 @@ public interface IndexIterator extends StreamIterator<IndexEntry>, Closeable {
      * 
      * @param rowKey
      */
-    default public void gotoStart(Key startRowKey) {
+    public final void gotoStart(Key startRowKey) {
 	if (startRowKey != null) {
 	    while ((hasNext()) && (peek().getRowKey().compareTo(startRowKey) < 0)) {
 		next();
@@ -41,7 +39,7 @@ public interface IndexIterator extends StreamIterator<IndexEntry>, Closeable {
 	}
     }
 
-    default public void skip() {
+    public final void skip() {
 	next();
     }
 }

@@ -13,9 +13,9 @@ import com.puresoltechnologies.ductiledb.columnfamily.ColumnValue;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.engine.AbstractColumnFamiliyEngineTest;
 import com.puresoltechnologies.ductiledb.logstore.Key;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntryIterator;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 public class DataFileSetIT extends AbstractColumnFamiliyEngineTest {
@@ -39,7 +39,7 @@ public class DataFileSetIT extends AbstractColumnFamiliyEngineTest {
 
 	    DataFileSet dataFileSet = new DataFileSet(storage, columnFamilyEngine.getDirectory());
 
-	    IndexIterator indexIterator = dataFileSet.getIndexIterator(Key.of(100l), Key.of(900l));
+	    IndexEntryIterator indexIterator = dataFileSet.getIndexIterator(Key.of(100l), Key.of(900l));
 	    assertNotNull(indexIterator);
 
 	    long current = 100l;

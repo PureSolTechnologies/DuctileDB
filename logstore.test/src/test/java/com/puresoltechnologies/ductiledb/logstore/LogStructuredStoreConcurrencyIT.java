@@ -45,7 +45,6 @@ public class LogStructuredStoreConcurrencyIT extends AbstractLogStructuredStoreT
 		    for (int valueId = 0; valueId < NUMBER_OF_VALUES; valueId++) {
 			Key rowKey = Key.of(offset);
 			byte[] value = Bytes.fromInt(offset + valueId);
-
 			// Not presented, yet.
 			byte[] readValue = store.get(rowKey);
 			assertNull(readValue);

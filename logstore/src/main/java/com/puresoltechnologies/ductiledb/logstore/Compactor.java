@@ -15,13 +15,13 @@ import org.slf4j.LoggerFactory;
 
 import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.IndexIterator;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
-import com.puresoltechnologies.ductiledb.logstore.io.MetadataFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexEntryIterator;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.logstore.io.SSTableWriter;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.utils.LogStoreUtils;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -123,20 +123,20 @@ public class Compactor {
 	logger.info("Compacting " + commitLogFile + "' (new: " + baseFilename + ")...");
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
 	try (DataFileReader commitLogReader = new DataFileReader(storage, commitLogFile);
-		IndexEntryIterable commitLogIndex = new IndexEntryIterable(storage.open(indexFile))) {
-	    IndexIterator commitLogIndexIterator = commitLogIndex.iterator();
+		IndexFileReader commitLogIndex = new IndexFileReader(storage, indexFile)) {
+	    IndexEntryIterator commitLogIndexIterator = commitLogIndex.iterator();
 	    List<File> dataFiles = findDataFiles();
 	    integrateCommitLog(commitLogIndexIterator, commitLogReader, dataFiles, baseFilename);
 	}
     }
 
-    private void integrateCommitLog(IndexIterator commitLogIterator, DataFileReader commitLogReader,
+    private void integrateCommitLog(IndexEntryIterator commitLogIterator, DataFileReader commitLogReader,
 	    List<File> dataFiles, String baseFilename) throws IOException {
 	SSTableWriter writer = new SSTableWriter(storage, directory, baseFilename + "-" + fileCount, bufferSize);
 	try {
 	    IndexEntry commitLogNext = commitLogIterator.next();
 	    for (File dataFile : dataFiles) {
-		try (RowIterable rows = new RowIterable(storage.open(dataFile))) {
+		try (DataFileReader rows = new DataFileReader(storage, dataFile)) {
 		    for (Row row : rows) {
 			Key dataRowKey = row.getKey();
 			if (commitLogNext != null) {
@@ -177,7 +177,7 @@ public class Compactor {
 
     private SSTableWriter writeCommitLogEntry(DataFileReader commitLogReader, IndexEntry commitLogNext,
 	    SSTableWriter writer, String baseFilename) throws IOException, StorageException {
-	Row row = commitLogReader.getRow(commitLogNext);
+	Row row = commitLogReader.readRow(commitLogNext);
 	if (!row.wasDeleted()) {
 	    byte[] data = row.getData();
 	    if (data != null) {

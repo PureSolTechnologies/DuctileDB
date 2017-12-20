@@ -26,10 +26,10 @@ import com.puresoltechnologies.ductiledb.engine.io.DataFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.Row;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileReader;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.index.io.IndexEntryIterable;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileReader;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
+import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
@@ -270,7 +270,7 @@ public class ColumnFamilyEngineIT extends AbstractColumnFamiliyEngineTest {
 	assertNotNull(indexFile);
 
 	Storage storage = getStorage();
-	try (IndexEntryIterable index = new IndexEntryIterable(storage.open(indexFile));
+	try (IndexFileReader index = new IndexFileReader(storage, indexFile);
 		DataFileReader reader = new DataFileReader(storage, dataFile)) {
 	    Key currentRowKey = null;
 	    long currentOffset = -1;

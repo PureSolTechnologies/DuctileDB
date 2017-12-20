@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.NoSuchElementException;
 
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.io.DataFileSet;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBInputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.MetaDataEntry;
 import com.puresoltechnologies.ductiledb.logstore.io.MetaDataEntryIterable;
@@ -21,12 +21,25 @@ public class IndexImpl implements Index {
     private final File directory;
     private final RedBlackTree<Key, IndexEntry> indexTree = new RedBlackTree<>();
 
+    /**
+     * This constructor creates a new index in the provided directory.
+     * 
+     * @param storage
+     * @param directory
+     */
     IndexImpl(Storage storage, File directory) {
 	super();
 	this.storage = storage;
 	this.directory = directory;
     }
 
+    /**
+     * This constructor opens the provided index.
+     * 
+     * @param storage
+     * @param directory
+     * @param metadataFile
+     */
     IndexImpl(Storage storage, File directory, File metadataFile) {
 	super();
 	this.storage = storage;
@@ -40,13 +53,13 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public void update(File latestMetadata) {
+    public void update(File metadataFile) {
 	indexTree.clear();
-	if (latestMetadata == null) {
+	if (metadataFile == null) {
 	    return;
 	}
 	try (MetaDataEntryIterable metaDataEntryIterable = new MetaDataEntryIterable(
-		new DuctileDBInputStream(storage.open(latestMetadata)));) {
+		new DuctileDBInputStream(storage.open(metadataFile)));) {
 	    for (MetaDataEntry entry : metaDataEntryIterable) {
 		IndexEntry index1 = new IndexEntry(entry.getStartKey(), new File(directory, entry.getFileName()),
 			entry.getStartOffset());
@@ -110,35 +123,10 @@ public class IndexImpl implements Index {
     }
 
     @Override
-    public IndexIterator iterator() {
-	return new IndexIterator() {
+    public IndexEntryIterator iterator() {
+	return new IndexEntryIterator() {
 
 	    private StreamIterator<RedBlackTreeNode<Key, IndexEntry>> iterator = indexTree.iterator();
-
-	    @Override
-	    public boolean hasNext() {
-		return iterator.hasNext();
-	    }
-
-	    @Override
-	    public IndexEntry peek() {
-		return iterator.peek().getValue();
-	    }
-
-	    @Override
-	    public IndexEntry next() {
-		return iterator.next().getValue();
-	    }
-
-	    @Override
-	    public void remove() {
-		iterator.remove();
-	    }
-
-	    @Override
-	    public void close() throws IOException {
-		// intentionally left empty
-	    }
 
 	    @Override
 	    public Key getStartRowKey() {
@@ -148,6 +136,16 @@ public class IndexImpl implements Index {
 	    @Override
 	    public Key getEndRowKey() {
 		return null;
+	    }
+
+	    @Override
+	    public void remove() {
+		iterator.remove();
+	    }
+
+	    @Override
+	    protected IndexEntry findNext() {
+		return iterator.hasNext() ? iterator.next().getValue() : null;
 	    }
 	};
 

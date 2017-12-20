@@ -4,16 +4,18 @@ import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
-public abstract class FileReader<Stream extends DuctileDBInputStream> implements Closeable {
+public abstract class FileWriter<Stream extends DuctileDBOutputStream> implements Closeable {
 
     private final Storage storage;
     private final File file;
     private Stream stream = null;
 
-    public FileReader(Storage storage, File file) throws IOException {
+    public FileWriter(Storage storage, File file) throws IOException {
 	super();
 	this.storage = storage;
 	this.file = file;
@@ -39,26 +41,20 @@ public abstract class FileReader<Stream extends DuctileDBInputStream> implements
 	return stream.getOffset();
     }
 
-    public long skip(long n) throws IOException {
-	return stream.skip(n);
+    public MessageDigest getMessageDigest() {
+	return stream.getMessageDigest();
     }
 
-    public long seek(long offset) throws IOException {
-	if (stream.getOffset() <= offset) {
-	    return stream.goToOffset(offset);
-	} else {
-	    stream.close();
-	    stream = createStream(storage.open(file));
-	    return stream.skip(offset);
-	}
+    public String getMessageDigestString() {
+	return stream.getMessageDigestString();
     }
 
-    public int read(byte[] buffer, int off, int len) throws IOException {
-	return stream.read(buffer, off, len);
+    public void writeData(byte[] bytes) throws IOException {
+	stream.writeData(bytes);
     }
 
-    public int read(byte[] buffer) throws IOException {
-	return stream.read(buffer);
+    public void write(Instant instant) throws IOException {
+	stream.write(instant);
     }
 
     @Override

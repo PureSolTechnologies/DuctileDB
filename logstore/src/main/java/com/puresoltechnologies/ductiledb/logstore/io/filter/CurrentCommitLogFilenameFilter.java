@@ -1,9 +1,10 @@
-package com.puresoltechnologies.ductiledb.logstore.io;
+package com.puresoltechnologies.ductiledb.logstore.io.filter;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**

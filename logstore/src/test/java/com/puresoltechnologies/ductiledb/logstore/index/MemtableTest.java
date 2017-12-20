@@ -81,7 +81,7 @@ public class MemtableTest {
 	for (int i = 0; i < 500; ++i) {
 	    memtable.put(new IndexEntry(Key.of((long) (2 * i)), file, 2 * i));
 	}
-	IndexIterator iterator = memtable.iterator(Key.of(100l), Key.of(400l));
+	IndexEntryIterator iterator = memtable.iterator(Key.of(100l), Key.of(400l));
 	long expected = 100l;
 	while (iterator.hasNext()) {
 	    byte[] key = iterator.next().getRowKey().getBytes();

@@ -16,7 +16,7 @@ import org.junit.BeforeClass;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
-import com.puresoltechnologies.ductiledb.logstore.io.CurrentCommitLogFilenameFilter;
+import com.puresoltechnologies.ductiledb.logstore.io.filter.CurrentCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.api.StorageFactory;

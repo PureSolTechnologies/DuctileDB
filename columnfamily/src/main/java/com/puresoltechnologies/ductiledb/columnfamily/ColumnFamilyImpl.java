@@ -56,7 +56,7 @@ public class ColumnFamilyImpl implements ColumnFamily {
     }
 
     ColumnFamilyImpl(Storage storage, ColumnFamilyDescriptor columnFamilyDescriptor) throws IOException {
-	this((LogStructuredStoreImpl) LogStructuredStore.reopen(storage, //
+	this((LogStructuredStoreImpl) LogStructuredStore.open(storage, //
 		columnFamilyDescriptor.getDirectory()), columnFamilyDescriptor);
     }
 
