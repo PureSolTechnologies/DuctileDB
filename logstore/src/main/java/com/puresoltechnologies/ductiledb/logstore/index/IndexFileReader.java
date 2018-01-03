@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.logstore.index;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,11 +10,11 @@ import org.slf4j.LoggerFactory;
 import com.puresoltechnologies.commons.misc.io.CloseableIterable;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBInputStream;
-import com.puresoltechnologies.ductiledb.logstore.io.FileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.streaming.streams.MultiStreamSeekableInputStream;
 
-public class IndexFileReader extends FileReader<DuctileDBInputStream> implements CloseableIterable<IndexEntry> {
+public class IndexFileReader implements CloseableIterable<IndexEntry> {
 
     private static final Logger logger = LoggerFactory.getLogger(IndexFileReader.class);
 
@@ -56,36 +55,41 @@ public class IndexFileReader extends FileReader<DuctileDBInputStream> implements
 	return new IndexEntry(Key.of(rowKey), dataFile, offset);
     }
 
+    private final Storage storage;
+    private final File indexFile;
     private final File dataFile;
+    private final MultiStreamSeekableInputStream<StorageInputStream> inputStream;
 
     public IndexFileReader(Storage storage, File indexFile) throws IOException {
-	super(storage, indexFile);
-	this.dataFile = new File(readDataFile(getStream()));
+	this.storage = storage;
+	this.indexFile = indexFile;
+	this.inputStream = new MultiStreamSeekableInputStream<>(10, () -> storage.open(indexFile));
+	this.dataFile = new File(readDataFile(inputStream));
     }
 
-    @Override
-    protected DuctileDBInputStream createStream(BufferedInputStream bufferedInputStream) throws IOException {
-	return new DuctileDBInputStream(bufferedInputStream);
+    public void seek(int position) throws IOException {
+	inputStream.seek(position);
     }
 
     public IndexEntry get() throws IOException {
-	return readEntry(dataFile, getStream());
+	return readEntry(dataFile, inputStream);
     }
 
     public IndexEntry get(long offset) throws IOException {
-	seek(offset);
-	return readEntry(dataFile, getStream());
+	inputStream.seek(offset);
+	return readEntry(dataFile, inputStream);
     }
 
     public IndexEntry get(Key rowKey) throws IOException {
-	while (!getStream().isEof()) {
-	    IndexEntry indexEntry = readEntry(dataFile, getStream());
+	IndexEntry indexEntry = readEntry(dataFile, inputStream);
+	while (indexEntry != null) {
 	    int compareResult = indexEntry.getRowKey().compareTo(rowKey);
 	    if (compareResult == 0) {
 		return indexEntry;
 	    } else if (compareResult > 0) {
 		return null;
 	    }
+	    indexEntry = readEntry(dataFile, inputStream);
 	}
 	return null;
     }
@@ -107,7 +111,7 @@ public class IndexFileReader extends FileReader<DuctileDBInputStream> implements
 	    @Override
 	    protected IndexEntry findNext() {
 		try {
-		    return readEntry(dataFile, getStream());
+		    return readEntry(dataFile, inputStream);
 		} catch (IOException e) {
 		    logger.error("Could not read next index entry.", e);
 		    return null;
@@ -133,7 +137,7 @@ public class IndexFileReader extends FileReader<DuctileDBInputStream> implements
 	    @Override
 	    protected IndexEntry findNext() {
 		try {
-		    return readEntry(dataFile, getStream());
+		    return readEntry(dataFile, inputStream);
 		} catch (IOException e) {
 		    logger.error("Could not read next index entry.", e);
 		    return null;
@@ -141,6 +145,11 @@ public class IndexFileReader extends FileReader<DuctileDBInputStream> implements
 	    }
 
 	};
+    }
+
+    @Override
+    public void close() throws IOException {
+	inputStream.close();
     }
 
 }

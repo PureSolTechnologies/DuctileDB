@@ -8,8 +8,8 @@ import java.io.Closeable;
  * 
  * @author Rick-Rainer Ludwig
  */
-public interface CloseListener {
+public interface StorageStreamListener {
 
-    public void notifyClose(Closeable inputStream);
+    public void notifyClose(StorageStream inputStream);
 
 }

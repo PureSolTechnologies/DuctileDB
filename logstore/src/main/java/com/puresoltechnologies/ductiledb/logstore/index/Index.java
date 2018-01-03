@@ -6,7 +6,7 @@ import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 
 /**
- * This method is used to provide an in-memory index.
+ * This method is used to provide an index.
  * 
  * @author Rick-Rainer Ludwig
  */
@@ -33,14 +33,14 @@ public interface Index extends Iterable<IndexEntry> {
     }
 
     /**
-     * This method is called to update the index by data filed defined by the base
+     * This method is called to update the index by data file defined by the base
      * filename.
      */
     public void update();
 
     /**
-     * This method is called to update the index by data filed defined by the base
-     * filename.
+     * This method is called to update the index by data file defined by the
+     * provided filename.
      */
     public void update(File latestMetadataFile);
 

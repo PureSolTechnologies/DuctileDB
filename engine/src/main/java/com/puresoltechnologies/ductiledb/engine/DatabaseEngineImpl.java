@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.engine;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,6 +16,8 @@ import com.puresoltechnologies.ductiledb.bigtable.BigTable;
 import com.puresoltechnologies.ductiledb.bigtable.BigTableConfiguration;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This class is the database engine class. It supports a schema, and multiple
@@ -60,22 +60,22 @@ public class DatabaseEngineImpl implements DatabaseEngine {
 	    storage.createDirectory(storageDirectory);
 	}
 	if (storage.exists(descriptorFile)) {
-	    try (BufferedInputStream parameterFile = storage.open(descriptorFile)) {
+	    try (StorageInputStream parameterFile = storage.open(descriptorFile)) {
 		this.storageName = objectMapper.readValue(parameterFile, String.class);
 	    }
 	} else {
 	    this.storageName = storageName;
-	    try (BufferedOutputStream parameterFile = storage.create(descriptorFile)) {
+	    try (StorageOutputStream parameterFile = storage.create(descriptorFile)) {
 		objectMapper.writeValue(parameterFile, storageName);
 	    }
 	}
 	if (storage.exists(configurationFile)) {
-	    try (BufferedInputStream parameterFile = storage.open(configurationFile)) {
+	    try (StorageInputStream parameterFile = storage.open(configurationFile)) {
 		this.configuration = objectMapper.readValue(parameterFile, BigTableConfiguration.class);
 	    }
 	} else {
 	    this.configuration = configuration;
-	    try (BufferedOutputStream parameterFile = storage.create(configurationFile)) {
+	    try (StorageOutputStream parameterFile = storage.create(configurationFile)) {
 		objectMapper.writeValue(parameterFile, configuration);
 	    }
 	}

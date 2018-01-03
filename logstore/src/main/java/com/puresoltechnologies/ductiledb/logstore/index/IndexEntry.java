@@ -6,7 +6,8 @@ import java.util.Objects;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 
 /**
- * This class provides the index result.
+ * This class provides the index result. This class is using final fields only
+ * and is therfore, thread-safe.
  * 
  * @author Rick-Rainer Ludwig
  */

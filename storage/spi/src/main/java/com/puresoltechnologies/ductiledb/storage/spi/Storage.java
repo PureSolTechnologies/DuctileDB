@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.storage.spi;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -85,11 +83,11 @@ public interface Storage extends Closeable {
 
     public FileStatus getFileStatus(File file);
 
-    public BufferedInputStream open(File file) throws IOException;
+    public StorageInputStream open(File file) throws IOException;
 
-    public BufferedOutputStream create(File file) throws IOException;
+    public StorageOutputStream create(File file) throws IOException;
 
-    public BufferedOutputStream append(File file) throws IOException;
+    public StorageOutputStream append(File file) throws IOException;
 
     /**
      * This method deletes the specified file.

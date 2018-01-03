@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.engine;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,6 +18,8 @@ import com.puresoltechnologies.ductiledb.bigtable.BigTableImpl;
 import com.puresoltechnologies.ductiledb.bigtable.TableDescriptor;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 public class NamespaceImpl implements Namespace {
 
@@ -40,11 +40,11 @@ public class NamespaceImpl implements Namespace {
 	stopWatch.start();
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	storage.createDirectory(namespaceDescriptor.getDirectory());
-	try (BufferedOutputStream parameterFile = storage
+	try (StorageOutputStream parameterFile = storage
 		.create(new File(namespaceDescriptor.getDirectory(), "configuration.json"))) {
 	    objectMapper.writeValue(parameterFile, configuration);
 	}
-	try (BufferedOutputStream parameterFile = storage
+	try (StorageOutputStream parameterFile = storage
 		.create(new File(namespaceDescriptor.getDirectory(), "descriptor.json"))) {
 	    objectMapper.writeValue(parameterFile, namespaceDescriptor);
 	}
@@ -56,13 +56,13 @@ public class NamespaceImpl implements Namespace {
     NamespaceImpl(Storage storage, File directory) throws IOException {
 	this.storage = storage;
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
-	try (BufferedInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
+	try (StorageInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
 	    this.namespaceDescriptor = objectMapper.readValue(parameterFile, NamespaceDescriptor.class);
 	}
 	logger.info("Starting namespace engine '" + namespaceDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
+	try (StorageInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
 	    this.configuration = objectMapper.readValue(parameterFile, BigTableConfiguration.class);
 	}
 	openTables();

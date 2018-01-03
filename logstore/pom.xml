@@ -29,10 +29,6 @@
 			<artifactId>binary</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.puresoltechnologies.streaming</groupId>
-			<artifactId>streams</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.dropwizard.metrics</groupId>
 			<artifactId>metrics-core</artifactId>
 		</dependency>

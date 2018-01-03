@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.bigtable;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -27,6 +25,8 @@ import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This class is the central engine class for table storage. It is using the
@@ -54,11 +54,11 @@ public class BigTableImpl implements BigTable {
 	stopWatch.start();
 	storage.createDirectory(tableDescriptor.getDirectory());
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
-	try (BufferedOutputStream parameterFile = storage
+	try (StorageOutputStream parameterFile = storage
 		.create(new File(tableDescriptor.getDirectory(), "configuration.json"))) {
 	    objectMapper.writeValue(parameterFile, configuration);
 	}
-	try (BufferedOutputStream parameterFile = storage
+	try (StorageOutputStream parameterFile = storage
 		.create(new File(tableDescriptor.getDirectory(), "descriptor.json"))) {
 	    objectMapper.writeValue(parameterFile, tableDescriptor);
 	}
@@ -70,13 +70,13 @@ public class BigTableImpl implements BigTable {
 	super();
 	this.storage = storage;
 	ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
-	try (BufferedInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
+	try (StorageInputStream parameterFile = storage.open(new File(directory, "descriptor.json"))) {
 	    this.tableDescriptor = objectMapper.readValue(parameterFile, TableDescriptor.class);
 	}
 	logger.info("Starting table engine '" + tableDescriptor.getName() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
+	try (StorageInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
 	    this.configuration = objectMapper.readValue(parameterFile, BigTableConfiguration.class);
 	}
 	openColumnFamilies();

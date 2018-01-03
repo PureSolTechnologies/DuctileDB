@@ -50,6 +50,10 @@ public abstract class AbstractLogStructuredStoreTest {
 	return store;
     }
 
+    protected static Storage getStorage() {
+	return storage;
+    }
+
     protected static Set<File> getCommitLogs(Storage storage, File directory) {
 	Set<File> commitLogs = new HashSet<>();
 	for (File commitLog : storage.list(directory, new CurrentCommitLogFilenameFilter(storage))) {

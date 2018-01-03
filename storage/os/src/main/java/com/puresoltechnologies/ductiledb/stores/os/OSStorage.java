@@ -1,8 +1,5 @@
 package com.puresoltechnologies.ductiledb.stores.os;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,13 +16,16 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.puresoltechnologies.ductiledb.storage.spi.CloseListener;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageStreamListener;
 import com.puresoltechnologies.ductiledb.storage.spi.FileStatus;
 import com.puresoltechnologies.ductiledb.storage.spi.FileType;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageStream;
 
-public class OSStorage implements Storage, CloseListener {
+public class OSStorage implements Storage, StorageStreamListener {
 
     public static final String DIRECTORY_PROPERTY = "storage.os.directory";
     public static final String DELETION_PERIOD_PROPERTY = "storage.os.deletion.period";
@@ -36,7 +36,7 @@ public class OSStorage implements Storage, CloseListener {
     private final ReentrantReadWriteLock.WriteLock deletionWriteLock = deletionLock.writeLock();
 
     private final Set<File> deletedFiles = new HashSet<>();
-    private final WeakHashMap<Closeable, File> registeredStreams = new WeakHashMap<>();
+    private final WeakHashMap<StorageStream, File> registeredStreams = new WeakHashMap<>();
 
     private final StorageConfiguration configuration;
     private final int blockSize;
@@ -118,7 +118,7 @@ public class OSStorage implements Storage, CloseListener {
     }
 
     @Override
-    public void notifyClose(Closeable closeable) {
+    public void notifyClose(StorageStream closeable) {
 	File file = registeredStreams.remove(closeable);
 	if (deletedFiles.contains(file)) {
 	    if (!registeredStreams.containsValue(file)) {
@@ -129,7 +129,7 @@ public class OSStorage implements Storage, CloseListener {
 	}
     }
 
-    private boolean registerStream(File file, Closeable stream) {
+    private boolean registerStream(File file, StorageStream stream) {
 	deletionReadLock.lock();
 	try {
 	    if (!deletedFiles.contains(file)) {
@@ -251,8 +251,8 @@ public class OSStorage implements Storage, CloseListener {
     }
 
     @Override
-    public BufferedInputStream open(File file) throws IOException {
-	BufferedInputStream storageInputStream = new BufferedInputStream(
+    public StorageInputStream open(File file) throws IOException {
+	StorageInputStream storageInputStream = new StorageInputStream(
 		new FileInputStream(new File(rootDirectory, file.getPath())), blockSize) {
 	    @Override
 	    protected void finalize() throws Throwable {
@@ -275,7 +275,7 @@ public class OSStorage implements Storage, CloseListener {
     }
 
     @Override
-    public BufferedOutputStream create(File file) throws IOException {
+    public StorageOutputStream create(File file) throws IOException {
 	File path = new File(rootDirectory, file.getPath());
 	if (path.exists()) {
 	    throw new IOException("File '" + file + "' exists already.");
@@ -283,7 +283,7 @@ public class OSStorage implements Storage, CloseListener {
 	if (!path.createNewFile()) {
 	    throw new IOException("File '" + file + "' could not be created.");
 	}
-	BufferedOutputStream storageOutputStream = new BufferedOutputStream(new FileOutputStream(path), blockSize) {
+	StorageOutputStream storageOutputStream = new StorageOutputStream(new FileOutputStream(path), blockSize) {
 
 	    @Override
 	    protected void finalize() throws Throwable {
@@ -322,13 +322,12 @@ public class OSStorage implements Storage, CloseListener {
     }
 
     @Override
-    public BufferedOutputStream append(File file) throws IOException {
+    public StorageOutputStream append(File file) throws IOException {
 	File path = new File(rootDirectory, file.getPath());
 	if (!path.exists()) {
 	    throw new IOException("File '" + file + "' does not exist.");
 	}
-	BufferedOutputStream storageOutputStream = new BufferedOutputStream(new FileOutputStream(path, true),
-		blockSize) {
+	StorageOutputStream storageOutputStream = new StorageOutputStream(new FileOutputStream(path, true), blockSize) {
 	    @Override
 	    protected void finalize() throws Throwable {
 		close();

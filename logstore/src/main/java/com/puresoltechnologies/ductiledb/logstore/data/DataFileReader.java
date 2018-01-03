@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.logstore.data;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +13,13 @@ import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.Row;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
-import com.puresoltechnologies.ductiledb.logstore.io.DuctileDBInputStream;
-import com.puresoltechnologies.ductiledb.logstore.io.FileReader;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
 import com.puresoltechnologies.streaming.StreamIterator;
 import com.puresoltechnologies.streaming.streams.InputStreamIterator;
+import com.puresoltechnologies.streaming.streams.MultiStreamSeekableInputStream;
 
-public class DataFileReader extends FileReader<DuctileDBInputStream> implements CloseableIterable<Row> {
+public class DataFileReader implements CloseableIterable<Row> {
 
     private static Row readRow(InputStream inputStream) throws IOException {
 	byte[] buffer = new byte[12];
@@ -61,18 +60,26 @@ public class DataFileReader extends FileReader<DuctileDBInputStream> implements 
     }
 
     private static final Logger logger = LoggerFactory.getLogger(DataFileReader.class);
+    private final Storage storage;
+    private final File dataFile;
+    private final MultiStreamSeekableInputStream<StorageInputStream> inputStream;
 
     public DataFileReader(Storage storage, File dataFile) throws IOException {
-	super(storage, dataFile);
+	this.storage = storage;
+	this.dataFile = dataFile;
+	inputStream = new MultiStreamSeekableInputStream<>(10, () -> storage.open(dataFile));
     }
 
-    @Override
-    protected DuctileDBInputStream createStream(BufferedInputStream bufferedInputStream) {
-	return new DuctileDBInputStream(bufferedInputStream);
+    public long getPosition() {
+	return inputStream.getPosition();
+    }
+
+    public void seek(long offset) throws IOException {
+	inputStream.seek(offset);
     }
 
     public Row readRow() throws IOException {
-	return readRow(getStream());
+	return readRow(inputStream);
     }
 
     public Row readRow(IndexEntry indexEntry) throws IOException {
@@ -80,40 +87,47 @@ public class DataFileReader extends FileReader<DuctileDBInputStream> implements 
     }
 
     public Row readRow(long offset) throws IOException {
-	seek(offset);
+	inputStream.seek(offset);
 	return readRow();
     }
 
     public Row readRow(Key rowKey) throws IOException {
-	do {
-	    Row row = readRow();
-	    if ((row != null) && (row.getKey().equals(rowKey))) {
+	Row row = readRow();
+	while (row != null) {
+	    if (row.getKey().equals(rowKey)) {
 		return row;
 	    }
-	} while (!getStream().isEof());
+	    row = readRow();
+	}
 	return null;
     }
 
     public Row readRow(Key rowKey, long startOffset, long endOffset) throws IOException {
-	seek(startOffset);
-	do {
-	    Row row = readRow();
-	    if ((row != null) && (row.getKey().equals(rowKey))) {
+	inputStream.seek(startOffset);
+	Row row = readRow();
+	while ((inputStream.getPosition() <= endOffset) && (row != null)) {
+	    if (row.getKey().equals(rowKey)) {
 		return row;
 	    }
-	} while ((getOffset() <= endOffset) & (!getStream().isEof()));
+	    row = readRow();
+	}
 	return null;
     }
 
     @Override
     public StreamIterator<Row> iterator() {
-	return new InputStreamIterator<>(getStream(), inputStream -> {
+	return new InputStreamIterator<>(inputStream, i -> {
 	    try {
-		return readRow(inputStream);
+		return readRow(i);
 	    } catch (IOException e) {
 		logger.error("Could not read column family row.", e);
 		return null;
 	    }
 	});
+    }
+
+    @Override
+    public void close() throws IOException {
+	inputStream.close();
     }
 }

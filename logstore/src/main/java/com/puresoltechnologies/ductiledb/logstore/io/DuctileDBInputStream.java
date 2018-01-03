@@ -1,73 +1,55 @@
 package com.puresoltechnologies.ductiledb.logstore.io;
 
-import java.io.BufferedInputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class DuctileDBInputStream extends InputStream implements Closeable {
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
 
-    private long offset;
-    private final BufferedInputStream stream;
+public class DuctileDBInputStream extends InputStream {
 
-    public DuctileDBInputStream(BufferedInputStream bufferedOutputStream) {
+    private final StorageInputStream storageInputStream;
+
+    public DuctileDBInputStream(StorageInputStream bufferedOutputStream) {
 	super();
-	this.stream = bufferedOutputStream;
-	this.offset = 0;
-    }
-
-    @Override
-    public void close() throws IOException {
-	stream.close();
-    }
-
-    public long getOffset() {
-	return offset;
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-	long skipped = stream.skip(n);
-	while (skipped < n) {
-	    skipped += stream.skip(n - skipped);
-	}
-	offset += skipped;
-	return skipped;
-    }
-
-    public long goToOffset(long offset) throws IOException {
-	if (this.offset > offset) {
-	    throw new IOException("The offset was already passed.");
-	}
-	if (this.offset < offset) {
-	    return skip(offset - this.offset);
-	}
-	return 0;
-    }
-
-    @Override
-    public int read(byte[] buffer, int off, int len) throws IOException {
-	int bytesRead = stream.read(buffer, off, len);
-	offset += bytesRead;
-	return bytesRead;
-    }
-
-    @Override
-    public int read(byte[] buffer) throws IOException {
-	int bytesRead = stream.read(buffer);
-	offset += bytesRead;
-	return bytesRead;
-    }
-
-    public boolean isEof() throws IOException {
-	return stream.available() <= 0;
+	this.storageInputStream = bufferedOutputStream;
     }
 
     @Override
     public int read() throws IOException {
-	int b = stream.read();
-	offset++;
-	return b;
+	return storageInputStream.read();
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+	return storageInputStream.read(b);
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+	return storageInputStream.read(b, off, len);
+    }
+
+    public final long getPosition() {
+	return storageInputStream.getPosition();
+    }
+
+    public final long seek(long position) throws IOException {
+	return storageInputStream.seek(position);
+    }
+
+    @Override
+    public long skip(long n) throws IOException {
+	return storageInputStream.skip(n);
+    }
+
+    @Override
+    public int available() throws IOException {
+	return storageInputStream.available();
+    }
+
+    @Override
+    public void close() throws IOException {
+	storageInputStream.close();
     }
 
 }

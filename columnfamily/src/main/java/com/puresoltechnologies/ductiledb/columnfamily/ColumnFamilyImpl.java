@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.columnfamily;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,6 +26,8 @@ import com.puresoltechnologies.ductiledb.logstore.LogStructuredStoreImpl;
 import com.puresoltechnologies.ductiledb.logstore.RowScanner;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This class handles the storage of a single column family.
@@ -113,7 +113,7 @@ public class ColumnFamilyImpl implements ColumnFamily {
     private SecondaryIndexDescriptor readSecondaryIndexDescriptor(File directory) {
 	Storage storage = store.getStorage();
 	File metadataFile = new File(directory, "metadata.properties");
-	try (BufferedInputStream metadata = storage.open(metadataFile)) {
+	try (StorageInputStream metadata = storage.open(metadataFile)) {
 	    Properties properties = new Properties();
 	    properties.load(metadata);
 	    ColumnKeySet columns = new ColumnKeySet();
@@ -379,7 +379,7 @@ public class ColumnFamilyImpl implements ColumnFamily {
 	try {
 	    storage.createDirectory(indexDirectory);
 	    File metadataFile = new File(indexDirectory, "metadata.properties");
-	    try (BufferedOutputStream metadata = storage.create(metadataFile)) {
+	    try (StorageOutputStream metadata = storage.create(metadataFile)) {
 		Properties properties = new Properties();
 		int id = 0;
 		ColumnKeySet columns = indexDescriptor.getColumns();

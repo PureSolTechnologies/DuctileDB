@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.logstore;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -25,6 +24,7 @@ import com.puresoltechnologies.ductiledb.logstore.io.filter.MetadataFilenameFilt
 import com.puresoltechnologies.ductiledb.logstore.utils.LogStoreUtils;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This class is responsible for compaction of column families.
@@ -214,7 +214,7 @@ public class Compactor {
 
     private void writeMetaData(String baseFilename) throws IOException {
 	logger.info("Creating meta data for " + commitLogFile + "' (new: " + baseFilename + ")...");
-	try (BufferedOutputStream stream = storage
+	try (StorageOutputStream stream = storage
 		.create(new File(directory, baseFilename + LogStructuredStore.METADATA_SUFFIX))) {
 	    stream.write(Bytes.fromInt(fileCount + 1)); // Number of files
 	    for (File file : index.keySet()) {

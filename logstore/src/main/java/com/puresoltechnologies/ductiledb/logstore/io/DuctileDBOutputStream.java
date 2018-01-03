@@ -1,14 +1,14 @@
 package com.puresoltechnologies.ductiledb.logstore.io;
 
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 
 import com.puresoltechnologies.ductiledb.commons.Bytes;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This is a special output stream to increase the buffer size, calculate MD5
@@ -16,33 +16,40 @@ import com.puresoltechnologies.ductiledb.commons.Bytes;
  * 
  * @author Rick-Rainer Ludwig
  */
-public class DuctileDBOutputStream implements Closeable {
+public class DuctileDBOutputStream extends OutputStream {
 
-    private int bufferPos;
-    private long offset;
     private MessageDigest digest = null;
 
+    private final StorageOutputStream storageOutputStream;
     private final DigestOutputStream stream;
-    private final byte[] buffer;
-    private final int bufferSize;
 
-    public DuctileDBOutputStream(BufferedOutputStream bufferedOutputStream, int bufferSize) throws IOException {
+    public DuctileDBOutputStream(StorageOutputStream storageOutputStream) throws IOException {
 	super();
+	this.storageOutputStream = storageOutputStream;
 	try {
-	    this.stream = new DigestOutputStream(bufferedOutputStream, MessageDigest.getInstance("MD5"));
-	    this.buffer = new byte[bufferSize];
-	    this.bufferSize = bufferSize;
-	    this.bufferPos = 0;
-	    this.offset = 0;
+	    this.stream = new DigestOutputStream(storageOutputStream, MessageDigest.getInstance("MD5"));
 	} catch (NoSuchAlgorithmException e) {
 	    throw new IOException("Could not initialize DuctileDBOutputStream.", e);
 	}
     }
 
     @Override
-    public synchronized void close() throws IOException {
-	flush();
-	digest = stream.getMessageDigest();
+    public void write(byte[] b) throws IOException {
+	stream.write(b);
+    }
+
+    @Override
+    public void write(int b) throws IOException {
+	stream.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+	stream.write(b, off, len);
+    }
+
+    @Override
+    public void close() throws IOException {
 	stream.close();
     }
 
@@ -51,37 +58,24 @@ public class DuctileDBOutputStream implements Closeable {
     }
 
     public String getMessageDigestString() {
-	return Bytes.toHexString(digest.digest());
-    }
-
-    public synchronized long getOffset() {
-	return offset;
+	return digest != null ? Bytes.toHexString(digest.digest()) : null;
     }
 
     public synchronized void writeData(byte[] bytes) throws IOException {
-	if (bytes.length > bufferSize - bufferPos) {
-	    flush();
-	    if (bytes.length > bufferSize) {
-		stream.write(bytes);
-	    } else {
-		bufferPos += Bytes.putBytes(buffer, bufferPos, bytes);
-	    }
-	} else {
-	    bufferPos += Bytes.putBytes(buffer, bufferPos, bytes);
-	}
-	offset += bytes.length;
+	stream.write(bytes);
     }
 
     public void write(Instant instant) throws IOException {
 	writeData(Bytes.fromInstant(instant));
     }
 
+    @Override
     public synchronized void flush() throws IOException {
-	if (bufferPos > 0) {
-	    stream.write(buffer, 0, bufferPos);
-	    stream.flush();
-	    bufferPos = 0;
-	}
+	stream.flush();
+    }
+
+    public long getPosition() {
+	return storageOutputStream.getPosition();
     }
 
 }

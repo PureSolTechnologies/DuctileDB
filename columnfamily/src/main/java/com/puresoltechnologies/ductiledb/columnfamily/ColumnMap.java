@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.columnfamily;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,7 +17,8 @@ import java.util.function.BiFunction;
 
 import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
-import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileWriter;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This map is used to store columns and their values. The underlying map is a
@@ -379,7 +379,8 @@ public final class ColumnMap implements NavigableMap<Key, ColumnValue> {
     public byte[] toBytes() throws IOException {
 	Set<Entry<Key, ColumnValue>> entrySet = entrySet();
 	try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream()) {
-	    try (DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(byteStream), 1024)) {
+	    try (DataFileWriter outputStream = new DataFileWriter(new StorageOutputStream(byteStream, 8192))) {
+		// TODO: in line aboe, change block size constant to variable or remove it
 		outputStream.writeData(Bytes.fromInt(entrySet.size()));
 		// Columns
 		for (Entry<Key, ColumnValue> column : entrySet) {

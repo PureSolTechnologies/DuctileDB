@@ -1,6 +1,5 @@
 package com.puresoltechnologies.ductiledb.logstore;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,16 +27,17 @@ import com.puresoltechnologies.commons.misc.StopWatch;
 import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.data.DataFileReader;
 import com.puresoltechnologies.ductiledb.logstore.data.DataFileSet;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileWriter;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexEntry;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexFileReader;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexFileWriter;
 import com.puresoltechnologies.ductiledb.logstore.index.Memtable;
-import com.puresoltechnologies.ductiledb.logstore.io.DataOutputStream;
 import com.puresoltechnologies.ductiledb.logstore.io.filter.CommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.io.filter.MetadataFilenameFilter;
 import com.puresoltechnologies.ductiledb.logstore.io.filter.UsableCommitLogFilenameFilter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This is the actual implementation of a {@link LogStructuredStore}.
@@ -64,7 +64,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private final Memtable memtable = new Memtable();
     private File commitLogFile = null;
-    private DataOutputStream commitLogStream = null;
+    private DataFileWriter commitLogWriter = null;
     private DataFileSet dataSet = null;
     private boolean runCompactions = true;
 
@@ -155,10 +155,10 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	logger.info("Closing column family engine '" + toString() + "'...");
 	StopWatch stopWatch = new StopWatch();
 	stopWatch.start();
-	if (commitLogStream != null) {
+	if (commitLogWriter != null) {
 	    try {
-		commitLogStream.close();
-		commitLogStream = null;
+		commitLogWriter.close();
+		commitLogWriter = null;
 	    } catch (IOException e) {
 		logger.warn("Could not cleanly close commit log.", e);
 	    }
@@ -205,18 +205,17 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private void createIndex(File commitLog, File indexName) {
 	try (DataFileReader dataFileReader = new DataFileReader(storage, commitLog)) {
-	    long offset = dataFileReader.getOffset();
+	    long offset = dataFileReader.getPosition();
 	    Row row = dataFileReader.readRow();
 	    Memtable memtable = new Memtable();
 	    while (row != null) {
 		if (row.getData() != null) {
 		    memtable.put(new IndexEntry(row.getKey(), indexName, offset));
 		}
-		offset = dataFileReader.getOffset();
+		offset = dataFileReader.getPosition();
 		row = dataFileReader.readRow();
 	    }
-	    try (IndexFileWriter indexFileWriter = new IndexFileWriter(storage, indexName,
-		    configuration.getBufferSize(), commitLog)) {
+	    try (IndexFileWriter indexFileWriter = new IndexFileWriter(storage, indexName, commitLog)) {
 		for (IndexEntry entry : memtable) {
 		    indexFileWriter.writeIndexEntry(entry.getRowKey(), entry.getOffset());
 		}
@@ -228,14 +227,14 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     private void createEmptyCommitLog() {
 	try {
-	    if (commitLogStream != null) {
-		commitLogStream.close();
-		commitLogStream = null;
+	    if (commitLogWriter != null) {
+		commitLogWriter.close();
+		commitLogWriter = null;
 	    }
 	    memtable.clear();
 	    commitLogFile = new File(directory,
 		    LogStructuredStore.createBaseFilename(COMMIT_LOG_PREFIX) + DATA_FILE_SUFFIX);
-	    commitLogStream = new DataOutputStream(storage.create(commitLogFile), configuration.getBufferSize());
+	    commitLogWriter = new DataFileWriter(storage, commitLogFile);
 	} catch (IOException e) {
 	    throw new StorageException("Could not create empty " + commitLogFile.getName() + ".", e);
 	}
@@ -303,19 +302,19 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
     }
 
     private void deleteCommitLogFiles(File commitLogFile) throws IOException {
-	try (BufferedOutputStream compacted = storage.create(LogStructuredStore.getCompactedName(commitLogFile))) {
+	try (StorageOutputStream compacted = storage.create(LogStructuredStore.getCompactedName(commitLogFile))) {
 	    compacted.write(Bytes.fromInstant(Instant.now()));
 	}
     }
 
     private void rolloverCommitLog() {
 	try {
-	    if (commitLogStream == null) {
+	    if (commitLogWriter == null) {
 		return;
 	    }
 	    logger.info("Roll over " + commitLogFile.getName() + " with " + configuration.getMaxCommitLogSize()
 		    + " bytes.");
-	    if (commitLogStream.getOffset() == 0) {
+	    if (commitLogWriter.getPosition() == 0) {
 		logger.info("Do not roll over " + commitLogFile.getName() + " because size is 0 bytes.");
 		return;
 	    }
@@ -332,8 +331,7 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 	logger.info("Creating new SSTtable index...");
 	Context timer = sstableGenerationTimer.time();
 	File indexFile = DataFileSet.getIndexName(commitLogFile);
-	try (IndexFileWriter indexFileWriter = new IndexFileWriter(storage, indexFile, configuration.getBufferSize(),
-		commitLogFile)) {
+	try (IndexFileWriter indexFileWriter = new IndexFileWriter(storage, indexFile, commitLogFile)) {
 	    for (IndexEntry indexEntry : memtable) {
 		indexFileWriter.writeIndexEntry(indexEntry.getRowKey(), indexEntry.getOffset());
 	    }
@@ -462,11 +460,11 @@ public class LogStructuredStoreImpl implements LogStructuredStore {
 
     public void writeCommitLog(Key rowKey, Instant tombstone, byte[] values) {
 	try {
-	    long offset = commitLogStream.getOffset();
-	    commitLogStream.writeRow(rowKey, tombstone, values);
-	    commitLogStream.flush();
+	    long offset = commitLogWriter.getPosition();
+	    commitLogWriter.writeRow(rowKey, tombstone, values);
+	    commitLogWriter.flush();
 	    memtable.put(new IndexEntry(rowKey, commitLogFile, offset));
-	    if (commitLogStream.getOffset() >= configuration.getMaxCommitLogSize()) {
+	    if (commitLogWriter.getPosition() >= configuration.getMaxCommitLogSize()) {
 		rolloverCommitLog();
 	    }
 	} catch (IOException e) {

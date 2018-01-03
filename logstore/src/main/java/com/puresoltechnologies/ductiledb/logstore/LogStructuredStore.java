@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.logstore;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -10,6 +8,8 @@ import com.codahale.metrics.Metric;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This is the central interface for a simple Log Structured Storage engine. It
@@ -35,7 +35,7 @@ public interface LogStructuredStore extends StorageOperations, AutoCloseable {
     public static LogStructuredStore create(Storage storage, File directory, LogStoreConfiguration configuration)
 	    throws IOException {
 	storage.createDirectory(directory);
-	try (BufferedOutputStream parameterFile = storage.create(new File(directory, "configuration.json"))) {
+	try (StorageOutputStream parameterFile = storage.create(new File(directory, "configuration.json"))) {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    objectMapper.writeValue(parameterFile, configuration);
 	}
@@ -43,7 +43,7 @@ public interface LogStructuredStore extends StorageOperations, AutoCloseable {
     }
 
     public static LogStructuredStore open(Storage storage, File directory) throws IOException {
-	try (BufferedInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
+	try (StorageInputStream parameterFile = storage.open(new File(directory, "configuration.json"))) {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    LogStoreConfiguration configuration = objectMapper.readValue(parameterFile, LogStoreConfiguration.class);
 	    return new LogStructuredStoreImpl(storage, directory, configuration);

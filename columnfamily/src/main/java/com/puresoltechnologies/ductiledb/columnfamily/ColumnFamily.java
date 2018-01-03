@@ -1,7 +1,5 @@
 package com.puresoltechnologies.ductiledb.columnfamily;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +11,8 @@ import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStoreConfiguration;
 import com.puresoltechnologies.ductiledb.logstore.utils.DefaultObjectMapper;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 
 /**
  * This class handles the storage of a single column family.
@@ -23,7 +23,7 @@ import com.puresoltechnologies.ductiledb.storage.spi.Storage;
 public interface ColumnFamily extends Closeable {
 
     public static ColumnFamily reopen(Storage storage, File directory) throws IOException {
-	try (BufferedInputStream descriptorFile = storage.open(new File(directory, "descriptor.json"))) {
+	try (StorageInputStream descriptorFile = storage.open(new File(directory, "descriptor.json"))) {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    ColumnFamilyDescriptor descriptor = objectMapper.readValue(descriptorFile, ColumnFamilyDescriptor.class);
 	    return new ColumnFamilyImpl(storage, descriptor);
@@ -35,7 +35,7 @@ public interface ColumnFamily extends Closeable {
 	if (!storage.exists(columnFamilyDescriptor.getDirectory())) {
 	    storage.createDirectory(columnFamilyDescriptor.getDirectory());
 	}
-	try (BufferedOutputStream parameterFile = storage
+	try (StorageOutputStream parameterFile = storage
 		.create(new File(columnFamilyDescriptor.getDirectory(), "descriptor.json"))) {
 	    ObjectMapper objectMapper = DefaultObjectMapper.getInstance();
 	    objectMapper.writeValue(parameterFile, columnFamilyDescriptor);
@@ -85,13 +85,12 @@ public interface ColumnFamily extends Closeable {
      * This method searches the store for a specified column/value pair.
      * 
      * @param columnKey
-     *            is the column key of the column to be checked for a certain
-     *            value.
+     *            is the column key of the column to be checked for a certain value.
      * @param value
      *            is the value to be found in the specified column.
      * @return A {@link ColumnFamilyScanner} is returned to scan over all found
-     *         results. If there is not index for the column, <code>null</code>
-     *         is returned.
+     *         results. If there is not index for the column, <code>null</code> is
+     *         returned.
      */
     public ColumnFamilyScanner find(Key columnKey, ColumnValue value);
 
@@ -100,15 +99,14 @@ public interface ColumnFamily extends Closeable {
      * 
      * 
      * @param columnKey
-     *            is the column key of the column to be checked for a certain
-     *            value.
+     *            is the column key of the column to be checked for a certain value.
      * @param fromValue
      *            is the minimum value to be found in the specified column.
      * @param toValue
      *            is the maximum value to be found in the specified column.
      * @return A {@link ColumnFamilyScanner} is returned to scan over all found
-     *         results. If there is not index for the column, <code>null</code>
-     *         is returned.
+     *         results. If there is not index for the column, <code>null</code> is
+     *         returned.
      */
     public ColumnFamilyScanner find(Key columnKey, ColumnValue fromValue, ColumnValue toValue);
 

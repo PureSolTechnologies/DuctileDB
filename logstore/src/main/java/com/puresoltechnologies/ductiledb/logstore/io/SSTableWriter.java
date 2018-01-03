@@ -12,6 +12,7 @@ import com.puresoltechnologies.ductiledb.commons.Bytes;
 import com.puresoltechnologies.ductiledb.logstore.Key;
 import com.puresoltechnologies.ductiledb.logstore.LogStructuredStore;
 import com.puresoltechnologies.ductiledb.logstore.Row;
+import com.puresoltechnologies.ductiledb.logstore.data.DataFileWriter;
 import com.puresoltechnologies.ductiledb.logstore.index.IndexFileWriter;
 import com.puresoltechnologies.ductiledb.storage.api.StorageException;
 import com.puresoltechnologies.ductiledb.storage.spi.Storage;
@@ -29,7 +30,7 @@ public class SSTableWriter implements Closeable {
     private final Storage storage;
     private final File directory;
     private final String baseFilename;
-    private final DataOutputStream dataStream;
+    private final DataFileWriter dataFileWriter;
     private final IndexFileWriter indexFileWriter;
     private Key startRowKey = null;
     private long startOffset = -1;
@@ -44,8 +45,8 @@ public class SSTableWriter implements Closeable {
 	    this.baseFilename = baseFilename;
 	    this.dataFile = new File(directory, baseFilename + LogStructuredStore.DATA_FILE_SUFFIX);
 	    this.indexFile = new File(directory, baseFilename + LogStructuredStore.INDEX_FILE_SUFFIX);
-	    this.dataStream = new DataOutputStream(storage.create(dataFile), bufferSize);
-	    this.indexFileWriter = new IndexFileWriter(storage, indexFile, bufferSize, dataFile);
+	    this.dataFileWriter = new DataFileWriter(storage, dataFile);
+	    this.indexFileWriter = new IndexFileWriter(storage, indexFile, dataFile);
 	} catch (IOException e) {
 	    throw new StorageException("Could not initialize sstable writer.", e);
 	}
@@ -53,7 +54,7 @@ public class SSTableWriter implements Closeable {
 
     @Override
     public void close() throws IOException {
-	dataStream.close();
+	dataFileWriter.close();
 	indexFileWriter.close();
 	writeMD5File();
     }
@@ -61,7 +62,7 @@ public class SSTableWriter implements Closeable {
     private void writeMD5File() throws IOException {
 	try (BufferedWriter md5Writer = new BufferedWriter(new OutputStreamWriter(
 		storage.create(new File(directory, baseFilename + LogStructuredStore.MD5_FILE_SUFFIX))))) {
-	    MessageDigest dataDigest = dataStream.getMessageDigest();
+	    MessageDigest dataDigest = dataFileWriter.getMessageDigest();
 	    md5Writer.write(Bytes.toHexString(dataDigest.digest()) + "  " + dataFile.getName() + "\n");
 	    MessageDigest indexDigest = indexFileWriter.getMessageDigest();
 	    md5Writer.write(Bytes.toHexString(indexDigest.digest()) + "  " + indexFile.getName() + "\n");
@@ -77,7 +78,7 @@ public class SSTableWriter implements Closeable {
     }
 
     public final long getDataFileSize() {
-	return dataStream.getOffset();
+	return dataFileWriter.getPosition();
     }
 
     public final Key getStartRowKey() {
@@ -103,11 +104,11 @@ public class SSTableWriter implements Closeable {
     public void write(Key rowKey, Instant tombstone, byte[] data) throws IOException {
 	if (startRowKey == null) {
 	    startRowKey = rowKey;
-	    startOffset = dataStream.getOffset();
+	    startOffset = dataFileWriter.getPosition();
 	}
 	endRowKey = rowKey;
-	endOffset = dataStream.getOffset();
-	dataStream.writeRow(rowKey, tombstone, data);
+	endOffset = dataFileWriter.getPosition();
+	dataFileWriter.writeRow(rowKey, tombstone, data);
 	indexFileWriter.writeIndexEntry(rowKey, endOffset);
     }
 

@@ -3,8 +3,6 @@ package com.puresoltechnologies.ductiledb.storage.os;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +13,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.puresoltechnologies.ductiledb.storage.spi.StorageConfiguration;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageInputStream;
+import com.puresoltechnologies.ductiledb.storage.spi.StorageOutputStream;
 import com.puresoltechnologies.ductiledb.stores.os.OSStorage;
 
 public class OSStorageIT {
@@ -62,17 +62,17 @@ public class OSStorageIT {
 		assertTrue(file.delete());
 	    }
 	    assertFalse(file.exists());
-	    try (BufferedOutputStream created = storage.create(new File("/" + fileName))) {
+	    try (StorageOutputStream created = storage.create(new File("/" + fileName))) {
 		assertTrue(file.exists());
 	    }
 	    storage.delete(new File("/" + fileName));
 	    TimeUnit.MILLISECONDS.sleep(1500);
 	    assertFalse(file.exists());
 
-	    try (BufferedOutputStream created = storage.create(new File("/" + fileName))) {
+	    try (StorageOutputStream created = storage.create(new File("/" + fileName))) {
 		assertTrue(file.exists());
 	    }
-	    try (BufferedInputStream opened = storage.open(new File("/" + fileName))) {
+	    try (StorageInputStream opened = storage.open(new File("/" + fileName))) {
 		assertTrue(file.exists());
 		storage.delete(new File("/" + fileName));
 		assertTrue(file.exists());

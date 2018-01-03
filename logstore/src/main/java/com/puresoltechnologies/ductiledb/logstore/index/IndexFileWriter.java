@@ -26,17 +26,17 @@ public class IndexFileWriter implements Closeable {
 
     private final DuctileDBOutputStream outputStream;
 
-    public IndexFileWriter(Storage storage, File indexFile, int bufferSize, File dataFile) throws IOException {
+    public IndexFileWriter(Storage storage, File indexFile, File dataFile) throws IOException {
 	super();
-	this.outputStream = new DuctileDBOutputStream(storage.create(indexFile), bufferSize);
+	this.outputStream = new DuctileDBOutputStream(storage.create(indexFile));
 	writeDataFilePath(dataFile);
     }
 
-    private void writeDataFilePath(File dataFile) throws IOException {
+    private synchronized void writeDataFilePath(File dataFile) throws IOException {
 	writeDataFilePath(outputStream, dataFile);
     }
 
-    public void writeIndexEntry(Key rowKey, long offset) throws IOException {
+    public synchronized void writeIndexEntry(Key rowKey, long offset) throws IOException {
 	writeIndexEntry(outputStream, rowKey, offset);
     }
 
